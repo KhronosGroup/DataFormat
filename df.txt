@@ -1,7 +1,7 @@
 = Khronos Data Format Specification =
 Andrew Garrard <a.garrard@samsung.com>
 :Author Initials: AG
-v1.0, May 14, 2015
+v1.0, June 11, 2015
 :toc:
 :toc-placement: manual
 
@@ -26,10 +26,46 @@ Khronos Group grants express permission to any current Promoter, Contributor or 
 Khronos Group makes no, and expressly disclaims any, representations or warranties, express or implied, regarding this specification, including, without limitation, any implied warranties of merchantability or fitness for a particular purpose or non-infringement of any intellectual property. Khronos Group makes no, and expressly disclaims any, warranties, express or implied, regarding the correctness, accuracy, completeness, timeliness, and reliability of the specification. Under no circumstances will the Khronos Group, or any of its Promoters, Contributors or Members or their respective partners, officers, directors, employees, agents, or representatives be liable for any damages, whether direct, indirect, special or consequential damages for lost revenues, lost profits, or otherwise, arising from or in connection with these materials.
 
 Khronos, SYCL, SPIR, WebGL, EGL, COLLADA, StreamInput, OpenVX, OpenKCam, glTF, OpenKODE, OpenVG, OpenWF, OpenSL ES, OpenMAX, OpenMAX AL, OpenMAX IL and OpenMAX DL are trademarks and WebCL is a certification mark of the Khronos Group Inc. OpenCL is a trademark of Apple Inc. and OpenGL and OpenML are registered trademarks and the OpenGL ES and OpenGL SC logos are trademarks of Silicon Graphics International used under license by Khronos. All other product names, trademarks, and/or company names are used solely for identification and belong to their respective owners.
-endif::[]
 
 :numbered!:
+
+== Contributors ==
+
+Frank Brill
+
+Sean Ellis
+
+Andrew Garrard (editor)
+
+Jonas Gustavsson
+
+Chris Hebert
+
+Daniel Koch
+
+Thierry Lepley
+
+Tommaso Maestri
+
+Kathleen Mattson
+
+Hans-Peter Nilsson
+
+Alon Or-bach
+
+Erik Rainey
+
+Daniel Rakos
+
+Graham Sellers
+
+David Sena
+
 toc::[]
+
+:numbered:
+
+endif::[]
 
 == Introduction ==
 
@@ -948,10 +984,13 @@ channel, 8-bit separate alpha is supported.
 This model represents <<astc,Adaptive Scalable Texture Compression>> as a single
 channel in a texel block of 16 bytes. ASTC HDR (high dynamic range) and
 LDR (low dynamic range) modes are distinguished by the *channel_id* containing
-the flag *KHR_DF_SAMPLE_DATATYPE_FLOAT*. ASTC supports a number
-of compression ratios defined by different texel block sizes; these
-are selected by changing the texel block size fields in the data format.
-The single sample has a size of 128 bits.
+the flag *KHR_DF_SAMPLE_DATATYPE_FLOAT*: an ASTC texture that is guaranteed by
+the user to contain only LDR-encoded blocks should have the *channel_id*
+*KHR_DF_SAMPLE_DATATYPE_FLOAT* bit clear, and an ASTC texture that may include
+HDR-encoded blocks should have the *channel_id* *KHR_DF_SAMPLE_DATATYPE_FLOAT*
+bit set to 1. ASTC supports a number of compression ratios defined by different
+texel block sizes; these are selected by changing the texel block size fields
+in the data format. The single sample has a size of 128 bits.
 
 === color_primaries ===
 
@@ -1203,10 +1242,15 @@ number should follow from the first, in order increasing from the
 least significant bits from the channel data. Note that some
 native big-endian formats may need to be supported with multiple
 samples in a channel, since the constituent bits may not be
-consecutive in a little-endian interpretation.
+consecutive in a little-endian interpretation. There is an
+<<bigendian,example>> in the list of format descriptors provided.
+In this case, the sample_lower and sample_upper fields for the
+combined sample are taken from the first sample to belong uniquely
+to this channel/position pair.
 
 By convention, to avoid aliases for formats, samples should be
-listed in order starting at the lowest bits of this bit stream.
+listed in order starting with channels at the lowest bits of this
+bit stream.
 
 The number of samples present in the format is determined by the
 *descriptor_block_size* field.
@@ -1392,6 +1436,14 @@ metadata with the descriptor -- for example, information required as part
 of hardware rendering. So long as software which uses the data format descriptor
 always uses the *total_size* field to determine the size of the descriptor,
 this should be transparent to user code.
+
+The extension mechanism is the preferred way to support even simple extensions
+such as additional color spaces transfer functions that can be supported by
+an additional enumeration. This approach improves compatibility with code
+which is unaware of the additional values. Simple extensions of this form
+that have cross-vendor support have a good chance of being incorporated more
+directly into future revisions of the specification, allowing application code
+to distinguish them by the *version_id* field.
 
 As an example, consider a single-channel 32-bit depth buffer. A tiled renderer
 may wish to indicate that this buffer is ``virtual'': it will be allocated
@@ -1778,4 +1830,184 @@ link:http://www.w3.org/Graphics/Color/srgb[http://www.w3.org/Graphics/Color/srgb
 | 1 (sample_position_0) | 1 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 16 (sample_lower)
 4+| 240 (sample_upper)
+|================================
+
+.[[bigendian]]565 RGB format as represented on a big-endian architecture
+[options="header"]
+|================================
+| Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
+4+| 92 (total_size)
+2+| 0 (vendor_id) 2+| 0 (descriptor_type)
+2+| 0 (version number) 2+| 88 (descriptor_block_size)
+| RGBSDA (color_model) | BT709 (color_primaries) | SRGB (transfer_function) | PREMULTIPLIED (flags)
+| 0 (texel_block_dimension_0) | 0 (texel_block_dimension_1) | 0 (texel_block_dimension_2) | 0 (texel_block_dimension_3)
+| 2 (bytes_plane_0) | 0 (bytes_plane_1) | 0 (bytes_plane_2) | 0 (bytes_plane_3)
+| 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
+4+|Sample information for first sample: bit 0 belongs to green, bits 0..2 of channel in 13..15
+2+| 13 (bit_offset) | 3 (bit_length) | 1 (channel_type) (green)
+| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
+4+| 0 (sample_lower)
+4+| 63 (sample_upper)
+4+|Sample information for second sample: bits 3..5 of green in 0..2
+2+| 0 (bit_offset) | 3 (bit_length) | 1 (channel_type) (green)
+| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
+4+| 0 (sample_lower) -- ignored, taken from first sample
+4+| 0 (sample_upper) -- ignored, taken from first sample
+4+|Sample information for third sample
+2+| 3 (bit_offset) | 5 (bit_length) | 2 (channel_type) (blue)
+| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
+4+| 0 (sample_lower)
+4+| 31 (sample_upper)
+4+|Sample information for fourth sample
+2+| 8 (bit_offset) | 5 (bit_length) | 1 (channel_type) (red)
+| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
+4+| 0 (sample_lower)
+4+| 31 (sample_upper)
+|================================
+
+.R9G9B9E5 shared-exponent format
+[options="header"]
+|================================
+| Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
+4+| 124 (total_size)
+2+| 0 (vendor_id) 2+| 0 (descriptor_type)
+2+| 0 (version number) 2+| 120 (descriptor_block_size)
+| RGBSDA (color_model) | BT709 (color_primaries) | ITU (transfer_function) | PREMULTIPLIED (flags)
+| 0 (texel_block_dimension_0) | 0 (texel_block_dimension_1) | 0 (texel_block_dimension_2) | 0 (texel_block_dimension_3)
+| 4 (bytes_plane_0) | 0 (bytes_plane_1) | 0 (bytes_plane_2) | 0 (bytes_plane_3)
+| 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
+4+|Sample information for R mantissa
+2+| 0 (bit_offset) | 9 (bit_length) | 0 (channel_type) (red)
+| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
+4+| 0 (sample_lower)
+4+| 256 (sample_upper) - mantissa at 1.0
+4+|Sample information for R exponent
+2+| 27 (bit_offset) | 5 (bit_length) | 32 (channel_type) (R+exponent)
+| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
+4+| 0 (sample_lower)
+4+| 15 (sample_upper) - exponent bias
+4+|Sample information for G mantissa
+2+| 16 (bit_offset) | 8 (bit_length) | 1 (channel_type) (green)
+| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
+4+| 0 (sample_lower)
+4+| 256 (sample_upper) - mantissa at 1.0
+4+|Sample information for G exponent
+2+| 27 (bit_offset) | 5 (bit_length) | 33 (channel_type) (G+exponent)
+| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
+4+| 0 (sample_lower)
+4+| 15 (sample_upper) - exponent bias
+4+|Sample information for B mantissa
+2+| 32 (bit_offset) | 8 (bit_length) | 2 (channel_type) (blue)
+| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
+4+| 0 (sample_lower)
+4+| 256 (sample_upper) - mantissa at 1.0
+4+|Sample information for B exponent
+2+| 27 (bit_offset) | 5 (bit_length) | 34 (channel_type) (B+exponent)
+| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
+4+| 0 (sample_lower)
+4+| 15 (sample_upper) - exponent bias
+|================================
+
+.Acorn 256-color format (2 bits each independent RGB, 2 bits shared "tint")
+[options="header"]
+|================================
+| Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
+4+| 124 (total_size)
+2+| 0 (vendor_id) 2+| 0 (descriptor_type)
+2+| 0 (version number) 2+| 120 (descriptor_block_size)
+| RGBSDA (color_model) | BT709 (color_primaries) | ITU (transfer_function) | PREMULTIPLIED (flags)
+| 0 (texel_block_dimension_0) | 0 (texel_block_dimension_1) | 0 (texel_block_dimension_2) | 0 (texel_block_dimension_3)
+| 1 (bytes_plane_0) | 0 (bytes_plane_1) | 0 (bytes_plane_2) | 0 (bytes_plane_3)
+| 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
+4+|Sample information for R tint (shared low bits)
+2+| 0 (bit_offset) | 2 (bit_length) | 0 (channel_type) (red)
+| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
+4+| 0 (sample_lower)
+4+| 0 (sample_upper) - ignored, not unique
+4+|Sample information for R unique (high) bits
+2+| 2 (bit_offset) | 2 (bit_length) | 0 (channel_type) (red)
+| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
+4+| 0 (sample_lower)
+4+| 15 (sample_upper) - unique R upper value
+4+|Sample information for G tint (shared low bits)
+2+| 0 (bit_offset) | 2 (bit_length) | 1 (channel_type) (green)
+| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
+4+| 0 (sample_lower)
+4+| 0 (sample_upper) - ignored, not unique
+4+|Sample information for G unique (high) bits
+2+| 4 (bit_offset) | 2 (bit_length) | 1 (channel_type) (green)
+| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
+4+| 0 (sample_lower)
+4+| 15 (sample_upper) - unique G upper value
+4+|Sample information for B tint (shared low bits)
+2+| 0 (bit_offset) | 2 (bit_length) | 2 (channel_type) (blue)
+| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
+4+| 0 (sample_lower)
+4+| 0 (sample_upper) - ignored, not unique
+4+|Sample information for B unique (high) bits
+2+| 6 (bit_offset) | 2 (bit_length) | 2 (channel_type) (blue)
+| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
+4+| 0 (sample_lower)
+4+| 15 (sample_upper) - unique B upper value
+|================================
+
+.V210 format (full-range YUV)
+[options="header"]
+|================================
+| Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
+4+| 220 (total_size)
+2+| 0 (vendor_id) 2+| 0 (descriptor_type)
+2+| 0 (version number) 2+| 216 (descriptor_block_size) -- 12 samples
+| YUVSDA (color_model) | BT709 (color_primaries) | ITU (transfer_function) | PREMULTIPLIED (flags)
+| 5 (dimension_0) | 0 (dimension_1) | 0 (dimension_2) | 0 (dimension_3)
+| 16 (bytes_plane_0) | 0 (bytes_plane_1) | 0 (bytes_plane_2) | 0 (bytes_plane_3)
+| 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
+2+|0 (bit_offset)     | 10 (bit_length) | 1 (channel_type) (U0+1)
+|1 (assume mid-sited)      |  0       | 0       | 0
+4+|0 (sample_lower)
+4+|65535 (sample_upper)
+2+|10 (bit offset)    | 10 (bit_length) | 0 (channel_type) (Y0)
+|0       |  0       | 0       | 0
+4+|0 (sample_lower)
+4+|65535 (sample_upper)
+2+|20 (bit_offset)    | 10 (bit_length) | 2 (channel_type) (V0+1)
+|1 (assume mid-sited)      |  0       | 0       | 0
+4+|0 (sample_lower)
+4+|65535 (sample_upper)
+2+|32 (bit offset)    | 10 (bit_length) | 0 (channel_type) (Y1)
+|2       |  0       | 0       | 0
+4+|0 (sample_lower)
+4+|65535 (sample_upper)
+2+|42 (bit_offset)    | 10 (bit_length) | 1 (channel_type) (U2+3)
+|5 (assume mid-sited)      |  0       | 0       | 0
+4+|0 (sample_lower)
+4+|65535 (sample_upper)
+2+|52 (bit offset)    | 10 (bit_length) | 0 (channel_type) (Y2)
+|4       |  0       | 0       | 0
+4+|0 (sample_lower)
+4+|65535 (sample_upper)
+2+|64 (bit_offset)    | 10 (bit_length) | 2 (channel_type) (V2+3)
+|5 (assume mid-sited)      |  0       | 0       | 0
+4+|0 (sample_lower)
+4+|65535 (sample_upper)
+2+|74 (bit offset)    | 10 (bit_length) | 0 (channel_type) (Y3)
+|6       |  0       | 0       | 0
+4+|0 (sample_lower)
+4+|65535 (sample_upper)
+2+|84 (bit_offset)    | 10 (bit_length) | 1 (channel_type) (U4+5)
+|9 (assume mid-sited)      |  0       | 0       | 0
+4+|0 (sample_lower)
+4+|65535 (sample_upper)
+2+|96 (bit offset)    | 10 (bit_length) | 0 (channel_type) (Y4)
+|8       |  0       | 0       | 0
+4+|0 (sample_lower)
+4+|65535 (sample_upper)
+2+|106 (bit_offset)   | 10 (bit_length) | 2 (channel_type) (V4+5)
+|9 (assume mid-sited)      |  0       | 0       | 0
+4+|0 (sample_lower)
+4+|65535 (sample_upper)
+2+|116 (bit offset)   | 10 (bit_length) | 0 (channel_type) (Y5)
+|10      |  0       | 0       | 0
+4+|0 (sample_lower)
+4+|65535 (sample_upper)
 |================================

@@ -26,9 +26,6 @@ Example DocBook document information file for article.txt.
 
 <legalnotice>
 <simpara>
-The following is our boilerplate text for the copyright page to be used in every Khronos specification, both the PDF and the HTML version. You may update the year of the copyright. In the final paragraph, you are only required to list those APIs which are mentioned in your specification (but it is fine to include others as well), however please check with Khronos management to ensure that you refer to them correctly.
-</simpara>
-<simpara>
 Copyright (C) 2015  The Khronos Group Inc. All Rights Reserved.
 </simpara>
 <simpara>
@@ -43,9 +40,24 @@ Khronos Group makes no, and expressly disclaims any, representations or warranti
 <simpara>
 Khronos, SYCL, SPIR, WebGL, EGL, COLLADA, StreamInput, OpenVX, OpenKCam, glTF, OpenKODE, OpenVG, OpenWF, OpenSL ES, OpenMAX, OpenMAX AL, OpenMAX IL and OpenMAX DL are trademarks and WebCL is a certification mark of the Khronos Group Inc. OpenCL is a trademark of Apple Inc. and OpenGL and OpenML are registered trademarks and the OpenGL ES and OpenGL SC logos are trademarks of Silicon Graphics International used under license by Khronos. All other product names, trademarks, and/or company names are used solely for identification and belong to their respective owners.
 </simpara>
+<literallayout>Contributors:</literallayout>
+<literallayout>Frank Brill
+Sean Ellis
+Andrew Garrard (editor)
+Jonas Gustavsson
+Chris Hebert
+Daniel Koch
+Thierry Lepley
+Tommaso Maestri
+Kathleen Mattson
+Hans-Peter Nilsson
+Alon Or-bach
+Erik Rainey
+Daniel Rakos
+Graham Sellers
+David Sena</literallayout>
 </legalnotice>
 
-<!--
 <revhistory>
 <revision>
 <revnumber>0.1</revnumber>
@@ -88,13 +100,19 @@ Typos and clarification.
 </revremark>
 </revision>
 <revision>
-<revnumber>1,9</revnumber>
+<revnumber>1.0</revnumber>
 <date>May 2015</date>
 <authorinitials>AG</authorinitials>
 <revremark>
 Submission for 1.0 release
 </revremark>
 </revision>
+<revision>
+<revnumber>1.0 rev 2</revnumber>
+<date>June 2015</date>
+<authorinitials>AG</authorinitials>
+<revremark>
+Clarifications for 1.0 release
+</revremark>
+</revision>
 </revhistory>
--->
-

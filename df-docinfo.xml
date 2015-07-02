@@ -12,6 +12,24 @@ Example DocBook document information file for article.txt.
 </authorgroup>
  -->
 
+<authorgroup>
+<editor><firstname>Andrew</firstname><surname>Garrard</surname></editor>
+<othercredit><firstname>Frank</firstname><surname>Brill</surname></othercredit>
+<othercredit><firstname>Sean</firstname><surname>Ellis</surname></othercredit>
+<othercredit><firstname>Jonas</firstname><surname>Gustavsson</surname></othercredit>
+<othercredit><firstname>Chris</firstname><surname>Hebert</surname></othercredit>
+<othercredit><firstname>Daniel</firstname><surname>Koch</surname></othercredit>
+<othercredit><firstname>Thierry</firstname><surname>Lepley</surname></othercredit>
+<othercredit><firstname>Tommaso</firstname><surname>Maestri</surname></othercredit>
+<othercredit><firstname>Kathleen</firstname><surname>Mattson</surname></othercredit>
+<othercredit><firstname>Hans-Peter</firstname><surname>Nilsson</surname></othercredit>
+<othercredit><firstname>Alon</firstname><surname>Or-bach</surname></othercredit>
+<othercredit><firstname>Erik</firstname><surname>Rainey</surname></othercredit>
+<othercredit><firstname>Daniel</firstname><surname>Rakos</surname></othercredit>
+<othercredit><firstname>Graham</firstname><surname>Sellers</surname></othercredit>
+<othercredit><firstname>David</firstname><surname>Sena</surname></othercredit>
+</authorgroup>
+
 <!--
 <copyright>
 <year>2015</year>
@@ -36,14 +54,14 @@ Khronos, SYCL, SPIR, WebGL, EGL, COLLADA, StreamInput, OpenVX, OpenKCam, glTF, O
 </simpara>
 </legalnotice>
 
-<!-- 
+
 <revhistory>
 <revision>
 <revnumber>0.1</revnumber>
 <date>Jan 2015</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-Initial sharing.
+Initial sharing
 </revremark>
 </revision>
 <revision>
@@ -51,7 +69,7 @@ Initial sharing.
 <date>Feb 2015</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-Added clarification, tables, examples.
+Added clarification, tables, examples
 </revremark>
 </revision>
 <revision>
@@ -59,7 +77,7 @@ Added clarification, tables, examples.
 <date>Feb 2015</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-Further cleanup.
+Further cleanup
 </revremark>
 </revision>
 <revision>
@@ -67,7 +85,7 @@ Further cleanup.
 <date>Apr 2015</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-Channel ordering standardised.
+Channel ordering standardised
 </revremark>
 </revision>
 <revision>
@@ -75,16 +93,23 @@ Channel ordering standardised.
 <date>Apr 2015</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-Typos and clarification.
+Typos and clarification
 </revremark>
 </revision>
 <revision>
-<revnumber>1,9</revnumber>
+<revnumber>1.0</revnumber>
 <date>May 2015</date>
 <authorinitials>AG</authorinitials>
 <revremark>
 Submission for 1.0 release
 </revremark>
 </revision>
+<revision>
+<revnumber>1.0 rev 2</revnumber>
+<date>June 2015</date>
+<authorinitials>AG</authorinitials>
+<revremark>
+Clarifications for 1.0 release
+</revremark>
+</revision>
 </revhistory>
--->
