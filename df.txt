@@ -1,7 +1,7 @@
 = Khronos Data Format Specification =
 Andrew Garrard <a.garrard@samsung.com>
 :Author Initials: AG
-v1.0, June 11, 2015
+v1.0 rev 3, July 8, 2015
 :toc:
 :toc-placement: manual
 
@@ -1072,7 +1072,14 @@ unsigned 8-bit integer. A fully-flexible transfer function requires
 an extension with a full color space definition. Where the Transfer
 Function can be described as a simple power curve, applying the
 function is commonly known as ``gamma correction''. The transfer
-function is applied only to color channels.
+function is applied to a sample only when the sample's
+*KHR_DF_SAMPLE_DATATYPE_LINEAR* bit is 0; if this bit is 1, the
+sample is represented linearly irrespective of the *transfer_function*.
+When a format has color and non-color information stored in the same
+sample (such as ASTC), the convention of that format encoding should
+be used when applying the transfer function -- e.g. it is common not to
+apply a nonlinear transfer function to the alpha channel. If all the
+samples are linear, *KHR_DF_TRANSFER_LINEAR* should be used.
 
 ==== KHR_DF_TRANSFER_UNSPECIFIED ====
 
@@ -1295,14 +1302,21 @@ samples are processed.
 
 ==== channel_type ====
 
+The *channel_type* field is an unsigned 8-bit quantity.
+
 The bottom four bits of the *channel_type* indicates which channel is being
 described by this sample. The list of available channels is determined by
 the *color_model* field of the Basic Data Format Descriptor Block, and the
 *channel_type* field contains the number of the required channel within this
 list -- see the *color_model* field for the list of channels for each model.
 
-The top three bits of the *channel_type* are described by the
+The top four bits of the *channel_type* are described by the
 *khr_df_sample_datatype_qualifiers_e* enumeration:
+
+If the *KHR_DF_SAMPLE_DATATYPE_LINEAR* bit is not set, the sample value is
+modified by the transfer function defined in the format's *transfer_function*
+field; if this bit is set, the sample is considered to contain a
+linearly-encoded value irrespective of the format's *transfer_function*.
 
 If the *KHR_DF_SAMPLE_DATATYPE_EXPONENT* bit is set, this sample holds an
 exponent (in integer form) for this channel. For example, this would be
@@ -1328,10 +1342,6 @@ point data in a conventional format of 10, 11, 16, 32, or 64-bits.
 format is intended. Less common floating point representations can be
 generated with multiple samples and a combination of signed integer,
 unsigned integer and exponent fields.
-
-The *channel_type* field is an unsigned 8-bit quantity.
-Bit five of the *channel_type* field is reserved for future use and must
-be zero.
 
 ==== sample_position_[0..3] ====
 
@@ -1485,7 +1495,7 @@ block that contains only the enumeration. The descriptor itself has a
 2+! 0xFFFF (vendor_id) 2+! 0 (descriptor_type)
 2+! 0 (version_number) 2+! 12 (descriptor_block_size)
 4+! _Data specific to the extension follows_
-4+! 1 (buffer is virtual)
+4+! 1 (buffer is ``virtual'')
 !=============
 |=============
 
@@ -1641,7 +1651,7 @@ link:http://www.w3.org/Graphics/Color/srgb[http://www.w3.org/Graphics/Color/srgb
 4+| 0 (sample_lower)
 4+| 255 (sample_upper)
 4+|Sample information for fourth sample
-2+| 24 (bit_offset) | 8 (bit_length) | 15 (channel_type) (alpha)
+2+| 24 (bit_offset) | 8 (bit_length) | 31 (channel_type) (alpha+linear)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
 4+| 255 (sample_upper)
@@ -1783,7 +1793,7 @@ link:http://www.w3.org/Graphics/Color/srgb[http://www.w3.org/Graphics/Color/srgb
 4+| 0 (sample_lower)
 4+| 255 (sample_upper)
 4+|Sample information for fourth sample
-2+| 24 (bit_offset) | 8 (bit_length) | 15 (channel_type) (alpha)
+2+| 24 (bit_offset) | 8 (bit_length) | 31 (channel_type) (alpha+linear)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
 4+| 255 (sample_upper)

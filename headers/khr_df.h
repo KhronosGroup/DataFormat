@@ -362,6 +362,7 @@ typedef enum _khr_df_flags_e {
 } khr_df_flags_e;
 
 typedef enum _khr_df_sample_datatype_qualifiers_e {
+    KHR_DF_SAMPLE_DATATYPE_LINEAR = 1U << 4U,
     KHR_DF_SAMPLE_DATATYPE_EXPONENT = 1U << 5U,
     KHR_DF_SAMPLE_DATATYPE_SIGNED = 1U << 6U,
     KHR_DF_SAMPLE_DATATYPE_FLOAT = 1U << 7U

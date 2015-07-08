@@ -188,7 +188,8 @@
             (FLOAT ? (SIGNED ? 0xbf800000U : 0U) : NORM ? (SIGNED ? (1U << (BLUE_BITS - 1U)) + 1U : 0U) : (SIGNED ? ~0U : 0U)), /* sample_lower */ \
             (FLOAT ? 0x3f800000U : NORM ? (1U << (BLUE_BITS - (SIGNED ? 1U : 0U))) - 1U : 1U), /* sample_upper */ \
             (RED_BITS + GREEN_BITS + BLUE_BITS) | ALPHA_BITS << 16U |   \
-            (KHR_DF_CHANNEL_RGBSDA_ALPHA | (SIGNED?KHR_DF_SAMPLE_DATATYPE_SIGNED:0) | (FLOAT?KHR_DF_SAMPLE_DATATYPE_FLOAT:0)) << 24U, /* Alpha channel */ \
+            (KHR_DF_CHANNEL_RGBSDA_ALPHA | KHR_DF_SAMPLE_DATATYPE_LINEAR | /* Alpha is conventionally linear */ \
+             (SIGNED?KHR_DF_SAMPLE_DATATYPE_SIGNED:0) | (FLOAT?KHR_DF_SAMPLE_DATATYPE_FLOAT:0)) << 24U, /* Alpha channel */ \
             0U | 0U << 8U | 0U << 16U | 0U << 24U, /* One sample location */ \
             (FLOAT ? (SIGNED ? 0xbf800000U : 0U) : NORM ? (SIGNED ? (1U << (ALPHA_BITS - 1U)) + 1U : 0U) : (SIGNED ? ~0U : 0U)), /* sample_lower */ \
             (FLOAT ? 0x3f800000U : NORM ? (1U << (ALPHA_BITS - (SIGNED ? 1U : 0U))) - 1U : 1U) /* sample_upper */ \
@@ -224,7 +225,8 @@
             (FLOAT ? (SIGNED ? 0xbf800000U : 0U) : NORM ? (SIGNED ? (1U << (RED_BITS - 1U)) + 1U : 0U) : (SIGNED ? ~0U : 0U)), /* sample_lower */ \
             (FLOAT ? 0x3f800000U : NORM ? (1U << (RED_BITS - (SIGNED ? 1U : 0U))) - 1U : 1U), /* sample_upper */ \
             (RED_BITS + GREEN_BITS + BLUE_BITS) | ALPHA_BITS << 16U |   \
-            (KHR_DF_CHANNEL_RGBSDA_ALPHA | (SIGNED?KHR_DF_SAMPLE_DATATYPE_SIGNED:0) | (FLOAT?KHR_DF_SAMPLE_DATATYPE_FLOAT:0)) << 24U, /* Alpha channel */ \
+            (KHR_DF_CHANNEL_RGBSDA_ALPHA | KHR_DF_SAMPLE_DATATYPE_LINEAR | /* Alpha is conventionally linear */ \
+             (SIGNED?KHR_DF_SAMPLE_DATATYPE_SIGNED:0) | (FLOAT?KHR_DF_SAMPLE_DATATYPE_FLOAT:0)) << 24U, /* Alpha channel */ \
             0U | 0U << 8U | 0U << 16U | 0U << 24U, /* One sample location */ \
             (FLOAT ? (SIGNED ? 0xbf800000U : 0U) : NORM ? (SIGNED ? (1U << (ALPHA_BITS - 1U)) + 1U : 0U) : (SIGNED ? ~0U : 0U)), /* sample_lower */ \
             (FLOAT ? 0x3f800000U : NORM ? (1U << (ALPHA_BITS - (SIGNED ? 1U : 0U))) - 1U : 1U) /* sample_upper */ \
@@ -637,7 +639,7 @@ uint32_t df_VK_FMT_BC1_RGBA_UNORM[] = {
     8U | 0U << 8U | 0U << 16U | 0U << 24U, /* One plane of 8 bytes */
     0U | 0U << 8U | 0U << 16U | 0U << 24U,
     0U | 64U << 16U | 0U << 24U, /* Bits 0..63, unsigned color channel */
-    0U | 0U << 8U | 0U << 16U | KHR_DF_CHANNEL_DXT1A_COLOR << 24U, /* Sample location */
+    0U | 0U << 8U | 0U << 16U | (KHR_DF_CHANNEL_DXT1A_COLOR | KHR_DF_SAMPLE_DATATYPE_LINEAR) << 24U, /* Sample location */
     0U, /* lower_limit */
     UINT32_MAX, /* upper_limit - normalized integer (unnormalized is "1") */
     0U | 64U << 16U | KHR_DF_CHANNEL_DXT1A_ALPHAPRESENT << 24U, /* Bits 0..63, unsigned alpha channel */
@@ -661,7 +663,7 @@ uint32_t df_VK_FMT_BC1_RGBA_SRGB[] = {
     0U | 0U << 8U | 0U << 16U | 0U << 24U, /* Sample location */
     0U, /* lower_limit */
     UINT32_MAX, /* upper_limit - normalized integer (unnormalized is "1") */
-    0U | 64U << 16U | KHR_DF_CHANNEL_DXT1A_ALPHAPRESENT << 24U, /* Bits 0..63, unsigned alpha channel */
+    0U | 64U << 16U | (KHR_DF_CHANNEL_DXT1A_ALPHAPRESENT | KHR_DF_SAMPLE_DATATYPE_LINEAR) << 24U, /* Bits 0..63, unsigned alpha channel */
     0U | 0U << 8U | 0U << 16U | 0U << 24U, /* Sample location */
     0U, /* lower_limit */
     UINT32_MAX /* upper_limit - normalized integer (unnormalized is "1") */
@@ -699,7 +701,7 @@ uint32_t df_VK_FMT_BC2_SRGB[] = {
     3U | 3U << 8U | 0U << 16U | 0U << 24U, /* 4x4x1x1 texel block */
     16U | 0U << 8U | 0U << 16U | 0U << 24U, /* One plane of 16 bytes */
     0U | 0U << 8U | 0U << 16U | 0U << 24U,
-    0U | 64U << 16U | KHR_DF_CHANNEL_BC2_ALPHA << 24U, /* Bits 0..63, unsigned alpha channel */
+    0U | 64U << 16U | (KHR_DF_CHANNEL_BC2_ALPHA | KHR_DF_SAMPLE_DATATYPE_LINEAR) << 24U, /* Bits 0..63, unsigned alpha channel */
     0U | 0U << 8U | 0U << 16U | 0U << 24U, /* Sample location */
     0U, /* lower_limit */
     UINT32_MAX, /* upper_limit - normalized integer (unnormalized is "1") */
@@ -741,7 +743,7 @@ uint32_t df_VK_FMT_BC3_SRGB[] = {
     3U | 3U << 8U | 0U << 16U | 0U << 24U, /* 4x4x1x1 texel block */
     16U | 0U << 8U | 0U << 16U | 0U << 24U, /* One plane of 16 bytes */
     0U | 0U << 8U | 0U << 16U | 0U << 24U,
-    0U | 64U << 16U | KHR_DF_CHANNEL_BC3_ALPHA << 24U, /* Bits 0..63, unsigned alpha channel */
+    0U | 64U << 16U | (KHR_DF_CHANNEL_BC3_ALPHA | KHR_DF_SAMPLE_DATATYPE_LINEAR) << 24U, /* Bits 0..63, unsigned alpha channel */
     0U | 0U << 8U | 0U << 16U | 0U << 24U, /* Sample location */
     0U, /* lower_limit */
     UINT32_MAX, /* upper_limit - normalized integer (unnormalized is "1") */
@@ -970,7 +972,7 @@ uint32_t df_VK_FMT_ETC2_R8G8B8A1_SRGB[] = {
     0U | 0U << 8U | 0U << 16U | 0U << 24U, /* Sample location */
     0U, /* lower_limit */
     0xFFU, /* upper_limit - normalized integer (unnormalized is "1") */
-    0U | 64U << 16U | KHR_DF_CHANNEL_ETC2_ALPHA << 24U, /* Bits 0..63, unsigned alpha channel */
+    0U | 64U << 16U | (KHR_DF_CHANNEL_ETC2_ALPHA | KHR_DF_SAMPLE_DATATYPE_LINEAR) << 24U, /* Bits 0..63, unsigned alpha channel */
     0U | 0U << 8U | 0U << 16U | 0U << 24U, /* Sample location */
     0U, /* lower_limit */
     UINT32_MAX /* upper_limit - normalized integer (unnormalized is "1") */
@@ -1008,7 +1010,7 @@ uint32_t df_VK_FMT_ETC2_R8G8B8A8_SRGB[] = {
     3U | 3U << 8U | 0U << 16U | 0U << 24U, /* 4x4x1x1 texel block */
     16U | 0U << 8U | 0U << 16U | 0U << 24U, /* One plane of 16 bytes */
     0U | 0U << 8U | 0U << 16U | 0U << 24U,
-    0U | 64U << 16U | KHR_DF_CHANNEL_ETC2_ALPHA << 24U, /* Bits 0..63, unsigned alpha channel */
+    0U | 64U << 16U | (KHR_DF_CHANNEL_ETC2_ALPHA | KHR_DF_SAMPLE_DATATYPE_LINEAR) << 24U, /* Bits 0..63, unsigned alpha channel */
     0U | 0U << 8U | 0U << 16U | 0U << 24U, /* Sample location */
     0U, /* lower_limit */
     0xFFU, /* upper_limit - normalized integer (unnormalized is "1") */
