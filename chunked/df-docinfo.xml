@@ -123,4 +123,12 @@ Clarifications for 1.0 release
 Added KHR_DF_SAMPLE_DATATYPE_LINEAR
 </revremark>
 </revision>
+<revision>
+<revnumber>1.0 rev 4</revnumber>
+<date>July 2015</date>
+<authorinitials>AG</authorinitials>
+<revremark>
+Clarified KHR_DF_SAMPLE_DATATYPE_LINEAR
+</revremark>
+</revision>
 </revhistory>

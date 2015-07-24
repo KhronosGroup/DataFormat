@@ -1,7 +1,7 @@
 = Khronos Data Format Specification =
 Andrew Garrard <a.garrard@samsung.com>
 :Author Initials: AG
-v1.0 rev 3, July 8, 2015
+v1.0 rev 4, July 10, 2015
 :toc:
 :toc-placement: manual
 
@@ -1075,11 +1075,21 @@ function is commonly known as ``gamma correction''. The transfer
 function is applied to a sample only when the sample's
 *KHR_DF_SAMPLE_DATATYPE_LINEAR* bit is 0; if this bit is 1, the
 sample is represented linearly irrespective of the *transfer_function*.
-When a format has color and non-color information stored in the same
-sample (such as ASTC), the convention of that format encoding should
-be used when applying the transfer function -- e.g. it is common not to
-apply a nonlinear transfer function to the alpha channel. If all the
-samples are linear, *KHR_DF_TRANSFER_LINEAR* should be used.
+
+When a color model contains more than one channel in a sample and
+the transfer function should be applied only to a subset of those
+channels, the convention of that model should be used when applying
+the transfer function. For example, ASTC stores both alpha and RGB
+data but is represented by a single sample; in ASTC, the transfer function
+is not conventionally applied to the alpha channel of the ASTC texture.
+In this case, the *KHR_DF_SAMPLE_DATATYPE_LINEAR* bit being zero means that
+the transfer function is ``applied'' to the ASTC sample in a way that only
+affects the RGB channels. This is not a concern for most color models,
+which explicitly store different channels in each sample.
+
+If all the samples are linear, *KHR_DF_TRANSFER_LINEAR* should be used.
+In this case, no sample should have the *KHR_DF_SAMPLE_DATATYPE_LINEAR*
+bit set.
 
 ==== KHR_DF_TRANSFER_UNSPECIFIED ====
 
