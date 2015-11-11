@@ -19,6 +19,8 @@ Copyright notice at https://www.khronos.org/registry/speccopyright.html
 <othercredit><firstname>Daniel</firstname><surname>Rakos</surname></othercredit>
 <othercredit><firstname>Graham</firstname><surname>Sellers</surname></othercredit>
 <othercredit><firstname>David</firstname><surname>Sena</surname></othercredit>
+<othercredit><firstname>Mark</firstname><surname>Callow</surname></othercredit>
+<othercredit><firstname>Jon</firstname><surname>Leech</surname></othercredit>
 </authorgroup>
 
 <!--
@@ -117,6 +119,14 @@ Added KHR_DF_SAMPLE_DATATYPE_LINEAR
 <authorinitials>AG</authorinitials>
 <revremark>
 Clarified KHR_DF_SAMPLE_DATATYPE_LINEAR
+</revremark>
+</revision>
+<revision>
+<revnumber>1.1 rev 1</revnumber>
+<date>November 2015</date>
+<authorinitials>AG</authorinitials>
+<revremark>
+Added definitions of compressed texture formats
 </revremark>
 </revision>
 </revhistory>

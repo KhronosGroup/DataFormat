@@ -3,7 +3,7 @@
 = Khronos Data Format Specification =
 Andrew Garrard <a.garrard@samsung.com>
 :Author Initials: AG
-v1.0 rev 4, July 10, 2015
+v1.1 rev 1, November 11, 2015
 :toc:
 :toc-placement: manual
 
@@ -62,6 +62,10 @@ Daniel Rakos
 Graham Sellers
 
 David Sena
+
+Mark Callow
+
+Jon Leech
 
 toc::[]
 
@@ -1633,6 +1637,13 @@ link:http://www.oscars.org/science-technology/sci-tech-projects/aces[http://www.
 === [[srgb]]sRGB specification ===
 
 link:http://www.w3.org/Graphics/Color/srgb[http://www.w3.org/Graphics/Color/srgb]
+
+include::compformats.txt[]
+
+:frame: all
+:grid: all
+:halign: center
+:valign: center
 
 == Example format descriptors ==
 
