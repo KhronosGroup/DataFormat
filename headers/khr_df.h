@@ -1,4 +1,4 @@
-/* The Khronos Data Format Specification (version 1.0) */
+/* The Khronos Data Format Specification (version 1.1) */
 /*
 ** Copyright (c) 2015 The Khronos Group Inc.
 **
