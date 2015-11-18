@@ -1941,7 +1941,7 @@ include::compformats.txt[]
 4+| 15 (sample_upper) - exponent bias
 |================================
 
-.Acorn 256-color format (2 bits each independent RGB, 2 bits shared "tint")
+.Acorn 256-color format (2 bits each independent RGB, 2 bits shared ``tint'')
 [options="header"]
 |================================
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)

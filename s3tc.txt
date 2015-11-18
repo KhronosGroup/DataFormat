@@ -29,7 +29,7 @@ The data corresponding to a specific texel (<x>, <y>) are extracted from a
 
 There are four distinct S3TC image formats:
 
-=== DXT1 with no alpha
+=== BC1 with no alpha
 // COMPRESSED_RGB_S3TC_DXT1_EXT
 
 Each 4x4 block of texels consists of 64
@@ -77,7 +77,7 @@ Since this image has an RGB format, there is no alpha component and the
 image is considered fully opaque.
 
 
-=== DXT1 with alpha
+=== BC1 with alpha
 // COMPRESSED_RGBA_S3TC_DXT1_EXT:
 
 Each 4x4 block of texels consists of 64
@@ -105,7 +105,7 @@ given by:
 The red, green, and blue components of any texels with a final alpha
 of 0 should be encoded as zero (black).
 
-=== DXT3
+=== BC2
 // COMPRESSED_RGBA_S3TC_DXT3_EXT:
 
 Each 4x4 block of texels consists of 64
@@ -139,7 +139,7 @@ significant bit.
 The alpha component for a texel at location (x,y) in the block is
 given by alpha(x,y) / 15.
 
-=== DXT5
+=== BC3
 // COMPRESSED_RGBA_S3TC_DXT5_EXT:
 
 Each 4x4 block of texels consists of 64
@@ -190,3 +190,4 @@ given by:
       (1*alpha0 + 4*alpha1)/5,  alpha0 <= alpha1 and code(x,y) == 5
       0.0,                      alpha0 <= alpha1 and code(x,y) == 6
       1.0,                      alpha0 <= alpha1 and code(x,y) == 7
+

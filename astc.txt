@@ -14,7 +14,7 @@ ASTC textures may be encoded using either high or low dynamic range.
 Low dynamic range images may optionally be specified using the sRGB
 transfer function.
 
-Two sub-profiles ("LDR Profile" and "HDR Profile") may be implemented,
+Two sub-profiles (``LDR Profile'' and ``HDR Profile'') may be implemented,
 which support only 2D images at low or high dynamic range respectively.
 
 // The mechanism for exposing functionality is API-specific.
@@ -44,7 +44,7 @@ The design goals for the format are as follows:
   rates, leaving content developers with only coarse control over
   the size/quality tradeoff.
 * Scalable and long-lived. The format should support existing R, RG,
-  RGB and RGBA image types, and also have high "headroom", allowing
+  RGB and RGBA image types, and also have high ``headroom'', allowing
   continuing use for several years and the ability to innovate in
   encoders. Part of this is the choice to include HDR and 3D.
 * Feature orthogonality. The choices for the various features of the
@@ -69,7 +69,7 @@ is divided into a number of blocks of uniform size, which makes it
 possible to quickly determine which block a given texel resides in.
 
 Each block has a fixed memory footprint of 128 bits, but these bits
-can represent varying numbers of texels (the block "footprint").
+can represent varying numbers of texels (the block ``footprint'').
 
 Block footprint sizes are not confined to powers-of-two, and are
 also not confined to be square. They may be 2D, in which case the
@@ -84,7 +84,7 @@ simplifies cache design, reduces bandwidth and improves encoder throughput.
 To understand how the blocks are stored and decoded, it is useful to start
 with a simple example, and then introduce additional features.
 
-The simplest block encoding starts by defining two color "endpoints". The
+The simplest block encoding starts by defining two color ``endpoints''. The
 endpoints define two colors, and a number of additional colors are generated
 by interpolating between them. We can define these colors using 1, 2, 3,
 or 4 components (usually corresponding to R, RG, RGB and RGBA textures),
@@ -113,17 +113,17 @@ For blocks which have a mixture of disparate colors, a single line in the
 color space is not a good fit to the colors of the pixels in the original
 image. It is therefore possible to partition the texels into multiple sets,
 the pixels within each set having similar colors. For each of these
-"partitions", we specify separate endpoint pairs, and choose which pair of
+``partitions'', we specify separate endpoint pairs, and choose which pair of
 endpoints to use for a particular texel by looking up the partition index
 from a partitioning pattern table. In ASTC, this partition table is actually
 implemented as a function.
 
 The endpoint encoding for each partition is independent.
 
-For blocks which have uncorrelated channels - for example an image with a
-transparency mask, or an image used as a normal map - it may be necessary
+For blocks which have uncorrelated channels -- for example an image with a
+transparency mask, or an image used as a normal map -- it may be necessary
 to specify two weights for each texel. Interpolation between the components
-of the endpoint colors can then proceed independently for each "plane" of
+of the endpoint colors can then proceed independently for each ``plane'' of
 the image. The assignment of channels to planes is selectable.
 
 Since each of the above options is independent, it is possible to specify any
@@ -137,12 +137,12 @@ which are nevertheless highly amenable to hardware decode.
 
 All of the values used as weights and color endpoint values can be specified
 with a variable number of bits. The encoding scheme used allows a fine-
-grained tradeoff between weight bits and color endpoint bits using "integer
-sequence encoding". This can pack adjacent values together, allowing us to
+grained tradeoff between weight bits and color endpoint bits using ``integer
+sequence encoding''. This can pack adjacent values together, allowing us to
 use fractional numbers of bits per value.
 
-Finally, a block may be just a single color. This is a so-called "void
-extent block" and has a special coding which also allows it to identify
+Finally, a block may be just a single color. This is a so-called ``void
+extent block'' and has a special coding which also allows it to identify
 nearby regions of single color. This may be used to short-circuit fetching of
 what would be identical blocks, and further reduce memory bandwidth.
 
@@ -265,7 +265,7 @@ For square and nearly-square blocks, this gives the following bit rates:
 ^| 12        ^| 12        ^| 0.89     ^|
 |=============
 
-The "Increment" column indicates the ratio of bit rate against the next
+The ``Increment'' column indicates the ratio of bit rate against the next
 lower available rate. A consistent value in this column indicates an even
 spread of bit rates.
 
@@ -344,7 +344,7 @@ blocks are laid out in raster order, starting with the block at (0,0,0), then
 ordered sequentially by X, Y and finally Z (if present). They are aligned to
 128-bit boundaries in memory.
 
-The bits in the block are labeled in little-endian order - the byte at the
+The bits in the block are labeled in little-endian order -- the byte at the
 lowest address contains bits 0..7. Bit 0 is the least significant bit in the
 byte.
 
@@ -372,9 +372,9 @@ Each block has the same basic layout:
 
 Dotted partition lines indicate that the split position is not fixed.
 
-The "Block mode" field specifies how the Texel Weight Data is encoded.
+The ``Block mode'' field specifies how the Texel Weight Data is encoded.
 
-The "Part" field specifies the number of partitions, minus one. If dual
+The ``Part'' field specifies the number of partitions, minus one. If dual
 plane mode is enabled, the number of partitions must be 3 or fewer.
 If 4 partitions are specified, the error value is returned for all
 texels in the block.
@@ -416,7 +416,7 @@ weight data.
 If dual-plane mode is active, the color component selector bits then appear
 directly below the additional CEM bits.
 
-The final special case is that if bits [8:0] of the block are "111111100",
+The final special case is that if bits [8:0] of the block are ``111111100'',
 then the block is a void-extent block, which has a separate encoding
 described in section C.2.22.
 
@@ -448,13 +448,13 @@ together with a precision bit H, as follows:
 |====================
 
 Each weight value is encoded using the specified number of Trits, Quints
-and Bits. The details of this encoding can be found in Section C.3.12 -
+and Bits. The details of this encoding can be found in Section C.3.12 --
 Integer Sequence Encoding.
 
 For 2D blocks, the Block Mode field is laid out as follows:
 
 .2D Block Mode Layout
-[width="100%",cols="1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1"]
+[width="100%",cols="1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1",options="header"]
 |====================
 | 10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 2+^| Width 2+^| Height 3+^| Notes
 | D | H 2+^| B 2+^| A | R0 | 0 | 0 | R2 | R1 2+^| B+4 2+^| A+2 3+|
@@ -483,7 +483,7 @@ previous row).
 For 3D blocks, the Block Mode field is laid out as follows:
 
 .3D Block Mode Layout
-[width="100%",cols="1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1"]
+[width="100%",cols="1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1",options="header"]
 |====================
 | 10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 2+| Width 2+| Height 2+| Depth 3+| Notes
 | D  | H 2+| B 2+| A | R0 2+| C | R2 | R1 2+| A+2 2+| B+2 2+| C+2 3+|
@@ -518,25 +518,25 @@ are encoded, and how to convert these raw values into two RGBA color
 endpoints. They can be summarized as follows:
 
 .Color Endpoint Modes
-[cols="1,5,2",options="header"]
+[cols="2,11,2",options="header",width="55%"]
 |====================
 | CEM | Description                        | Class
-| 0   | LDR Luminance, direct              | 0
-| 1   | LDR Luminance, base+offset         | 0
-| 2   | HDR Luminance, large range         | 0
-| 3   | HDR Luminance, small range         | 0
-| 4   | LDR Luminance+Alpha, direct        | 1
-| 5   | LDR Luminance+Alpha, base+offset   | 1
-| 6   | LDR RGB, base+scale                | 1
-| 7   | HDR RGB, base+scale                | 1
-| 8   | LDR RGB, direct                    | 2
-| 9   | LDR RGB, base+offset               | 2
-| 10  | LDR RGB, base+scale plus two A     | 2
-| 11  | HDR RGB, direct                    | 2
-| 12  | LDR RGBA, direct                   | 3
-| 13  | LDR RGBA, base+offset              | 3
-| 14  | HDR RGB, direct + LDR Alpha        | 3
-| 15  | HDR RGB, direct + HDR Alpha        | 3
+>| 0   | LDR Luminance, direct              | 0
+>| 1   | LDR Luminance, base+offset         | 0
+>| 2   | HDR Luminance, large range         | 0
+>| 3   | HDR Luminance, small range         | 0
+>| 4   | LDR Luminance+Alpha, direct        | 1
+>| 5   | LDR Luminance+Alpha, base+offset   | 1
+>| 6   | LDR RGB, base+scale                | 1
+>| 7   | HDR RGB, base+scale                | 1
+>| 8   | LDR RGB, direct                    | 2
+>| 9   | LDR RGB, base+offset               | 2
+>| 10  | LDR RGB, base+scale plus two A     | 2
+>| 11  | HDR RGB, direct                    | 2
+>| 12  | LDR RGBA, direct                   | 3
+>| 13  | LDR RGBA, base+offset              | 3
+>| 14  | HDR RGB, direct + LDR Alpha        | 3
+>| 15  | HDR RGB, direct + HDR Alpha        | 3
 |====================
 
 In multi-partition mode, the CEM field is of variable width, from 6 to 14
@@ -544,36 +544,36 @@ bits. The lowest 2 bits of the CEM field specify how the endpoint mode
 for each partition is calculated:
 
 .Multi-Partition Color Endpoint Modes
-[cols="1,5",options="header"]
+[cols="1,5",options="header",width="45%"]
 |====================
-| Value | Meaning
-| 00 | All color endpoint pairs are of the same type.
+^| Value | Meaning
+^| 00 | All color endpoint pairs are of the same type.
     A full 4-bit CEM is stored in block bits [28:25]
     and is used for all partitions.
-| 01 | All endpoint pairs are of class 0 or 1.
-| 10 | All endpoint pairs are of class 1 or 2.
-| 11 | All endpoint pairs are of class 2 or 3.
+^| 01 | All endpoint pairs are of class 0 or 1.
+^| 10 | All endpoint pairs are of class 1 or 2.
+^| 11 | All endpoint pairs are of class 2 or 3.
 |====================
 
 If the CEM selector value in bits [24:23] is not 00,
 then data layout is as follows:
 
 .Multi-Partition Color Endpoint Modes
-[cols="2,1,2,1,1,1,1,1,1,1,1,1",options="header"]
+[cols="2,1,2,1,1,1,1,1,1,1,1,1",options="header",width="90%"]
 |====================
-^| Part | | | n | m | l | k | j | i | h | g |
+^| Part ^| ^| ^| n ^| m ^| l ^| k ^| j ^| i ^| h ^| g ^|
 ^| 2 | ... ^| Weight 2+^| M1 6+| | ...
 ^| 3 | ... ^| Weight 2+^| M2 2+^| M1 | M0 3+| | ...
 ^| 4 | ... ^| Weight 2+^| M3 2+^| M2 2+^| M1 2+^| M0 | ...
 |====================
 
 .Multi-Partition Color Endpoint Modes (2)
-[cols="2,1,1,1,1,1,1",options="header"]
+[cols="2,1,1,1,1,1,1",options="header",width="60%"]
 |====================
-^| Part | 28 | 27 | 26 | 25 | 24 | 23
-^| 2 2+^| M0 | C1 | C0 2+^| CEM
-^| 3 | M9 | C2 | C1 | C0 2+^| CEM
-^| 4 | C3 | C2 | C1 | C0 2+^| CEM
+^| Part ^| 28 ^| 27 ^| 26 ^| 25 ^| 24 ^| 23
+^| 2 2+^| M0 ^| C1 | C0 2+^| CEM
+^| 3 ^| M9 ^| C2 ^| C1 | C0 2+^| CEM
+^| 4 ^| C3 ^| C2 ^| C1 | C0 2+^| CEM
 |====================
 
 In this view, each partition i has two fields. Ci is the class selector
@@ -598,23 +598,23 @@ value in a sequence (e.g. a color weight) is constrained.
 
 Since it is often the case that the most efficient range for these
 values is not a power of two, each value sequence is encoded using a
-technique known as "integer sequence encoding". This allows efficient,
+technique known as ``integer sequence encoding''. This allows efficient,
 hardware-friendly packing and unpacking of values with non-power-of-two
 ranges.
 
 In a sequence, each value has an identical range. The range is specified
 in one of the following forms:
 
-[options="header"]
+[options="header",width="65%",cols="2,3,3"]
 |====================
 | Value range        | MSB encoding           | LSB encoding
-| 0 .. 2^n-1^        | -                      | n bit value m (n <= 8)
-| 0 .. (3 * 2^n^)-1  | Base-3 "trit" value t  | n bit value m (n <= 6)
-| 0 .. (5 * 2^n^)-1  | Base-5 "quint" value q | n bit value m (n <= 5)
+| 0 .. 2^n-1^        | -                      | n bit value m (latexmath:[$n \leq 8$])
+| 0 .. (3 * 2^n^)-1  | Base-3 ``trit'' value t  | n bit value m (latexmath:[$n \leq 6$])
+| 0 .. (5 * 2^n^)-1  | Base-5 ``quint'' value q | n bit value m (latexmath:[$n \leq 5$])
 |====================
 
 .Encoding for Different Ranges
-[options="header"]
+[options="header",width="60%",cols="4,3,2,5"]
 |====================
 | Value range         | Value           | Block  | Packed block size
 | 0 .. 2^n-1^         | m               | 1      | n
@@ -641,24 +641,26 @@ To decode the bits for value number i in a sequence of bits b, both
 indexed from 0, perform the following:
 
 If the range is encoded as n bits per value, then the value is bits
-b[i*n+n-1:i*n] - a simple multiplexing operation.
+latexmath:[$b[i\times n+n-1\colon i \times n\]$] -- a simple multiplexing operation.
 
 If the range is encoded using a trit, then each block contains 5 values
 (v0 to v4), each of which contains a trit (t0 to t4) and a corresponding
 LSB value (m0 to m4). The first bit of the packed block is bit
-floor(i/5)*(8+5*n). The bits in the block are packed as follows
+latexmath:[$\lfloor i/5 \rfloor \times (8 + 5 \times n)$]. The bits in the block are packed as follows
 (in this example, n is 4):
 
 .Trit-based Packing
+[width="80%"]
 |===========================================
-|27 | 26 | 25 | 24 | 23 | 22 | 21 | 20 | 19 | 18 | 17 | 16
-|T7 4+^|     m4        |T6 | T5 4+^|     m3        |T4 |
+^|27 ^| 26 ^| 25 ^| 24 ^| 23 ^| 22 ^| 21 ^| 20 ^| 19 ^| 18 ^| 17 ^| 16
+^|T7 4+^|     m4        ^|T6 ^| T5 4+^|     m3        ^|T4 ^|
 |===========================================
 
 .Trit-based Packing (2)
+[width="80%"]
 |===========================================
-| 15 | 14 | 13 | 12 | 11 | 10 | 9 |  8 |  7 |  6 |  5 |  4 |  3 |  2 |  1 |  0
-4+^|    m2        | T3 | T2 4+^|      m1       | T1 | T0 4+^|      m0       |
+^| 15 ^| 14 ^| 13 ^| 12 ^| 11 ^| 10 ^| 9 ^|  8 ^|  7 ^|  6 ^|  5 ^|  4 ^|  3 ^|  2 ^|  1 ^|  0
+4+^|    m2        ^| T3 ^| T2 4+^|      m1       ^| T1 ^| T0 4+^|      m0       ^|
 |===========================================
 
 The five trits t0 to t4 are obtained by bit manipulations of the 8 bits
@@ -683,20 +685,22 @@ T[7:0] as follows:
 If the range is encoded using a quint, then each block contains 3 values
 (v0 to v2), each of which contains a quint (q0 to q2) and a corresponding
 LSB value (m0 to m2). The first bit of the packed block is bit
-floor(i/3)*(7+3*n).
+latexmath:[$ \lfloor i/3 \rfloor \times (7+3 \times n)$].
 
-The bits in the block are packed as follows (in this example, n is 4):
+The bits in the block are packed as follows (in this example, \latexmath:[$n$] is 4):
 
 .Quint-based Packing
+[width="20%"]
 |===========
-| 18 | 17 | 16
-| Q6 | Q5 | m2
+^| 18 ^| 17 ^| 16
+^| Q6 ^| Q5 ^| m2
 |===========
 
 .Quint-based Packing (2)
+[width="80%"]
 |===========
-| 15 | 14 | 13 | 12 | 11 | 10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0
-3+^|  m2       | Q4 | Q3 4+^|     m1        | Q2 | Q1 | Q0 4+^| m0
+^| 15 ^| 14 ^| 13 ^| 12 ^| 11 ^| 10 ^| 9 ^| 8 ^| 7 ^| 6 ^| 5 ^| 4 ^| 3 ^| 2 ^| 1 ^| 0
+3+^|  m2       ^| Q4 ^| Q3 4+^|     m1        ^| Q2 ^| Q1 ^| Q0 4+^| m0
 |===========
 
 The three quints q0 to q2 are obtained by bit manipulations of the 7 bits
@@ -953,8 +957,9 @@ bits for a base luminance value, together with an offset, into two values
 (v0, v1):
 
 .HDR Mode 3 Value Layout
+[width="60%",cols="2h,1,1,1,1,1,1,1,1",options="header"]
 |=====================
-^| Value  | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0
+^| Value  ^| 7 ^| 6 ^| 5 ^| 4 ^| 3 ^| 2 ^| 1 ^| 0
 ^| v0     ^| M  7+^|         L[6:0]
 ^| v1     4+^|    X[3:0]     4+^|   d[3:0]
 |=====================
@@ -990,13 +995,13 @@ Mode 7 packs the bits for a base RGB value, a scale factor, and some
 mode bits into the four values (v0, v1, v2, v3):
 
 .HDR Mode 7 Value Layout
-[width="50%",cols="3,1,1,1,1,1,1,1,1"]
+[width="50%",cols="3,1,1,1,1,1,1,1,1",options="header"]
 |===================
-^| Value | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0
+^| Value ^| 7 ^| 6 ^| 5 ^| 4 ^| 3 ^| 2 ^| 1 ^| 0
 ^|v0     2+^|M[3:2] 6+^|       R[5:0]
-^|v1     |M1 |X0 |X1 5+^|      G[4:0]
-^|v2     |M0 |X2 |X3 5+^|      B[4:0]
-^|v3     |X4 |X5 |X6 5+^|      S[4:0]
+^|v1     ^|M1 ^|X0 ^|X1 5+^|      G[4:0]
+^|v2     ^|M0 ^|X2 ^|X3 5+^|      B[4:0]
+^|v3     ^|X4 ^|X5 ^|X6 5+^|      S[4:0]
 |===================
 
 The mode bits M0 to M3 are a packed representation of an endpoint bit
@@ -1108,7 +1113,7 @@ bitfields (a, b0, b1, c, d0 and d1) which are packed together with some
 mode bits into the six values (v0, v1, v2, v3, v4, v5):
 
 .HDR Mode 11 Value Layout
-[cols="3,1,1,1,1,1,1,1,1"]
+[cols="3h,1,1,1,1,1,1,1,1",width="50%",options="header"]
 |======================
 ^| Value  ^| 7 ^| 6 ^| 5 ^| 4 ^| 3 ^| 2 ^| 1 ^| 0
 ^| v0     8+^|            a[7:0]
@@ -1123,9 +1128,9 @@ If the major component bits mj[1:0 ] are both 1, then the RGB values
 are specified directly
 
 .HDR Mode 11 Value Layout
-[cols="3,1,1,1,1,1,1,1,1",width="60%"]
+[cols="3h,1,1,1,1,1,1,1,1",width="50%",options="header"]
 |===================
-^| Value  | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0
+^| Value  ^| 7 ^| 6 ^| 5 ^| 4 ^| 3 ^| 2 ^| 1 ^| 0
 ^| v0     8+^|         R0[11:4]
 ^| v1     8+^|         R1[11:4]
 ^| v2     8+^|         G0[11:4]
@@ -1138,6 +1143,7 @@ The mode bits m[2:0] specify the bit allocation for the different
 values, and the destinations of the extra bits X0 to X5:
 
 .Endpoint Bit Mode
+[cols="h,1,1,1,1,1,1,1,1,1,1"]
 |=================
 ^|     4+^|  Number of bits    6+^| Destination of extra bits
 ^| Mode  ^|  a  ^| b ^| c ^| d   ^|  X0    ^| X1    ^| X2    ^| X3    ^| X4    ^| X5
@@ -1247,10 +1253,11 @@ to the mode:
 
 
 .HDR Mode 15 Alpha Value Layout
+[cols="h,1,1,1,1,1,1,1,1",width="75%"]
 |====================
-^| Value  | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0
-^| v6     | M0 7+^|        A[6:0]
-^| v7     | M1 7+^|        B[6:0]
+^| Value  ^| 7 ^| 6 ^| 5 ^| 4 ^| 3 ^| 2 ^| 1 ^| 0
+^| v6     ^| M0 7+^|        A[6:0]
+^| v7     ^| M1 7+^|        B[6:0]
 |====================
 
 The alpha values are decoded from v6 and v7 as follows:
@@ -1324,7 +1331,7 @@ multipliers.
 For representations with no additional bits, the results are as follows:
 
 .Weight Unquantization Values
-[cols="3,1,1,1,1,1",width="40%"]
+[cols="3,1,1,1,1,1",width="40%",options="header"]
 |===========
 ^| Range  ^| 0  ^| 1  ^| 2  ^| 3  ^| 4
 ^| 0..2   ^| 0  ^| 32 ^| 63 ^| -  ^| -
@@ -1336,7 +1343,7 @@ procedure. These are denoted A (7 bits), B (7 bits), C (7 bits), and
 D (3 bits) and are decoded using the range as follows:
 
 .Weight Unquantization Parameters
-[cols="3,1,1,1,2,3,3,1,5",width="70%"]
+[cols="3,1,1,1,2,3,3,1,5",width="70%",options="header"]
 |===========
 ^| Range  ^| T ^| Q ^| B  | Bits   | A       | B       | C  | D
 ^| 0..5   ^| 1 ^|   ^| 1  | a      | aaaaaaa | 0000000 | 50 | Trit value
@@ -1378,9 +1385,12 @@ axes (Bs, Bt, Br). Texel coordinates within the block (s,t,r) can
 have values from 0 to one less than the block dimension in that axis.
 For each block dimension, we compute scale factors (Ds, Dt, Dr)
 
-    Ds = floor( (1024 + floor(Bs/2)) / (Bs-1) );
-    Dt = floor( (1024 + floor(Bt/2)) / (Bt-1) );
-    Dr = floor( (1024 + floor(Br/2)) / (Br-1) );
+[latexmath]
++++++++++++++
+  $$Ds = \lfloor {(1024 + \lfloor { Bs \over 2 }\rfloor) \over (Bs-1) } \rfloor$$
+  $$Dt = \lfloor {(1024 + \lfloor { Bt \over 2 }\rfloor) \over (Bt-1) } \rfloor$$
+  $$Dr = \lfloor {(1024 + \lfloor { Br \over 2 }\rfloor) \over (Br-1) } \rfloor$$
++++++++++++++
 
 Since the block dimensions are constrained, these are easily looked up
 in a table. These scale factors are then used to scale the (s,t,r)
@@ -1525,6 +1535,7 @@ The component to treat specially is indicated using the 2-bit Color
 Component Selector (CCS) field as follows:
 
 .Dual Plane Color Component Selector Values
+[options="header",width="40%"]
 |==========
 ^| Value  ^| Weight 0 ^| Weight 1
 ^| 0      ^|   GBA    ^|    R
@@ -1794,7 +1805,7 @@ encodings:
 *   Color endpoint modes have been specified such that the color
     integer sequence encoding would require more than 18 integers.
 *   The number of bits available for color endpoint encoding after all
-    the other fields have been counted is less than ceil(13C/5) where C
+    the other fields have been counted is less than latexmath:[$\lceil{13C\over 5}\rceil$] where C
     is the number of color endpoint integers (this would restrict color
     integers to a range smaller than 0..5, which is not supported).
 *   Dual weight mode is enabled for a block with 4 partitions.
