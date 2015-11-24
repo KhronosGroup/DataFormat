@@ -687,7 +687,7 @@ If the range is encoded using a quint, then each block contains 3 values
 LSB value (m0 to m2). The first bit of the packed block is bit
 latexmath:[$ \lfloor i/3 \rfloor \times (7+3 \times n)$].
 
-The bits in the block are packed as follows (in this example, \latexmath:[$n$] is 4):
+The bits in the block are packed as follows (in this example, latexmath:[$n$] is 4):
 
 .Quint-based Packing
 [width="20%"]
@@ -1440,25 +1440,25 @@ fractional position to produce the effective weight i as follows:
     w00 = 16 - fs - ft + w11;
     i = (p00*w00 + p01*w01 + p10*w10 + p11*w11 + 8) >> 4;
 
-For 3D, simplex interpolation is used as it is cheaper than a na�ve
+For 3D, simplex interpolation is used as it is cheaper than a na&iuml;ve
 trilinear interpolation. First, we pick some parameters for the inter-
 polation based on comparisons of the fractional parts of the texel
 position:
 
 .Simplex Interpolation Parameters
-[options="header"]
+[options="header",width="70%"]
 |==================
 ^| fs>ft  ^| ft>fr  ^| fs>fr  ^| s1  ^| s2  ^| w0     ^| w1     ^| w2     ^| w3
-^| True   ^| True   ^| True   ^| 1   ^| N   ^| 16-fs  ^| fs-ft  ^| ft-fr  ^| fr
-^| False  ^| True   ^| True   ^| N   ^| 1   ^| 16-ft  ^| ft-fs  ^| fs-fr  ^| fr
-^| True   ^| False  ^| True   ^| 1   ^| N*M ^| 16-fs  ^| fs-fr  ^| fr-ft  ^| ft
-^| True   ^| False  ^| False  ^| N*M ^| 1   ^| 16-fr  ^| fr-fs  ^| fs-ft  ^| ft
-^| False  ^| True   ^| False  ^| N   ^| N*M ^| 16-ft  ^| ft-fr  ^| fr-fs  ^| fs
-^| False  ^| False  ^| False  ^| N*M ^| N   ^| 16-fr  ^| fr-ft  ^| ft-fs  ^| fs
+^| True   ^| True   ^| _True_ ^| 1   ^| N   ^| 16-fs  ^| fs-ft  ^| ft-fr  ^| fr
+^| False  ^| _True_ ^| True   ^| N   ^| 1   ^| 16-ft  ^| ft-fs  ^| fs-fr  ^| fr
+^| _True_ ^| False  ^| True   ^| 1   ^| N*M ^| 16-fs  ^| fs-fr  ^| fr-ft  ^| ft
+^| True   ^| _False_  ^| False  ^| N*M ^| 1   ^| 16-fr  ^| fr-fs  ^| fs-ft  ^| ft
+^| _False_  ^| True   ^| False  ^| N   ^| N*M ^| 16-ft  ^| ft-fr  ^| fr-fs  ^| fs
+^| False  ^| False  ^| _False_  ^| N*M ^| N   ^| 16-fr  ^| fr-ft  ^| ft-fs  ^| fs
 |==================
 
-Some test results are implied by the others. The effective
-weight i is then calculated as:
+Italicised test results are implied by the others. The effective
+weight _i_ is then calculated as:
 
     v0 = js + jt*N + jr*N*M;
     p0 = decode_index(v0);

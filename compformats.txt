@@ -1,12 +1,11 @@
 // Copyright (C) 2008-2015 The Khronos Group Inc. All Rights Reserved.
 
-<<<
 include::s3tc.txt[]
-<<<
+
 include::rgtc.txt[]
-<<<
+
 include::bptc.txt[]
-<<<
-// include::etc.txt[]
-<<<
+
+include::etc.txt[]
+
 include::astc.txt[]

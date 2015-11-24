@@ -18,7 +18,7 @@ bytes) is:
        blocksize.$$
 ++++++++++++++++
 
-When decoding a BPTC image, the block containing the texel at offset $(x,y)$
+When decoding a BPTC image, the block containing the texel at offset latexmath:[$(x,y)$]
 begins at an offset (in bytes) relative to the base of the image of:
 
 [latexmath]
@@ -294,13 +294,6 @@ or \glc{SRGB8\_ALPHA8} for \glc{COMPRESSED\_RGBA\_BPTC\_UNORM} and
 //| 0 | 0 | 1 | 0 | 0 | 0 | 1 | 0 | 1 | 1 | 1 | 0 | 1 | 1 | 1 | 0
 //| 0 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 1 | 1 | 1 | 0 | 1 | 1 | 1
 //|================
-
-//\end{tabular}
-//\caption[Partition table for 2 subset]
-//        {Partition table for 2 subset. Each row is one $4 \times 4$ block.}
-//\label{tab:bptcP2subset}
-//\end{center}
-//\end{table}
 
 .Partition table for 3 subset, with the latexmath:[$4 \times 4$] block of values for each partition index value.
 |===============
