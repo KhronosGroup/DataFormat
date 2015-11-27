@@ -128,7 +128,7 @@ texel is latexmath:[$(R,0,0,1)$].
 
 Each latexmath:[$4 \times 4$] block of texels consists of 64 bits of signed red image
 data. The red values of a texel are extracted in the same way as
-\glc{COMPRESSED\_RED\_RGTC1} except latexmath:[$red_0$], latexmath:[$red_1$], latexmath:[$RED_0$], latexmath:[$RED_1$],
+BC4 unsigned except latexmath:[$red_0$], latexmath:[$red_1$], latexmath:[$RED_0$], latexmath:[$RED_1$],
 latexmath:[$RED_{min}$], and latexmath:[$RED_{max}$] are signed values defined as follows:
 
 latexmath:[$red_0$] and latexmath:[$red_1$] are 8-bit signed (twos complement) integers.

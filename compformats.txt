@@ -6,6 +6,8 @@ include::rgtc.txt[]
 
 include::bptc.txt[]
 
-include::etc.txt[]
+include::etc1.txt[]
+
+include::etc2.txt[]
 
 include::astc.txt[]

@@ -1118,6 +1118,44 @@ This value represents the nonlinear Transfer Function defined in
 the <<srgb,sRGB specification>> for mapping between numerical pixel values
 and intensity.
 
+That is, the conversion from linear latexmath:[$(R, G, B)$] encoding
+to nonlinear latexmath:[$(R', G', B')$] encoding is:
+
+[latexmath]
+++++++
+  $$R' = \begin{cases}
+      R \times 12.92, & R \leq 0.0031308 \\
+      1.055 \times R^{1\over 2.4} - 0.055, & R > 0.0031308
+  \end{cases}$$
+  $$G' = \begin{cases}
+      R \times 12.92, & G \leq 0.0031308 \\
+      1.055 \times G^{1\over 2.4} - 0.055, & G > 0.0031308
+  \end{cases}$$
+  $$B' = \begin{cases}
+      B \times 12.92, & B \leq 0.0031308 \\
+      1.055 \times B^{1\over 2.4} - 0.055, & B > 0.0031308
+  \end{cases}$$
+++++++
+
+The corresponding conversion from nonlinear latexmath:[$(R', G', B')$] encoding
+to linear latexmath:[$(R, G, B)$] encoding is:
+
+[latexmath]
+++++++
+  $$R = \begin{cases}
+      {R' \over 12.92}, & R' \leq 0.04045 \\
+      \left({R' + 0.055} \over 1.055\right)^{2.4}, & R' > 0.04045
+  \end{cases}$$
+  $$G = \begin{cases}
+      {G' \over 12.92}, & G' \leq 0.04045 \\
+      \left({G' + 0.055} \over 1.055\right)^{2.4}, & G' > 0.04045
+  \end{cases}$$
+  $$B = \begin{cases}
+      {B' \over 12.92}, & B' \leq 0.04045 \\
+      \left({B' + 0.055} \over 1.055\right)^{2.4}, & B' > 0.04045
+  \end{cases}$$
+++++++
+
 ==== KHR_DF_TRANSFER_ITU ====
 
 This value represents the nonlinear Transfer Function defined by

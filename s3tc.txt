@@ -3,10 +3,10 @@
 == S3TC Compressed Texture Image Formats
 
 Compressed texture images stored using the S3TC compressed image formats
-are represented as a collection of 4x4 texel blocks, where each block
+are represented as a collection of latexmath:[$4\times 4$] texel blocks, where each block
 contains 64 or 128 bits of texel data.  The image is encoded as a normal
-2D raster image in which each 4x4 block is treated as a single pixel.  If
-an S3TC image has a width or height that is not a multiple of four, the
+2D raster image in which each latexmath:[$4\times 4$] block is treated as a single pixel.
+If an S3TC image has a width or height that is not a multiple of four, the
 data corresponding to texels outside the image are irrelevant and
 undefined.
 
@@ -30,9 +30,8 @@ The data corresponding to a specific texel (<x>, <y>) are extracted from a
 There are four distinct S3TC image formats:
 
 === BC1 with no alpha
-// COMPRESSED_RGB_S3TC_DXT1_EXT
 
-Each 4x4 block of texels consists of 64
+Each latexmath:[$4 \times 4$] block of texels consists of 64
 bits of RGB image data.  
 
 Each RGB image data block is encoded as a sequence of 8 bytes, called (in
@@ -46,11 +45,11 @@ The 8 bytes of the block are decoded into three quantities:
     color1 = c1_lo + c1_hi * 256
     bits   = bits_0 + 256 * (bits_1 + 256 * (bits_2 + 256 * bits_3))
 
-latexmath:[$color0$] and latexmath:[$color1$] are 16-bit unsigned integers that
+_color0_ and _color1_ are 16-bit unsigned integers that
 are unpacked to RGB colors RGB0 and RGB1 as though they were 16-bit packed pixels with
 the R channel in the high 5 bits, G in the next 6 bits and B in the low 5 bits.
 
-latexmath:[$bits$] is a 32-bit unsigned integer, from which a two-bit control code
+_bits_ is a 32-bit unsigned integer, from which a two-bit control code
 is extracted for a texel at location (x,y) in the block using:
 
     code(x,y) = bits[2*(4*y+x)+1 .. 2*(4*y+x)+0]
@@ -78,11 +77,10 @@ image is considered fully opaque.
 
 
 === BC1 with alpha
-// COMPRESSED_RGBA_S3TC_DXT1_EXT:
 
 Each 4x4 block of texels consists of 64
 bits of RGB image data and minimal alpha information.  The RGB components
-of a texel are extracted in the same way as DXT1 with no alpha.
+of a texel are extracted in the same way as BC1 with no alpha.
 
 The alpha component for a texel at location (x,y) in the block is
 given by:
@@ -90,6 +88,9 @@ given by:
     0.0,               if color0 <= color1 and code(x,y) == 3
     1.0,               otherwise
 
+// This is a discussion of the behavior of the encoder, not of the
+// format itself.
+//
 // IMPORTANT:  When encoding an RGBA image into a format using 1-bit
 // alpha, any texels with an alpha component less than 0.5 end up with an
 // alpha of 0.0 and any texels with an alpha component greater than or
@@ -106,14 +107,13 @@ The red, green, and blue components of any texels with a final alpha
 of 0 should be encoded as zero (black).
 
 === BC2
-// COMPRESSED_RGBA_S3TC_DXT3_EXT:
 
 Each 4x4 block of texels consists of 64
 bits of uncompressed alpha image data followed by 64 bits of RGB image
 data.  
 
 Each RGB image data block is encoded according to the
-DXT1 formats, with the exception that the two code
+BC1 formats, with the exception that the two code
 bits always use the non-transparent encodings.  In other words, they are
 treated as though color0 > color1, regardless of the actual values of
 color0 and color1.
@@ -140,13 +140,12 @@ The alpha component for a texel at location (x,y) in the block is
 given by alpha(x,y) / 15.
 
 === BC3
-// COMPRESSED_RGBA_S3TC_DXT5_EXT:
 
 Each 4x4 block of texels consists of 64
 bits of compressed alpha image data followed by 64 bits of RGB image data.
 
 Each RGB image data block is encoded according to the
-DXT1 format, with the exception that the two code
+BC1 formats, with the exception that the two code
 bits always use the non-transparent encodings.  In other words, they are
 treated as though color0 > color1, regardless of the actual values of
 color0 and color1.
@@ -190,4 +189,3 @@ given by:
       (1*alpha0 + 4*alpha1)/5,  alpha0 <= alpha1 and code(x,y) == 5
       0.0,                      alpha0 <= alpha1 and code(x,y) == 6
       1.0,                      alpha0 <= alpha1 and code(x,y) == 7
-

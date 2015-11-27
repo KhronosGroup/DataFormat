@@ -7,8 +7,8 @@ image in which each latexmath:[$4 \times 4$] block is treated as a single pixel.
 BPTC image has a width or height that is not a multiple of four, the data
 corresponding to texels outside the image are irrelevant and undefined.
 
-When a BPTC image with a width of {\em w}, height of {\em h}, and block size
-of {\em blocksize} (16 bytes) is decoded, the corresponding image size (in
+When a BPTC image with a width of _w_, height of _h_, and block size
+of _blocksize_ (16 bytes) is decoded, the corresponding image size (in
 bytes) is:
 
 [latexmath]
@@ -37,23 +37,21 @@ latexmath:[$4 \times 4$] texel block using a relative latexmath:[$(x,y)$] value 
     $$(x \bmod 4,y \bmod 4)$$
 ++++++++++++++
 
-
 There are two distinct BPTC image formats each of which has two variants.
-\glc{COMPRESSED\_RGBA\_BPTC\_UNORM} and
-\glc{COMPRESSED\_SRGB\_ALPHA\_BPTC\_UNORM} compress 8-bit fixed-point data.
-\glc{COMPRESSED\_RGB\_BPTC\_SIGNED\_FLOAT} and
-\glc{COMPRESSED\_RGB\_BPTC\_UNSIGNED\_FLOAT} compress high dynamic range
+BC7 with or without an sRGB transform function used in the encoding of the
+RGB channels compresses 8-bit unsigned, normalized fixed-point data.
+BC6H in signed or unsigned form compresses high dynamic range
 floating-point values. The formats are similar, so the description of the
-float format will reference significant sections of the UNORM description.
+BC6H format will reference significant sections of the BC7 description.
 
-=== BC6H and BC7
-// \subsection{Formats \enum{COMPRESSED\_RGBA\-\_BPTC\_UNORM} and
-//             \enum{COMPRESSED\_SRGB\-\_ALPHA\_BPTC\_UNORM}}
-// \index{COMPRESSED\_RGBA\_BPTC\_UNORM}
-// \index{COMPRESSED\_SRGB\_ALPHA\_BPTC\_UNORM}
+=== BC7
 
-Each latexmath:[$4 \times 4$] block of texels consists of 128 bits of \glc{RGBA} or
-\glc{SRGB\_ALPHA} image data.
+// Each latexmath:[$4 \times 4$] block of texels consists of 128 bits of RGBA or
+// SRGB_ALPHA image data.
+
+Each latexmath:[$4 \times 4$] block of texels consists of 128 bits of RGBA
+image data, of which the RGB components may be encoded linearly or with the
+sRGB transfer function.
 
 Each block contains enough information to select and decode a pair of colors
 called endpoints, interpolate between those endpoints in a variety of ways,
@@ -62,12 +60,12 @@ then remap the result into the final output.
 Each block can contain data in one of eight modes. The mode is identified by
 the lowest bits of the lowest byte. It is encoded as zero or more zeros
 followed by a one. For example, using x to indicate a bit not included in
-the mode  number, mode 0 is encoded as xxxxxxx1 in the low byte in binary,
+the mode number, mode 0 is encoded as xxxxxxx1 in the low byte in binary,
 mode 5 is xx100000, and mode 7 is 10000000. Encoding the low byte as zero is
 reserved and should not be used when encoding a BPTC texture.
 
 All further decoding is driven by the values derived from the mode listed in
-table~bptcmodes. The fields in the block are always in the same
+table-bptcmodes. The fields in the block are always in the same
 order for all modes. Starting at the lowest bit after the mode and going up,
 these fields are: partition number, rotation, index selection, color, alpha,
 per-endpoint P-bit, shared P-bit, primary indices, and secondary indices.
@@ -78,7 +76,7 @@ Each block can be divided into between 1 and 3 groups of pixels with
 independent compression parameters called subsets. A texel in a block with
 one subset is always considered to be in subset zero. Otherwise, a number
 determined by the number of partition bits is used to look up in the
-partition tables~bptcP2subset or~bptcP3subset for 2 and
+partition tables-bptcP2subset or -bptcP3subset for 2 and
 3 subsets respectively. This partitioning is indexed by the X and Y within
 the block to generate the subset index.
 
@@ -91,7 +89,7 @@ the alpha data follows the color data with the same organization. If not,
 alpha is overridden to 1.0. These bits are treated as the high bits of a
 fixed-point value in a byte. If the format has a shared P-bit, there are two
 bits for endpoints 0 and 1 from low to high. If the format has a
-per-endpoint P-bits, then there are 2*subsets P-bits stored in the same
+per-endpoint P-bits, then there are latexmath:[$2 \times subsets$] P-bits stored in the same
 order as color and alpha. Both kinds of P-bits are added as a bit below the
 color data stored in the byte. So, for a format with 5 red bits, the P-bit
 ends up in bit 2. For final scaling, the top bits of the value are
@@ -105,8 +103,8 @@ the anchor index. Since the ordering of the endpoints is unimportant, we can
 save one bit on one index per subset by ordering the endpoints such that the
 highest bit is guaranteed to be zero. In partition zero, the anchor index is
 always index zero. In other partitions, the anchor index is specified by
-tables~bptcA2index, bptcA32index,
-and~bptcA33index. If secondary index bits are present, they are
+tables-bptcA2index, bptcA32index,
+and -bptcA33index. If secondary index bits are present, they are
 read in the same manner. The anchor index information is only used to
 determine the number of bits each index has when it's read from the block
 data.
@@ -140,11 +138,14 @@ this color is remapped according to:
 ^| 3 | swap(a,b)
 |============
 
-These 8-bit values show up in the shader interpreted as either \glc{RGBA8}
-or \glc{SRGB8\_ALPHA8} for \glc{COMPRESSED\_RGBA\_BPTC\_UNORM} and
-\glc{COMPRESSED\_SRGB\_ALPHA\_BPTC\_UNORM} respectively.
+// This is a function for interpretation:
+// These 8-bit values show up in the shader interpreted as either \glc{RGBA8}
+// or \glc{SRGB8\_ALPHA8} for \glc{COMPRESSED\_RGBA\_BPTC\_UNORM} and
+// \glc{COMPRESSED\_SRGB\_ALPHA\_BPTC\_UNORM} respectively.
+These 8-bit values should be interpreted as RGBA 8-bit normalized
+channels, either linearly encoded or with the sRGB transfer function.
 
-.Mode-dependent BPTC parameters   % Table A?.    tab:bptcmodes
+.Mode-dependent BPTC parameters.
 [options="header",width="80%"]
 |============
 ^| Mode ^| NS ^| PB ^| RB ^| ISB ^| CB ^| AB ^| EPB ^| SPB ^| IB ^| IB2
@@ -174,7 +175,7 @@ or \glc{SRGB8\_ALPHA8} for \glc{COMPRESSED\_RGBA\_BPTC\_UNORM} and
 ^| IB2 | Secondary index bits per element}
 |============
 
-.Partition table for 2 subset, with the latexmath:[$4 \times 4$] block of values for each partition index value.
+.Partition table for 2 subset, with the 4×4 block of values for each partition index value
 |==================
 4+^| 0 4+^| 1 4+^| 2 4+^| 3 4+^| 4 4+^| 5 4+^| 6 4+^| 7 
 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 1 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0
@@ -295,7 +296,7 @@ or \glc{SRGB8\_ALPHA8} for \glc{COMPRESSED\_RGBA\_BPTC\_UNORM} and
 //| 0 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 1 | 1 | 1 | 0 | 1 | 1 | 1
 //|================
 
-.Partition table for 3 subset, with the latexmath:[$4 \times 4$] block of values for each partition index value.
+.Partition table for 3 subset, with the 4×4 block of values for each partition index value
 |===============
 4+^| 0 4+^| 1 4+^| 2 4+^| 3 4+^| 4 4+^| 5 4+^| 6 4+^| 7 
 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 2 | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 2 | 2 | 0 | 0 | 1 | 1 
@@ -450,27 +451,27 @@ or \glc{SRGB8\_ALPHA8} for \glc{COMPRESSED\_RGBA\_BPTC\_UNORM} and
 >| 15 >| 15 >| 15 >| 15 >|  3 >| 15 >| 15 >|  8
 |===============
 
-
-\subsection{Formats \enum{COMPRESSED\_RGB\_BPTC\_SIGNED\_FLOAT} and
-            \enum{COMPRESSED\_RGB\_BPTC\_UNSIGNED\_FLOAT}}
-\index{COMPRESSED\_RGB\_BPTC\_SIGNED\_FLOAT}
-\index{COMPRESSED\_RGB\_BPTC\_UNSIGNED\_FLOAT}
+=== BC6H
+// \subsection{Formats \enum{COMPRESSED\_RGB\_BPTC\_SIGNED\_FLOAT} and
+//             \enum{COMPRESSED\_RGB\_BPTC\_UNSIGNED\_FLOAT}}
+// \index{COMPRESSED\_RGB\_BPTC\_SIGNED\_FLOAT}
+// \index{COMPRESSED\_RGB\_BPTC\_UNSIGNED\_FLOAT}
 
 Each latexmath:[$4 \times 4$] block of texels consists of 128 bits of RGB data. These
 formats are very similar and will be described together. In the description
-and pseudocode below, {\em signed} will be used as a condition which is true
-for the \glc{SIGNED} format and false for the \glc{UNSIGNED} format. Both
-formats only contain RGB data, so the returned alpha value is 1.0. If a
+and pseudocode below, _signed_ will be used as a condition which is true
+for the signed version of the format and false for the unsigned version of the format format.
+Both formats only contain RGB data, so the returned alpha value is 1.0. If a
 block uses a reserved or invalid encoding, the return value is latexmath:[$(0,0,0,1)$].
 
 Each block can contain data in one of 14 modes. The mode number is encoded
 in either the low two bits or the low five bits. If the low two bits are
 less than two, that is the mode number, otherwise the low five bits the mode
-number. Mode numbers not listed in table~bptcblockmodes are reserved
+number. Mode numbers not listed in table-bptcblockmodes are reserved
 (19, 23, 27, and 31).
 
 The data for the compressed blocks is stored in a different format for each
-mode. The formats are specified in table~bptcblockformat. The format
+mode. The formats are specified in table-bptcblockformat. The format
 strings are intended to be read from left to right with the LSB on the left.
 Each element is of the form latexmath:[$v[a \colon b\]$]. If latexmath:[$a \ge b$], this indicates
 extracting latexmath:[$b-a+1$] bits from the block at that location and put them in the
@@ -496,7 +497,7 @@ values in latexmath:[$e_1$] (and latexmath:[$e_2$] and latexmath:[$e_3$] if the 
 sign-extended if the format of the texture is signed or if the block mode
 has transformed endpoints. If the mode has transformed endpoints, the values
 from latexmath:[$e_0$] are used as a base to offset all other endpoints, wrapped at the
-number of endpoint bits. For example, latexmath:[$r_1 = (r_0+r_1) \& ((1<<EPB)-1)$].
+number of endpoint bits. For example, latexmath:[$r_1 = (r_0+r_1)\ \&\ ((1 \ll EPB)-1)$].
 
 Next, the endpoints are unquantized to maximize the usage of the bits and
 to ensure that the negative ranges are oriented properly to interpolate as
@@ -509,7 +510,7 @@ latexmath:[$unq$] by:
          unq = x;
      else if (x == 0)
          unq = 0;
-     else if (x == ((1<<EPB)-1))
+     else if (x == ((1 << EPB)-1))
          unq = 0xFFFF;
      else
          unq = ((x << 15) + 0x4000) >> (EPB-1);
@@ -528,7 +529,7 @@ orienting the negative range:
 
          if (x == 0)
              unq = 0;
-         else if (x >= ((1<<(EPB-1))-1))
+         else if (x >= ((1 << (EPB-1))-1))
              unq = 0x7FFF;
          else
              unq = ((x << 15) + 0x4000) >> (EPB-1);
@@ -545,8 +546,11 @@ the unsigned format, this step simply multiplies by latexmath:[$31 \over 64$]. T
 signed format negates negative components, multiplies by latexmath:[$31 \over 32$], then
 ORs in the sign bit if the original value was negative.
 
-The resultant value should be a legal 16-bit half float which is then
-returned as a float to the shader.
+The resultant value should be a legal 16-bit half float.
+
+// Note: Original text was
+// ``The resultant value should be a legal 16-bit half float which is then
+// returned as a float to the shader.''
 
 .Endpoint and partition parameters for block modes
 [options="header", width="70%"]
@@ -568,7 +572,7 @@ returned as a float to the shader.
 ^| 15     ^| 1            ^| 0         ^| 16         ^| {4, 4, 4}
 |==============
 
-.Block formats for block modes
+.Block formats for BC6H block modes
 [options="header",cols="2,10",width="75%"]
 |===========================
 ^| Mode Number  | Block Format

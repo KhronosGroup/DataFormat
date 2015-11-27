@@ -291,10 +291,11 @@ For cubic and near-cubic blocks, this gives the following bit rates:
 ^| 6     ^| 6      ^| 6     ^| 0.59 ^|
 |======================
 
-The block footprint is shown as width x height x depth in the format
-enumerator, so for example the enumerator COMPRESSED_RGBA_ASTC_5x4x4_OES
-specifies an image with a block width of 5 texels, a block height of 4
-texels and a block depth of 4 texels.
+// Encoding is implementation-specific
+// The block footprint is shown as width x height x depth in the format
+// enumerator, so for example the enumerator COMPRESSED_RGBA_ASTC_5x4x4_OES
+// specifies an image with a block width of 5 texels, a block height of 4
+// texels and a block depth of 4 texels.
 
 The full profile supports only those block footprints listed in Tables
 C.2.2 and C.2.3. Other block sizes are not supported.
@@ -370,7 +371,9 @@ Each block has the same basic layout:
 3+| Extra 2+| Part 11+| Block mode
 |====================
 
-Dotted partition lines indicate that the split position is not fixed.
+Since the size of the ``texel weight data'' field is variable, the
+positions shown for the ``more config data'' field and ``color endpoint
+data'' field are only representative and not fixed.
 
 The ``Block mode'' field specifies how the Texel Weight Data is encoded.
 
@@ -457,16 +460,16 @@ For 2D blocks, the Block Mode field is laid out as follows:
 [width="100%",cols="1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1",options="header"]
 |====================
 | 10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 2+^| Width 2+^| Height 3+^| Notes
-| D | H 2+^| B 2+^| A | R0 | 0 | 0 | R2 | R1 2+^| B+4 2+^| A+2 3+|
-| D | H 2+^| B 2+^| A | R0 | 0 | 1 | R2 | R1 2+^| B+8 2+^| A+2 3+|
-| D | H 2+^| B 2+^| A | R0 | 1 | 0 | R2 | R1 2+^| A+2 2+^| B+8 3+|
-| D | H | 0 | B 2+^| A | R0 | 1 | 1 | R2 | R1 2+^| A+2 2+^| B+6 3+|
-| D | H | 1 | B 2+^| A | R0 | 1 | 1 | R2 | R1 2+^| B+2 2+^| A+2 3+|
-| D | H | 0 | 0 2+^| A | R0 | R2 | R1 | 0 | 0 2+^| 12 2+^| A+2 3+|
-| D | H | 0 | 1 2+^| A | R0 | R2 | R1 | 0 | 0 2+^| A+2 2+^| 12 3+|
-| D | H | 1 | 1 | 0 | 0 | R0 | R2 | R1 | 0 | 0 2+^| 6 2+^| 10 3+|
-| D | H | 1 | 1 | 0 | 1 | R0 | R2 | R1 | 0 | 0 2+^| 10 2+^| 6 3+|
-2+^| B | 1 | 0 2+^| A | R0 | R2 | R1 | 0 | 0 2+^| A+6 2+^| B+6 3+| D=0, H=0
+| D | H 2+^| B 2+^| A | latexmath:[$R_0$] | 0 | 0 | latexmath:[$R_2$] | latexmath:[$R_1$] 2+^| B+4 2+^| A+2 3+|
+| D | H 2+^| B 2+^| A | latexmath:[$R_0$] | 0 | 1 | latexmath:[$R_2$] | latexmath:[$R_1$] 2+^| B+8 2+^| A+2 3+|
+| D | H 2+^| B 2+^| A | latexmath:[$R_0$] | 1 | 0 | latexmath:[$R_2$] | latexmath:[$R_1$] 2+^| A+2 2+^| B+8 3+|
+| D | H | 0 | B 2+^| A | latexmath:[$R_0$] | 1 | 1 | latexmath:[$R_2$] | latexmath:[$R_1$] 2+^| A+2 2+^| B+6 3+|
+| D | H | 1 | B 2+^| A | latexmath:[$R_0$] | 1 | 1 | latexmath:[$R_2$] | latexmath:[$R_1$] 2+^| B+2 2+^| A+2 3+|
+| D | H | 0 | 0 2+^| A | latexmath:[$R_0$] | latexmath:[$R_2$] | latexmath:[$R_1$] | 0 | 0 2+^| 12 2+^| A+2 3+|
+| D | H | 0 | 1 2+^| A | latexmath:[$R_0$] | latexmath:[$R_2$] | latexmath:[$R_1$] | 0 | 0 2+^| A+2 2+^| 12 3+|
+| D | H | 1 | 1 | 0 | 0 | latexmath:[$R_0$] | latexmath:[$R_2$] | latexmath:[$R_1$] | 0 | 0 2+^| 6 2+^| 10 3+|
+| D | H | 1 | 1 | 0 | 1 | latexmath:[$R_0$] | latexmath:[$R_2$] | latexmath:[$R_1$] | 0 | 0 2+^| 10 2+^| 6 3+|
+2+^| B | 1 | 0 2+^| A | latexmath:[$R_0$] | latexmath:[$R_2$] | latexmath:[$R_1$] | 0 | 0 2+^| A+6 2+^| B+6 3+| D=0, H=0
 | x | x | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 2+| - 2+| - 3+| Void-extent
 | x | x | 1 | 1 | 1 | x | x | x | x | 0 | 0 2+| - 2+| - 3+| Reserved*
 | x | x | x | x | x | x | x | 0 | 0 | 0 | 0 2+| - 2+| - 3+| Reserved
@@ -486,13 +489,13 @@ For 3D blocks, the Block Mode field is laid out as follows:
 [width="100%",cols="1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1",options="header"]
 |====================
 | 10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 2+| Width 2+| Height 2+| Depth 3+| Notes
-| D  | H 2+| B 2+| A | R0 2+| C | R2 | R1 2+| A+2 2+| B+2 2+| C+2 3+|
-2+| B | 0 | 0 2+| A | R0 | R2 | R1 | 0 | 0 2+| 6 2+| B+2 2+| A+2 3+| D=0, H=0
-2+| B | 0 | 1 2+| A | R0 | R2 | R1 | 0 | 0 2+| A+2 2+| 6 2+| B+2 3+| D=0, H=0
-2+| B | 1 | 0 2+| A | R0 | R2 | R1 | 0 | 0 2+| A+2 2+| B+2 2+| 6 3+| D=0, H=0
-| D | H | 1 | 1 | 0 | 0  | R0 | R2 | R1 | 0 | 0 2+| 6 2+| 2 2+| 2 3+|
-| D | H | 1 | 1 | 0 | 1  | R0 | R2 | R1 | 0 | 0 2+| 2 2+| 6 2+| 2 3+|
-| D | H | 1 | 1 | 1 | 0  | R0 | R2 | R1 | 0 | 0 2+| 2 2+| 2 2+| 6 3+|
+| D  | H 2+| B 2+| A | latexmath:[$R_0$] 2+| C | latexmath:[$R_2$] | latexmath:[$R_1$] 2+| A+2 2+| B+2 2+| C+2 3+|
+2+| B | 0 | 0 2+| A | latexmath:[$R_0$] | latexmath:[$R_2$] | latexmath:[$R_1$] | 0 | 0 2+| 6 2+| B+2 2+| A+2 3+| D=0, H=0
+2+| B | 0 | 1 2+| A | latexmath:[$R_0$] | latexmath:[$R_2$] | latexmath:[$R_1$] | 0 | 0 2+| A+2 2+| 6 2+| B+2 3+| D=0, H=0
+2+| B | 1 | 0 2+| A | latexmath:[$R_0$] | latexmath:[$R_2$] | latexmath:[$R_1$] | 0 | 0 2+| A+2 2+| B+2 2+| 6 3+| D=0, H=0
+| D | H | 1 | 1 | 0 | 0  | latexmath:[$R_0$] | latexmath:[$R_2$] | latexmath:[$R_1$] | 0 | 0 2+| 6 2+| 2 2+| 2 3+|
+| D | H | 1 | 1 | 0 | 1  | latexmath:[$R_0$] | latexmath:[$R_2$] | latexmath:[$R_1$] | 0 | 0 2+| 2 2+| 6 2+| 2 3+|
+| D | H | 1 | 1 | 1 | 0  | latexmath:[$R_0$] | latexmath:[$R_2$] | latexmath:[$R_1$] | 0 | 0 2+| 2 2+| 2 2+| 6 3+|
 | x | x | 1 | 1 | 1 | 1  | 1  | 1  | 1  | 0 | 0 2+| - 2+| - 2+| - 3+| Void-extent
 | x | x | 1 | 1 | 1 | 1  | x  | x  | x  | 0 | 0 2+| - 2+| - 2+| - 3+| Reserved*
 | x | x | x | x | x | x  | x  | 0  | 0  | 0 | 0 2+| - 2+| - 2+| - 3+| Reserved
