@@ -3,6 +3,22 @@ Copyright (c) 2014-2016 The Khronos Group Inc.
 Copyright notice at https://www.khronos.org/registry/speccopyright.html
  -->
 
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+<xsl:import href="http://docbook.sourceforge.net/release/xsl/current/xhtml/docbook.xsl"/>
+<!-- Add MathJax <script> tags  to document <head> -->
+<xsl:template name="user.head.content">
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            MathML: { extensions: ["content-mathml.js"] },
+            tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] }
+        });
+    </script>
+    <script type="text/javascript"
+        src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+</xsl:template>
+</xsl:stylesheet>
+
 <authorgroup>
 <editor><firstname>Andrew</firstname><surname>Garrard</surname></editor>
 <othercredit><firstname>Frank</firstname><surname>Brill</surname></othercredit>
@@ -35,6 +51,9 @@ Copyright (C) 2014-2016  The Khronos Group Inc. All Rights Reserved.
 </simpara>
 <simpara>
 This specification is protected by copyright laws and contains material proprietary to the Khronos Group, Inc. It or any components may not be reproduced, republished, distributed, transmitted, displayed, broadcast, or otherwise exploited in any manner without the express prior written permission of Khronos Group. You may use this specification for implementing the functionality therein, without altering or removing any trademark, copyright or other notice from the specification, but the receipt or possession of this specification does not convey any rights to reproduce, disclose, or distribute its contents, or to manufacture, use, or sell anything that it may describe, in whole or in part.
+</simpara>
+<simpara>
+This version of the Data Format Specification is published and copyrighted by Khronos, but is not a Khronos ratified specification. Accordingly, it does not fall within the scope of the Khrnoos IP policy, except to the extent that sections of it are normatively referenced in ratified Khronos specifications. Such references incorporate the referenced sections into the ratified specifications, and bring those sections into the scope of the policy for those specifications.
 </simpara>
 <simpara>
 Khronos Group grants express permission to any current Promoter, Contributor or Adopter member of Khronos to copy and redistribute UNMODIFIED versions of this specification in any fashion, provided that NO CHARGE is made for the specification and the latest available update of the specification for any version of the API is used whenever possible. Such distributed specification may be reformatted AS LONG AS the contents of the specification are not changed in any way. The specification may be incorporated into a product that is sold as long as such product includes significant independent work developed by the seller. A link to the current version of this specification on the Khronos Group website should be included whenever possible with specification distributions.
@@ -122,7 +141,7 @@ Clarified KHR_DF_SAMPLE_DATATYPE_LINEAR
 </revremark>
 </revision>
 <revision>
-<revnumber>1.1 rev 1</revnumber>
+<revnumber>1.1</revnumber>
 <date>November 2015</date>
 <authorinitials>AG</authorinitials>
 <revremark>

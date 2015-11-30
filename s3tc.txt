@@ -1,6 +1,13 @@
 // Copyright (C) 2008-2015 The Khronos Group Inc. All Rights Reserved.
-
+[[S3TC]]
 == S3TC Compressed Texture Image Formats
+
+_This description is derived from the
+link:https://www.opengl.org/registry/specs/EXT/texture_compression_s3tc.txt[EXT_texture_compression_s3tc] extension._
+// Contact S3 Incorporated (http://www.s3.com) regarding any intellectual
+// property issues associated with implementing this extension.
+// Note: www.s3.com is no longer valid (nor is s3graphics.com. The company
+// is currently owned by HTC.
 
 Compressed texture images stored using the S3TC compressed image formats
 are represented as a collection of latexmath:[$4\times 4$] texel blocks, where each block
@@ -10,22 +17,36 @@ If an S3TC image has a width or height that is not a multiple of four, the
 data corresponding to texels outside the image are irrelevant and
 undefined.
 
-When an S3TC image with a width of <w>, height of <h>, and block size of
-<blocksize> (8 or 16 bytes) is decoded, the corresponding image size (in
+When an S3TC image with a width of _w_, height of _h_, and block size of
+_blocksize_ (8 or 16 bytes) is decoded, the corresponding image size (in
 bytes) is:
 
-    ceil(<w>/4) * ceil(<h>/4) * blocksize.
+[latexmath]
+++++++++++++++++
+    $$ \left\lceil { w \over 4 } \right\rceil \times
+       \left\lceil { h \over 4 } \right\rceil \times
+       blocksize$$
+++++++++++++++++
 
 When decoding an S3TC image, the block containing the texel at offset
-(<x>, <y>) begins at an offset (in bytes) relative to the base of the
+latexmath:[$(x,y)$] begins at an offset (in bytes) relative to the base of the
 image of:
 
-    blocksize * (ceil(<w>/4) * floor(<y>/4) + floor(<x>/4)).
+[latexmath]
+++++++++++++++
+    $$blocksize \times
+       \left( { \left\lceil  { w \over 4 } \right\rceil \times
+                \left\lfloor { y \over 4 } \right\rfloor +
+                \left\lfloor { x \over 4 } \right\rfloor } \right)$$
+++++++++++++++
 
-The data corresponding to a specific texel (<x>, <y>) are extracted from a
-4x4 texel block using a relative (x,y) value of
+The data corresponding to a specific texel latexmath:[$(x,y)$] are extracted from a
+latexmath:[$4\times 4$] texel block using a relative latexmath:[$(x,y)$] value of
 
-    (<x> modulo 4, <y> modulo 4).
+[latexmath]
+++++++++++++++
+    $$(x \bmod 4,y \bmod 4)$$
+++++++++++++++
 
 There are four distinct S3TC image formats:
 
@@ -37,37 +58,52 @@ bits of RGB image data.
 Each RGB image data block is encoded as a sequence of 8 bytes, called (in
 order of increasing address):
 
-        c0_lo, c0_hi, c1_lo, c1_hi, bits_0, bits_1, bits_2, bits_3
+[latexmath]
+++++++
+        $$c0_{lo}, c0_{hi}, c1_{lo}, c1_{hi}, bits_0, bits_1, bits_2, bits_3$$
+++++++
 
 The 8 bytes of the block are decoded into three quantities:
 
-    color0 = c0_lo + c0_hi * 256
-    color1 = c1_lo + c1_hi * 256
-    bits   = bits_0 + 256 * (bits_1 + 256 * (bits_2 + 256 * bits_3))
+[latexmath]
+++++++
+    $$color_0 = c0_{lo} + c0_{hi} \times 256$$
+    $$color_1 = c1_{lo} + c1_{hi} \times 256$$
+    $$bits   = bits_0 + 256 \times (bits_1 + 256 \times (bits_2 + 256 \times bits_3))$$
+++++++
 
 _color0_ and _color1_ are 16-bit unsigned integers that
 are unpacked to RGB colors RGB0 and RGB1 as though they were 16-bit packed pixels with
 the R channel in the high 5 bits, G in the next 6 bits and B in the low 5 bits.
 
 _bits_ is a 32-bit unsigned integer, from which a two-bit control code
-is extracted for a texel at location (x,y) in the block using:
+is extracted for a texel at location latexmath:[$(x,y)$] in the block using:
 
-    code(x,y) = bits[2*(4*y+x)+1 .. 2*(4*y+x)+0]
+[latexmath]
+++++++
+    $$code(x,y) = bits[2\times (4\times y+x)+1\ \dots\ 2\times(4\times y+x)+0]$$
+++++++
 
 where bit 31 is the most significant and bit 0 is the least
 significant bit.
 
-The RGB color for a texel at location (x,y) in the block is given by:
+The RGB color for a texel at location latexmath:[$(x,y)$] in the block is given
+in <<BC1blocks>>.
 
-    RGB0,              if color0 > color1 and code(x,y) == 0
-    RGB1,              if color0 > color1 and code(x,y) == 1
-    (2*RGB0+RGB1)/3,   if color0 > color1 and code(x,y) == 2
-    (RGB0+2*RGB1)/3,   if color0 > color1 and code(x,y) == 3
-
-    RGB0,              if color0 <= color1 and code(x,y) == 0
-    RGB1,              if color0 <= color1 and code(x,y) == 1
-    (RGB0+RGB1)/2,     if color0 <= color1 and code(x,y) == 2
-    BLACK,             if color0 <= color1 and code(x,y) == 3
+[[BC1blocks]]
+.Block decoding for BC1
+[options="header",cols="1,2",width="60%"]
+|==========
+^| Block value | Condition
+^| latexmath:[$RGB_0$] | latexmath:[$color_0 > color_1$] and latexmath:[$code(x,y) = 0$]
+^| latexmath:[$RGB_1$] | latexmath:[$color_0 > color_1$] and latexmath:[$code(x,y) = 1$]
+^| latexmath:[$(2\times RGB_9 + RGB_1)\over 3$] | latexmath:[$color_0 > color_1$] and latexmath:[$code(x,y) = 2$]
+^| latexmath:[$(RGB_0 + 2\times RGB_1)\over 3$] | latexmath:[$color_0 > color_1$] and latexmath:[$code(x,y) = 3$]
+^| latexmath:[$RGB_0$] | latexmath:[$color_0 \le color_1$] and latexmath:[$code(x,y) = 0$]
+^| latexmath:[$RGB_1$] | latexmath:[$color_0 \le color_1$] and latexmath:[$code(x,y) = 1$]
+^| latexmath:[$(RGB_0+RGB_1)\over 2$] | latexmath:[$color_0 \le color_1$] and latexmath:[$code(x,y) = 2$]
+^| BLACK | latexmath:[$color_0 \le color_1$] and latexmath:[$code(x,y) = 3$]
+|==========
 
 Arithmetic operations are done per component, and BLACK refers to an
 RGB color where red, green, and blue are all zero.
@@ -78,15 +114,21 @@ image is considered fully opaque.
 
 === BC1 with alpha
 
-Each 4x4 block of texels consists of 64
+Each latexmath:[$4\times 4$] block of texels consists of 64
 bits of RGB image data and minimal alpha information.  The RGB components
 of a texel are extracted in the same way as BC1 with no alpha.
 
-The alpha component for a texel at location (x,y) in the block is
-given by:
+The alpha component for a texel at location latexmath:[$(x,y)$] in the block is
+given by <<BC1alpha>>.
 
-    0.0,               if color0 <= color1 and code(x,y) == 3
-    1.0,               otherwise
+[[BC1alpha]]
+.BC1 with alpha
+[options="header",cols="1,2",width="60%"]
+|==========
+^| Alpha value | Condition
+| latexmath:[$0.0$] | latexmath:[$color_0 \le color1$] and latexmath:[$code(x,y) = 3$]
+| latexmath:[$1.0$] |               otherwise
+|==========
 
 // This is a discussion of the behavior of the encoder, not of the
 // format itself.
@@ -108,7 +150,7 @@ of 0 should be encoded as zero (black).
 
 === BC2
 
-Each 4x4 block of texels consists of 64
+Each latexmath:[$4\times 4$] block of texels consists of 64
 bits of uncompressed alpha image data followed by 64 bits of RGB image
 data.  
 
@@ -121,27 +163,36 @@ color0 and color1.
 Each alpha image data block is encoded as a sequence of 8 bytes, called
 (in order of increasing address):
 
-    a0, a1, a2, a3, a4, a5, a6, a7
+[latexmath]
+++++++
+    $$a_0, a_1, a_2, a_3, a_4, a_5, a_6, a_7$$
+++++++
 
 The 8 bytes of the block are decoded into one 64-bit integer:
 
-    alpha = a0 + 256 * (a1 + 256 * (a2 + 256 * (a3 + 256 * (a4 +
-                 256 * (a5 + 256 * (a6 + 256 * a7))))))
+[latexmath]
+++++++
+    $$alpha = a_0 + 256 \times (a_1 + 256 \times (a_2 + 256 \times (a_3 +
+                 256 \times (a_4 + 256 \times (a_5 + 256 \times (a_6 + 256 \times a_7))))))$$
+++++++
 
-latexmath:[$alpha$] is a 64-bit unsigned integer, from which a four-bit alpha value
-is extracted for a texel at location (x,y) in the block using:
+_alpha_ is a 64-bit unsigned integer, from which a four-bit alpha value
+is extracted for a texel at location latexmath:[$(x,y)$] in the block using:
 
-    alpha(x,y) = bits[4*(4*y+x)+3 .. 4*(4*y+x)+0]
+[latexmath]
+++++++
+    $$alpha(x,y) = bits[4\times(4\times y+x)+3 \dots 4\times(4\times y+x)+0]$$
+++++++
 
 where bit 63 is the most significant and bit 0 is the least
 significant bit.
 
-The alpha component for a texel at location (x,y) in the block is
-given by alpha(x,y) / 15.
+The alpha component for a texel at location latexmath:[$(x,y)$] in the block is
+given by latexmath:[$alpha(x,y)\over 15$].
 
 === BC3
 
-Each 4x4 block of texels consists of 64
+Each latexmath:[$4\times 4$] block of texels consists of 64
 bits of compressed alpha image data followed by 64 bits of RGB image data.
 
 Each RGB image data block is encoded according to the
@@ -153,39 +204,52 @@ color0 and color1.
 Each alpha image data block is encoded as a sequence of 8 bytes, called
 (in order of increasing address):
 
-    alpha0, alpha1, bits_0, bits_1, bits_2, bits_3, bits_4, bits_5
+[latexmath]
+++++++
+    $$alpha_0, alpha_1, bits_0, bits_1, bits_2, bits_3, bits_4, bits_5$$
+++++++
 
-The latexmath:[$alpha0$] and latexmath:[$alpha1$] are 8-bit unsigned bytes converted to alpha
-components by multiplying by 1/255.
+The latexmath:[$alpha_0$] and latexmath:[$alpha_1$] are 8-bit unsigned bytes converted to alpha
+components by multiplying by latexmath:[$1\over 255$].
 
-The 6 latexmath:[$bits$] bytes of the block are decoded into one 48-bit integer:
+The 6 _bits_ bytes of the block are decoded into one 48-bit integer:
 
-  bits = bits_0 + 256 * (bits_1 + 256 * (bits_2 + 256 * (bits_3 + 
-                  256 * (bits_4 + 256 * bits_5))))
+[latexmath]
+++++++
+  $$bits = bits_0 + 256 \times (bits_1 + 256 \times (bits_2 +
+           256 \times (bits_3 + 256 \times (bits_4 + 256 \times bits_5))))$$
+++++++
 
-latexmath:[$bits$] is a 48-bit unsigned integer, from which a three-bit control code
-is extracted for a texel at location (x,y) in the block using:
+_bits_ is a 48-bit unsigned integer, from which a three-bit control code
+is extracted for a texel at location latexmath:[$(x,y)$] in the block using:
 
-    code(x,y) = bits[3*(4*y+x)+2 .. 3*(4*y+x)+0]
+[latexmath]
+++++++
+    $$code(x,y) = bits[3\times(4\times y+x)+2 \dots 3\times(4\times y+x)+0]$$
+++++++
 
 where bit 47 is the most-significant and bit 0 is the least-significant bit.
 
-The alpha component for a texel at location (x,y) in the block is
-given by:
+The alpha component for a texel at location latexmath:[$(x,y)$] in the block is
+given by <<BC3alpha>>.
 
-      alpha0,                   code(x,y) == 0
-      alpha1,                   code(x,y) == 1
-
-      (6*alpha0 + 1*alpha1)/7,  alpha0 > alpha1 and code(x,y) == 2
-      (5*alpha0 + 2*alpha1)/7,  alpha0 > alpha1 and code(x,y) == 3
-      (4*alpha0 + 3*alpha1)/7,  alpha0 > alpha1 and code(x,y) == 4
-      (3*alpha0 + 4*alpha1)/7,  alpha0 > alpha1 and code(x,y) == 5
-      (2*alpha0 + 5*alpha1)/7,  alpha0 > alpha1 and code(x,y) == 6
-      (1*alpha0 + 6*alpha1)/7,  alpha0 > alpha1 and code(x,y) == 7
-
-      (4*alpha0 + 1*alpha1)/5,  alpha0 <= alpha1 and code(x,y) == 2
-      (3*alpha0 + 2*alpha1)/5,  alpha0 <= alpha1 and code(x,y) == 3
-      (2*alpha0 + 3*alpha1)/5,  alpha0 <= alpha1 and code(x,y) == 4
-      (1*alpha0 + 4*alpha1)/5,  alpha0 <= alpha1 and code(x,y) == 5
-      0.0,                      alpha0 <= alpha1 and code(x,y) == 6
-      1.0,                      alpha0 <= alpha1 and code(x,y) == 7
+[[BC3alpha]]
+.Alpha encoding for BC3 blocks
+[options="header",cols="2,3",width="70%"]
+|=================
+^| Alpha value | Condition
+^| latexmath:[$alpha0$]                   | latexmath:[$code(x,y) = 0$]
+^| latexmath:[$alpha1$]                   | latexmath:[$code(x,y) = 1$]
+^| latexmath:[$(6*alpha0 + 1*alpha1)\over 7$]  | latexmath:[$alpha0 > alpha1$] and latexmath:[$code(x,y) = 2$]
+^| latexmath:[$(5*alpha0 + 2*alpha1)\over 7$]  | latexmath:[$alpha0 > alpha1$] and latexmath:[$code(x,y) = 3$]
+^| latexmath:[$(4*alpha0 + 3*alpha1)\over 7$]  | latexmath:[$alpha0 > alpha1$] and latexmath:[$code(x,y) = 4$]
+^| latexmath:[$(3*alpha0 + 4*alpha1)\over 7$]  | latexmath:[$alpha0 > alpha1$] and latexmath:[$code(x,y) = 5$]
+^| latexmath:[$(2*alpha0 + 5*alpha1)\over 7$]  | latexmath:[$alpha0 > alpha1$] and latexmath:[$code(x,y) = 6$]
+^| latexmath:[$(1*alpha0 + 6*alpha1)\over 7$]  | latexmath:[$alpha0 > alpha1$] and latexmath:[$code(x,y) = 7$]
+^| latexmath:[$(4*alpha0 + 1*alpha1)\over 5$]  | latexmath:[$alpha0 \le alpha1$] and latexmath:[$code(x,y) = 2$]
+^| latexmath:[$(3*alpha0 + 2*alpha1)\over 5$]  | latexmath:[$alpha0 \le alpha1$] and latexmath:[$code(x,y) = 3$]
+^| latexmath:[$(2*alpha0 + 3*alpha1)\over 5$]  | latexmath:[$alpha0 \le alpha1$] and latexmath:[$code(x,y) = 4$]
+^| latexmath:[$(1*alpha0 + 4*alpha1)\over 5$]  | latexmath:[$alpha0 \le alpha1$] and latexmath:[$code(x,y) = 5$]
+^| latexmath:[$0.0$]                      | latexmath:[$alpha0 \le alpha1$] and latexmath:[$code(x,y) = 6$]
+^| latexmath:[$1.0$]                      | latexmath:[$alpha0 \le alpha1$] and latexmath:[$code(x,y) = 7$]
+|=================

@@ -1,6 +1,9 @@
 // Copyright (C) 2008-2015 The Khronos Group Inc. All Rights Reserved.
-
+[[RGTC]]
 == RGTC Compressed Texture Image Formats
+
+_This description is derived from the ``RGTC Compressed Texture Image Formats''
+section of the OpenGL 4.5 specification._
 
 Compressed texture images stored using the RGTC compressed image encodings
 are represented as a collection of 4×4 texel blocks, where each
@@ -10,8 +13,8 @@ single pixel. If an RGTC image has a width or height that is not a multiple
 of four, the data corresponding to texels outside the image are irrelevant
 and undefined.
 
-When an RGTC image with a width of latexmath:[$w$], height of latexmath:[$h$], and block
-size of latexmath:[$blocksize$] (8 or 16 bytes) is decoded, the corresponding image
+When an RGTC image with a width of _w_, height of _h_, and block
+size of _blocksize_ (8 or 16 bytes) is decoded, the corresponding image
 size (in bytes) is:
 
 [latexmath]
@@ -54,7 +57,10 @@ data.
 Each red image data block is encoded as a sequence of 8 bytes, called (in
 order of increasing address):
 
-    red_0, red_1, bits_0, bits_1, bits_2, bits_3, bits_4, bits_5
+[latexmath]
+++++++
+    $$red_0, red_1, bits_0, bits_1, bits_2, bits_3, bits_4, bits_5$$
+++++++
 
 The 6 latexmath:[$bits_*$] bytes of the block are decoded into a 48-bit bit vector:
 
@@ -95,8 +101,11 @@ extracted for a texel at location latexmath:[$(x,y)$] in the block using:
 
 where bit 47 is the most significant and bit 0 is the least significant bit.
 
-The red value latexmath:[$R$] for a texel at location latexmath:[$(x,y)$] in the block is given by:
+The red value latexmath:[$R$] for a texel at location latexmath:[$(x,y)$] in
+the block is given by <<BC4blocks>>.
 
+[[BC4blocks]]
+.Block decoding for BC4
 [options="header",width="43%",cols="1,2"]
 |==========
 | R value | Condition
@@ -131,21 +140,21 @@ data. The red values of a texel are extracted in the same way as
 BC4 unsigned except latexmath:[$red_0$], latexmath:[$red_1$], latexmath:[$RED_0$], latexmath:[$RED_1$],
 latexmath:[$RED_{min}$], and latexmath:[$RED_{max}$] are signed values defined as follows:
 
-latexmath:[$red_0$] and latexmath:[$red_1$] are 8-bit signed (twos complement) integers.
+[latexmath]
+++++++
+  $$RED_0 = \begin{cases}
+     red_0 \over 127.0, & red_0 > -128 \\
+     -1.0, & red_0 = -128
+  \end{cases}$$
+++++++
 
-[options="header",width="30%",cols="2,3"]
-|===========
-| latexmath:[$RED_0$] | Case
-| latexmath:[$red_0 \over 127.0$] | latexmath:[$red_0 > -128$]
-| latexmath:[$-1.0$] | latexmath:[$red_0 = -128$]
-|===========
-
-[options="header",width="30%",cols="2,3"]
-|===========
-| latexmath:[$RED_0$] | Case
-| latexmath:[$red_1 \over 127.0$] | latexmath:[$red_1 > -128$]
-| latexmath:[$-1.0$] | latexmath:[$red_1 = -128$]
-|===========
+[latexmath]
+++++++
+  $$RED_1 = \begin{cases}
+     red_1 \over 127.0, & red_1 > -128 \\
+     -1.0, & red_0 = -128
+  \end{cases}$$
+++++++
 
 [latexmath]
 +++++++++++
@@ -156,6 +165,8 @@ latexmath:[$red_0$] and latexmath:[$red_1$] are 8-bit signed (twos complement) i
 +++++++++++
         $$RED_{max} = 1.0$$
 +++++++++++
+
+latexmath:[$red_0$] and latexmath:[$red_1$] are 8-bit signed (twos complement) integers.
 
 CAVEAT for signed latexmath:[$red_0$] and latexmath:[$red_1$] values: the expressions
     latexmath:[$red_0 > red_1$] and latexmath:[$red_0 \leq red_1$]

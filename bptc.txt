@@ -1,4 +1,8 @@
+[[BPTC]]
 == BPTC Compressed Texture Image Formats
+
+_This description is derived from the ``BPTC Compressed Texture Image Formats''
+section of the OpenGL 4.5 specification._
 
 Compressed texture images stored using the BPTC compressed image formats are
 represented as a collection of latexmath:[$4 \times 4$] texel blocks, where each block
@@ -46,9 +50,6 @@ BC6H format will reference significant sections of the BC7 description.
 
 === BC7
 
-// Each latexmath:[$4 \times 4$] block of texels consists of 128 bits of RGBA or
-// SRGB_ALPHA image data.
-
 Each latexmath:[$4 \times 4$] block of texels consists of 128 bits of RGBA
 image data, of which the RGB components may be encoded linearly or with the
 sRGB transfer function.
@@ -65,7 +66,8 @@ mode 5 is xx100000, and mode 7 is 10000000. Encoding the low byte as zero is
 reserved and should not be used when encoding a BPTC texture.
 
 All further decoding is driven by the values derived from the mode listed in
-table-bptcmodes. The fields in the block are always in the same
+<<table-bptcmodes>> and <<table-bptcmodedescriptions>>. The fields in the
+block are always in the same
 order for all modes. Starting at the lowest bit after the mode and going up,
 these fields are: partition number, rotation, index selection, color, alpha,
 per-endpoint P-bit, shared P-bit, primary indices, and secondary indices.
@@ -75,8 +77,8 @@ table.
 Each block can be divided into between 1 and 3 groups of pixels with
 independent compression parameters called subsets. A texel in a block with
 one subset is always considered to be in subset zero. Otherwise, a number
-determined by the number of partition bits is used to look up in the
-partition tables-bptcP2subset or -bptcP3subset for 2 and
+determined by the number of partition bits is used to look up in
+<<bptcP2subset>> or <<bptcP3subset>> for 2 and
 3 subsets respectively. This partitioning is indexed by the X and Y within
 the block to generate the subset index.
 
@@ -103,8 +105,8 @@ the anchor index. Since the ordering of the endpoints is unimportant, we can
 save one bit on one index per subset by ordering the endpoints such that the
 highest bit is guaranteed to be zero. In partition zero, the anchor index is
 always index zero. In other partitions, the anchor index is specified by
-tables-bptcA2index, bptcA32index,
-and -bptcA33index. If secondary index bits are present, they are
+<<bptcA2index>>, <<bptcA32index>>,
+and <<bptcA33index>>. If secondary index bits are present, they are
 read in the same manner. The anchor index information is only used to
 determine the number of bits each index has when it's read from the block
 data.
@@ -118,8 +120,11 @@ if the block has a secondary index and the block either doesn't have an
 index selection bit or that bit is zero and the primary index otherwise.
 
 Interpolation is always performed using a 6-bit interpolation factor. The
-effective interpolation factors for 2-, 3-, and 4-bit indices are given below:
+effective interpolation factors for 2-, 3-, and 4-bit indices are given
+in <<BPTCInterpolation>>.
 
+[[BPTCInterpolation]]
+.BPTC interpolation factors
 [cols="h,16*",width="80%"]
 |==========
 ^| 2 4+^| 0 4+^| 21 4+^| 43 4+^| 64
@@ -128,8 +133,10 @@ effective interpolation factors for 2-, 3-, and 4-bit indices are given below:
 |==========
 
 The interpolation results in an RGBA color. If rotation bits are present,
-this color is remapped according to:
+this color is remapped according to <<BPTCRotation>>.
 
+[[BPTCRotation]]
+.BPTC Rotation bits
 [cols="h,3",width="25%"]
 |============
 ^| 0 | no change
@@ -145,6 +152,7 @@ this color is remapped according to:
 These 8-bit values should be interpreted as RGBA 8-bit normalized
 channels, either linearly encoded or with the sRGB transfer function.
 
+[[table-bptcmodes]]
 .Mode-dependent BPTC parameters.
 [options="header",width="80%"]
 |============
@@ -159,7 +167,8 @@ channels, either linearly encoded or with the sRGB transfer function.
 ^| 7    ^| 2  ^| 6  ^| 0  ^| 0   ^| 5  ^| 5  ^| 1   ^| 0   ^| 2  ^| 0
 |============
 
-.Mode-dependent BPTC parameters. The full descriptions of each column are as follows
+[[table-bptcmodedescriptions]]
+.The full descriptions of the BPTC mode columns are as follows
 [options="header",cols="1,7",width="45%"]
 |============
 ^| Mode | As described previously
@@ -175,7 +184,8 @@ channels, either linearly encoded or with the sRGB transfer function.
 ^| IB2 | Secondary index bits per element}
 |============
 
-.Partition table for 2 subset, with the 4×4 block of values for each partition index value
+[[bptcP2subset]]
+.Partition table for BPTC 2 subset, with the 4×4 block of values for each partition index value
 |==================
 4+^| 0 4+^| 1 4+^| 2 4+^| 3 4+^| 4 4+^| 5 4+^| 6 4+^| 7 
 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 1 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0
@@ -296,7 +306,8 @@ channels, either linearly encoded or with the sRGB transfer function.
 //| 0 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 1 | 1 | 1 | 0 | 1 | 1 | 1
 //|================
 
-.Partition table for 3 subset, with the 4×4 block of values for each partition index value
+[[bptcP3subset]]
+.Partition table for BPTC 3 subset, with the 4×4 block of values for each partition index value
 |===============
 4+^| 0 4+^| 1 4+^| 2 4+^| 3 4+^| 4 4+^| 5 4+^| 6 4+^| 7 
 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 2 | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 2 | 2 | 0 | 0 | 1 | 1 
@@ -412,7 +423,8 @@ channels, either linearly encoded or with the sRGB transfer function.
 // | 0 | 1 | 0 | 1 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2
 // | 0 | 1 | 1 | 1 | 2 | 0 | 1 | 1 | 2 | 2 | 0 | 1 | 2 | 2 | 2 | 0
 
-.Anchor index values for the second subset of two-subset partitioning. Values run right, then down.
+[[bptcA2index]]
+.BPTC anchor index values for the second subset of two-subset partitioning. Values run right, then down.
 [width="40%"]
 |==============
 >| 15 >| 15 >| 15 >| 15 >| 15 >| 15 >| 15 >| 15
@@ -425,7 +437,8 @@ channels, either linearly encoded or with the sRGB transfer function.
 >| 15 >| 15 >| 15 >| 15 >| 15 >|  2 >|  2 >| 15
 |==============
 
-.Anchor index values for the second subset of three-subset partitioning. Values run right, then down.
+[[bptcA32index]]
+.BPTC anchor index values for the second subset of three-subset partitioning. Values run right, then down.
 [width="40%"]
 |================
 >|  3 >|  3 >| 15 >| 15 >|  8 >|  3 >| 15 >| 15
@@ -438,7 +451,8 @@ channels, either linearly encoded or with the sRGB transfer function.
 >|  5 >| 10 >|  8 >| 13 >| 15 >| 12 >|  3 >|  3
 |================
 
-.Anchor index values for the third subset of three-subset partitioning. Values run right, then down.
+[[bptcA33index]]
+.BPTC anchor index values for the third subset of three-subset partitioning. Values run right, then down.
 [width="40%"]
 |===============
 >| 15 >|  8 >|  8 >|  3 >| 15 >| 15 >|  3 >|  8
@@ -460,22 +474,22 @@ channels, either linearly encoded or with the sRGB transfer function.
 Each latexmath:[$4 \times 4$] block of texels consists of 128 bits of RGB data. These
 formats are very similar and will be described together. In the description
 and pseudocode below, _signed_ will be used as a condition which is true
-for the signed version of the format and false for the unsigned version of the format format.
+for the signed version of the format and false for the unsigned version of the format.
 Both formats only contain RGB data, so the returned alpha value is 1.0. If a
 block uses a reserved or invalid encoding, the return value is latexmath:[$(0,0,0,1)$].
 
 Each block can contain data in one of 14 modes. The mode number is encoded
 in either the low two bits or the low five bits. If the low two bits are
 less than two, that is the mode number, otherwise the low five bits the mode
-number. Mode numbers not listed in table-bptcblockmodes are reserved
+number. Mode numbers not listed in <<table-bptcblockmodes>> are reserved
 (19, 23, 27, and 31).
 
 The data for the compressed blocks is stored in a different format for each
-mode. The formats are specified in table-bptcblockformat. The format
+mode. The formats are specified in <<table-bptcblockformat>>. The format
 strings are intended to be read from left to right with the LSB on the left.
 Each element is of the form latexmath:[$v[a \colon b\]$]. If latexmath:[$a \ge b$], this indicates
 extracting latexmath:[$b-a+1$] bits from the block at that location and put them in the
-corresponding bits of the variable latexmath:[$v$]. If latexmath:[$a<b$], then the bits are
+corresponding bits of the variable _v_. If _a_ < _b_, then the bits are
 reversed. latexmath:[$v[a\]$] is used as a shorthand for the one bit latexmath:[$v[a \colon a\]$]. As an
 example, latexmath:[$m[1 \colon0 \],g2[4\]$] would move the low two bits from the block into the
 low two bits of m then the next bit of the block into bit 4 of latexmath:[$g2$]. The
@@ -485,9 +499,9 @@ Subsets and indices work in much the same way as described for the
 fixed-point formats above. If a float block has no partition bits, then it
 is a single-subset block. If it has partition bits, then it is a 2 subset
 block. The partition index references the first half of
-table-bptcP2subset. Indices are read in the same way as the
+<<bptcP2subset>>. Indices are read in the same way as the
 fixed-point formats including obeying the anchor values for index 0 and as
-needed by table-bptcA2index.
+needed by <<bptcA2index>>.
 
 In a single-subset blocks, the two endpoints are contained in latexmath:[$r_0,g_0,b_0$]
 (hence latexmath:[$e_0$]) and latexmath:[$r_1,g_1,b_1$] (hence latexmath:[$e_1$]). In a two-subset block, the
@@ -497,7 +511,7 @@ values in latexmath:[$e_1$] (and latexmath:[$e_2$] and latexmath:[$e_3$] if the 
 sign-extended if the format of the texture is signed or if the block mode
 has transformed endpoints. If the mode has transformed endpoints, the values
 from latexmath:[$e_0$] are used as a base to offset all other endpoints, wrapped at the
-number of endpoint bits. For example, latexmath:[$r_1 = (r_0+r_1)\ \&\ ((1 \ll EPB)-1)$].
+number of endpoint bits. For example, latexmath:[$r_1 = (r_0+r_1)$] & latexmath:[$((1 \ll EPB)-1)$].
 
 Next, the endpoints are unquantized to maximize the usage of the bits and
 to ensure that the negative ranges are oriented properly to interpolate as
@@ -552,7 +566,8 @@ The resultant value should be a legal 16-bit half float.
 // ``The resultant value should be a legal 16-bit half float which is then
 // returned as a float to the shader.''
 
-.Endpoint and partition parameters for block modes
+[[table-bptcblockmodes]]
+.Endpoint and partition parameters for BPTC block modes
 [options="header", width="70%"]
 |==============
 ^| Mode Number  ^| Transformed Endpoints ^| Partition Bits (PB) ^| Endpoint Bits (EPB)  ^| Delta Bits
@@ -572,6 +587,7 @@ The resultant value should be a legal 16-bit half float.
 ^| 15     ^| 1            ^| 0         ^| 16         ^| {4, 4, 4}
 |==============
 
+[[table-bptcblockformat]]
 .Block formats for BC6H block modes
 [options="header",cols="2,10",width="75%"]
 |===========================

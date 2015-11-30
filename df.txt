@@ -3,7 +3,7 @@
 = Khronos Data Format Specification =
 Andrew Garrard <a.garrard@samsung.com>
 :Author Initials: AG
-v1.1 rev 1, November 11, 2015
+v1.1 rev 6, November 30, 2015
 :toc:
 :toc-placement: manual
 
@@ -16,12 +16,16 @@ avoid replication of incompatible format descriptions between standards
 and to provide a definitive mechanism for describing data that avoids
 excluding useful information that may be ignored by other standards.
 Other APIs are expected to map internal formats to this standard scheme,
-allowing formats to be shared and compared.
+allowing formats to be shared and compared. This document also acts as
+a reference for the memory layout of a number of common compressed
+texture formats.
 
 ifdef::backend-html5[]
 Copyright (C) 2014-2015 The Khronos Group Inc. All Rights Reserved.
 
 This specification is protected by copyright laws and contains material proprietary to the Khronos Group, Inc. It or any components may not be reproduced, republished, distributed, transmitted, displayed, broadcast, or otherwise exploited in any manner without the express prior written permission of Khronos Group. You may use this specification for implementing the functionality therein, without altering or removing any trademark, copyright or other notice from the specification, but the receipt or possession of this specification does not convey any rights to reproduce, disclose, or distribute its contents, or to manufacture, use, or sell anything that it may describe, in whole or in part.
+
+This version of the Data Format Specification is published and copyrighted by Khronos, but is not a Khronos ratified specification. Accordingly, it does not fall within the scope of the Khrnoos IP policy, except to the extent that sections of it are normatively referenced in ratified Khronos specifications. Such references incorporate the referenced sections into the ratified specifications, and bring those sections into the scope of the policy for those specifications.
 
 Khronos Group grants express permission to any current Promoter, Contributor or Adopter member of Khronos to copy and redistribute UNMODIFIED versions of this specification in any fashion, provided that NO CHARGE is made for the specification and the latest available update of the specification for any version of the API is used whenever possible. Such distributed specification may be reformatted AS LONG AS the contents of the specification are not changed in any way. The specification may be incorporated into a product that is sold as long as such product includes significant independent work developed by the seller. A link to the current version of this specification on the Khronos Group website should be included whenever possible with specification distributions.
 
@@ -130,6 +134,9 @@ color information. For this reason, the range of standard color representations
 used in Khronos standards is diverse, and a significant portion of this
 specification is devoted to color formats.
 
+Later sections provide a description of the memory layout of a number of
+common texture compression formats.
+
 == Overview ==
 
 This document describes a standard layout for a data structure that can be
@@ -156,14 +163,16 @@ interpretation of color channels within a pixel, but is not responsible for
 determining the mapping between spatial coordinates and the location of pixels
 in memory. That is, two textures which share the same pixel layout can share
 the same descriptor as defined in this specification, but may have different
-sizes, line strides, tiling or dimensionality.
+sizes, line strides, tiling or dimensionality. An example pixel format is
+described in <<SimpleTexelBlock>>.
 
+[[SimpleTexelBlock]]
 .A simple texel block -- three channels representing one pixel
 [width="30%",cols="1a"]
 |==============
-|
+^|
 !==========
-! Red ! Green ! Blue
+^! Red ^! Green ^! Blue
 !==========
 |==============
 
@@ -171,28 +180,29 @@ In some cases, the elements of bulk texture data may not correspond to a
 conventional texel. For example, in a compressed texture it is common for
 the atomic element of the buffer to represent a rectangular block of
 texels. Alternatively the representation of the output of a camera may have
-a repeating pattern according to a Bayer or other layout. It is this repeating
-and self-contained atomic unit, termed a _texel block_, that is described by this
-standard.
+a repeating pattern according to a Bayer or other layout, as shown in
+<<SimpleBayerBlock>>. It is this repeating and self-contained atomic unit,
+termed a _texel block_, that is described by this standard.
 
+[[SimpleBayerBlock]]
 .A simple Bayer-pattern texel block -- three channels spread across 2×2 pixels
 [width="25%",cols="1a,1a"]
 |==============
-|
+^|
 !==========
-! Red
+^! Red
 !==========
-|
+^|
 !==========
-! Green
+^! Green
 !==========
-|
+^|
 !==========
-! Green
+^! Green
 !==========
-|
+^|
 !==========
-! Blue
+^! Blue
 !==========
 |==============
 
@@ -214,17 +224,19 @@ in a field at the start of the descriptor, making it possible to copy the
 data structure without needing to interpret all possible contents.
 
 The data format descriptor is divided into one or more _<<descriptorblock,descriptor blocks>>_,
-each also consisting of contiguous data. These descriptor blocks may, themselves,
+each also consisting of contiguous data, as shown in <<DescriptorAndDescriptorBlocks>>.
+These descriptor blocks may, themselves,
 be of different sizes, depending on the data contained within. The size of a
 descriptor block is stored as part of its data structure, allowing applications
 to process a data format descriptor while skipping contained descriptor blocks
 that it does not need to understand. The data format descriptor mechanism is
 extensible by the addition of new descriptor blocks.
 
+[[DescriptorAndDescriptorBlocks]]
 .Data format descriptor and descriptor blocks
 [width="75%",cols="1a"]
 |=============
-| Data format descriptor
+|Data format descriptor
 [width="100%",cols="1"]
 !=============
 ! Descriptor block 1
@@ -240,6 +252,9 @@ expected to be the first descriptor block inside the data format descriptor
 where present, and which is sufficient for a large number of common formats,
 particularly for pixels. Formats which cannot be described within this scheme
 can use additional descriptor blocks of other types as necessary.
+
+Later sections of this specification provide a description of the in-memory
+representation of a number of common compressed texture formats.
 
 === Glossary ===
 
@@ -311,53 +326,56 @@ formats which have proprietary padding requirements that are hard
 to accommodate in a more terse representation.
 
 In many existing APIs, planes may be ``downsampled'' differently.
-For example, in these APIs, a <<yuv420,YUV4:2:0>> buffer would typically be
-<<yuv420conventional,represented>> with three planes, one for each channel, with the luma
+For example, in these APIs, a YUV4:2:0 buffer as in <<yuv420>> would typically be
+represented with three planes (<<yuv420conventional>>), one for each channel, with the luma
 plane four times larger than the chroma planes, and with two lines of
 the luma held within the same plane. This approach does not extend
-logically to more complex formats such as a Bayer grid. Therefore
-in this specification, we would <<yuv420thisapi,instead>> define the luma channel using two
-planes, vertically interleaved, with each line contiguous (the chroma
+logically to more complex formats such as a Bayer grid. Therefore in this
+specification, we would instead define the luma channel as in <<yuv420thisapi>>,
+using two planes, vertically interleaved, with each line contiguous (the chroma
 channels remain one each). There is no expectation that the internal format
 used by an API that wishes to make use of the Khronos Data Format Specification
 must use this specification's representation internally: reconstructing
 downsampling information from this standard's representation in order to
 revert to the more conventional representation should be trivial if required.
 
-.[[yuv420]]Possible memory representation of a 4×4 YUV4:2:0 buffer (numbers are byte offsets)
-[cols="1a",width="20%"]
+[[yuv420]]
+.Possible memory representation of a 4×4 YUV4:2:0 buffer (numbers are byte offsets)
+[cols="1a",width="25%"]
 |==============================
-| Y channel
-|[cols="4"]
+^|Y channel
+^|[cols="4"]
 !=====================
-!0!1!2!3
-!4!5!6!7
-!8!9!10!11
-!12!13!14!15
+>!0 >!1 >!2 >!3
+>!4 >!5 >!6 >!7
+>!8 >!9 >!10 >!11
+>!12 >!13 >!14 >!15
 !=====================
-| U channel
-|[cols="2"]
+^|U channel
+^|[cols="2"]
 !=====================
-!16!17
-!18!19
+^!16 ^!17
+^!18 ^!19
 !=====================
-| V channel
-|[cols="2"]
+^|V channel
+^|[cols="2"]
 !=====================
-!20!21
-!22!23
+^!20 ^!21
+^!22 ^!23
 !=====================
 |==============================
 
-.[[yuv420conventional]]Plane descriptors for the above YUV format buffer in a conventional API
-[cols="4",width="70%"]
+[[yuv420conventional]]
+.Plane descriptors for the above YUV format buffer in a conventional API
+[cols="2,2,3,3",width="70%"]
 |==============================
 | Y plane | offset 0 | byte stride 4 | downsample 1×1
 | U plane | offset 16 | byte stride 2 | downsample 2×2
 | V plane | offset 20 | byte stride 2 | downsample 2×2
 |==============================
 
-.[[yuv420thisapi]]Plane descriptors for the above YUV format buffer using this standard
+[[yuv420thisapi]]
+.Plane descriptors for the above YUV format buffer using this standard
 [cols="4",width="60%"]
 |==============================
 | Y plane 1 | offset 0 | byte stride 8 | plane bytes 2
@@ -377,7 +395,7 @@ a level stride. Since these strides are determined by the data size
 and architecture alignment requirements, they are not considered to be
 part of the format.
 
-== Required concepts not contained in this format ==
+== Required concepts not in the ``format'' ==
 
 This specification encodes how atomic data should be interpreted in a manner which is
 independent of the layout and dimensionality of the collective data. Collections
@@ -454,7 +472,7 @@ proprietary translation. As a logical format description, this is unlikely
 to be critical, since any software which accesses such a layout will
 necessarily need proprietary knowledge anyway.
 
-== Translation to API-specific data format representations ==
+== Translation to API-specific representations ==
 
 The data format container described here is too unwieldy to be expected to
 be used directly in most APIs. The expectation is that APIs and users will
@@ -482,10 +500,13 @@ little-endian for the purposes of data transfer, but may be implemented
 in the natural endianness of the platform for internal use.
 
 The data format descriptor consists of a contiguous area of memory,
-divided into one or more _descriptor blocks_ which are tagged by the type of
+as shown in <<DataFormatDescriptorOverview>>,
+divided into one or more _descriptor blocks_, as in
+<<DataFormatDescriptorHeader>> which are tagged by the type of
 descriptor that they contain. The size of the data format descriptor
 varies according to its content.
 
+[[DataFormatDescriptorOverview]]
 .Data Format Descriptor layout
 |=====================================
 | uint32_t | total_size
@@ -496,10 +517,11 @@ varies according to its content.
 The *total_size* field, measured in bytes, allows the full format descriptor
 to be copied without need for details of the descriptor to be interpreted.
 
+[[DataFormatDescriptorHeader]]
 .Data format descriptor header and descriptor blocks
 [width="75%",cols="1a"]
 |=============
-| total_size
+|total_size
 [width="100%",cols="1"]
 !=============
 ! Descriptor block 1
@@ -511,12 +533,13 @@ to be copied without need for details of the descriptor to be interpreted.
 
 == [[descriptorblock]]Descriptor block ==
 
-Each Descriptor Block has the same prefix:
+Each Descriptor Block has the same prefix, shown in <<DescriptorPrefix>>.
 
+[[DescriptorPrefix]]
 .Descriptor Block layout
 |================================
-| uint32_t | vendor_id \| descriptor_type << 16
-| uint32_t | version_number \| descriptor_block_size << 16
+| uint32_t | vendor_id \| (descriptor_type << 16)
+| uint32_t | version_number \| (descriptor_block_size << 16)
 2+| Format-specific data
 |================================
 
@@ -534,7 +557,8 @@ backwards-compatible updates to existing descriptor blocks.
 
 The *descriptor_block_size* indicates the size in bytes of this
 Descriptor Block, remembering that there may be multiple
-Descriptor Blocks within one container. The *descriptor_block_size*
+Descriptor Blocks within one container, as shown in <<DataFormatDescriptorHeaderExample>>.
+The *descriptor_block_size*
 therefore gives the offset between the start of the current
 Descriptor Block and the start of the next -- so the size includes
 the *vendor_id*, *descriptor_type*, *version_number* and
@@ -553,22 +577,23 @@ or pixels described in an arbitrary color space. Vendors can also implement
 proprietary descriptor blocks to hold vendor-specific information within the
 standard Descriptor.
 
+[[DataFormatDescriptorHeaderExample]]
 .Data format descriptor header and descriptor block headers
 [width="75%",cols="1a"]
 |=============
-| total_size
+|total_size
 |
 [width="100%"]
 !=============
-! vendor_id \| descriptor_type
-! version_number \| descriptor_block_size
+! vendor_id \| (descriptor_type << 16)
+! version_number \| (descriptor_block_size << 16)
 ! :
 !=============
 |
 [width="100%"]
 !=============
-! vendor_id \| descriptor_type
-! version_number \| descriptor_block_size
+! vendor_id \| (descriptor_type << 16)
+! version_number \| (descriptor_block_size << 16)
 ! :
 !=============
 |=============
@@ -576,7 +601,8 @@ standard Descriptor.
 
 == [[basicdescriptor]]Khronos Basic Data Format Descriptor Block ==
 
-One _basic descriptor block_ is intended to cover a large amount of
+One _basic descriptor block_, shown in <<BasicDescriptorBlock>> is intended to
+cover a large amount of
 metadata that is typically associated with common bulk data -- most notably
 image or texture data. While this descriptor contains more information about
 the data interpretation than is needed by many applications, having a relatively
@@ -594,6 +620,7 @@ containing three samples, one of each color, in one plane. A YUV 4:2:0
 format may consist of a repeating 2×2 region consisting of four Y samples
 and one sample each of U and V.
 
+[[BasicDescriptorBlock]]
 .Basic Data Format Descriptor layout
 [options="header"]
 |================================
@@ -686,11 +713,13 @@ each channel.
 
 This color model represents additive colors of three channels,
 nominally red, green and blue, supplemented by channels for
-alpha, depth and stencil. Note that in many formats, depth and
+alpha, depth and stencil, as shown in <<RGBSDAChannels>>.
+Note that in many formats, depth and
 stencil are stored in a completely independent buffer, but there
 are formats for which integrating depth and stencil with color
 data makes sense.
 
+[[RGBSDAChannels]]
 .Basic Data Format RGBSDA channels
 [width="100%",options="header"]
 |================================
@@ -712,7 +741,8 @@ portably without taking significantly more space.
 
 This color model represents color differences with three channels,
 nominally luma (Y) and two color-difference chroma channels, U (Cb) and V (Cr),
-supplemented by channels for alpha, depth and stencil. These formats are
+supplemented by channels for alpha, depth and stencil, as shown in
+<<YUVSDAChannels>>. These formats are
 distinguished by U and V being a delta between the Y channel and the
 blue and red channels respectively, rather than requiring a full color
 matrix. The conversion between YUV and RGB color spaces is defined in this
@@ -721,6 +751,7 @@ case by the choice of value in the *color_primaries* field.
 Note: Most single-channel luma data formats should select *KHR_DF_MODEL_YUVSDA*
 and use only the Y channel, unless there is a reason to do otherwise.
 
+[[YUVSDAChannels]]
 .Basic Data Format YUVSDA channels
 [width="100%",options="header"]
 |================================
@@ -737,10 +768,12 @@ and use only the Y channel, unless there is a reason to do otherwise.
 
 This color model represents color differences with three channels,
 nominally luma (Y) and two color-difference chroma channels, I and Q,
-supplemented by channels for alpha, depth and stencil. This format is
+supplemented by channels for alpha, depth and stencil, as shown in
+<<YIQSDAChannels>>. This format is
 distinguished by I and Q each requiring all three additive channels to
 evaluate.
 
+[[YIQSDAChannels]]
 .Basic Data Format YIQSDA channels
 [width="100%",options="header"]
 |================================
@@ -756,8 +789,10 @@ evaluate.
 ==== KHR_DF_MODEL_LABSDA ====
 
 This color model represents the ICC perceptually-uniform L*a*b*
-color space, combined with the option of an alpha channel.
+color space, combined with the option of an alpha channel, as
+shown in <<LABSDAChannels>>.
 
+[[LABSDAChannels]]
 .Basic Data Format LABSDA channels
 [width="100%",options="header"]
 |================================
@@ -773,8 +808,10 @@ color space, combined with the option of an alpha channel.
 ==== KHR_DF_MODEL_CMYKA ====
 
 This color model represents secondary (subtractive) colors and
-the combined key (black) channel, along with alpha.
+the combined key (black) channel, along with alpha, as shown in
+<<CMYKAChannels>>.
 
+[[CMYKAChannels]]
 .Basic Data Format CMYKA channels
 [width="100%",options="header"]
 |================================
@@ -789,12 +826,14 @@ the combined key (black) channel, along with alpha.
 ==== KHR_DF_MODEL_XYZW ====
 
 This ``color model'' represents channel data used for
-coordinate values -- for example, as a representation of
+coordinate values, as shown in <<XYZWChannels>> --
+for example, as a representation of
 the surface normal in a bump map. Additional channels
 for higher-dimensional coordinates can be used by
 extending the channel number within the 4-bit limit
 of the *channel_type* field.
 
+[[XYZWChannels]]
 .Basic Data Format XYZW channels
 [width="100%",options="header"]
 |================================
@@ -809,10 +848,12 @@ of the *channel_type* field.
 
 This color model represents color differences with three channels,
 _value_ (luminance or luma), _saturation_ (distance from monochrome)
-and _hue_ (dominant wavelength), supplemented by an alpha channel.
+and _hue_ (dominant wavelength), supplemented by an alpha channel,
+as shown in <<HSVAAngChannels>>.
 In this model, the hue relates to the angular offset on a color
 wheel.
 
+[[HSVAAngChannels]]
 .Basic Data Format HSVA_ANG channels
 [width="100%",options="header"]
 |================================
@@ -827,10 +868,12 @@ wheel.
 
 This color model represents color differences with three channels,
 _lightness_ (maximum intensity), _saturation_ (distance from monochrome)
-and _hue_ (dominant wavelength), supplemented by an alpha channel.
+and _hue_ (dominant wavelength), supplemented by an alpha channel,
+as shown in <<HSLAAngChannels>>.
 In this model, the hue relates to the angular offset on a color
 wheel.
 
+[[HSLAAngChannels]]
 .Basic Data Format HSLA_ANG channels
 [width="100%",options="header"]
 |================================
@@ -845,10 +888,12 @@ wheel.
 
 This color model represents color differences with three channels,
 _value_ (luminance or luma), _saturation_ (distance from monochrome)
-and _hue_ (dominant wavelength), supplemented by an alpha channel.
+and _hue_ (dominant wavelength), supplemented by an alpha channel,
+as shown in <<HSVAHexChannels>>.
 In this model, the hue is generated by interpolation between
 extremes on a color hexagon.
 
+[[HSVAHexChannels]]
 .Basic Data Format HSVA_HEX channels
 [width="100%",options="header"]
 |================================
@@ -863,10 +908,12 @@ extremes on a color hexagon.
 
 This color model represents color differences with three channels,
 _lightness_ (maximum intensity), _saturation_ (distance from monochrome)
-and hue (dominant wavelength), supplemented by an alpha channel.
+and hue (dominant wavelength), supplemented by an alpha channel,
+as shown in <<HSLAHexChannels>>.
 In this model, the hue is generated by interpolation between
 extremes on a color hexagon.
 
+[[HSLAHexChannels]]
 .Basic Data Format HSLA_HEX channels
 [width="100%",options="header"]
 |================================
@@ -882,8 +929,9 @@ extremes on a color hexagon.
 This color model represents low-cost approximate color differences with
 three channels, nominally luma (Y) and two color-difference chroma channels,
 Cg (green/purple color difference) and Co (orange/cyan color difference),
-supplemented by a channel for alpha.
+supplemented by a channel for alpha, as shown in <<YCoCgAChannels>>.
 
+[[YCoCgAChannels]]
 .Basic Data Format YCoCgA channels
 [width="100%",options="header"]
 |================================
@@ -987,7 +1035,7 @@ channel, 8-bit separate alpha is supported.
 
 ===== KHR_DF_MODEL_ASTC =====
 
-This model represents <<astc,Adaptive Scalable Texture Compression>> as a single
+This model represents Adaptive Scalable Texture Compression as a single
 channel in a texel block of 16 bytes. ASTC HDR (high dynamic range) and
 LDR (low dynamic range) modes are distinguished by the *channel_id* containing
 the flag *KHR_DF_SAMPLE_DATATYPE_FLOAT*: an ASTC texture that is guaranteed by
@@ -1112,6 +1160,7 @@ the intensity of additive colors. This transfer function allows for
 blending and filtering operations to be applied directly to the data
 values.
 
+[[srgbgamma]]
 ==== KHR_DF_TRANSFER_SRGB ====
 
 This value represents the nonlinear Transfer Function defined in
@@ -1216,13 +1265,15 @@ should be 0.
 
 For example, a YUV 4:2:0 representation may use a Texel Block
 of 2×2 pixels in the nominal coordinate space, corresponding to
-the four Y samples. The texel block dimensions in this case
+the four Y samples, as shown in <<YUV420Basic>>.
+The texel block dimensions in this case
 would be 2×2×1×1 (in the X, Y, Z and T dimensions, if the fourth
 dimension is interpreted as T). The *texel_block_dimensions_[0..3]*
 values would therefore be:
 
+[[YUV420Basic]]
 .Example Basic Data Format *texel_block_dimensions* for YUV 4:2:0
-[width="60%"]
+[width="40%",cols="5,1"]
 |================================
 | texel_block_dimensions_0 | 1
 | texel_block_dimensions_1 | 1
@@ -1282,14 +1333,14 @@ sample is 4, indicating only 5 palette entries. Four subsequent samples
 represent the red, green, blue and alpha channels, starting from bit 0
 as though the index value were not present, and describe the contents of
 the palette. The full data format descriptor for this example is
-<<palette,provided>> as one of the example format descriptors.
+provided in <<palette>> as one of the example format descriptors.
 
 === [[sample]]Sample information ===
 
 The layout and position of the information within each plane is
 determined by a number of _samples_, each consisting of a single
 channel of data and with a single corresponding position within
-the texel block.
+the texel block, as shown in <<SampleOverview>>.
 
 The bytes from the plane data contributing to the format are
 treated as though they have been concatenated into a bit stream,
@@ -1303,8 +1354,8 @@ number should follow from the first, in order increasing from the
 least significant bits from the channel data. Note that some
 native big-endian formats may need to be supported with multiple
 samples in a channel, since the constituent bits may not be
-consecutive in a little-endian interpretation. There is an
-<<bigendian,example>> in the list of format descriptors provided.
+consecutive in a little-endian interpretation. There is an example,
+<<bigendian>>, in the list of format descriptors provided.
 In this case, the sample_lower and sample_upper fields for the
 combined sample are taken from the first sample to belong uniquely
 to this channel/position pair.
@@ -1323,6 +1374,7 @@ alpha, or shared exponent formats, require that bits be reused).
 Nor is there a requirement that all the bits in a plane be used
 (a format may contain padding).
 
+[[SampleOverview]]
 .Basic Data Format Descriptor Sample Information
 [options="header"]
 |================================
@@ -1509,7 +1561,8 @@ that have cross-vendor support have a good chance of being incorporated more
 directly into future revisions of the specification, allowing application code
 to distinguish them by the *version_id* field.
 
-As an example, consider a single-channel 32-bit depth buffer. A tiled renderer
+As an example, consider a single-channel 32-bit depth buffer, as shown
+in <<DepthExtensionExample>>. A tiled renderer
 may wish to indicate that this buffer is ``virtual'': it will be allocated
 real memory only if needed, and will otherwise exist only a subset at a time
 in an on-chip representation. Someone developing such a renderer may choose to
@@ -1527,10 +1580,11 @@ depth buffer format as conventionally described, followed by a second descriptor
 block that contains only the enumeration. The descriptor itself has a
 *total_size* that includes both of these descriptor blocks.
 
+[[DepthExtensionExample]]
 .Example of a depth buffer with an extension to indicate a virtual allocation
 [width="100%",cols="1a"]
 |=============
-| 56 (total_size: total size of the two blocks plus one 32-bit value)
+|56 (total_size: total size of the two blocks plus one 32-bit value)
 [width="100%",cols="4"]
 !=============
 4+! _Basic descriptor block_
@@ -1647,10 +1701,6 @@ do not have a fixed character size, this use is not seen as an obvious match
 for this standard.
 
 == External references ==
-
-=== [[astc]]Adaptive Scalable Texture Compression ===
-
-link:https://www.khronos.org/registry/gles/extensions/KHR/texture_compression_astc_hdr.txt[https://www.khronos.org/registry/gles/extensions/KHR/texture_compression_astc_hdr.txt]
 
 === [[bt601]]ITU-T BT.601 specification for digital television ===
 
@@ -1822,7 +1872,8 @@ include::compformats.txt[]
 4+| 255 (sample_upper)
 |================================
 
-.[[palette]]Four co-sited 8-bit channels in the sRGB color space described by an 5-entry, 3-bit palette
+[[palette]]
+.Four co-sited 8-bit channels in the sRGB color space described by an 5-entry, 3-bit palette
 [options="header"]
 |================================
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
@@ -1903,7 +1954,8 @@ include::compformats.txt[]
 4+| 240 (sample_upper)
 |================================
 
-.[[bigendian]]565 RGB format as represented on a big-endian architecture
+[[bigendian]]
+.565 RGB format as represented on a big-endian architecture
 [options="header"]
 |================================
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
