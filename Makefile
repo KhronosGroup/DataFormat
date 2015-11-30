@@ -18,7 +18,6 @@ chunks:
 
 pdf:
 	asciidoc -d book -b docbook -a a2xformat=pdf -a docinfo df.txt && dblatex -b pdftex -s dblatex/df.sty df.xml
-#	asciidoc -d book -b docbook -a a2xformat=pdf -f config/mathjax-docbook.conf -a docinfo df.txt && dblatex -b pdftex -s dblatex/df.sty df.xml
 
 clean:
 	rm -f df.pdf df.xml df.html df_inline.html
