@@ -10,7 +10,7 @@ A2XOPTS    = -a mathjax \
 	     $(XMLLINT) $(VERBOSE)
 
 html:
-	a2x $(A2XOPTS) -f xhtml df.txt --xsl-file=config/docbook-xsl/xhtml.xsl -a toc2 -a toclevels=2
+	a2x $(A2XOPTS) -f xhtml df.txt -a a2xformat=html -a docinfo --xsl-file=config/docbook-xsl/xhtml.xsl -a toc2 -a toclevels=2
 	./inline.pl > df_inline.html
 
 chunks:
