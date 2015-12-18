@@ -30,7 +30,9 @@ def buildRelease(branch,label,outdir):
           outdir + '/*.html')
 
     print('echo Info: Generating spec')
-    print('make -j 2 html pdf')
+    # Can't use -j 2 because both targets generate a (different)
+    # intermediate df.xml
+    print('make html pdf')
 
     print('echo Info: Copying spec from DF tree to Vulkan target')
     print('cp df_inline.html df.pdf', outdir)
