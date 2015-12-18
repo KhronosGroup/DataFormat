@@ -26,8 +26,8 @@ def buildRelease(branch,label,outdir):
 
     print('echo Info: Cleaning spec in', outdir)
     print('rm -rf',
-          outdir + '/*.pdf',
-          outdir + '/*.html')
+          outdir + '/df*.pdf',
+          outdir + '/df*.html')
 
     print('echo Info: Generating spec')
     # Can't use -j 2 because both targets generate a (different)
