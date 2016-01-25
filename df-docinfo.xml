@@ -20,7 +20,9 @@ Copyright notice at https://www.khronos.org/registry/speccopyright.html
 </xsl:stylesheet>
 
 <authorgroup>
-<editor><firstname>Andrew</firstname><surname>Garrard</surname></editor>
+<author><firstname>Andrew</firstname><surname>Garrard</surname></author>
+</authorgroup>
+<contrib>
 <othercredit><firstname>Frank</firstname><surname>Brill</surname></othercredit>
 <othercredit><firstname>Sean</firstname><surname>Ellis</surname></othercredit>
 <othercredit><firstname>Jonas</firstname><surname>Gustavsson</surname></othercredit>
@@ -37,7 +39,7 @@ Copyright notice at https://www.khronos.org/registry/speccopyright.html
 <othercredit><firstname>David</firstname><surname>Sena</surname></othercredit>
 <othercredit><firstname>Mark</firstname><surname>Callow</surname></othercredit>
 <othercredit><firstname>Jon</firstname><surname>Leech</surname></othercredit>
-</authorgroup>
+</contrib>
 
 <!--
 <copyright>
@@ -146,6 +148,14 @@ Clarified KHR_DF_SAMPLE_DATATYPE_LINEAR
 <authorinitials>AG</authorinitials>
 <revremark>
 Added definitions of compressed texture formats
+</revremark>
+</revision>
+<revision>
+<revnumber>1.1 rev 2</revnumber>
+<date>January 2016</date>
+<authorinitials>AG</authorinitials>
+<revremark>
+Added definitions of floating point formats
 </revremark>
 </revision>
 </revhistory>

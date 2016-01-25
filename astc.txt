@@ -327,11 +327,6 @@ latexmath:[$w \times h \times d$], the size of the image in blocks is:
     $$B_d = \left\lceil { D \over d } \right\rceil$$
 ++++++++++++++++++++++
 
-
-//    Bw = ceiling(W/w)
-//    Bh = ceiling(H/h)
-//    Bd = ceiling(D/d)
-
 For a 3D image built from 2D slices, each 2D slice is a single texel thick,
 so that for an image which is latexmath:[$W \times H \times D$] pixels in size, with block size
 latexmath:[$w \times h$], the size of the image in blocks is:
@@ -342,10 +337,6 @@ latexmath:[$w \times h$], the size of the image in blocks is:
     $$B_h = \left\lceil { H \over h } \right\rceil$$
     $$B_d = D$$
 ++++++++++++++++++++++
-
-//    Bw = ceiling(W/w)
-//    Bh = ceiling(H/h)
-//    Bd = D
 
 === Block Layout
 

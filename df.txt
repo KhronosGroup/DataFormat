@@ -1323,7 +1323,7 @@ bytes_plane_0 would be 0, indicating the special case of a palette, and
 bytes_plane_1 would be 4, representing the size of the palette entry.
 The first sample would then have a number of bits corresponding to the
 number of bits for the palette -- in this case, three bits, corresponding
-the requirements of a 5-color palette. The sample_upper value for this
+the requirements of a 5-color palette. The *sample_upper* value for this
 sample is 4, indicating only 5 palette entries. Four subsequent samples
 represent the red, green, blue and alpha channels, starting from bit 0
 as though the index value were not present, and describe the contents of
@@ -1341,33 +1341,36 @@ The bytes from the plane data contributing to the format are
 treated as though they have been concatenated into a bit stream,
 with the first byte of the lowest-numbered plane providing the
 lowest bits of the result. Each sample consists of a number of
-consecutive bits from this bit stream. If the content for a channel
-cannot be represented in a single sample, for example because the
-data for a channel is nonconsecutive within this bit stream,
-additional samples with the same coordinate position and channel
-number should follow from the first, in order increasing from the
-least significant bits from the channel data. Note that some
-native big-endian formats may need to be supported with multiple
-samples in a channel, since the constituent bits may not be
-consecutive in a little-endian interpretation. There is an example,
-<<bigendian>>, in the list of format descriptors provided.
-In this case, the sample_lower and sample_upper fields for the
+consecutive bits from this bit stream.
+
+If the content for a channel cannot be represented in a single
+sample, for example because the data for a channel is
+non-consecutive within this bit stream, additional samples with
+the same coordinate position and channel number should follow
+from the first, in order increasing from the least significant
+bits from the channel data.
+
+Note that some native big-endian formats may need to be supported
+with multiple samples in a channel, since the constituent bits may
+not be consecutive in a little-endian interpretation. There is an
+example, <<bigendian>>, in the list of format descriptors provided.
+In this case, the *sample_lower* and *sample_upper* fields for the
 combined sample are taken from the first sample to belong uniquely
 to this channel/position pair.
 
 By convention, to avoid aliases for formats, samples should be
 listed in order starting with channels at the lowest bits of this
-bit stream.
+bit stream. Ties should be broken by increasing channel type id,
+as shown in <<intensity>>.
 
 The number of samples present in the format is determined by the
-*descriptor_block_size* field.
-There is no limit on the number of samples which may be present,
-other than the maximum size of the Data Format Descriptor Block.
-There is no requirement that samples should access unique
-parts of the bit-stream (formats such as combined intensity and
-alpha, or shared exponent formats, require that bits be reused).
-Nor is there a requirement that all the bits in a plane be used
-(a format may contain padding).
+*descriptor_block_size* field. There is no limit on the number of
+samples which may be present, other than the maximum size of the
+Data Format Descriptor Block. There is no requirement that samples
+should access unique parts of the bit-stream: formats such as
+combined intensity and alpha, or shared exponent formats, require
+that bits be reused. Nor is there a requirement that all the bits
+in a plane be used (a format may contain padding).
 
 [[SampleOverview]]
 .Basic Data Format Descriptor Sample Information
@@ -1427,9 +1430,10 @@ is applied to any integer sample of the same type. If this bit is not set,
 the sample is considered to contain mantissa information. If the
 *KHR_DF_SAMPLE_DATATYPE_SIGNED* bit is also set, the exponent is considered
 to be two's complement -- otherwise it is treated as unsigned. The bias of
-the exponent can be determined by the sample's lower and upper values.
-The presence or absence of an implicit leading digit in the mantissa of a
-format with an exponent can be determined by the upper value.
+the exponent can be determined by the exponent's *sample_lower* value. The
+presence or absence of an implicit leading digit in the mantissa of a format
+with an exponent can be determined by the *sample_upper* value of the
+mantissa.
 
 If the *KHR_DF_SAMPLE_DATATYPE_SIGNED* bit is set, the sample holds a signed
 value in two's complement form. If this bit is not set, the sample holds
@@ -1438,11 +1442,12 @@ value by having a sample of unsigned integer type with the same channel
 and sample location as a 1-bit signed sample.
 
 If the *KHR_DF_SAMPLE_DATATYPE_FLOAT* bit is set, the sample holds floating
-point data in a conventional format of 10, 11, 16, 32, or 64-bits.
-*KHR_DF_SAMPLE_DATATYPE_SIGNED* should be set unless a genuine unsigned
-format is intended. Less common floating point representations can be
-generated with multiple samples and a combination of signed integer,
-unsigned integer and exponent fields.
+point data in a conventional format of 10, 11 or 16 bits, as described in
+<<fpformats>>, or of 32, or 64 bits as described in <<IEEE 754>>. Unless
+a genuine unsigned format is intended, *KHR_DF_SAMPLE_DATATYPE_SIGNED* should
+be set. Less common floating point representations can be generated with
+multiple samples and a combination of signed integer, unsigned integer and
+exponent fields, as described above and in <<customfp>>.
 
 ==== sample_position_[0..3] ====
 
@@ -1476,11 +1481,37 @@ represents ``-1''.
 
 If the channel encoding is an integer format, the *sample_lower* value
 is represented as a 32-bit integer -- signed or unsigned according to
-whether the channel encoding is signed. If the channel encoding is a
-floating point value, the *sample_lower* value is also floating point.
-If the number of bits in the sample is greater than 32, the lowest
-representable value for *sample_lower* is interpreted as the smallest
-value representable in the channel format.
+whether the channel encoding is signed. Signed negative values should
+be sign-extended if the channel has fewer than 32-bit, such that the
+value encoded in *sample_lower* is itself negative, If the channel
+encoding is a floating point value, the *sample_lower* value is also
+floating point. If the number of bits in the sample is greater than 32,
+the lowest representable value for *sample_lower* is interpreted as
+the smallest value representable in the channel format.
+
+If the channel consists of multiple co-sited integer samples, for example
+because the channel bits are non-contiguous, there are two possible
+behaviors. If the total number of bits in the channel is less than
+or equal to 32, the *sample_lower* values in the samples corresponding
+to the least-significant bits of the sample are ignored, and only the
+*sample_lower* from the most-significant sample is considered. If the
+number of bits in the channel exceeds 32, the *sample_lower* values
+from the sample corresponding to the most-significant bits within any
+32-bit subset of the total number are concatenated to generate the
+final *sample_lower* value. For example, a 48-bit signed integer may
+be encoded in three 16-bit samples. The first sample, corresponding
+to the least-significant 16 bits, will have its *sample_lower* value
+ignored. The next sample of 16 bits takes the total to 32, and so the
+*sample_lower* value of this sample should represent the lowest
+32 bits of the desired 48-bit virtual *sample_lower* value. Finally,
+the third sample indicates the top 16 bits of the 48-bit channel,
+and its *sample_lower* contains the top 16 bits of the 48-bit virtual
+*sample_lower* value.
+
+The *sample_lower* value for an exponent should represent the exponent
+bias -- the value that should be subtracted from the encoded exponent
+to indicate that the mantissa's *sample_upper* value will represent 1.0.
+See <<customfp>> for more detail on this.
 
 For example, the BT.709 television broadcast standard dictates that
 the Y' value stored in an 8-bit encoding should fall between the range
@@ -1507,7 +1538,38 @@ whether the channel encoding is signed. If the channel encoding is a
 floating point value, the *sample_upper* value is also floating point.
 If the number of bits in the sample is greater than 32, the highest
 representable value for *sample_upper* is interpreted as the largest
-value representable in the channel format.
+value representable in the channel format. If the channel encoding
+is the mantissa of a custom floating point format (that is, the
+encoding is integer but the same sample location and channel is shared
+by a sample that encodes an exponent), the presence of an implicit
+"1" digit can be represented by setting the *sample_upper* value to
+a value one larger than can be encoded in the available bits for the
+mantissa, as described in <<customfp>>.
+
+The *sample_upper* value for an exponent should represent the largest
+conventional legal exponent value. If the encoded exponent exceeds
+this value, the encoded floating point value encodes either an infinity
+or a _NaN_ value, depending on the mantissa. See <<customfp>> for more
+detail on this.
+
+If the channel consists of multiple co-sited integer samples, for example
+because the channel bits are non-contiguous, there are two possible
+behaviors. If the total number of bits in the channel is less than
+or equal to 32, the *sample_upper* values in the samples corresponding
+to the least-significant bits of the sample are ignored, and only the
+*sample_upper* from the most-significant sample is considered. If the
+number of bits in the channel exceeds 32, the *sample_upper* values
+from the sample corresponding to the most-significant bits within any
+32-bit subset of the total number are concatenated to generate the
+final *sample_upper* value. For example, a 48-bit signed integer may
+be encoded in three 16-bit samples. The first sample, corresponding
+to the least-significant 16 bits, will have its *sample_upper* value
+ignored. The next sample of 16 bits takes the total to 32, and so the
+*sample_upper* value of this sample should represent the lowest
+32 bits of the desired 48-bit virtual *sample_upper* value. Finally,
+the third sample indicates the top 16 bits of the 48-bit channel,
+and its *sample_upper* contains the top 16 bits of the 48-bit virtual
+*sample_upper* value.
 
 For example, the BT.709 television broadcast standard dictates that
 the Y' value stored in an 8-bit encoding should fall between the range
@@ -1721,12 +1783,276 @@ link:http://www.oscars.org/science-technology/sci-tech-projects/aces[http://www.
 
 link:http://www.w3.org/Graphics/Color/srgb[http://www.w3.org/Graphics/Color/srgb]
 
+=== [[IEEE 754]]IEEE Standard for Floating-Point Arithmetic
+
+IEEE Std 754-2008
+http://dx.doi.org/10.1109/IEEESTD.2008.4610935,
+August, 2008.
+
 include::compformats.txt[]
 
 :frame: all
 :grid: all
 :halign: center
 :valign: center
+
+[[fpformats]]
+== Floating-point formats ==
+
+Some common floating-point numeric representations are defined in
+<<IEEE 754>>. Additional floating point formats are defined in this
+section.
+
+[[16bitfp]]
+=== 16-bit floating-point numbers
+
+A 16-bit floating-point number has a 1-bit sign (latexmath:[$S$]), a 5-bit
+exponent (latexmath:[$E$]), and a 10-bit mantissa (latexmath:[$M$]). The
+value latexmath:[$V$] of a 16-bit floating-point number is determined by the
+following:
+
+[latexmath]
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+\[
+V =
+  \begin{cases}
+    (-1)^S \times 0.0,                      & E = 0, M = 0     \\
+    (-1)^S \times 2^{-14} \times { M \over 2^{10} },
+                                            & E = 0,  M \neq 0 \\
+    (-1)^S \times 2^{E-15} \times { \left( 1 + { M \over 2^{10} } \right) },
+                                            & 0 < E < 31       \\
+    (-1)^S \times Inf,             & E = 31, M = 0             \\
+    NaN,                           & E = 31, M \neq 0
+  \end{cases}
+\]
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+If the floating-point number is interpreted as an unsigned 16-bit integer
+latexmath:[$N$], then
+
+[latexmath]
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    $$S = \left\lfloor { { N \bmod 65536 } \over 32768 } \right\rfloor$$
+    $$E = \left\lfloor { { N \bmod 32768 } \over  1024 } \right\rfloor$$
+    $$M = N \bmod 1024.$$
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+[[11bitfp]]
+=== Unsigned 11-bit floating-point numbers
+
+An unsigned 11-bit floating-point number has no sign bit, a 5-bit exponent
+(latexmath:[$E$]), and a 6-bit mantissa (latexmath:[$M$]). The value
+latexmath:[$V$] of an unsigned 11-bit floating-point number is determined by
+the following:
+
+[latexmath]
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+\[
+V =
+  \begin{cases}
+    0.0,                                    & E = 0, M = 0    \\
+    2^{-14} \times { M \over 64 },          & E = 0, M \neq 0 \\
+    2^{E-15} \times { \left( 1 + { M \over 64 } \right) },
+                                            & 0 < E < 31      \\
+    Inf,                           & E = 31, M = 0            \\
+    NaN,                           & E = 31, M \neq 0
+  \end{cases}
+\]
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+If the floating-point number is interpreted as an unsigned 11-bit integer
+latexmath:[$N$], then
+
+[latexmath]
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    $$E = \left\lfloor { N \over 64 } \right\rfloor$$
+    $$M = N \bmod 64.$$
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+[[10bitfp]]
+=== Unsigned 10-bit floating-point numbers
+
+An unsigned 10-bit floating-point number has no sign bit, a 5-bit
+exponent (latexmath:[$E$]), and a 5-bit mantissa (latexmath:[$M$]). The
+value latexmath:[$V$] of an unsigned 10-bit floating-point number is
+determined by the following:
+
+[latexmath]
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+\[
+V =
+  \begin{cases}
+    0.0,                                    & E = 0, M = 0    \\
+    2^{-14} \times { M \over 32 },          & E = 0, M \neq 0 \\
+    2^{E-15} \times { \left( 1 + { M \over 32 } \right) },
+                                            & 0 < E < 31      \\
+    Inf,                           & E = 31, M = 0   \\
+    NaN,                           & E = 31, M \neq 0
+  \end{cases}
+\]
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+If the floating-point number is interpreted as an unsigned 10-bit integer
+latexmath:[$N$], then
+
+[latexmath]
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    $$E = \left\lfloor { N \over 32 } \right\rfloor$$
+    $$M = N \bmod 32.$$
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+[[customfp]]
+=== Non-standard floating point formats
+
+Rather than attempting to enumerate every possible floating-point
+format variation in this specification, the data format descriptor
+can be used to describe the components of arbitrary floating-point
+data, as follows. Note that non-standard floating point formats do
+not use the *KHR_DF_SAMPLE_DATATYPE_FLOAT* bit.
+
+An example of use of the 16-bit floating point format described in
+<<16bitfp>> but described in terms of a custom floating point format
+is provided in <<float16explicit>>. Note that this is provided for
+example only, and this particular format would be better described
+using the standard 16-bit floating point format as documented in
+<<float16implicit>>.
+
+==== The mantissa
+
+The mantissa of a custom floating point format should be represented
+as an integer *channel_type*. If the mantissa represents a signed
+quantity encoded in two's complement, the *KHR_DF_SAMPLE_DATATYPE_SIGNED*
+bit should be set. To encode a signed mantissa represented in
+sign-magnitude format, the main part of the mantissa should be
+represented as an unsigned integer quantity (with
+*KHR_DF_SAMPLE_DATATYPE_SIGNED* not set), and an additional one-bit
+sample _with_ *KHR_DF_SAMPLE_DATATYPE_SIGNED* set should be used
+to identify the sign bit. By convention, a sign bit should be encoded
+in a later sample than the corresponding mantissa.
+
+The *sample_upper* and *sample_lower* values for the mantissa should be
+set to indicate the representation of 1.0 and 0.0 (for unsigned formats)
+or -1.0 (for signed formats) respectively when the exponent is in a
+0 position after any bias has been corrected. If there is an implicit
+``1'' bit, these values for the mantissa will exceed what can be
+represented in the number of available mantissa bits.
+
+For example, the shared exponent formats shown in <<r9g9b9e5>> does not
+have an implicit ``1'' bit, and therefore the *sample_upper* values for
+the 9-bit mantissas are 256 -- this being the mantissa value for 1.0
+when the exponent is set to 0.
+
+For the 16-bit signed floating point format described in <<16bitfp>>,
+*sample_upper* should be set to 1024, indicating the implicit ``1'' bit
+which is above the 10 bits representable in the mantissa. *sample_lower*
+should be 0 in this case, since the mantissa uses a sign-magnitude
+representation.
+
+By convention, the *sample_upper* and *sample_lower* values for a sign
+bit are 0 and -1 respectively.
+
+=== The exponent
+
+The *KHR_DF_SAMPLE_DATATYPE_EXPONENT* bit should be set in a sample
+which contains the exponent of a custom floating point format.
+
+The *sample_lower* for the exponent should indicate the exponent bias.
+That is, the mantissa should be scaled by two raised to the power of
+the stored exponent minus this *sample_lower* value.
+
+The *sample_upper* for the exponent indicates the maximum legal
+exponent value. Values above this are used to encode infinities and
+not-a-number (_NaN_) values. *Sample_upper* can therefore be used to
+indicate whether or not the format supports these encodings.
+
+=== Special values
+
+Floating point values encoded with an exponent of 0 (before bias)
+and a mantissa of 0 are used to represent the value 0. An explicit
+sign bit can distinguish between +0 and -0.
+
+Floating point values encoded with an exponent of 0 (before bias)
+and a non-zero mantissa are assumed to indicate a denormalized
+number, if the format has an implicit ``1'' bit. That is, when
+the exponent is 0, the ``1'' bit becomes explicit and the exponent
+is considered to be the negative sample bias minus one.
+
+Floating point values encoded with an exponent larger than the
+exponent's *sample_upper* value and with a mantissa of 0 are
+interpreted as representing +/- infinity, depending on the value
+of an explicit sign bit. Note that in some formats, no exponent
+above *sample_upper* is possible -- for example, <<r9g9b9e5>>.
+
+Floating point values encoded with an exponent larger than the
+exponent's *sample_upper* value and with a mantissa of non-0
+are interpreted as representing not-a-number (_NaN_).
+
+Note that these interpretations are compatible with the
+corresponding numerical representations in <<IEEE 754>>.
+
+=== Conversion formulae
+
+Given an optional sign bit _S_, a mantissa value of _M_ and an
+exponent value of _E_, a format with an implicit ``1'' bit can
+be converted from its representation to a real value as follows:
+
+[latexmath]
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+\[
+V =
+  \begin{cases}
+    (-1)^S \times 0.0,             & E = 0, M = 0    \\
+    (-1)^S \times 2^{-(E_{sample\_lower}-1)} \times { M \over M_{sample\_upper} },  & E = 0, M \neq 0 \\
+    (-1)^S \times 2^{E-E_{sample\_lower}} \times { \left( 1 + { M \over M_{sample\_upper} } \right) },
+                                   & 0 < E \leq E_{sample\_upper}   \\
+    (-1)^S \times Inf,             & E > E_{sample\_upper}, M = 0   \\
+    NaN,                           & E > E_{sample\_upper}, M \neq 0.
+  \end{cases}
+\]
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+If there is no implicit ``1'' bit (that is, the *sample_upper* value
+of the mantissa is representable in the number of bits assigned to the
+mantissa), the value can be converted to a real value as follows:
+
+[latexmath]
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+\[
+V =
+  \begin{cases}
+    (-1)^S \times 2^{E-E_{sample\_lower}} \times { \left( { M \over M_{sample\_upper} } \right) },
+                                   & 0 < E \leq E_{sample\_upper}   \\
+    (-1)^S \times Inf,             & E > E_{sample\_upper}, M = 0   \\
+    NaN,                           & E > E_{sample\_upper}, M \neq 0.
+  \end{cases}
+\]
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+A descriptor block for a format without an implicit ``1'' (and with the
+added complication of having the same exponent bits shared across multiple
+channels, which is why an implicit ``1'' bit does not make sense) is shown
+in <<r9g9b9e5>>. In the case of this particular example, the above
+equations simplify to:
+
+[latexmath]
++++++++++++++++++++
+    $$red   = red_{shared}\times 2^{(exp_{shared}-B-N)}$$
+    $$green = green_{shared}\times 2^{(exp_{shared}-B-N)}$$
+    $$blue  = blue_{shared}\times 2^{(exp_{shared}-B-N)}$$
++++++++++++++++++++
+
+Where:
+
+[latexmath]
++++++++++++++++++++
+   $$N = 9  \textrm{ (= number of mantissa bits per component)}$$
+   $$B = 15 \textrm{ (= exponent bias)}$$
++++++++++++++++++++
+
+Note that in general conversion from a real number _to_ any representation
+may require rounding, truncation and special value management rules which
+are beyond the scope of a data format specification and may be documented
+in APIs which generate these formats.
 
 == Example format descriptors ==
 
@@ -1741,22 +2067,22 @@ include::compformats.txt[]
 | 0 (texel_block_dimension_0) | 0 (texel_block_dimension_1) | 0 (texel_block_dimension_2) | 0 (texel_block_dimension_3)
 | 4 (bytes_plane_0) | 0 (bytes_plane_1) | 0 (bytes_plane_2) | 0 (bytes_plane_3)
 | 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
-4+|Sample information for first sample
+4+|*Sample information for first sample*
 2+| 0 (bit_offset) | 8 (bit_length) | 0 (channel_type) (red)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
 4+| 255 (sample_upper)
-4+|Sample information for second sample
+4+|*Sample information for second sample*
 2+| 8 (bit_offset) | 8 (bit_length) | 1 (channel_type) (green)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
 4+| 255 (sample_upper)
-4+|Sample information for third sample
+4+|*Sample information for third sample*
 2+| 16 (bit_offset) | 8 (bit_length) | 2 (channel_type) (blue)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
 4+| 255 (sample_upper)
-4+|Sample information for fourth sample
+4+|*Sample information for fourth sample*
 2+| 24 (bit_offset) | 8 (bit_length) | 31 (channel_type) (alpha+linear)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
@@ -1774,7 +2100,7 @@ include::compformats.txt[]
 | 0 (texel_block_dimension_0) | 0 (texel_block_dimension_1) | 0 (texel_block_dimension_2) | 0 (texel_block_dimension_3)
 | 4 (bytes_plane_0) | 0 (bytes_plane_1) | 0 (bytes_plane_2) | 0 (bytes_plane_3)
 | 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
-4+|Sample information for first sample
+4+|*Sample information for first sample*
 2+| 0 (bit_offset) | 8 (bit_length) | 0 (channel_type) (Y)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
@@ -1792,42 +2118,42 @@ include::compformats.txt[]
 | 7 (texel_block_dimension_0) | 0 (texel_block_dimension_1) | 0 (texel_block_dimension_2) | 0 (texel_block_dimension_3)
 | 1 (bytes_plane_0) | 0 (bytes_plane_1) | 0 (bytes_plane_2) | 0 (bytes_plane_3)
 | 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
-4+|Sample information for first sample
+4+|*Sample information for first sample*
 2+| 0 (bit_offset) | 1 (bit_length) | 0 (channel_type) (Y)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
 4+| 1 (sample_upper)
-4+|Sample information for second sample
+4+|*Sample information for second sample*
 2+| 1 (bit_offset) | 1 (bit_length) | 0 (channel_type) (Y)
 | 2 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
 4+| 1 (sample_upper)
-4+|Sample information for third sample
+4+|*Sample information for third sample*
 2+| 2 (bit_offset) | 1 (bit_length) | 0 (channel_type) (Y)
 | 4 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
 4+| 1 (sample_upper)
-4+|Sample information for fourth sample
+4+|*Sample information for fourth sample*
 2+| 3 (bit_offset) | 1 (bit_length) | 0 (channel_type) (Y)
 | 6 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
 4+| 1 (sample_upper)
-4+|Sample information for fifth sample
+4+|*Sample information for fifth sample*
 2+| 4 (bit_offset) | 1 (bit_length) | 0 (channel_type) (Y)
 | 8 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
 4+| 1 (sample_upper)
-4+|Sample information for sixth sample
+4+|*Sample information for sixth sample*
 2+| 5 (bit_offset) | 1 (bit_length) | 0 (channel_type) (Y)
 | 10 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
 4+| 1 (sample_upper)
-4+|Sample information for seventh sample
+4+|*Sample information for seventh sample*
 2+| 6 (bit_offset) | 1 (bit_length) | 0 (channel_type) (Y)
 | 12 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
 4+| 1 (sample_upper)
-4+|Sample information for eighth sample
+4+|*Sample information for eighth sample*
 2+| 7 (bit_offset) | 1 (bit_length) | 0 (channel_type) (Y)
 | 14 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
@@ -1845,22 +2171,22 @@ include::compformats.txt[]
 | 1 (texel_block_dimension_0) | 1 (texel_block_dimension_1) | 0 (texel_block_dimension_2) | 0 (texel_block_dimension_3)
 | 2 (bytes_plane_0) | 2 (bytes_plane_1) | 0 (bytes_plane_2) | 0 (bytes_plane_3)
 | 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
-4+|Sample information for first sample
+4+|*Sample information for first sample*
 2+| 0 (bit_offset) | 8 (bit_length) | 0 (channel_type) (red)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
 4+| 255 (sample_upper)
-4+|Sample information for second sample
+4+|*Sample information for second sample*
 2+| 8 (bit_offset) | 8 (bit_length) | 1 (channel_type) (green)
 | 2 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
 4+| 255 (sample_upper)
-4+|Sample information for third sample
+4+|*Sample information for third sample*
 2+| 16 (bit_offset) | 8 (bit_length) | 1 (channel_type) (green)
 | 0 (sample_position_0) | 2 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
 4+| 255 (sample_upper)
-4+|Sample information for fourth sample
+4+|*Sample information for fourth sample*
 2+| 24 (bit_offset) | 8 (bit_length) | 2 (channel_type) (blue)
 | 2 (sample_position_0) | 2 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
@@ -1879,27 +2205,27 @@ include::compformats.txt[]
 | 0 (texel_block_dimension_0) | 0 (texel_block_dimension_1) | 0 (texel_block_dimension_2) | 0 (texel_block_dimension_3)
 | 0 (bytes_plane_0) | 4 (bytes_plane_1) | 0 (bytes_plane_2) | 0 (bytes_plane_3)
 | 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
-4+|Sample information for the palette index
+4+|*Sample information for the palette index*
 2+| 0 (bit_offset) | 3 (bit_length) | 0 (channel_type) (irrelevant)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
 4+| 4 (sample_upper) -- this specifies that there are 5 palette entries
-4+|Sample information for first sample
+4+|*Sample information for first sample*
 2+| 0 (bit_offset) | 8 (bit_length) | 0 (channel_type) (red)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
 4+| 255 (sample_upper)
-4+|Sample information for second sample
+4+|*Sample information for second sample*
 2+| 8 (bit_offset) | 8 (bit_length) | 1 (channel_type) (green)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
 4+| 255 (sample_upper)
-4+|Sample information for third sample
+4+|*Sample information for third sample*
 2+| 16 (bit_offset) | 8 (bit_length) | 2 (channel_type) (blue)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
 4+| 255 (sample_upper)
-4+|Sample information for fourth sample
+4+|*Sample information for fourth sample*
 2+| 24 (bit_offset) | 8 (bit_length) | 31 (channel_type) (alpha+linear)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
@@ -1917,32 +2243,32 @@ include::compformats.txt[]
 | 1 (texel_block_dimension_0) | 1 (texel_block_dimension_1) | 0 (texel_block_dimension_2) | 0 (texel_block_dimension_3)
 | 2 (bytes_plane_0) | 2 (bytes_plane_1) | 1 (bytes_plane_2) | 1 (bytes_plane_3)
 | 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
-4+|Sample information for first Y sample
+4+|*Sample information for first Y sample*
 2+| 0 (bit_offset) | 8 (bit_length) | 0 (channel_type) (Y)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 16 (sample_lower)
 4+| 235 (sample_upper)
-4+|Sample information for second Y sample
+4+|*Sample information for second Y sample*
 2+| 8 (bit_offset) | 8 (bit_length) | 0 (channel_type) (Y)
 | 2 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 16 (sample_lower)
 4+| 235 (sample_upper)
-4+|Sample information for third Y sample
+4+|*Sample information for third Y sample*
 2+| 16 (bit_offset) | 8 (bit_length) | 0 (channel_type) (Y)
 | 0 (sample_position_0) | 2 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 16 (sample_lower)
 4+| 235 (sample_upper)
-4+|Sample information for fourth Y sample
+4+|*Sample information for fourth Y sample*
 2+| 24 (bit_offset) | 8 (bit_length) | 0 (channel_type) (Y)
 | 2 (sample_position_0) | 2 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 16 (sample_lower)
 4+| 235 (sample_upper)
-4+|Sample information for U sample
+4+|*Sample information for U sample*
 2+| 32 (bit_offset) | 8 (bit_length) | 1 (channel_type) (U)
 | 1 (sample_position_0) | 1 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 16 (sample_lower)
 4+| 240 (sample_upper)
-4+|Sample information for V sample
+4+|*Sample information for V sample*
 2+| 36 (bit_offset) | 8 (bit_length) | 2 (channel_type) (V)
 | 1 (sample_position_0) | 1 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 16 (sample_lower)
@@ -1961,28 +2287,29 @@ include::compformats.txt[]
 | 0 (texel_block_dimension_0) | 0 (texel_block_dimension_1) | 0 (texel_block_dimension_2) | 0 (texel_block_dimension_3)
 | 2 (bytes_plane_0) | 0 (bytes_plane_1) | 0 (bytes_plane_2) | 0 (bytes_plane_3)
 | 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
-4+|Sample information for first sample: bit 0 belongs to green, bits 0..2 of channel in 13..15
+4+|*Sample information for first sample: bit 0 belongs to green, bits 0..2 of channel in 13..15*
 2+| 13 (bit_offset) | 3 (bit_length) | 1 (channel_type) (green)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
 4+| 63 (sample_upper)
-4+|Sample information for second sample: bits 3..5 of green in 0..2
+4+|*Sample information for second sample: bits 3..5 of green in 0..2*
 2+| 0 (bit_offset) | 3 (bit_length) | 1 (channel_type) (green)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower) -- ignored, taken from first sample
 4+| 0 (sample_upper) -- ignored, taken from first sample
-4+|Sample information for third sample
+4+|*Sample information for third sample*
 2+| 3 (bit_offset) | 5 (bit_length) | 2 (channel_type) (blue)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
 4+| 31 (sample_upper)
-4+|Sample information for fourth sample
+4+|*Sample information for fourth sample*
 2+| 8 (bit_offset) | 5 (bit_length) | 1 (channel_type) (red)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
 4+| 31 (sample_upper)
 |================================
 
+[[r9g9b9e5]]
 .R9G9B9E5 shared-exponent format
 [options="header"]
 |================================
@@ -1994,36 +2321,36 @@ include::compformats.txt[]
 | 0 (texel_block_dimension_0) | 0 (texel_block_dimension_1) | 0 (texel_block_dimension_2) | 0 (texel_block_dimension_3)
 | 4 (bytes_plane_0) | 0 (bytes_plane_1) | 0 (bytes_plane_2) | 0 (bytes_plane_3)
 | 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
-4+|Sample information for R mantissa
+4+|*Sample information for R mantissa*
 2+| 0 (bit_offset) | 9 (bit_length) | 0 (channel_type) (red)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
-4+| 256 (sample_upper) - mantissa at 1.0
-4+|Sample information for R exponent
+4+| 256 (sample_upper) - mantissa at 1.0 (no implicit ``1'')
+4+|*Sample information for R exponent*
 2+| 27 (bit_offset) | 5 (bit_length) | 32 (channel_type) (R+exponent)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 15 (sample_upper) - exponent bias
-4+|Sample information for G mantissa
+4+| 15 (sample_lower) - exponent bias
+4+| 31 (sample_upper) - no infinity/NaN support
+4+|*Sample information for G mantissa*
 2+| 16 (bit_offset) | 8 (bit_length) | 1 (channel_type) (green)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
-4+| 256 (sample_upper) - mantissa at 1.0
-4+|Sample information for G exponent
+4+| 256 (sample_upper) - mantissa at 1.0 (no implicit ``1'')
+4+|*Sample information for G exponent*
 2+| 27 (bit_offset) | 5 (bit_length) | 33 (channel_type) (G+exponent)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 15 (sample_upper) - exponent bias
-4+|Sample information for B mantissa
+4+| 15 (sample_lower) - exponent bias
+4+| 31 (sample_upper) - no infinity/NaN support
+4+|*Sample information for B mantissa*
 2+| 32 (bit_offset) | 8 (bit_length) | 2 (channel_type) (blue)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
-4+| 256 (sample_upper) - mantissa at 1.0
-4+|Sample information for B exponent
+4+| 256 (sample_upper) - mantissa at 1.0 (no implicit ``1'')
+4+|*Sample information for B exponent*
 2+| 27 (bit_offset) | 5 (bit_length) | 34 (channel_type) (B+exponent)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 15 (sample_upper) - exponent bias
+4+| 15 (sample_lower) - exponent bias
+4+| 31 (sample_upper) - no infinity/NaN support
 |================================
 
 .Acorn 256-color format (2 bits each independent RGB, 2 bits shared ``tint'')
@@ -2037,32 +2364,32 @@ include::compformats.txt[]
 | 0 (texel_block_dimension_0) | 0 (texel_block_dimension_1) | 0 (texel_block_dimension_2) | 0 (texel_block_dimension_3)
 | 1 (bytes_plane_0) | 0 (bytes_plane_1) | 0 (bytes_plane_2) | 0 (bytes_plane_3)
 | 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
-4+|Sample information for R tint (shared low bits)
+4+|*Sample information for R tint (shared low bits)*
 2+| 0 (bit_offset) | 2 (bit_length) | 0 (channel_type) (red)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
 4+| 0 (sample_upper) - ignored, not unique
-4+|Sample information for R unique (high) bits
+4+|*Sample information for R unique (high) bits*
 2+| 2 (bit_offset) | 2 (bit_length) | 0 (channel_type) (red)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
 4+| 15 (sample_upper) - unique R upper value
-4+|Sample information for G tint (shared low bits)
+4+|*Sample information for G tint (shared low bits)*
 2+| 0 (bit_offset) | 2 (bit_length) | 1 (channel_type) (green)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
 4+| 0 (sample_upper) - ignored, not unique
-4+|Sample information for G unique (high) bits
+4+|*Sample information for G unique (high) bits*
 2+| 4 (bit_offset) | 2 (bit_length) | 1 (channel_type) (green)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
 4+| 15 (sample_upper) - unique G upper value
-4+|Sample information for B tint (shared low bits)
+4+|*Sample information for B tint (shared low bits)*
 2+| 0 (bit_offset) | 2 (bit_length) | 2 (channel_type) (blue)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
 4+| 0 (sample_upper) - ignored, not unique
-4+|Sample information for B unique (high) bits
+4+|*Sample information for B unique (high) bits*
 2+| 6 (bit_offset) | 2 (bit_length) | 2 (channel_type) (blue)
 | 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
 4+| 0 (sample_lower)
@@ -2083,49 +2410,160 @@ include::compformats.txt[]
 2+|0 (bit_offset)     | 10 (bit_length) | 1 (channel_type) (U0+1)
 |1 (assume mid-sited)      |  0       | 0       | 0
 4+|0 (sample_lower)
-4+|65535 (sample_upper)
+4+|1023 (sample_upper)
 2+|10 (bit offset)    | 10 (bit_length) | 0 (channel_type) (Y0)
 |0       |  0       | 0       | 0
 4+|0 (sample_lower)
-4+|65535 (sample_upper)
+4+|1023 (sample_upper)
 2+|20 (bit_offset)    | 10 (bit_length) | 2 (channel_type) (V0+1)
 |1 (assume mid-sited)      |  0       | 0       | 0
 4+|0 (sample_lower)
-4+|65535 (sample_upper)
+4+|1023 (sample_upper)
 2+|32 (bit offset)    | 10 (bit_length) | 0 (channel_type) (Y1)
 |2       |  0       | 0       | 0
 4+|0 (sample_lower)
-4+|65535 (sample_upper)
+4+|1023 (sample_upper)
 2+|42 (bit_offset)    | 10 (bit_length) | 1 (channel_type) (U2+3)
 |5 (assume mid-sited)      |  0       | 0       | 0
 4+|0 (sample_lower)
-4+|65535 (sample_upper)
+4+|1023 (sample_upper)
 2+|52 (bit offset)    | 10 (bit_length) | 0 (channel_type) (Y2)
 |4       |  0       | 0       | 0
 4+|0 (sample_lower)
-4+|65535 (sample_upper)
+4+|1023 (sample_upper)
 2+|64 (bit_offset)    | 10 (bit_length) | 2 (channel_type) (V2+3)
 |5 (assume mid-sited)      |  0       | 0       | 0
 4+|0 (sample_lower)
-4+|65535 (sample_upper)
+4+|1023 (sample_upper)
 2+|74 (bit offset)    | 10 (bit_length) | 0 (channel_type) (Y3)
 |6       |  0       | 0       | 0
 4+|0 (sample_lower)
-4+|65535 (sample_upper)
+4+|1023 (sample_upper)
 2+|84 (bit_offset)    | 10 (bit_length) | 1 (channel_type) (U4+5)
 |9 (assume mid-sited)      |  0       | 0       | 0
 4+|0 (sample_lower)
-4+|65535 (sample_upper)
+4+|1023 (sample_upper)
 2+|96 (bit offset)    | 10 (bit_length) | 0 (channel_type) (Y4)
 |8       |  0       | 0       | 0
 4+|0 (sample_lower)
-4+|65535 (sample_upper)
+4+|1023 (sample_upper)
 2+|106 (bit_offset)   | 10 (bit_length) | 2 (channel_type) (V4+5)
 |9 (assume mid-sited)      |  0       | 0       | 0
 4+|0 (sample_lower)
-4+|65535 (sample_upper)
+4+|1023 (sample_upper)
 2+|116 (bit offset)   | 10 (bit_length) | 0 (channel_type) (Y5)
 |10      |  0       | 0       | 0
 4+|0 (sample_lower)
-4+|65535 (sample_upper)
+4+|1023 (sample_upper)
+|================================
+
+[[intensity]]
+.Intensity-alpha format showing aliased samples
+[options="header"]
+|================================
+| Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
+4+| 92 (total_size)
+2+| 0 (vendor_id) 2+| 0 (descriptor_type)
+2+| 0 (version number) 2+| 88 (descriptor_block_size)
+| RGBSDA (color_model) | BT709 (color_primaries) | LINEAR (transfer_function) | PREMULTIPLIED (flags)
+| 0 (texel_block_dimension_0) | 0 (texel_block_dimension_1) | 0 (texel_block_dimension_2) | 0 (texel_block_dimension_3)
+| 1 (bytes_plane_0) | 0 (bytes_plane_1) | 0 (bytes_plane_2) | 0 (bytes_plane_3)
+| 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
+4+|*Sample information for first sample*
+2+| 0 (bit_offset) | 8 (bit_length) | 0 (channel_type) (red)
+| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
+4+| 0 (sample_lower)
+4+| 255 (sample_upper)
+4+|*Sample information for second sample*
+2+| 0 (bit_offset) | 8 (bit_length) | 1 (channel_type) (green)
+| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
+4+| 0 (sample_lower)
+4+| 255 (sample_upper)
+4+|*Sample information for third sample*
+2+| 0 (bit_offset) | 8 (bit_length) | 2 (channel_type) (blue)
+| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
+4+| 0 (sample_lower)
+4+| 255 (sample_upper)
+4+|*Sample information for fourth sample*
+2+| 0 (bit_offset) | 8 (bit_length) | 31 (channel_type) (alpha+linear)
+| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
+4+| 0 (sample_lower)
+4+| 255 (sample_upper)
+|================================
+
+[[48bit]]
+.Three co-sited 16-bit samples with the high word first, comprising a single 48-bit signed red channel
+[options="header"]
+|================================
+| Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
+4+| 76 (total_size)
+2+| 0 (vendor_id) 2+| 0 (descriptor_type)
+2+| 0 (version number) 2+| 72 (descriptor_block_size)
+| RGBSDA (color_model) | BT709 (color_primaries) | LINEAR (transfer_function) | PREMULTIPLIED (flags)
+| 0 (texel_block_dimension_0) | 0 (texel_block_dimension_1) | 0 (texel_block_dimension_2) | 0 (texel_block_dimension_3)
+| 6 (bytes_plane_0) | 0 (bytes_plane_1) | 0 (bytes_plane_2) | 0 (bytes_plane_3)
+| 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
+4+|*Sample information for first sample*
+2+| 32 (bit_offset) | 16 (bit_length) | 64 (channel_type) (red \| signed)
+| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
+4+| 0 (sample_lower) - ignored, overridden by second sample
+4+| 0 (sample_upper) - ignored, overridden by second sample
+4+|*Sample information for second sample*
+2+| 16 (bit_offset) | 16 (bit_length) | 64 (channel_type) (red \| signed)
+| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
+4+| 0xFFFFFFFF (sample_lower) - bottom 32 bits of sample_lower
+4+| 0xFFFFFFFF (sample_upper) - bottom 32 bits of sample_upper
+4+|*Sample information for third sample*
+2+| 0 (bit_offset) | 16 (bit_length) | 64 (channel_type) (red \| signed)
+| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
+4+| 0xFFFFFFFF (sample_lower) - top 16 bits of sample_lower, sign-extended
+4+| 0x7FFF (sample_upper) - top 16 bits of sample_upper
+|================================
+
+[[float16explicit]]
+.A single 16-bit floating-point red value, described explicitly (example only!)
+[options="header"]
+|================================
+| Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
+4+| 76 (total_size)
+2+| 0 (vendor_id) 2+| 0 (descriptor_type)
+2+| 0 (version number) 2+| 72 (descriptor_block_size)
+| RGBSDA (color_model) | BT709 (color_primaries) | LINEAR (transfer_function) | PREMULTIPLIED (flags)
+| 0 (texel_block_dimension_0) | 0 (texel_block_dimension_1) | 0 (texel_block_dimension_2) | 0 (texel_block_dimension_3)
+| 2 (bytes_plane_0) | 0 (bytes_plane_1) | 0 (bytes_plane_2) | 0 (bytes_plane_3)
+| 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
+4+|*Sample information for first sample (mantissa)*
+2+| 0 (bit_offset) | 10 (bit_length) | 0 (channel_type) (red)
+| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
+4+| 0 (sample_lower)
+4+| 2048 (sample_upper) - implicit 1
+4+|*Sample information for second sample (sign bit)*
+2+| 15 (bit_offset) | 1 (bit_length) | 64 (channel_type) (red \| signed)
+| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
+4+| 0xFFFFFFFF (sample_lower)
+4+| 0x0 (sample_upper)
+4+|*Sample information for third sample (exponent)*
+2+| 10 (bit_offset) | 5 (bit_length) | 32 (channel_type) (red \| exponent)
+| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
+4+| 15 (sample_lower) - bias
+4+| 30 (sample_upper) - support for infinities (because 31 can be encoded)
+|================================
+
+[[float16implicit]]
+.A single 16-bit floating-point red value, described normally
+[options="header"]
+|================================
+| Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
+4+| 44 (total_size)
+2+| 0 (vendor_id) 2+| 0 (descriptor_type)
+2+| 0 (version number) 2+| 40 (descriptor_block_size)
+| RGBSDA (color_model) | BT709 (color_primaries) | LINEAR (transfer_function) | PREMULTIPLIED (flags)
+| 0 (texel_block_dimension_0) | 0 (texel_block_dimension_1) | 0 (texel_block_dimension_2) | 0 (texel_block_dimension_3)
+| 2 (bytes_plane_0) | 0 (bytes_plane_1) | 0 (bytes_plane_2) | 0 (bytes_plane_3)
+| 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
+4+|*Sample information*
+2+| 0 (bit_offset) | 10 (bit_length) | 0 (channel_type) (red)
+| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
+4+| 0xbf80000 (sample_lower) = -1.0
+4+| 0x3f80000 (sample_upper) = 1.0
 |================================
