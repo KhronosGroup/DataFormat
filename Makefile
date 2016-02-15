@@ -1,3 +1,5 @@
+# Copyright (c) 2014-2016 The Khronos Group Inc.
+# Copyright notice at https://www.khronos.org/registry/speccopyright.html
 all: html chunks pdf
 
 html:

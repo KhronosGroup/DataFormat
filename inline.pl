@@ -1,4 +1,6 @@
 #!/usr/bin/perl
+# Copyright (c) 2014-2016 The Khronos Group Inc.
+# Copyright notice at https://www.khronos.org/registry/speccopyright.html
 open(DATAFILE, "<", "images/Khronos_Dec14.svg.b64");
 $data = <DATAFILE>;
 close DATAFILE;
