@@ -1,3 +1,5 @@
+// Copyright (c) 2014-2016 The Khronos Group Inc.
+// Copyright notice at https://www.khronos.org/registry/speccopyright.html
 [[ETC2]]
 == ETC2 Compressed Texture Image Formats
 
@@ -141,20 +143,6 @@ are irrelevant, e.g., in a latexmath:[$3\times 3$] texture, the texels marked as
 latexmath:[$m_1$], latexmath:[$n_1$], latexmath:[$o_1$], latexmath:[$d_1$],
 latexmath:[$h_1$], latexmath:[$l_1$] and latexmath:[$p_1$] form padding and
 have no effect on the final texture image.
-
-// It is possible to update part of a compressed texture using
-// \glr{CompressedTexSubImage2D}: Since ETC images are
-// easily edited along latexmath:[$4\times 4$] texel boundaries, the limitations on
-// \glr{CompressedTexSubImage2D} are
-// relaxed. \glr{CompressedTexSubImage2D} will result in an
-// \glc{INVALID\_OPERATION} error only if one of the following conditions
-// occurs:
-// 
-// * _width_ is not a multiple of four, and _width_ latexmath:[$+$] _xoffset_
-//   is not equal to the texture width;
-// * _height_ is not a multiple of four, and _height_ latexmath:[$+$] _yoffset_
-//   is not equal to the texture height; or
-// * _xoffset_ or _yoffset_ is not a multiple of four.
 
 The number of bits that represent a latexmath:[$4\times 4$] texel block is 64 bits
 if the format is RGB ETC2, RGB ETC2 with sRGB encoding, RGBA ETC2 with punchthrough
@@ -1159,8 +1147,6 @@ determining the mode used in a given block.
 >| ~31~ >| ~30~ >| ~29~ >| ~28~ >| ~27~ >| ~26~ >| ~25~ >| ~24~ >| ~23~ >| ~22~ >| ~21~ >| ~20~ >| ~19~ >| ~18~ >| ~17~ >| ~16~ >| ~15~ >| ~14~ >| ~13~ >| ~12~ >| ~11~ >| ~10~ >| ~9~ >| ~8~ >| ~7~ >| ~6~ >| ~5~ >| ~4~ >| ~3~ >| ~2~ >| ~1~ >| ~0~
 7+^| GH 6+^| BH 6+^| RV 7+^| GV 6+^| BV
 |====================
-
-// \input{etc2punchtables.tex}
 
 To determine the mode, the three 5-bit values R, G and B, and the
 three 3-bit values dR, dG and dB are examined. R, G and B are treated

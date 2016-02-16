@@ -1,4 +1,5 @@
-// Copyright (C) 2008-2015 The Khronos Group Inc. All Rights Reserved.
+// Copyright (c) 2014-2016 The Khronos Group Inc.
+// Copyright notice at https://www.khronos.org/registry/speccopyright.html
 [[ASTC]]
 == ASTC Compressed Texture Image Formats
 
@@ -20,16 +21,6 @@ transfer function.
 
 Two sub-profiles (``LDR Profile'' and ``HDR Profile'') may be implemented,
 which support only 2D images at low or high dynamic range respectively.
-
-// The mechanism for exposing functionality is API-specific.
-// The LDR profile is indicated by the presence of only the extension
-// string "GL_KHR_texture_compression_astc_ldr". If the HDR profile is
-// implemented, both "GL_KHR_texture_compression_astc_ldr"
-// and "GL_KHR_texture_compression_astc_hdr" must be published. If the full
-// profile (including 3D textures) is implemented, then all three extension
-// strings "GL_KHR_texture_compression_astc_ldr",
-// "GL_KHR_texture_compression_astc_hdr"
-// and "GL_OES_texture_compression_astc" must be published.
 
 ASTC textures may be encoded as 1, 2, 3 or 4 components, but they are
 all decoded into RGBA. ASTC has a variable block size.
@@ -299,12 +290,6 @@ For cubic and near-cubic blocks, this gives the bit rates in
 ^| 6     ^| 6      ^| 5     ^| 0.71 ^|   120%
 ^| 6     ^| 6      ^| 6     ^| 0.59 ^|
 |======================
-
-// Encoding is implementation-specific
-// The block footprint is shown as width x height x depth in the format
-// enumerator, so for example the enumerator COMPRESSED_RGBA_ASTC_5x4x4_OES
-// specifies an image with a block width of 5 texels, a block height of 4
-// texels and a block depth of 4 texels.
 
 The full profile supports only those block footprints listed in
 <<astc_footprint_2D>> and <<astc_footprint_3D>>. Other block sizes are not supported.

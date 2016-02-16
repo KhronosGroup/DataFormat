@@ -1,12 +1,11 @@
+// Copyright (c) 2014-2016 The Khronos Group Inc.
+// Copyright notice at https://www.khronos.org/registry/speccopyright.html
 [[ETC1]]
 == ETC1 Compressed Texture Image Formats
 
 _This description is derived from the
 link:https://www.khronos.org/registry/gles/extensions/OES/OES_compressed_ETC1_RGB8_texture.txt[OES_compressed_ETC1_RGB8_texture]
 OpenGL extension._
-
-// If <internalformat> is ETC1_RGB8_OES, the compressed texture is an
-// ETC1 compressed texture. 
 
 The texture is described as a number of latexmath:[$4\times 4$] pixel blocks. If the
 texture (or a particular mip-level) is smaller than 4 pixels in
@@ -109,7 +108,7 @@ mode are:
 [latexmath]
 ++++++
   $$base\ col\ subblock1 = extend\_5to8bits(R1', G1', B1')$$
-  $$base\ col\ subblock2 = extend\_5to8bits(R1'+dR2, G1'+dG2, B1'+dG2)$$
+  $$base\ col\ subblock2 = extend\_5to8bits(R1'+dR2, G1'+dG2, B1'+dB2)$$
 ++++++
 
 Note that these additions are not allowed to under- or overflow
@@ -149,11 +148,6 @@ should add the modifier value 29 to all three components: (latexmath:[$231+29$],
 latexmath:[$8+29$], latexmath:[$16+29$]) resulting in (latexmath:[$260$], latexmath:[$37$], latexmath:[$45$]). These values are then
 clamped to [latexmath:[$0$], latexmath:[$255$]], resulting in the color (latexmath:[$255$], latexmath:[$37$], latexmath:[$45$]), and we
 are finished decoding the texel.
-
-// Implementation detail:
-// ETC1 compressed textures support only 2D images without
-// borders. CompressedTexture2D will produce an INVALID_OPERATION if
-// <border> is non-zero.
 
 [[ETC1format]]
 .Texel Data format for ETC1 compressed textures
