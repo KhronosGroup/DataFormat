@@ -1,0 +1,331 @@
+// Copyright (c) 2014-2016 The Khronos Group Inc.
+// Copyright notice at https://www.khronos.org/registry/speccopyright.html
+[[ETC1]]
+== ETC1 Compressed Texture Image Formats
+
+_This description is derived from the
+link:https://www.khronos.org/registry/gles/extensions/OES/OES_compressed_ETC1_RGB8_texture.txt[OES_compressed_ETC1_RGB8_texture]
+OpenGL extension._
+
+The texture is described as a number of latexmath:[$4\times 4$] pixel blocks. If the
+texture (or a particular mip-level) is smaller than 4 pixels in
+any dimension (such as a latexmath:[$2\times 2$] or a latexmath:[$8\times 1$] texture), the texture is
+found in the upper left part of the block(s), and the rest of the
+pixels are not used. For instance, a texture of size latexmath:[$4\times 2$] will be
+placed in the upper half of a latexmath:[$4\times 4$] block, and the lower half of the
+pixels in the block will not be accessed.
+
+Pixel a~1~ (see <<ETC18x8>>) of the first block in memory will
+represent the texture coordinate (u=0, v=0). Pixel a~2~ in the
+second block in memory will be adjacent to pixel m1 in the first
+block, etc until the width of the texture. Then pixel a~3~ in the
+following block (third block in memory for a latexmath:[$8\times 8$] texture) will be
+adjacent to pixel d1 in the first block, etc until the height of
+the texture. The data storage for an latexmath:[$8\times 8$] texture using the first, second, third and
+fourth block if stored in that order in memory would have the texels encoded in
+the same order as a simple linear format as if the bytes describing the pixels came
+in the following memory order: latexmath:[$a_1$] latexmath:[$e_1$] latexmath:[$i_1$] latexmath:[$m_1$] latexmath:[$a_2$] latexmath:[$e_2$] latexmath:[$i_2$] latexmath:[$m_2$] latexmath:[$b_1$] latexmath:[$f_1$] latexmath:[$j_1$] latexmath:[$n_1$]
+latexmath:[$b_2$] latexmath:[$f_2$] latexmath:[$j_2$] latexmath:[$n_2$] latexmath:[$c_1$] latexmath:[$g_1$] latexmath:[$k_1$] latexmath:[$o_1$] latexmath:[$c_2$] latexmath:[$g_2$] latexmath:[$k_2$] latexmath:[$o_2$] latexmath:[$d_1$] latexmath:[$h_1$] latexmath:[$l_1$] latexmath:[$p_1$] latexmath:[$d_2$] latexmath:[$h_2$] latexmath:[$l_2$] latexmath:[$p_2$] latexmath:[$a_3$] latexmath:[$e_3$] latexmath:[$i_3$]
+latexmath:[$m_3$] latexmath:[$a_4$] latexmath:[$e_4$] latexmath:[$i_4$] latexmath:[$m_4$] latexmath:[$b_3$] latexmath:[$f_3$] latexmath:[$j_3$] latexmath:[$n_3$] latexmath:[$b_4$] latexmath:[$f_4$] latexmath:[$j_4$] latexmath:[$n_4$] latexmath:[$c_3$] latexmath:[$g_3$] latexmath:[$k_3$] latexmath:[$o_3$] latexmath:[$c_4$] latexmath:[$g_4$] latexmath:[$k_4$] latexmath:[$o_4$] latexmath:[$d_3$] latexmath:[$h_3$]
+latexmath:[$l_3$] latexmath:[$p_3$] latexmath:[$d_4$] latexmath:[$h_4$] latexmath:[$l_4$] latexmath:[$p_4$].
+
+The number of bits that represent a latexmath:[$4\times 4$] texel block is 64 bits.
+
+The data for a block is stored as a number of bytes,
+latexmath:[$\{q_0, q_1, q_2, q_3, q_4, q_5, q_6, q_7\}$], where byte latexmath:[$q_0$] is located at
+the lowest memory address and latexmath:[$q_7$] at the highest. The 64 bits
+specifying the block are then represented by the following 64 bit
+integer:
+[latexmath]
+++++++
+   $$int64bit = 256\times(256\times(256\times(256\times(256\times(256\times(256\times q_0+q_1)+q_2)+q_3)+q_4)+q_5)+q_6)+q_7$$
+++++++
+
+Each 64-bit word contains information about a latexmath:[$4\times 4$] pixel block as
+shown in <<ETC1layout>>. There are two modes in ETC1; the
+`individual' mode and the `differential' mode. Which mode is
+active for a particular latexmath:[$4\times 4$] block is controlled by bit 33, which
+we call `diffbit'. If _diffbit_ = 0, the `individual' mode is
+chosen, and if _diffbit_ = 1, then the `differential' mode is
+chosen. The bit layout for the two modes are different: The bit
+layout for the individual mode is shown in <<ETC1format>> <<ETC1individual,part a>> and
+<<ETC1sharedbits,part c>>, and the bit layout for the differential mode is laid out
+in <<ETC1format>> <<ETC1differential,part b>> and <<ETC1sharedbits,part c>>.
+
+In both modes, the latexmath:[$4\times 4$] block is divided into two subblocks of
+either size latexmath:[$2\times 4$] or latexmath:[$4\times 2$]. This is controlled by bit 32, which we
+call `flipbit'. If _flipbit_=0, the block is divided into two latexmath:[$2\times 4$]
+subblocks side-by-side, as shown in <<ETC12x4>>. If _flipbit_=1,
+the block is divided into two latexmath:[$4\times 2$] subblocks on top of each other,
+as shown in <<ETC14x2>>.
+
+In both individual and differential mode, a `base color' for each
+subblock is stored, but the way they are stored is different in
+the two modes:
+
+In the `individual' mode (_diffbit_ = 0), the base color for
+subblock 1 is derived from the codewords R1 (bit 63-60), G1 (bit
+55-52) and B1 (bit 47-44), see <<ETC1individual,section a>> of
+<<ETC1format>>. These four bit
+values are extended to RGB888 by replicating the four higher order
+bits in the four lower order bits. For instance, if R1 = 14 =
+1110b, G1 = 3 = 0011b and B1 = 8 = 1000b, then the red component
+of the base color of subblock 1 becomes 11101110b = 238, and the
+green and blue components become 00110011b = 51 and 10001000b =
+136. The base color for subblock 2 is decoded the same way, but
+using the 4-bit codewords R2 (bit 59-56), G2 (bit 51-48)and B2
+(bit 43-40) instead. In summary, the base colors for the subblocks
+in the individual mode are:
+
+[latexmath]
+++++++
+  $$base\ col\ subblock1 = extend\_4to8bits(R1, G1, B1)$$
+  $$base\ col\ subblock2 = extend\_4to8bits(R2, G2, B2)$$
+++++++
+
+In the `differential' mode (_diffbit_ = 1), the base color for
+subblock 1 is derived from the five-bit codewords latexmath:[$R1'$],
+latexmath:[$G1'$] and
+latexmath:[$B1'$]. These five-bit codewords are extended to eight bits by
+replicating the top three highest order bits to the three lowest
+order bits. For instance, if latexmath:[$R1'$] = 28 = 11100b, the resulting
+eight-bit red color component becomes 11100111b = 231. Likewise,
+if latexmath:[$G1'$] = 4 = 00100b and latexmath:[$B1'$] = 3 = 00011b, the green and blue
+components become 00100001b = 33 and 00011000b = 24
+respectively. Thus, in this example, the base color for subblock 1
+is (231, 33, 24). The five bit representation for the base color
+of subblock 2 is obtained by modifying the 5-bit codewords R1' G1'
+and B1' by the codewords dR2, dG2 and dB2. Each of dR2, dG2 and
+dB2 is a 3-bit two-complement number that can hold values between
+latexmath:[$-4$] and latexmath:[$+3$]. For instance, if R1' = 28 as above, and dR2 = 100b =
+latexmath:[$-4$], then the five bit representation for the red color component
+is latexmath:[$28+(-4)=24$] = 11000b, which is then extended to eight bits to
+11000110b = 198. Likewise, if G1' = 4, dG2 = 2, B1' = 3 and dB2 =
+0, the base color of subblock 2 will be RGB = (198, 49, 24). In
+summary, the base colors for the subblocks in the differential
+mode are:
+
+[latexmath]
+++++++
+  $$base\ col\ subblock1 = extend\_5to8bits(R1', G1', B1')$$
+  $$base\ col\ subblock2 = extend\_5to8bits(R1'+dR2, G1'+dG2, B1'+dB2)$$
+++++++
+
+Note that these additions are not allowed to under- or overflow
+(go below zero or above 31). (The compression scheme can easily
+make sure they don't.) For over- or underflowing values, the
+behavior is undefined for all pixels in the latexmath:[$4\times 4$] block. Note also
+that the extension to eight bits is performed _after_ the
+addition.
+
+After obtaining the base color, the operations are the same for
+the two modes `individual' and `differential'. First a table is
+chosen using the table codewords: For subblock 1, table codeword 1
+is used (bits 39-37), and for subblock 2, table codeword 2 is used
+(bits 36-34), see <<ETC1format>>. The table codeword is used to
+select one of eight modifier tables, see <<ETC1modifiersets>>. For
+instance, if the table code word is 010b = 2, then the modifier
+table [latexmath:[$-29$], latexmath:[$-9$], latexmath:[$9$], latexmath:[$29$]]
+is selected. Note that the values in <<ETC1modifiersets>> are valid
+for all textures and can therefore be hardcoded
+into the decompression unit.
+ 
+Next, we identify which modifier value to use from the modifier
+table using the two `pixel index' bits. The pixel index bits are
+unique for each pixel. For instance, the pixel index for pixel _d_
+(see <<ETC1layout>>) can be found in bits 19 (most significant bit,
+MSB), and 3 (least significant bit, LSB), see <<ETC1sharedbits,section c>> of
+<<ETC1format>>. Note
+that the pixel index for a particular texel is always stored in
+the same bit position, irrespectively of bits _diffbit_ and
+_flipbit_. The pixel index bits are decoded using <<ETC1modifiermapping>>.
+If, for instance, the pixel index bits are 01b = 1, and
+the modifier table [latexmath:[$-29$], latexmath:[$-9$], latexmath:[$9$], latexmath:[$29$]] is used, then the modifier
+value selected for that pixel is 29 (see <<ETC1modifiermapping>>). This
+modifier value is now used to additively modify the base
+color. For example, if we have the base color (latexmath:[$231$], latexmath:[$8$], latexmath:[$16$]), we
+should add the modifier value 29 to all three components: (latexmath:[$231+29$],
+latexmath:[$8+29$], latexmath:[$16+29$]) resulting in (latexmath:[$260$], latexmath:[$37$], latexmath:[$45$]). These values are then
+clamped to [latexmath:[$0$], latexmath:[$255$]], resulting in the color (latexmath:[$255$], latexmath:[$37$], latexmath:[$45$]), and we
+are finished decoding the texel.
+
+[[ETC1format]]
+.Texel Data format for ETC1 compressed textures
+[width="75%",cols="14*1,2*2"]
+|====================
+16+^| [[ETC1individual]]a) bit layout in bits 63 through 32 if diffbit = 0
+^| 63 ^| 62 ^| 61 ^| 60 ^| 59 ^| 58 ^| 57 ^| 56 ^| 55 ^| 54 ^| 53 ^| 52 ^| 51 ^| 50 ^| 49 ^| 48
+4+^| base col1
+
+R1 (4 bits)
+4+^| base col2
+
+R2 (4 bits)
+4+^| base col1
+
+G1 (4 bits)
+4+^| base col2
+
+G2 (4 bits)
+^| 47 ^| 46 ^| 45 ^| 44 ^| 43 ^| 42 ^| 41 ^| 40 ^| 39 ^| 38 ^| 37 ^| 36 ^| 35 ^| 34 ^| 33 ^| 32
+4+^| base col1
+
+B1 (4 bits)
+4+^| base col2
+
+B2 (4 bits)
+3+^| table
+
+cw 1
+3+^| table
+
+cw 2
+^| diff
+
+bit
+^| flip
+
+bit
+16+^| [[ETC1differential]]b) bit layout in bits 63 through 32 if diffbit = 1
+^| 63 ^| 62 ^| 61 ^| 60 ^| 59 ^| 58 ^| 57 ^| 56 ^| 55 ^| 54 ^| 53 ^| 52 ^| 51 ^| 50 ^| 49 ^| 48
+5+^| base col1
+
+R1' (5 bits)
+3+^| dcol 2
+
+dR2
+5+^| base col1
+
+G1' (4 bits)
+3+^| dcol 2
+
+dG2
+^| 47 ^| 46 ^| 45 ^| 44 ^| 43 ^| 42 ^| 41 ^| 40 ^| 39 ^| 38 ^| 37 ^| 36 ^| 35 ^| 34 ^| 33 ^| 32
+5+^| base col1
+
+B1' (5 bits)
+3+^| dcol 2
+
+db2
+3+^| table
+
+cw 1
+3+^| table
+
+cw 2
+^| diff
+
+bit
+^| flip
+
+bit
+16+^| [[ETC1sharedbits]]c) bit layout in bits 31 through 0 (in both cases)
+^| 31 ^| 30 ^| 29 ^| 28 ^| 27 ^| 26 ^| 25 ^| 24 ^| 23 ^| 22 ^| 21 ^| 20 ^| 19 ^| 18 ^| 17 ^| 16
+16+^|       most significant pixel index bits
+^| p ^| o ^| n ^| m ^| l ^| k ^| j ^| i ^| h ^| g ^| f ^| e ^| d ^| c ^| b ^| a
+^| 15 ^| 14 ^| 13 ^| 12 ^| 11 ^| 10 ^| 9 ^| 8 ^| 7 ^| 6 ^| 5 ^| 4 ^| 3 ^| 2 ^| 1 ^| 0
+16+^|         least significant pixel index bits
+^| p ^| o ^| n ^| m ^| l ^| k ^| j ^| i ^| h ^| g ^| f ^| e ^| d ^| c ^| b ^| a
+|====================
+
+[[ETC1modifiersets]]
+.Intensity modifier sets for ETC1 compressed textures
+[options="header",cols="2,1,1,1,1",width="45%"]
+|==============
+^| Table codeword 4+^| Modifier table
+^|          0       >|   -8 >|  -2 >|  2 >|   8
+^|          1       >|  -17 >|  -5 >|  5 >|  17
+^|          2       >|  -29 >|  -9 >|  9 >|  29
+^|          3       >|  -42 >| -13 >| 13 >|  42
+^|          4       >|  -60 >| -18 >| 18 >|  60
+^|          5       >|  -80 >| -24 >| 24 >|  80
+^|          6       >| -106 >| -33 >| 33 >| 106
+^|          7       >| -183 >| -47 >| 47 >| 183
+|==============
+
+[[ETC1modifiermapping]]
+.Mapping from pixel index values to modifier values for ETC1 compressed textures
+[options="header",cols="1,1,3",width="50%"]
+|============
+2+^| Pixel index value .2+| Resulting modifier value
+^| msb ^| lsb
+^| 1 ^| 1 | -b (large negative value)
+^| 1 ^| 0 | -a (small negative value)
+^| 0 ^| 0 | a (small positive value)
+^| 0 ^| 1 | b (large positive value)
+|============
+
+[[ETC18x8]]
+.Pixel layout for an 8×8 texture using four ETC1 compressed blocks. Note how pixel a2 in the second block is adjacent to pixel m1 in the first block.
+[width="50%",cols="20a,1,20a,10a"]
+|====================
+^|First block in mem
+|{nbsp}
+^|Second block in mem
+|{nbsp}
+^|
+!====================
+^! latexmath:[$a_1$] ^! latexmath:[$e_1$] ^! latexmath:[$i_1$] ^! latexmath:[$m_1$]
+^! latexmath:[$b_1$] ^! latexmath:[$f_1$] ^! latexmath:[$j_1$] ^! latexmath:[$n_1$]
+^! latexmath:[$c_1$] ^! latexmath:[$g_1$] ^! latexmath:[$k_1$] ^! latexmath:[$o_1$]
+^! latexmath:[$d_1$] ^! latexmath:[$h_1$] ^! latexmath:[$l_1$] ^! latexmath:[$p_1$]
+!====================
+|{nbsp} ^|
+!====================
+^! latexmath:[$a_2$] ^! latexmath:[$e_2$] ^! latexmath:[$i_2$] ^! latexmath:[$m_2$]
+^! latexmath:[$b_2$] ^! latexmath:[$f_2$] ^! latexmath:[$j_2$] ^! latexmath:[$n_2$]
+^! latexmath:[$c_2$] ^! latexmath:[$g_2$] ^! latexmath:[$k_2$] ^! latexmath:[$o_2$]
+^! latexmath:[$d_2$] ^! latexmath:[$h_2$] ^! latexmath:[$l_2$] ^! latexmath:[$p_2$]
+!====================
+.3+^.^|latexmath:[$\rightarrow u$] direction
+|{nbsp}
+|{nbsp}|{nbsp}
+^|
+!====================
+^! latexmath:[$a_3$] ^! latexmath:[$e_3$] ^! latexmath:[$i_3$] ^! latexmath:[$m_3$]
+^! latexmath:[$b_3$] ^! latexmath:[$f_3$] ^! latexmath:[$j_3$] ^! latexmath:[$n_3$]
+^! latexmath:[$c_3$] ^! latexmath:[$g_3$] ^! latexmath:[$k_3$] ^! latexmath:[$o_3$]
+^! latexmath:[$d_3$] ^! latexmath:[$h_3$] ^! latexmath:[$l_3$] ^! latexmath:[$p_3$]
+!====================
+|{nbsp} ^|
+!====================
+^! latexmath:[$a_4$] ^! latexmath:[$e_4$] ^! latexmath:[$i_4$] ^! latexmath:[$m_4$]
+^! latexmath:[$b_4$] ^! latexmath:[$f_4$] ^! latexmath:[$j_4$] ^! latexmath:[$n_4$]
+^! latexmath:[$c_4$] ^! latexmath:[$g_4$] ^! latexmath:[$k_4$] ^! latexmath:[$o_4$]
+^! latexmath:[$d_4$] ^! latexmath:[$h_4$] ^! latexmath:[$l_4$] ^! latexmath:[$p_4$]
+!====================
+^|Third block
+in mem| ^|Fourth block
+in mem |latexmath:[$\downarrow v$] direction
+|=============
+
+[[ETC1layout]]
+.Pixel layout for an ETC1 compressed block
+[width="20%",cols="1,1,1,1"]
+|====================
+^| latexmath:[$a$] ^| latexmath:[$e$] ^| latexmath:[$i$] ^| latexmath:[$m$]
+^| latexmath:[$b$] ^| latexmath:[$f$] ^| latexmath:[$j$] ^| latexmath:[$n$]
+^| latexmath:[$c$] ^| latexmath:[$g$] ^| latexmath:[$k$] ^| latexmath:[$o$]
+^| latexmath:[$d$] ^| latexmath:[$h$] ^| latexmath:[$l$] ^| latexmath:[$p$]
+|=============
+
+[[ETC12x4]]
+.Two 2×4-pixel ETC1 subblocks side-by-side
+[width="20%",cols="8,8,1,8,8"]
+|====================
+^| latexmath:[$a$] ^| latexmath:[$e$] .4+| ^| latexmath:[$i$] ^| latexmath:[$m$]
+^| latexmath:[$b$] ^| latexmath:[$f$] ^| latexmath:[$j$] ^| latexmath:[$n$]
+^| latexmath:[$c$] ^| latexmath:[$g$] ^| latexmath:[$k$] ^| latexmath:[$o$]
+^| latexmath:[$d$] ^| latexmath:[$h$] ^| latexmath:[$l$] ^| latexmath:[$p$]
+|=============
+
+[[ETC14x2]]
+.Two 4×2-pixel ETC1 subblocks on top of each other
+[width="16%",cols="1,1,1,1"]
+|====================
+^| latexmath:[$a$] ^| latexmath:[$e$] ^| latexmath:[$i$] ^| latexmath:[$m$]
+^| latexmath:[$b$] ^| latexmath:[$f$] ^| latexmath:[$j$] ^| latexmath:[$n$]
+4+|
+^| latexmath:[$c$] ^| latexmath:[$g$] ^| latexmath:[$k$] ^| latexmath:[$o$]
+^| latexmath:[$d$] ^| latexmath:[$h$] ^| latexmath:[$l$] ^| latexmath:[$p$]
+|=============

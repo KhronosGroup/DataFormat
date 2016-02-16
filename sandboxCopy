@@ -1,0 +1,20 @@
+#!/bin/sh
+# Copy DF specs to member sandbox area.
+# Only Jon can run this script at present.
+
+specdir=out
+remotepath=/home/khronos/memberftp/dataformat/
+
+# Create tarball and upload/copy/extract that to speed things
+echo "Creating tarball"
+# Files to copy to the sandbox. Probably better to target spec
+# generation into ./out/
+cp df_inline.html df.pdf $specdir || exit 1
+(cd $specdir ; tar czpf /tmp/df.tgz index.html df_inline.html df.pdf)
+echo "Uploading tarball"
+scp /tmp/df.tgz jleech@secure3.khronos.org:$remotepath
+echo "Extracting tarball on server"
+# Could add "&& rm df.tgz" but nice to have around
+ssh jleech@secure3.khronos.org "cd $remotepath && tar xzpf df.tgz"
+echo "Removing tarball"
+rm /tmp/df.tgz

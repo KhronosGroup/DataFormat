@@ -1,0 +1,39 @@
+% ******************************************************************************
+% *** Copyright (c) 2014-2016 The Khronos Group Inc.
+% *** Copyright notice at https://www.khronos.org/registry/speccopyright.html
+% *** Cover Page
+% ******************************************************************************
+
+\newlength{\oldbaselineskip}
+
+\def\DBKcover{
+\ifthenelse{\equal{\DBKedition}{}}{\def\edhead{}}{\def\edhead{Ed. \DBKedition}}
+
+% interligne double
+\setlength{\oldbaselineskip}{\baselineskip}
+\setlength{\baselineskip}{2\oldbaselineskip}
+
+\thispagestyle{empty}
+\includegraphics[scale=0.25]{images/Khronos_Dec14.pdf}
+\textsf{
+\vspace{7cm}
+\vfill
+\begin{center}
+  \Huge{\textbf{\DBKtitle}}
+  \vfill
+  \Large{\text{\DBKauthor}}
+  \vfill
+  \Large{\text{Version 1.1, Revision 2}}
+  \vfill
+  \Large{\text{\DBKdate}}
+\end{center}
+\vfill
+\vspace{5cm}
+}
+% Format for the other pages
+\clearpage
+\pagenumbering{arabic}
+\newpage
+\setlength{\baselineskip}{\oldbaselineskip}
+\lfoot[]{}
+}

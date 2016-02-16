@@ -1,0 +1,63 @@
+#!/usr/bin/python3
+
+import time
+from datetime import *
+
+# This script builds a full release package including XHTML and PDF
+# versions of the specified branch (usually CompressedFormatDefinitions,
+# but tags or commits can be used as well). Other files in the release
+# directory are removed.
+#
+# The branch must be fully committed and up to date when the script
+# is run, with no outstanding un-added / un-committed files.
+# After completing the build, the current branch is set to
+# 'master' and suggestions for creating tags are printed out.
+
+# branch = branch or commit or tag name
+# label = textual label to apply
+# outdir = directory to generate specs in
+def buildRelease(branch,label,outdir):
+    global root, xml, spec
+
+    print('echo Info: Generating branch=' + branch,
+          'label=' + label,
+          'outdir=' + outdir)
+    print('git checkout', branch)
+
+    print('echo Info: Cleaning spec in', outdir)
+    print('rm -rf',
+          outdir + '/df*.pdf',
+          outdir + '/df*.html')
+
+    print('echo Info: Generating spec')
+    # Can't use -j 2 because both targets generate a (different)
+    # intermediate df.xml
+    print('make html pdf')
+
+    print('echo Info: Copying spec from DF tree to Vulkan target')
+    print('cp df_inline.html df.pdf', outdir)
+
+# Main
+
+global root
+
+# Root of the Vulkan git repo
+root = '/home/tree/git/vulkan'
+
+# These can be changed to tags, etc.
+branch = 'CompressedFormatDefinitions'
+
+# date in YYYYMMDD format
+now = datetime.today().strftime('%Y%m%d')
+
+# Generate specs
+buildRelease(branch, 'DF 1.1', root + '/out/df')
+
+print('echo Info: post-generation cleanup')
+
+print('git checkout', branch)
+
+print('echo To tag the spec branch, execute these commands:')
+print('echo git checkout', branch)
+print('echo git tag -a -m \\"Tag DF API specification for', now, 'release\\"', 'v1.1-' + now)
+print('echo git push --tags')
