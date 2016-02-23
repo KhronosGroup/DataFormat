@@ -1172,7 +1172,7 @@ to nonlinear latexmath:[$(R', G', B')$] encoding is:
       1.055 \times R^{1\over 2.4} - 0.055, & R > 0.0031308
   \end{cases}$$
   $$G' = \begin{cases}
-      R \times 12.92, & G \leq 0.0031308 \\
+      G \times 12.92, & G \leq 0.0031308 \\
       1.055 \times G^{1\over 2.4} - 0.055, & G > 0.0031308
   \end{cases}$$
   $$B' = \begin{cases}
