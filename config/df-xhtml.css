@@ -133,7 +133,12 @@ div.navfooter hr {
 }
 
 body td {
-  line-height: 1.2
+  line-height: 1.2; padding: 0px 3px 0px 3px;
+}
+
+table p {
+  margin-top: 0px;
+  margin-bottom: 0px;
 }
 
 body th {

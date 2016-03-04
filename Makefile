@@ -10,11 +10,12 @@ A2XOPTS    = -a mathjax \
 	     $(XMLLINT) $(VERBOSE)
 
 html:
-	a2x $(A2XOPTS) -f xhtml df.txt -a a2xformat=html -a docinfo --xsl-file=config/docbook-xsl/xhtml.xsl -a toc2 -a toclevels=2
+	a2x $(A2XOPTS) -f xhtml df.txt -a a2x-format=html -a docinfo --xsl-file=config/docbook-xsl/xhtml.xsl -a toc2 -a toclevels=2
 	./inline.pl > df_inline.html
 
 pdf:
-	asciidoc -d book -b docbook -a a2xformat=pdf -a docinfo df.txt && dblatex -b pdftex -s dblatex/df.sty df.xml
+	asciidoc -d book -b docbook -f config/mathjax-docbook.conf -a a2x-format=pdf -a docinfo df.txt && \
+	dblatex -b pdftex -p config/docbook-xsl/pdf.xsl -s dblatex/df.sty df.xml
 
 clean:
 	rm -f df.pdf df.xml df.html df_inline.html

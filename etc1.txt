@@ -38,7 +38,9 @@ specifying the block are then represented by the following 64 bit
 integer:
 [latexmath]
 ++++++
-   $$int64bit = 256\times(256\times(256\times(256\times(256\times(256\times(256\times q_0+q_1)+q_2)+q_3)+q_4)+q_5)+q_6)+q_7$$
+\begin{align*}
+int64bit & = 256\times(256\times(256\times(256\times(256\times(256\times(256\times q_0+q_1)+q_2)+q_3)+q_4)+q_5)+q_6)+q_7
+\end{align*}
 ++++++
 
 Each 64-bit word contains information about a latexmath:[$4\times 4$] pixel block as
@@ -79,8 +81,10 @@ in the individual mode are:
 
 [latexmath]
 ++++++
-  $$base\ col\ subblock1 = extend\_4to8bits(R1, G1, B1)$$
-  $$base\ col\ subblock2 = extend\_4to8bits(R2, G2, B2)$$
+\begin{align*}
+base\ col\ subblock1 & = extend\_4to8bits(R1, G1, B1) \\
+base\ col\ subblock2 & = extend\_4to8bits(R2, G2, B2)
+\end{align*}
 ++++++
 
 In the `differential' mode (_diffbit_ = 1), the base color for
@@ -107,8 +111,10 @@ mode are:
 
 [latexmath]
 ++++++
-  $$base\ col\ subblock1 = extend\_5to8bits(R1', G1', B1')$$
-  $$base\ col\ subblock2 = extend\_5to8bits(R1'+dR2, G1'+dG2, B1'+dB2)$$
+\begin{align*}
+base\ col\ subblock1 & = extend\_5to8bits(R1', G1', B1') \\
+base\ col\ subblock2 & = extend\_5to8bits(R1'+dR2, G1'+dG2, B1'+dB2)
+\end{align*}
 ++++++
 
 Note that these additions are not allowed to under- or overflow
@@ -129,7 +135,7 @@ table [latexmath:[$-29$], latexmath:[$-9$], latexmath:[$9$], latexmath:[$29$]]
 is selected. Note that the values in <<ETC1modifiersets>> are valid
 for all textures and can therefore be hardcoded
 into the decompression unit.
- 
+
 Next, we identify which modifier value to use from the modifier
 table using the two `pixel index' bits. The pixel index bits are
 unique for each pixel. For instance, the pixel index for pixel _d_
