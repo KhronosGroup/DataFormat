@@ -17,7 +17,7 @@ ASTC textures may be either 2D or 3D.
 
 ASTC textures may be encoded using either high or low dynamic range.
 Low dynamic range images may optionally be specified using the sRGB
-transfer function.
+transfer function for the RGB channels.
 
 Two sub-profiles (``LDR Profile'' and ``HDR Profile'') may be implemented,
 which support only 2D images at low or high dynamic range respectively.
@@ -181,13 +181,15 @@ invalid encodings as a way of generating the error color.
 
 === Configuration Summary
 
-The global configuration data for the format is as follows:
+The global configuration data for the format are as follows:
 
 *   Block dimension (2D or 3D)
 *   Block footprint size
 *   sRGB output enabled or not
 
-The data specified per block is as follows:
+<<<
+
+The data specified per block are as follows:
 
 *   Texel weight grid size
 *   Texel weight range
@@ -204,18 +206,15 @@ The data specified per block is as follows:
 To decode one texel:
 
 -------------------
-(Optimization: If within known void-extent, immediately return single
-    color)
+(Optimization: If within known void-extent, immediately return single color)
 
 Find block containing texel
 Read block mode
-If void-extent block, store void extent and immediately return single
-    color
+If void-extent block, store void extent and immediately return single color
 
 For each plane in image
   If block mode requires infill
-    Find and decode stored weights adjacent to texel, unquantize and
-        interpolate
+    Find and decode stored weights adjacent to texel, unquantize and interpolate
   Else
     Find and decode weight for texel, and unquantize
 
@@ -307,9 +306,11 @@ latexmath:[$w \times h \times d$], the size of the image in blocks is:
 
 [latexmath]
 ++++++++++++++++++++++
-    $$B_w = \left\lceil { W \over w } \right\rceil$$
-    $$B_h = \left\lceil { H \over h } \right\rceil$$
-    $$B_d = \left\lceil { D \over d } \right\rceil$$
+\begin{align*}
+B_w & = \left\lceil { W \over w } \right\rceil \\
+B_h & = \left\lceil { H \over h } \right\rceil \\
+B_d & = \left\lceil { D \over d } \right\rceil
+\end{align*}
 ++++++++++++++++++++++
 
 For a 3D image built from 2D slices, each 2D slice is a single texel thick,
@@ -318,9 +319,11 @@ latexmath:[$w \times h$], the size of the image in blocks is:
 
 [latexmath]
 ++++++++++++++++++++++
-    $$B_w = \left\lceil { W \over w } \right\rceil$$
-    $$B_h = \left\lceil { H \over h } \right\rceil$$
-    $$B_d = D$$
+\begin{align*}
+B_w & = \left\lceil { W \over w } \right\rceil \\
+B_h & = \left\lceil { H \over h } \right\rceil \\
+B_d & = D
+\end{align*}
 ++++++++++++++++++++++
 
 === Block Layout
@@ -437,7 +440,7 @@ together with a precision bit H, as shown in <<astc-weight-range-encodings>>.
 ^| 100 ^| 0..3 ^| ^| ^| 2 ^| 0..15 ^| ^| ^| 4
 ^| 101 ^| 0..4 ^| ^| 1 ^| ^| 0..19 ^| ^| 1 ^| 2
 ^| 110 ^| 0..5 ^| 1 ^| ^| 1 ^| 0..23 ^| 1 ^| ^| 3
-^| 111 ^| 0..7 ^| ^| ^| 2 ^| 0..31 ^| ^| ^| 5
+^| 111 ^| 0..7 ^| ^| ^| 3 ^| 0..31 ^| ^| ^| 5
 |====================
 
 Each weight value is encoded using the specified number of Trits, Quints
@@ -553,6 +556,8 @@ for each partition is calculated as shown in <<astc-multi-partition-color-endpoi
 ^| 11 | All endpoint pairs are of class 2 or 3.
 |====================
 
+<<<
+
 If the CEM selector value in bits [24:23] is not 00,
 then data layout is as shown in <<astc-multi-partition-color-endpoint-mode-layout>>
 and <<astc-multi-partition-color-endpoint-mode-layout-2>>.
@@ -566,7 +571,6 @@ and <<astc-multi-partition-color-endpoint-mode-layout-2>>.
 ^| 3 | ... ^| Weight 2+^| M2 2+^| M1 | M0 3+| | ...
 ^| 4 | ... ^| Weight 2+^| M3 2+^| M2 2+^| M1 2+^| M0 | ...
 |====================
-
 [[astc-multi-partition-color-endpoint-mode-layout-2]]
 .ASTC multi-partition color endpoint mode layout (2)
 [cols="2,1,1,1,1,1,1",options="header",width="60%"]
@@ -577,9 +581,9 @@ and <<astc-multi-partition-color-endpoint-mode-layout-2>>.
 ^| 4 ^| C3 ^| C2 ^| C1 | C0 2+^| CEM
 |====================
 
-In this view, each partition _i_ has two fields. C~i is the class selector
+In this view, each partition _i_ has two fields. C~i~ is the class selector
 bit, choosing between the two possible CEM classes (0 indicates the
-lower of the two classes), and M~i is a two-bit field specifying the low
+lower of the two classes), and M~i~ is a two-bit field specifying the low
 bits of the color endpoint mode within that class. The additional bits
 appear at a variable bit position, immediately below the texel weight
 data.
@@ -652,21 +656,15 @@ latexmath:[$b[i\times n+n-1\colon i \times n\]$] -- a simple multiplexing operat
 If the range is encoded using a trit, then each block contains 5 values
 (v0 to v4), each of which contains a trit (t0 to t4) and a corresponding
 LSB value (m0 to m4). The first bit of the packed block is bit
-latexmath:[$\lfloor {i\over 5} \rfloor \times (8 + 5 \times n)$]. The bits in the block are packed as shown in <<astc-trit-based-packing>> and <<astc-trit-based-packing-2>>
-(in this example, n is 4).
+latexmath:[$\lfloor {i\over 5} \rfloor \times (8 + 5 \times n)$]. The bits in the
+block are packed as shown in <<astc-trit-based-packing>> (in this example, n is 4).
 
 [[astc-trit-based-packing]]
 .ASTC trit-based packing
 [width="80%"]
 |===========================================
-^|27 ^| 26 ^| 25 ^| 24 ^| 23 ^| 22 ^| 21 ^| 20 ^| 19 ^| 18 ^| 17 ^| 16
-^|T7 4+^|     m4        ^|T6 ^| T5 4+^|     m3        ^|T4 ^|
-|===========================================
-
-[[astc-trit-based-packing-2]]
-.ASTC trit-based packing (2)
-[width="80%"]
-|===========================================
+4+^| ^|27 ^| 26 ^| 25 ^| 24 ^| 23 ^| 22 ^| 21 ^| 20 ^| 19 ^| 18 ^| 17 ^| 16
+4+^| ^|T7 4+^|     m4        ^|T6 ^| T5 4+^|     m3        ^|T4
 ^| 15 ^| 14 ^| 13 ^| 12 ^| 11 ^| 10 ^| 9 ^|  8 ^|  7 ^|  6 ^|  5 ^|  4 ^|  3 ^|  2 ^|  1 ^|  0
 4+^|    m2        ^| T3 ^| T2 4+^|      m1       ^| T1 ^| T0 4+^|      m0       ^|
 |===========================================
@@ -674,21 +672,25 @@ latexmath:[$\lfloor {i\over 5} \rfloor \times (8 + 5 \times n)$]. The bits in th
 The five trits t0 to t4 are obtained by bit manipulations of the 8 bits
 T[7:0] as follows:
 
-    if T[4:2] = 111
-        C = { T[7:5], T[1:0] }; t4 = t3 = 2
+-----
+if T[4:2] = 111
+    C = { T[7:5], T[1:0] }; t4 = t3 = 2
+else
+    C = T[4:0]
+    if T[6:5] = 11
+        t4 = 2; t3 = T[7]
     else
-        C = T[4:0]
-        if T[6:5] = 11
-            t4 = 2; t3 = T[7]
-        else
-            t4 = T[7]; t3 = T[6:5]
+        t4 = T[7]; t3 = T[6:5]
 
-    if C[1:0] = 11
-        t2 = 2; t1 = C[4]; t0 = { C[3], C[2]&~C[3] }
-    else if C[3:2] = 11
-        t2 = 2; t1 = 2; t0 = C[1:0]
-    else
-        t2 = C[4]; t1 = C[3:2]; t0 = { C[1], C[0]&~C[1] }
+if C[1:0] = 11
+    t2 = 2; t1 = C[4]; t0 = { C[3], C[2]&~C[3] }
+else if C[3:2] = 11
+    t2 = 2; t1 = 2; t0 = C[1:0]
+else
+    t2 = C[4]; t1 = C[3:2]; t0 = { C[1], C[0]&~C[1] }
+-----
+
+<<<
 
 If the range is encoded using a quint, then each block contains 3 values
 (v0 to v2), each of which contains a quint (q0 to q2) and a corresponding
@@ -717,18 +719,20 @@ The bits in the block are packed as described in <<astc-quint-based-packing>> an
 The three quints q0 to q2 are obtained by bit manipulations of the 7 bits
 Q[6:0] as follows:
 
-    if Q[2:1] = 11 and Q[6:5] = 00
-        q2 = { Q[0], Q[4]&~Q[0], Q[3]&~Q[0] }; q1 = q0 = 4
+-----
+if Q[2:1] = 11 and Q[6:5] = 00
+    q2 = { Q[0], Q[4]&~Q[0], Q[3]&~Q[0] }; q1 = q0 = 4
+else
+    if Q[2:1] = 11
+        q2 = 4; C = { Q[4:3], ~Q[6:5], Q[0] }
     else
-        if Q[2:1] = 11
-            q2 = 4; C = { Q[4:3], ~Q[6:5], Q[0] }
-        else
-            q2 = T[6:5]; C = Q[4:0]
+        q2 = T[6:5]; C = Q[4:0]
 
-        if C[2:0] = 101
-            q1 = 4; q0 = C[4:3]
-        else
-            q1 = C[4:3];    q0 = C[2:0]
+    if C[2:0] = 101
+        q1 = 4; q0 = C[4:3]
+    else
+        q1 = C[4:3]; q0 = C[2:0]
+-----
 
 Both these procedures ensure a valid decoding for all 128 possible values
 (even though a few are duplicates). They can also be implemented
@@ -781,9 +785,11 @@ in <<astc-color-unquantization-parameters>>.
 
 These are then processed as follows:
 
-    T = D * C + B;
-    T = T ^ A;
-    T = (A & 0x80) | (T >> 2);
+-----
+T = D * C + B;
+T = T ^ A;
+T = (A & 0x80) | (T >> 2);
+-----
 
 Note that the multiply in the first line is nearly trivial as it only
 needs to multiply by 0, 1, 2, 3 or 4.
@@ -834,74 +840,94 @@ Decode the different LDR endpoint modes as follows:
 
 ==== Mode 0  LDR Luminance, direct
 
-    e0=(v0,v0,v0,0xFF); e1=(v1,v1,v1,0xFF);
+-----
+e0=(v0,v0,v0,0xFF); e1=(v1,v1,v1,0xFF);
+-----
 
 ==== Mode 1  LDR Luminance, base+offset
 
-    L0 = (v0>>2)|(v1&0xC0); L1=L0+(v1&0x3F);
-    if (L1>0xFF) { L1=0xFF; }
-    e0=(L0,L0,L0,0xFF); e1=(L1,L1,L1,0xFF);
+-----
+L0 = (v0>>2)|(v1&0xC0); L1=L0+(v1&0x3F);
+if (L1>0xFF) { L1=0xFF; }
+e0=(L0,L0,L0,0xFF); e1=(L1,L1,L1,0xFF);
+-----
 
 ==== Mode 4  LDR Luminance+Alpha,direct
 
-    e0=(v0,v0,v0,v2);
-    e1=(v1,v1,v1,v3);
+-----
+e0=(v0,v0,v0,v2);
+e1=(v1,v1,v1,v3);
+-----
 
 ==== Mode 5  LDR Luminance+Alpha, base+offset
 
-    bit_transfer_signed(v1,v0); bit_transfer_signed(v3,v2);
-    e0=(v0,v0,v0,v2); e1=(v0+v1,v0+v1,v0+v1,v2+v3);
-    clamp_unorm8(e0); clamp_unorm8(e1);
+-----
+bit_transfer_signed(v1,v0); bit_transfer_signed(v3,v2);
+e0=(v0,v0,v0,v2); e1=(v0+v1,v0+v1,v0+v1,v2+v3);
+clamp_unorm8(e0); clamp_unorm8(e1);
+-----
 
 ==== Mode 6  LDR RGB, base+scale
 
-    e0=(v0*v3>>8,v1*v3>>8,v2*v3>>8, 0xFF);
-    e1=(v0,v1,v2,0xFF);
+-----
+e0=(v0*v3>>8,v1*v3>>8,v2*v3>>8, 0xFF);
+e1=(v0,v1,v2,0xFF);
+-----
 
 ==== Mode 8  LDR RGB, Direct
 
-    s0= v0+v2+v4; s1= v1+v3+v5;
-    if (s1>=s0){e0=(v0,v2,v4,0xFF);
-                e1=(v1,v3,v5,0xFF); }
-    else { e0=blue_contract(v1,v3,v5,0xFF);
-           e1=blue_contract(v0,v2,v4,0xFF); }
+-----
+s0= v0+v2+v4; s1= v1+v3+v5;
+if (s1>=s0){e0=(v0,v2,v4,0xFF);
+            e1=(v1,v3,v5,0xFF); }
+else { e0=blue_contract(v1,v3,v5,0xFF);
+       e1=blue_contract(v0,v2,v4,0xFF); }
+-----
 
 ==== Mode 9  LDR RGB, base+offset
 
-    bit_transfer_signed(v1,v0);
-    bit_transfer_signed(v3,v2);
-    bit_transfer_signed(v5,v4);
-    if(v1+v3+v5 >= 0)
-    { e0=(v0,v2,v4,0xFF); e1=(v0+v1,v2+v3,v4+v5,0xFF); }
-    else
-    { e0=blue_contract(v0+v1,v2+v3,v4+v5,0xFF);
-      e1=blue_contract(v0,v2,v4,0xFF); }
-    clamp_unorm8(e0); clamp_unorm8(e1);
+-----
+bit_transfer_signed(v1,v0);
+bit_transfer_signed(v3,v2);
+bit_transfer_signed(v5,v4);
+if(v1+v3+v5 >= 0)
+{ e0=(v0,v2,v4,0xFF); e1=(v0+v1,v2+v3,v4+v5,0xFF); }
+else
+{ e0=blue_contract(v0+v1,v2+v3,v4+v5,0xFF);
+  e1=blue_contract(v0,v2,v4,0xFF); }
+clamp_unorm8(e0); clamp_unorm8(e1);
+-----
 
 ==== Mode 10 LDR RGB, base+scale plus two A
 
-    e0=(v0*v3>>8,v1*v3>>8,v2*v3>>8, v4);
-    e1=(v0,v1,v2, v5);
+-----
+e0=(v0*v3>>8,v1*v3>>8,v2*v3>>8, v4);
+e1=(v0,v1,v2, v5);
+-----
 
 ==== Mode 12 LDR RGBA, direct
 
-    s0= v0+v2+v4; s1= v1+v3+v5;
-    if (s1>=s0){e0=(v0,v2,v4,v6);
-                e1=(v1,v3,v5,v7); }
-    else { e0=blue_contract(v1,v3,v5,v7);
-           e1=blue_contract(v0,v2,v4,v6); }
+-----
+s0= v0+v2+v4; s1= v1+v3+v5;
+if (s1>=s0){e0=(v0,v2,v4,v6);
+            e1=(v1,v3,v5,v7); }
+else { e0=blue_contract(v1,v3,v5,v7);
+       e1=blue_contract(v0,v2,v4,v6); }
+-----
 
 ==== Mode 13 LDR RGBA, base+offset
 
-    bit_transfer_signed(v1,v0);
-    bit_transfer_signed(v3,v2);
-    bit_transfer_signed(v5,v4);
-    bit_transfer_signed(v7,v6);
-    if(v1+v3+v5>=0) { e0=(v0,v2,v4,v6);
-           e1=(v0+v1,v2+v3,v4+v5,v6+v7); }
-    else { e0=blue_contract(v0+v1,v2+v3,v4+v5,v6+v7);
-           e1=blue_contract(v0,v2,v4,v6); }
-    clamp_unorm8(e0); clamp_unorm8(e1);
+-----
+bit_transfer_signed(v1,v0);
+bit_transfer_signed(v3,v2);
+bit_transfer_signed(v5,v4);
+bit_transfer_signed(v7,v6);
+if(v1+v3+v5>=0) { e0=(v0,v2,v4,v6);
+       e1=(v0+v1,v2+v3,v4+v5,v6+v7); }
+else { e0=blue_contract(v0+v1,v2+v3,v4+v5,v6+v7);
+       e1=blue_contract(v0,v2,v4,v6); }
+clamp_unorm8(e0); clamp_unorm8(e1);
+-----
 
 The bit_transfer_signed procedure transfers a bit from one value (a)
 to another (b). Initially, both _a_ and _b_ are in the range 0..255.
@@ -909,37 +935,45 @@ After calling this procedure, _a_'s range becomes -32..31, and _b_ remains
 in the range 0..255. Note that, as is often the case, this is easier to
 express in hardware than in C:
 
-    bit_transfer_signed(int& a, int& b)
-    {
-        b >>= 1;
-        b |= a & 0x80;
-        a >>= 1;
-        a &= 0x3F;
-        if( (a&0x20)!=0 ) a-=0x40;
-    }
+-----
+bit_transfer_signed(int& a, int& b)
+{
+    b >>= 1;
+    b |= a & 0x80;
+    a >>= 1;
+    a &= 0x3F;
+    if( (a&0x20)!=0 ) a-=0x40;
+}
+-----
 
 The blue_contract procedure is used to give additional precision to
 RGB colors near grey:
 
-    color blue_contract( int r, int g, int b, int a )
-    {
-        color c;
-        c.r = (r+b) >> 1;
-        c.g = (g+b) >> 1;
-        c.b = b;
-        c.a = a;
-        return c;
-    }
+-----
+color blue_contract( int r, int g, int b, int a )
+{
+    color c;
+    c.r = (r+b) >> 1;
+    c.g = (g+b) >> 1;
+    c.b = b;
+    c.a = a;
+    return c;
+}
+-----
 
 The clamp_unorm8 procedure is used to clamp a color into the UNORM8 range:
 
-    void clamp_unorm8(color c)
-    {
-        if(c.r < 0) {c.r=0;} else if(c.r > 255) {c.r=255;}
-        if(c.g < 0) {c.g=0;} else if(c.g > 255) {c.g=255;}
-        if(c.b < 0) {c.b=0;} else if(c.b > 255) {c.b=255;}
-        if(c.a < 0) {c.a=0;} else if(c.a > 255) {c.a=255;}
-    }
+-----
+void clamp_unorm8(color c)
+{
+    if(c.r < 0) {c.r=0;} else if(c.r > 255) {c.r=255;}
+    if(c.g < 0) {c.g=0;} else if(c.g > 255) {c.g=255;}
+    if(c.b < 0) {c.b=0;} else if(c.b > 255) {c.b=255;}
+    if(c.a < 0) {c.a=0;} else if(c.a > 255) {c.a=255;}
+}
+-----
+
+<<<
 
 === HDR Endpoint Decoding
 
@@ -951,19 +985,21 @@ pseudo-logarithmic representation.
 Mode 2 represents luminance-only data with a large range. It encodes
 using two values (v0, v1). The complete decoding procedure is as follows:
 
-    if(v1 >= v0)
-    {
-        y0 = (v0 << 4);
-        y1 = (v1 << 4);
-    }
-    else
-    {
-        y0 = (v1 << 4) + 8;
-        y1 = (v0 << 4) - 8;
-    }
-    // Construct RGBA result (0x780 is 1.0f)
-    e0 = (y0, y0, y0, 0x780);
-    e1 = (y1, y1, y1, 0x780);
+-----
+if(v1 >= v0)
+{
+    y0 = (v0 << 4);
+    y1 = (v1 << 4);
+}
+else
+{
+    y0 = (v1 << 4) + 8;
+    y1 = (v0 << 4) - 8;
+}
+// Construct RGBA result (0x780 is 1.0f)
+e0 = (y0, y0, y0, 0x780);
+e1 = (y1, y1, y1, 0x780);
+-----
 
 ==== HDR Endpoint Mode 3
 
@@ -985,25 +1021,29 @@ on the value of the mode bit M.
 
 The complete decoding procedure is as follows:
 
-    // Check mode bit and extract.
-    if((v0&0x80) !=0)
-    {
-        y0 = ((v1 & 0xE0) << 4) | ((v0 & 0x7F) << 2);
-        d  =  (v1 & 0x1F) << 2;
-    }
-    else
-    {
-        y0 = ((v1 & 0xF0) << 4) | ((v0 & 0x7F) << 1);
-        d  =  (v1 & 0x0F) << 1;
-    }
+-----
+// Check mode bit and extract.
+if((v0&0x80) !=0)
+{
+    y0 = ((v1 & 0xE0) << 4) | ((v0 & 0x7F) << 2);
+    d  =  (v1 & 0x1F) << 2;
+}
+else
+{
+    y0 = ((v1 & 0xF0) << 4) | ((v0 & 0x7F) << 1);
+    d  =  (v1 & 0x0F) << 1;
+}
 
-    // Add delta and clamp
-    y1 = y0 + d;
-    if(y1 > 0xFFF) { y1 = 0xFFF; }
+// Add delta and clamp
+y1 = y0 + d;
+if(y1 > 0xFFF) { y1 = 0xFFF; }
 
-    // Construct RGBA result (0x780 is 1.0f)
-    e0 = (y0, y0, y0, 0x780);
-    e1 = (y1, y1, y1, 0x780);
+// Construct RGBA result (0x780 is 1.0f)
+e0 = (y0, y0, y0, 0x780);
+e1 = (y1, y1, y1, 0x780);
+-----
+
+<<<
 
 ==== HDR Endpoint Mode 7
 
@@ -1050,79 +1090,71 @@ and assignment usually ends up as a single wire or multiplexer.
 
 The complete decoding procedure is as follows:
 
-    // Extract mode bits and unpack to major component and mode.
-    int modeval = ((v0&0xC0)>>6) | ((v1&0x80)>>5) | ((v2&0x80)>>4);
+<<<
 
-    int majcomp;
-    int mode;
+-----
+// Extract mode bits and unpack to major component and mode.
+int majcomp; int mode; int modeval = ((v0&0xC0)>>6) | ((v1&0x80)>>5) | ((v2&0x80)>>4);
 
-    if( (modeval & 0xC ) != 0xC )
-    {
-        majcomp = modeval >> 2; mode = modeval & 3;
-    }
-    else if( modeval != 0xF )
-    {
-        majcomp = modeval & 3;  mode = 4;
-    }
-    else
-    {
-        majcomp = 0; mode = 5;
-    }
-    
-    // Extract low-order bits of r, g, b, and s.
-    int red   = v0 & 0x3f;
-    int green = v1 & 0x1f;
-    int blue  = v2 & 0x1f;
-    int scale = v3 & 0x1f;
-    
-    // Extract high-order bits, which may be assigned depending on mode
-    int x0 = (v1 >> 6) & 1; int x1 = (v1 >> 5) & 1;
-    int x2 = (v2 >> 6) & 1; int x3 = (v2 >> 5) & 1;
-    int x4 = (v3 >> 7) & 1; int x5 = (v3 >> 6) & 1;
-    int x6 = (v3 >> 5) & 1;
-    
-    // Now move the high-order xs into the right place.
-    int ohm = 1 << mode;
-    if( ohm & 0x30 ) green |= x0 << 6;
-    if( ohm & 0x3A ) green |= x1 << 5;
-    if( ohm & 0x30 ) blue |= x2 << 6;
-    if( ohm & 0x3A ) blue |= x3 << 5;
-    if( ohm & 0x3D ) scale |= x6 << 5;
-    if( ohm & 0x2D ) scale |= x5 << 6;
-    if( ohm & 0x04 ) scale |= x4 << 7;
-    if( ohm & 0x3B ) red |= x4 << 6;
-    if( ohm & 0x04 ) red |= x3 << 6;
-    if( ohm & 0x10 ) red |= x5 << 7;
-    if( ohm & 0x0F ) red |= x2 << 7;
-    if( ohm & 0x05 ) red |= x1 << 8;
-    if( ohm & 0x0A ) red |= x0 << 8;
-    if( ohm & 0x05 ) red |= x0 << 9;
-    if( ohm & 0x02 ) red |= x6 << 9;
-    if( ohm & 0x01 ) red |= x3 << 10;
-    if( ohm & 0x02 ) red |= x5 << 10;
-    
-    // Shift the bits to the top of the 12-bit result.
-    static const int shamts[6] = { 1,1,2,3,4,5 };
-    int shamt = shamts[mode];
-    red <<= shamt; green <<= shamt; blue <<= shamt; scale <<= shamt;
-    
-    // Minor components are stored as differences
-    if( mode != 5 ) { green = red - green; blue = red - blue; }
-    
-    // Swizzle major component into place
-    if( majcomp == 1 ) swap( red, green );
-    if( majcomp == 2 ) swap( red, blue );
-    
-    // Clamp output values, set alpha to 1.0
-    e1.r = clamp( red, 0, 0xFFF );
-    e1.g = clamp( green, 0, 0xFFF );
-    e1.b = clamp( blue, 0, 0xFFF );
-    e1.alpha = 0x780;
-    
-    e0.r = clamp( red - scale, 0, 0xFFF );
-    e0.g = clamp( green - scale, 0, 0xFFF );
-    e0.b = clamp( blue - scale, 0, 0xFFF );
-    e0.alpha = 0x780;
+if( (modeval & 0xC ) != 0xC ) {
+    majcomp = modeval >> 2; mode = modeval & 3;
+} else if( modeval != 0xF ) {
+    majcomp = modeval & 3;  mode = 4;
+} else {
+    majcomp = 0; mode = 5;
+}
+
+// Extract low-order bits of r, g, b, and s.
+int red   = v0 & 0x3f; int green = v1 & 0x1f;
+int blue  = v2 & 0x1f; int scale = v3 & 0x1f;
+
+// Extract high-order bits, which may be assigned depending on mode
+int x0 = (v1 >> 6) & 1; int x1 = (v1 >> 5) & 1; int x2 = (v2 >> 6) & 1;
+int x3 = (v2 >> 5) & 1; int x4 = (v3 >> 7) & 1; int x5 = (v3 >> 6) & 1;
+int x6 = (v3 >> 5) & 1;
+
+// Now move the high-order xs into the right place.
+int ohm = 1 << mode;
+if( ohm & 0x30 ) green |= x0 << 6;
+if( ohm & 0x3A ) green |= x1 << 5;
+if( ohm & 0x30 ) blue |= x2 << 6;
+if( ohm & 0x3A ) blue |= x3 << 5;
+if( ohm & 0x3D ) scale |= x6 << 5;
+if( ohm & 0x2D ) scale |= x5 << 6;
+if( ohm & 0x04 ) scale |= x4 << 7;
+if( ohm & 0x3B ) red |= x4 << 6;
+if( ohm & 0x04 ) red |= x3 << 6;
+if( ohm & 0x10 ) red |= x5 << 7;
+if( ohm & 0x0F ) red |= x2 << 7;
+if( ohm & 0x05 ) red |= x1 << 8;
+if( ohm & 0x0A ) red |= x0 << 8;
+if( ohm & 0x05 ) red |= x0 << 9;
+if( ohm & 0x02 ) red |= x6 << 9;
+if( ohm & 0x01 ) red |= x3 << 10;
+if( ohm & 0x02 ) red |= x5 << 10;
+
+// Shift the bits to the top of the 12-bit result.
+static const int shamts[6] = { 1,1,2,3,4,5 };
+int shamt = shamts[mode];
+red <<= shamt; green <<= shamt; blue <<= shamt; scale <<= shamt;
+
+// Minor components are stored as differences
+if( mode != 5 ) { green = red - green; blue = red - blue; }
+
+// Swizzle major component into place
+if( majcomp == 1 ) swap( red, green );
+if( majcomp == 2 ) swap( red, blue );
+
+// Clamp output values, set alpha to 1.0
+e1.r = clamp( red, 0, 0xFFF );
+e1.g = clamp( green, 0, 0xFFF );
+e1.b = clamp( blue, 0, 0xFFF );
+e1.alpha = 0x780;
+e0.r = clamp( red - scale, 0, 0xFFF );
+e0.g = clamp( green - scale, 0, 0xFFF );
+e0.b = clamp( blue - scale, 0, 0xFFF );
+e0.alpha = 0x780;
+-----
 
 ==== HDR Endpoint Mode 11
 
@@ -1182,71 +1214,71 @@ in <<astc-hdr-mode-11-endpoint-bit-mode>>.
 
 The complete decoding procedure is as follows:
 
-    // Find major component
-    int majcomp = ((v4 & 0x80) >> 7) | ((v5 & 0x80) >> 6);
+<<<
 
-    // Deal with simple case first
-    if( majcomp == 3 )
-    {
-        e0 = (v0 << 4, v2 << 4, (v4 & 0x7f) << 5, 0x780);
-        e1 = (v1 << 4, v3 << 4, (v5 & 0x7f) << 5, 0x780);
-        return;
-    }
+-----
+// Find major component
+int majcomp = ((v4 & 0x80) >> 7) | ((v5 & 0x80) >> 6);
 
-    // Decode mode, parameters.
-    int mode = ((v1&0x80)>>7) | ((v2&0x80)>>6) | ((v3&0x80)>>5);
-    int va  = v0 | ((v1 & 0x40) << 2);
-    int vb0 = v2 & 0x3f;
-    int vb1 = v3 & 0x3f;
-    int vc  = v1 & 0x3f;
-    int vd0 = v4 & 0x7f;
-    int vd1 = v5 & 0x7f;
+// Deal with simple case first
+if( majcomp == 3 ) {
+    e0 = (v0 << 4, v2 << 4, (v4 & 0x7f) << 5, 0x780);
+    e1 = (v1 << 4, v3 << 4, (v5 & 0x7f) << 5, 0x780);
+    return;
+}
 
-    // Assign top bits of vd0, vd1.
-    static const int dbitstab[8] = {7,6,7,6,5,6,5,6};
-    vd0 = signextend( vd0, dbitstab[mode] );
-    vd1 = signextend( vd1, dbitstab[mode] );
+// Decode mode, parameters.
+int mode = ((v1&0x80)>>7) | ((v2&0x80)>>6) | ((v3&0x80)>>5);
+int va  = v0 | ((v1 & 0x40) << 2);
+int vb0 = v2 & 0x3f; int vb1 = v3 & 0x3f;
+int vc  = v1 & 0x3f;
+int vd0 = v4 & 0x7f; int vd1 = v5 & 0x7f;
 
-    // Extract and place extra bits
-    int x0 = (v2 >> 6) & 1;
-    int x1 = (v3 >> 6) & 1;
-    int x2 = (v4 >> 6) & 1;
-    int x3 = (v5 >> 6) & 1;
-    int x4 = (v4 >> 5) & 1;
-    int x5 = (v5 >> 5) & 1;
+// Assign top bits of vd0, vd1.
+static const int dbitstab[8] = {7,6,7,6,5,6,5,6};
+vd0 = signextend( vd0, dbitstab[mode] );
+vd1 = signextend( vd1, dbitstab[mode] );
 
-    int ohm = 1 << mode;
-    if( ohm & 0xA4 ) va |= x0 << 9;
-    if( ohm & 0x08 ) va |= x2 << 9;
-    if( ohm & 0x50 ) va |= x4 << 9;
-    if( ohm & 0x50 ) va |= x5 << 10;
-    if( ohm & 0xA0 ) va |= x1 << 10;
-    if( ohm & 0xC0 ) va |= x2 << 11;
-    if( ohm & 0x04 ) vc |= x1 << 6;
-    if( ohm & 0xE8 ) vc |= x3 << 6;
-    if( ohm & 0x20 ) vc |= x2 << 7;
-    if( ohm & 0x5B ) vb0 |= x0 << 6;
-    if( ohm & 0x5B ) vb1 |= x1 << 6;
-    if( ohm & 0x12 ) vb0 |= x2 << 7;
-    if( ohm & 0x12 ) vb1 |= x3 << 7;
+// Extract and place extra bits
+int x0 = (v2 >> 6) & 1;
+int x1 = (v3 >> 6) & 1;
+int x2 = (v4 >> 6) & 1;
+int x3 = (v5 >> 6) & 1;
+int x4 = (v4 >> 5) & 1;
+int x5 = (v5 >> 5) & 1;
 
-    // Now shift up so that major component is at top of 12-bit value
-    int shamt = (modeval >> 1) ^ 3;
-    va <<= shamt; vb0 <<= shamt; vb1 <<= shamt;
-    vc <<= shamt; vd0 <<= shamt; vd1 <<= shamt;
+int ohm = 1 << mode;
+if( ohm & 0xA4 ) va |= x0 << 9;
+if( ohm & 0x08 ) va |= x2 << 9;
+if( ohm & 0x50 ) va |= x4 << 9;
+if( ohm & 0x50 ) va |= x5 << 10;
+if( ohm & 0xA0 ) va |= x1 << 10;
+if( ohm & 0xC0 ) va |= x2 << 11;
+if( ohm & 0x04 ) vc |= x1 << 6;
+if( ohm & 0xE8 ) vc |= x3 << 6;
+if( ohm & 0x20 ) vc |= x2 << 7;
+if( ohm & 0x5B ) vb0 |= x0 << 6;
+if( ohm & 0x5B ) vb1 |= x1 << 6;
+if( ohm & 0x12 ) vb0 |= x2 << 7;
+if( ohm & 0x12 ) vb1 |= x3 << 7;
 
-    e1.r = clamp( va, 0, 0xFFF );
-    e1.g = clamp( va - vb0, 0, 0xFFF );
-    e1.b = clamp( va - vb1, 0, 0xFFF );
-    e1.alpha = 0x780;
+// Now shift up so that major component is at top of 12-bit value
+int shamt = (modeval >> 1) ^ 3;
+va <<= shamt; vb0 <<= shamt; vb1 <<= shamt;
+vc <<= shamt; vd0 <<= shamt; vd1 <<= shamt;
 
-    e0.r = clamp( va - vc, 0, 0xFFF );
-    e0.g = clamp( va - vb0 - vc - vd0, 0, 0xFFF );
-    e0.b = clamp( va - vb1 - vc - vd1, 0, 0xFFF );
-    e0.alpha = 0x780;
+e1.r = clamp( va, 0, 0xFFF );
+e1.g = clamp( va - vb0, 0, 0xFFF );
+e1.b = clamp( va - vb1, 0, 0xFFF );
+e1.alpha = 0x780;
+e0.r = clamp( va - vc, 0, 0xFFF );
+e0.g = clamp( va - vb0 - vc - vd0, 0, 0xFFF );
+e0.b = clamp( va - vb1 - vc - vd1, 0, 0xFFF );
+e0.alpha = 0x780;
 
-    if( majcomp == 1 )      { swap( e0.r, e0.g ); swap( e1.r, e1.g ); }
-    else if( majcomp == 2 ) { swap( e0.r, e0.b ); swap( e1.r, e1.b ); }
+if( majcomp == 1 )      { swap( e0.r, e0.g ); swap( e1.r, e1.g ); }
+else if( majcomp == 2 ) { swap( e0.r, e0.b ); swap( e1.r, e1.b ); }
+-----
 
 ==== HDR Endpoint Mode 14
 
@@ -1255,12 +1287,14 @@ v3, v4, v5, v6, v7). First, the RGB values are decoded from (v0..v5)
 using the method from Mode 11, then the alpha values are filled in
 from v6 and v7:
 
-    // Decode RGB as for mode 11
-    (e0,e1) = decode_mode_11(v0,v1,v2,v3,v4,v5)
-    
-    // Now fill in the alphas
-    e0.alpha = v6;
-    e1.alpha = v7;
+-----
+// Decode RGB as for mode 11
+(e0,e1) = decode_mode_11(v0,v1,v2,v3,v4,v5)
+
+// Now fill in the alphas
+e0.alpha = v6;
+e1.alpha = v7;
+-----
 
 Note that in this mode, the alpha values are interpreted (and
 interpolated) as 8-bit unsigned normalized values, as in the LDR modes.
@@ -1285,36 +1319,38 @@ to the mode, as shown in <<astc-hdr-mode-15-alpha-value-layout>>.
 
 The alpha values are decoded from v6 and v7 as follows:
 
-    // Decode RGB as for mode 11
-    (e0,e1) = decode_mode_11(v0,v1,v2,v3,v4,v5)
+-----
+// Decode RGB as for mode 11
+(e0,e1) = decode_mode_11(v0,v1,v2,v3,v4,v5)
 
-    // Extract mode bits
-    mode = ((v6 >> 7) & 1) | ((v7 >> 6) & 2);
-    v6 &= 0x7F;
-    v7 &= 0x7F;
+// Extract mode bits
+mode = ((v6 >> 7) & 1) | ((v7 >> 6) & 2);
+v6 &= 0x7F;
+v7 &= 0x7F;
 
-    if(mode==3)
-    {
-        // Directly specify alphas
-        e0.alpha = v6 << 5;
-        e1.alpha = v7 << 5;
-    }
-    else
-    {
-        // Transfer bits from v7 to v6 and sign extend v7.
-        v6 |= (v7 << (mode+1))) & 0x780;
-        v7 &= (0x3F >> mode);
-        v7 ^= 0x20 >> mode;
-        v7 -= 0x20 >> mode;
-        v6 <<= (4-mode);
-        v7 <<= (4-mode);
-    
-        // Add delta and clamp
-        v7 += v6;
-        v7 = clamp(v7, 0, 0xFFF);
-        e0.alpha = v6;
-        e1.alpha = v7;
-    }
+if(mode==3)
+{
+    // Directly specify alphas
+    e0.alpha = v6 << 5;
+    e1.alpha = v7 << 5;
+}
+else
+{
+    // Transfer bits from v7 to v6 and sign extend v7.
+    v6 |= (v7 << (mode+1))) & 0x780;
+    v7 &= (0x3F >> mode);
+    v7 ^= 0x20 >> mode;
+    v7 -= 0x20 >> mode;
+    v6 <<= (4-mode);
+    v7 <<= (4-mode);
+
+    // Add delta and clamp
+    v7 += v6;
+    v7 = clamp(v7, 0, 0xFFF);
+    e0.alpha = v6;
+    e1.alpha = v7;
+}
+-----
 
 Note that in this mode, the alpha values are interpreted (and
 interpolated) as 12-bit HDR values, and are interpolated as
@@ -1381,17 +1417,23 @@ D (3 bits) and are decoded using the range as shown in <<astc-weight-unquantizat
 
 These are then processed as follows:
 
-    T = D * C + B;
-    T = T ^ A;
-    T = (A & 0x20) | (T >> 2);
+-----
+T = D * C + B;
+T = T ^ A;
+T = (A & 0x20) | (T >> 2);
+-----
 
 Note that the multiply in the first line is nearly trivial as it only
 needs to multiply by 0, 1, 2, 3 or 4.
 
+<<<
+
 As a final step, for all types of value, the range is expanded from
 0..63 up to 0..64 as follows:
 
-    if (T > 32) { T += 1; }
+-----
+if (T > 32) { T += 1; }
+-----
 
 This allows the implementation to use 64 as a divisor during interpolation,
 which is much easier than using 63.
@@ -1412,26 +1454,32 @@ For each block dimension, we compute scale factors (D~s~, D~t~, D~r~):
 
 [latexmath]
 +++++++++++++
-  $$D_s = \lfloor {(1024 + \lfloor { B_s \over 2 }\rfloor) \over (B_s-1) } \rfloor$$
-  $$D_t = \lfloor {(1024 + \lfloor { B_t \over 2 }\rfloor) \over (B_t-1) } \rfloor$$
-  $$D_r = \lfloor {(1024 + \lfloor { B_r \over 2 }\rfloor) \over (B_r-1) } \rfloor$$
+\begin{align*}
+D_s = \left\lfloor {(1024 + \left\lfloor { B_s \over 2 }\right\rfloor) \over (B_s-1) } \right\rfloor \\
+D_t = \left\lfloor {(1024 + \left\lfloor { B_t \over 2 }\right\rfloor) \over (B_t-1) } \right\rfloor \\
+D_r = \left\lfloor {(1024 + \left\lfloor { B_r \over 2 }\right\rfloor) \over (B_r-1) } \right\rfloor
+\end{align*}
 +++++++++++++
 
 Since the block dimensions are constrained, these are easily looked up
 in a table. These scale factors are then used to scale the (s,t,r)
 coordinates to a homogeneous coordinate (c~s~, c~t~, c~r~):
 
-    cs = Ds * s;
-    ct = Dt * t;
-    cr = Dr * r;
+-----
+cs = Ds * s;
+ct = Dt * t;
+cr = Dr * r;
+-----
 
 This homogeneous coordinate (c~s~, c~t~, c~r~) is then scaled again to give
 a coordinate (g~s~, g~t~, g~r~) in the weight-grid space. The weight-grid is
 of size (N, M, Q), as specified in the block mode field:
 
-    gs = (cs*(N-1)+32) >> 6;
-    gt = (ct*(M-1)+32) >> 6;
-    gr = (cr*(Q-1)+32) >> 6;
+-----
+gs = (cs*(N-1)+32) >> 6;
+gt = (ct*(M-1)+32) >> 6;
+gr = (cr*(Q-1)+32) >> 6;
+-----
 
 The resulting coordinates may be in the range 0..176. These are interpreted
 as 4:4 unsigned fixed point numbers in the range 0.0 .. 11.0.
@@ -1439,31 +1487,37 @@ as 4:4 unsigned fixed point numbers in the range 0.0 .. 11.0.
 If we label the integral parts of these (j~s~, j~t~, j~r~) and the fractional
 parts (f~s~, f~t~, f~r~), then:
 
-    js = gs >> 4; fs = gs & 0x0F;
-    jt = gt >> 4; ft = gt & 0x0F;
-    jr = gr >> 4; fr = gr & 0x0F;
+-----
+js = gs >> 4; fs = gs & 0x0F;
+jt = gt >> 4; ft = gt & 0x0F;
+jr = gr >> 4; fr = gr & 0x0F;
+-----
 
 These values are then used to interpolate between the stored weights.
 This process differs for 2D and 3D.
 
 For 2D, bilinear interpolation is used:
 
-    v0 = js + jt*N;
-    p00 = decode_weight(v0);
-    p01 = decode_weight(v0 + 1);
-    p10 = decode_weight(v0 + N);
-    p11 = decode_weight(v0 + N + 1);
+-----
+v0 = js + jt*N;
+p00 = decode_weight(v0);
+p01 = decode_weight(v0 + 1);
+p10 = decode_weight(v0 + N);
+p11 = decode_weight(v0 + N + 1);
+-----
 
-The function decode_weight(n) decodes the _n_^th^ weight in the stored weight
+The function decode_weight(_n_) decodes the _n_^th^ weight in the stored weight
 stream. The values p00 to p11 are the weights at the corner of the square
 in which the texel position resides. These are then weighted using the
-fractional position to produce the effective weight i as follows:
+fractional position to produce the effective weight _i_ as follows:
 
-    w11 = (fs*ft+8) >> 4;
-    w10 = ft - w11;
-    w01 = fs - w11;
-    w00 = 16 - fs - ft + w11;
-    i = (p00*w00 + p01*w01 + p10*w10 + p11*w11 + 8) >> 4;
+-----
+w11 = (fs*ft+8) >> 4;
+w10 = ft - w11;
+w01 = fs - w11;
+w00 = 16 - fs - ft + w11;
+i = (p00*w00 + p01*w01 + p10*w10 + p11*w11 + 8) >> 4;
+-----
 
 For 3D, simplex interpolation is used as it is cheaper than a na&iuml;ve
 trilinear interpolation. First, we pick some parameters for the interpolation
@@ -1486,12 +1540,14 @@ position as shown in <<astc-simplex-interpolation-parameters>>.
 Italicised test results are implied by the others. The effective
 weight _i_ is then calculated as:
 
-    v0 = js + jt*N + jr*N*M;
-    p0 = decode_index(v0);
-    p1 = decode_index(v0 + s1);
-    p2 = decode_index(v0 + s1 + s2);
-    p3 = decode_index(v0 + N*M + N + 1);
-    i = (p0*w0 + p1*w1 + p2*w2 + p3*w3 + 8) >> 4;
+-----
+v0 = js + jt*N + jr*N*M;
+p0 = decode_index(v0);
+p1 = decode_index(v0 + s1);
+p2 = decode_index(v0 + s1 + s2);
+p3 = decode_index(v0 + N*M + N + 1);
+i = (p0*w0 + p1*w1 + p2*w2 + p3*w3 + 8) >> 4;
+-----
 
 === Weight Application
 
@@ -1501,25 +1557,32 @@ endpoints are interpolated and expanded.
 For LDR endpoint modes, each color component C is calculated from the
 corresponding 8-bit endpoint components C~0~ and C~1~ as follows:
 
-If sRGB conversion is not enabled, C~0~ and C~1~ are first expanded to
-16 bits by bit replication:
+If sRGB conversion is not enabled, or for the alpha channel in any case,
+C~0~ and C~1~ are first expanded to 16 bits by bit replication:
 
-    C0 = (C0 << 8) | C0;        C1 = (C1 << 8) | C1;
+-----
+C0 = (C0 << 8) | C0;    C1 = (C1 << 8) | C1;
+-----
 
-If sRGB conversion is enabled, C~0~ and C~1~ are expanded to 16 bits
-differently, as follows:
+If sRGB conversion is enabled, C~0~ and C~1~ for the R, G, and B channels
+are expanded to 16 bits differently, as follows:
 
-    C0 = (C0 << 8) | 0x80;  C1 = (C1 << 8) | 0x80;
+-----
+C0 = (C0 << 8) | 0x80;  C1 = (C1 << 8) | 0x80;
+-----
 
 C~0~ and C~1~ are then interpolated to produce a UNORM16 result C:
 
-    C = floor( (C0*(64-i) + C1*i + 32)/64 )
+-----
+C = floor( (C0*(64-i) + C1*i + 32)/64 )
+-----
 
 If sRGB conversion is enabled, the top 8 bits of the interpolation
-result are passed to the external sRGB conversion block. Otherwise, if
-C = 65535, then the final result is 1.0 (0x3C00) otherwise C is divided
-by 65536 and the infinite-precision result of the division is converted
-to FP16 with round-to-zero semantics.
+result for the R, G and B channels are passed to the external sRGB
+conversion block. Otherwise, and for the alpha channel in any case,
+if C = 65535, then the final result is 1.0 (0x3C00); otherwise C is
+divided by 65536 and the infinite-precision result of the division is
+converted to FP16 with round-to-zero semantics.
 
 For HDR endpoint modes, color values are represented in a 12-bit
 pseudo-logarithmic representation, and interpolation occurs in a
@@ -1533,12 +1596,14 @@ are interpolated in the same way as LDR. The 16-bit value C is then
 decomposed into the top five bits, E, and the bottom 11 bits M, which
 are then processed and recombined with E to form the final value C~f~:
 
-    C = floor( (C0*(64-i) + C1*i + 32)/64 )
-    E = (C&0xF800) >> 11; M = C&0x7FF;
-    if (M < 512) { Mt = 3*M; }
-    else if (M >= 1536) { Mt = 5*M - 2048; }
-    else { Mt = 4*M - 512; }
-    Cf = (E<<10) + (Mt>>3)
+-----
+C = floor( (C0*(64-i) + C1*i + 32)/64 )
+E = (C & 0xF800) >> 11; M = C & 0x7FF;
+if (M < 512) { Mt = 3*M; }
+else if (M >= 1536) { Mt = 5*M - 2048; }
+else { Mt = 4*M - 512; }
+Cf = (E<<10) + (Mt>>3)
+-----
 
 This interpolation is a considerably closer approximation to a
 logarithmic space than simple 16-bit interpolation.
@@ -1586,74 +1651,82 @@ otherwise it is set to 0.
 This function is specified in terms of x, y and z in order to support
 3D textures. For 2D textures and texture slices, z will always be 0.
 
+<<<
+
 The full partition selection algorithm is as follows:
 
-    int select_partition(int seed, int x, int y, int z,
-                         int partitioncount, int small_block)
-    {
-        if( small_block ){ x <<= 1; y <<= 1; z <<= 1; }
-        seed += (partitioncount-1) * 1024;
-        uint32_t rnum = hash52(seed);
-        uint8_t seed1  =  rnum        & 0xF;
-        uint8_t seed2  = (rnum >>  4) & 0xF;
-        uint8_t seed3  = (rnum >>  8) & 0xF;
-        uint8_t seed4  = (rnum >> 12) & 0xF;
-        uint8_t seed5  = (rnum >> 16) & 0xF;
-        uint8_t seed6  = (rnum >> 20) & 0xF;
-        uint8_t seed7  = (rnum >> 24) & 0xF;
-        uint8_t seed8  = (rnum >> 28) & 0xF;
-        uint8_t seed9  = (rnum >> 18) & 0xF;
-        uint8_t seed10 = (rnum >> 22) & 0xF;
-        uint8_t seed11 = (rnum >> 26) & 0xF;
-        uint8_t seed12 = ((rnum >> 30) | (rnum << 2)) & 0xF;
+-----
+int select_partition(int seed, int x, int y, int z,
+                     int partitioncount, int small_block)
+{
+    if( small_block ){ x <<= 1; y <<= 1; z <<= 1; }
+    seed += (partitioncount-1) * 1024;
+    uint32_t rnum = hash52(seed);
+    uint8_t seed1  =  rnum        & 0xF;
+    uint8_t seed2  = (rnum >>  4) & 0xF;
+    uint8_t seed3  = (rnum >>  8) & 0xF;
+    uint8_t seed4  = (rnum >> 12) & 0xF;
+    uint8_t seed5  = (rnum >> 16) & 0xF;
+    uint8_t seed6  = (rnum >> 20) & 0xF;
+    uint8_t seed7  = (rnum >> 24) & 0xF;
+    uint8_t seed8  = (rnum >> 28) & 0xF;
+    uint8_t seed9  = (rnum >> 18) & 0xF;
+    uint8_t seed10 = (rnum >> 22) & 0xF;
+    uint8_t seed11 = (rnum >> 26) & 0xF;
+    uint8_t seed12 = ((rnum >> 30) | (rnum << 2)) & 0xF;
 
-        seed1 *= seed1;     seed2 *= seed2;
-        seed3 *= seed3;     seed4 *= seed4;
-        seed5 *= seed5;     seed6 *= seed6;
-        seed7 *= seed7;     seed8 *= seed8;
-        seed9 *= seed9;     seed10 *= seed10;
-        seed11 *= seed11;   seed12 *= seed12;
+    seed1  *= seed1;    seed2  *= seed2;
+    seed3  *= seed3;    seed4  *= seed4;
+    seed5  *= seed5;    seed6  *= seed6;
+    seed7  *= seed7;    seed8  *= seed8;
+    seed9  *= seed9;    seed10 *= seed10;
+    seed11 *= seed11;   seed12 *= seed12;
 
-        int sh1, sh2, sh3;
-        if( seed & 1 )
-            { sh1 = (seed&2 ? 4:5); sh2 = (partitioncount==3 ? 6:5); }
-        else
-            { sh1 = (partitioncount==3 ? 6:5); sh2 = (seed&2 ? 4:5); }
-        sh3 = (seed & 0x10) ? sh1 : sh2:
+    int sh1, sh2, sh3;
+    if( seed & 1 )
+        { sh1 = (seed&2 ? 4:5); sh2 = (partitioncount==3 ? 6:5); }
+    else
+        { sh1 = (partitioncount==3 ? 6:5); sh2 = (seed&2 ? 4:5); }
+    sh3 = (seed & 0x10) ? sh1 : sh2:
 
-        seed1 >>= sh1; seed2  >>= sh2; seed3  >>= sh1; seed4  >>= sh2;
-        seed5 >>= sh1; seed6  >>= sh2; seed7  >>= sh1; seed8  >>= sh2;
-        seed9 >>= sh3; seed10 >>= sh3; seed11 >>= sh3; seed12 >>= sh3;
+    seed1 >>= sh1; seed2  >>= sh2; seed3  >>= sh1; seed4  >>= sh2;
+    seed5 >>= sh1; seed6  >>= sh2; seed7  >>= sh1; seed8  >>= sh2;
+    seed9 >>= sh3; seed10 >>= sh3; seed11 >>= sh3; seed12 >>= sh3;
 
-        int a = seed1*x + seed2*y + seed11*z + (rnum >> 14);
-        int b = seed3*x + seed4*y + seed12*z + (rnum >> 10);
-        int c = seed5*x + seed6*y + seed9 *z + (rnum >>  6);
-        int d = seed7*x + seed8*y + seed10*z + (rnum >>  2);
+    int a = seed1*x + seed2*y + seed11*z + (rnum >> 14);
+    int b = seed3*x + seed4*y + seed12*z + (rnum >> 10);
+    int c = seed5*x + seed6*y + seed9 *z + (rnum >>  6);
+    int d = seed7*x + seed8*y + seed10*z + (rnum >>  2);
 
-        a &= 0x3F; b &= 0x3F; c &= 0x3F; d &= 0x3F;
+    a &= 0x3F; b &= 0x3F; c &= 0x3F; d &= 0x3F;
 
-        if( partitioncount < 4 ) d = 0;
-        if( partitioncount < 3 ) c = 0;
+    if( partitioncount < 4 ) d = 0;
+    if( partitioncount < 3 ) c = 0;
 
-        if( a >= b && a >= c && a >= d ) return 0;
-        else if( b >= c && b >= d ) return 1;
-        else if( c >= d ) return 2;
-        else return 3;
-    }
+    if( a >= b && a >= c && a >= d ) return 0;
+    else if( b >= c && b >= d ) return 1;
+    else if( c >= d ) return 2;
+    else return 3;
+}
+-----
 
 As has been observed before, the bit selections are much easier to
 express in hardware than in C.
 
+<<<
+
 The seed is expanded using a hash function hash52, which is defined as
 follows:
 
-    uint32_t hash52( uint32_t p )
-    {
-        p ^= p >> 15;  p -= p << 17;  p += p << 7; p += p <<  4;
-        p ^= p >>  5;  p += p << 16;  p ^= p >> 7; p ^= p >> 3;
-        p ^= p <<  6;  p ^= p >> 17;
-        return p;
-    }
+-----
+uint32_t hash52( uint32_t p )
+{
+    p ^= p >> 15;  p -= p << 17;  p += p << 7; p += p <<  4;
+    p ^= p >>  5;  p += p << 16;  p ^= p >> 7; p ^= p >> 3;
+    p ^= p <<  6;  p ^= p >> 17;
+    return p;
+}
+-----
 
 This assumes that all operations act on 32-bit values
 
@@ -1663,26 +1736,28 @@ The size of the data used to represent color endpoints is not
 explicitly specified. Instead, it is determined from the block mode and
 number of partitions as follows:
 
-    config_bits = 17;
-    if(num_partitions>1)
-        if(single_CEM)
-            config_bits = 29;
-        else
-            config_bits = 25 + 3*num_partitions;
-    
-    num_weights = M * N * Q; // size of weight grid
-    
-    if(dual_plane)
-        config_bits += 2;
-        num_weights *= 2;
+-----
+config_bits = 17;
+if(num_partitions>1)
+    if(single_CEM)
+        config_bits = 29;
+    else
+        config_bits = 25 + 3*num_partitions;
 
-    weight_bits = ceil(num_weights*8*trits_in_weight_range/5) +
-                  ceil(num_weights*7*quints_in_weight_range/3) +
-                  num_weights*bits_in_weight_range;
+num_weights = M * N * Q; // size of weight grid
 
-    remaining_bits = 128 - config_bits - weight_bits;
+if(dual_plane)
+    config_bits += 2;
+    num_weights *= 2;
 
-    num_CEM_pairs = base_CEM_class+1 + count_bits(extra_CEM_bits);
+weight_bits = ceil(num_weights*8*trits_in_weight_range/5) +
+              ceil(num_weights*7*quints_in_weight_range/3) +
+              num_weights*bits_in_weight_range;
+
+remaining_bits = 128 - config_bits - weight_bits;
+
+num_CEM_pairs = base_CEM_class+1 + count_bits(extra_CEM_bits);
+-----
 
 The CEM value range is then looked up from a table indexed by remaining
 bits and num_CEM_pairs. This table is initialized such that the range
@@ -1692,18 +1767,20 @@ than the number of remaining bits.
 
 An equivalent iterative algorithm would be:
 
-    num_CEM_values = num_CEM_pairs*2;
-    
-    for(range = each possible CEM range in descending order of size)
-    {
-        CEM_bits = ceil(num_CEM_values*8*trits_in_CEM_range/5) +
-                   ceil(num_CEM_values*7*quints_in_CEM_range/3) +
-                   num_CEM_values*bits_in_CEM_range;
-    
-        if(CEM_bits <= remaining_bits)
-            break;
-    }
-    return range;
+-----
+num_CEM_values = num_CEM_pairs*2;
+
+for(range = each possible CEM range in descending order of size)
+{
+    CEM_bits = ceil(num_CEM_values*8*trits_in_CEM_range/5) +
+               ceil(num_CEM_values*7*quints_in_CEM_range/3) +
+               num_CEM_values*bits_in_CEM_range;
+
+    if(CEM_bits <= remaining_bits)
+        break;
+}
+return range;
+-----
 
 In cases where this procedure results in unallocated bits, these bits
 are not read by the decoding process and can have any value.

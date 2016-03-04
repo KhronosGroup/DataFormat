@@ -155,19 +155,19 @@ specifying the block are then represented by the following 64 bit
 integer:
 [latexmath]
 ++++++
-   $$int64bit = 256\times(256\times(256\times(256\times(256\times(256\times(256\times q_0+q_1)+q_2)+q_3)+q_4)+q_5)+q_6)+q_7$$
+\begin{align*}
+int64bit & = 256\times(256\times(256\times(256\times(256\times(256\times(256\times q_0+q_1)+q_2)+q_3)+q_4)+q_5)+q_6)+q_7
+\end{align*}
 ++++++
 
 The number of bits that represent a latexmath:[$4\times 4$] texel block is 128
 bits if the format is RGBA ETC2 with a linear or sRGB transfer function. In those cases the data for a block is stored as a number of bytes: \{latexmath:[$q_0$], latexmath:[$q_1$], latexmath:[$q_2$], latexmath:[$q_3$], latexmath:[$q_4$], latexmath:[$q_5$], latexmath:[$q_6$], latexmath:[$q_7$], latexmath:[$q_8$], latexmath:[$q_9$], latexmath:[$q_{10}$], latexmath:[$q_{11}$], latexmath:[$q_{12}$], latexmath:[$q_{13}$], latexmath:[$q_{14}$], latexmath:[$q_{15}$]\}, where byte latexmath:[$q_0$] is located at the lowest memory address and latexmath:[$q_{15}$] at the highest. This is split into two 64-bit integers, one used for color channel decompression and one for alpha channel decompression:
 [latexmath]
 ++++++
-   $$int64bitAlpha = 256\times(256\times(256\times(256\times(256\times(256\times(256\times q_0+q_1)+q_2)+q_3)+q_4)+q_5)+q_6)+q_7$$
-++++++
-
-[latexmath]
-++++++
-   $$int64bitColor = 256\times(256\times(256\times(256\times(256\times(256\times(256\times q_8+q_9)+q_{10})+q_{11})+q_{12})+q_{13})+q_{14})+q_{15}$$
+\begin{align*}
+int64bitAlpha & = 256\times(256\times(256\times(256\times(256\times(256\times(256\times q_0+q_1)+q_2)+q_3)+q_4)+q_5)+q_6)+q_7 \\
+int64bitColor & = 256\times(256\times(256\times(256\times(256\times(256\times(256\times q_8+q_9)+q_{10})+q_{11})+q_{12})+q_{13})+q_{14})+q_{15}
+\end{align*}
 ++++++
 
 [[RGBETC2]]
@@ -284,12 +284,10 @@ the base colors for the subblocks in the individual mode are:
 
 [latexmath]
 ++++++++++
-   $$base\ col\ subblock1 = extend\_4to8bits(R1, G1, B1)$$
-++++++++++
-
-[latexmath]
-++++++++++
-   $$base\ col\ subblock2 = extend\_4to8bits(R2, G2, B2)$$
+\begin{align*}
+base\ col\ subblock1 & = extend\_4to8bits(R1, G1, B1) \\
+base\ col\ subblock2 & = extend\_4to8bits(R2, G2, B2)
+\end{align*}
 ++++++++++
 
 In the `differential' mode, following the layout shown in
@@ -314,12 +312,10 @@ the differential mode are:
 
 [latexmath]
 ++++++++++
-   $$base\ col\ subblock1 = extend\_5to8bits(R, G, B)$$
-++++++++++
-
-[latexmath]
-++++++++++
-   $$base\ col\ subblock2 = extend\_5to8bits(R+dR, G+dG, B+dB)$$
+\begin{align*}
+base\ col\ subblock1 & = extend\_5to8bits(R, G, B) \\
+base\ col\ subblock2 & = extend\_5to8bits(R+dR, G+dG, B+dB)
+\end{align*}
 ++++++++++
 
 Note that these additions will not under- or overflow, or one of the
@@ -393,24 +389,37 @@ colors are constructed as follows:
 
 [latexmath]
 ++++++++++
-   $$base\ col\ 1 = extend\_4to8bits((R1a \ll 2)\ |\ R1b, G1, B1)$$
-++++++++++
-[latexmath]
-++++++++++
-   $$base\ col\ 2 = extend\_4to8bits(R2, G2, B2)$$
+\begin{align*}
+base\ col\ 1 & = extend\_4to8bits((R1a \ll 2)\ |\ R1b, G1, B1) \\
+base\ col\ 2 & = extend\_4to8bits(R2, G2, B2)
+\end{align*}
 ++++++++++
 
-where latexmath:[$\ll$] denotes bit-wise left shift and latexmath:[$|$] denotes bit-wise
+Here, latexmath:[$\ll$] denotes bit-wise left shift and latexmath:[$|$] denotes bit-wise
 OR. In the `H' mode, the two colors are constructed as follows:
 
 [latexmath]
 ++++++++++
-   $$base\ col\ 1 = extend\_4to8bits(R1, (G1a \ll 1)\ |\ G1b, (B1a \ll 3)\ |\ B1b)$$
+\begin{align*}
+base\ col\ 1 & = extend\_4to8bits(R1, (G1a \ll 1)\ |\ G1b, (B1a \ll 3)\ |\ B1b) \\
+base\ col\ 2 & = extend\_4to8bits(R2, G2, B2)
+\end{align*}
 ++++++++++
-[latexmath]
-++++++++++
-   $$base\ col\ 2 = extend\_4to8bits(R2, G2, B2)$$
-++++++++++
+
+Both the `T' and `H' modes have four `paint colors' which are the
+colors that will be used in the decompressed block, but they are
+assigned in a different manner. In the `T' mode, `paint color 0' is
+simply the first base color, and `paint color 2' is the second base
+color. To obtain the other `paint colors', a `distance' is first
+determined, which will be used to modify the luminance of one of the
+base colors. This is done by combining the values `da' and `db' shown
+in <<ETC2TLayout,section d>> of <<Table-etc2-dataformat>> by latexmath:[$(da\ll 1)\ |\ db$], and then
+using this value as an index into the small look-up table shown in
+<<Table-etc2-distancetable>>. For example, if `da' is 10 binary and `db'
+is 1 binary, the index is 101 binary and the selected distance will be
+latexmath:[$32$]. `Paint color 1' is then equal to the second base color
+with the `distance' added to each channel, and `paint color 3' is the
+second base color with the `distance' subtracted.
 
 [[Table-etc2-distancetable]]
 .Distance table for ETC2 `T' and `H' modes.
@@ -427,29 +436,18 @@ OR. In the `H' mode, the two colors are constructed as follows:
 ^| 7 ^| 64
 |================
 
-Both the `T' and `H' modes have four `paint colors' which are the
-colors that will be used in the decompressed block, but they are
-assigned in a different manner. In the `T' mode, `paint color 0' is
-simply the first base color, and `paint color 2' is the second base
-color. To obtain the other `paint colors', a `distance' is first
-determined, which will be used to modify the luminance of one of the
-base colors. This is done by combining the values `da' and `db' shown
-in <<ETC2TLayout,section d>> of <<Table-etc2-dataformat>> by latexmath:[$(da\ll 1)\ |\ db$], and then
-using this value as an index into the small look-up table shown in
-<<Table-etc2-distancetable>>. For example, if `da' is 10 binary and `db'
-is 1 binary, the
-index is 101 binary and the selected distance will be latexmath:[$32$]. `Paint color
-1' is then equal to the second base color with the `distance' added to
-each channel, and `paint color 3' is the second base color with the
-`distance' subtracted. In summary, to determine the four `paint
-colors' for a `T' block:
+<<<
+
+In summary, to determine the four `paint colors' for a `T' block:
 
 [latexmath]
 +++++++++++
-  $$paint\ color\ 0 = base\ col\ 1$$
-  $$paint\ color\ 1 = base\ col\ 2 + (d, d, d)$$
-  $$paint\ color\ 2 = base\ col\ 2$$
-  $$paint\ color\ 3 = base\ col\ 2 - (d, d, d)$$
+\begin{align*}
+paint\ color\ 0 & = base\ col\ 1 \\
+paint\ color\ 1 & = base\ col\ 2 + (d, d, d) \\
+paint\ color\ 2 & = base\ col\ 2 \\
+paint\ color\ 3 & = base\ col\ 2 - (d, d, d)
+\end{align*}
 +++++++++++
 
 In both cases, the value of each channel is clamped to within [latexmath:[$0$],latexmath:[$255$]].
@@ -461,15 +459,17 @@ and `db' shown in <<ETC2HLayout,section e>> of <<Table-etc2-dataformat>> are use
 most significant bit and middle bit, respectively, but the least
 significant bit is computed as (base col 1 value latexmath:[$\geq$] base col 2
 value), the `value' of a color for the comparison being equal to
-latexmath:[$(R\ll 16)+(G\ll 8)+B$]. Once the `distance' d has been determined for
+latexmath:[$(R\ll 16)+(G\ll 8)+B$]. Once the `distance' _d_ has been determined for
 an `H' block, the four `paint colors' will be:
 
 [latexmath]
 +++++++++++
-  $$paint\ color\ 0 = base\ col\ 1 + (d, d, d)$$
-  $$paint\ color\ 1 = base\ col\ 1 - (d, d, d)$$
-  $$paint\ color\ 2 = base\ col\ 2 + (d, d, d)$$
-  $$paint\ color\ 3 = base\ col\ 2 - (d, d, d)$$
+\begin{align*}
+paint\ color\ 0 & = base\ col\ 1 + (d, d, d) \\
+paint\ color\ 1 & = base\ col\ 1 - (d, d, d) \\
+paint\ color\ 2 & = base\ col\ 2 + (d, d, d) \\
+paint\ color\ 3 & = base\ col\ 2 - (d, d, d)
+\end{align*}
 +++++++++++
 
 Again, all color components are clamped to within [latexmath:[$0$],latexmath:[$255$]].
@@ -499,14 +499,18 @@ used for the base colors in other modes. For example, the 6-bit blue
 and red channels are extended by replicating the two most significant
 of the six bits to the two least significant of the final 8 bits.
 
+<<<
+
 With three base colors in RGB888 format, the color of each pixel can
 then be determined as:
 
 [latexmath]
 ++++++++++++
-   $$R(x,y) = {x\times (RH-RO)\over 4.0} + {y\times (RV-RO)\over 4.0} + RO$$
-   $$G(x,y) = {x\times (GH-GO)\over 4.0} + {y\times (GV-GO)\over 4.0} + GO$$
-   $$B(x,y) = {x\times (BH-BO)\over 4.0} + {y\times (BV-BO)\over 4.0} + BO$$
+\begin{align*}
+R(x,y) & = {x\times (RH-RO)\over 4.0} + {y\times (RV-RO)\over 4.0} + RO \\
+G(x,y) & = {x\times (GH-GO)\over 4.0} + {y\times (GV-GO)\over 4.0} + GO \\
+B(x,y) & = {x\times (BH-BO)\over 4.0} + {y\times (BV-BO)\over 4.0} + BO
+\end{align*}
 ++++++++++++
 
 where latexmath:[$x$] and latexmath:[$y$] are values from latexmath:[$0$] to latexmath:[$3$] corresponding to the pixels
@@ -520,9 +524,11 @@ latexmath:[$255$]. Note that this is equivalent to
 
 [latexmath]
 ++++++++++++++
-  $$R(x,y) = clamp255((x\times (RH-RO) + y\times (RV-RO) + 4\times RO + 2) \gg 2)$$
-  $$G(x,y) = clamp255((x\times (GH-GO) + y\times (GV-GO) + 4\times GO + 2) \gg 2)$$
-  $$B(x,y) = clamp255((x\times (BH-BO) + y\times (BV-BO) + 4\times BO + 2) \gg 2)$$
+\begin{align*}
+R(x,y) & = clamp255((x\times (RH-RO) + y\times (RV-RO) + 4\times RO + 2) \gg 2) \\
+G(x,y) & = clamp255((x\times (GH-GO) + y\times (GV-GO) + 4\times GO + 2) \gg 2) \\
+B(x,y) & = clamp255((x\times (BH-BO) + y\times (BV-BO) + 4\times BO + 2) \gg 2)
+\end{align*}
 ++++++++++++++
 
 where latexmath:[$clamp255$] clamps the value to a number in the range [latexmath:[$0$], latexmath:[$255$]] and where latexmath:[$\gg$] performs bit-wise right shift.
@@ -530,7 +536,7 @@ where latexmath:[$clamp255$] clamps the value to a number in the range [latexmat
 This specification gives the output for each compression mode in 8-bit
 integer colors between latexmath:[$0$] and latexmath:[$255$], and these values all need to be
 divided by latexmath:[$255$] for the final floating point representation.
- 
+
 === Format RGB ETC2 with sRGB encoding
 
 Decompression of floating point sRGB values in RGB ETC2 with sRGB encoding
@@ -540,7 +546,7 @@ an sRGB encoded component, latexmath:[$cs$], to a linear component, latexmath:[$
 is done according to the formulae in <<srgbgamma>>.
 Assume latexmath:[$cs$] is the sRGB
 component in the range [latexmath:[$0$],latexmath:[$1$]].
- 
+
 === Format RGBA ETC2
 
 Each latexmath:[$4 \times 4$] block of RGBA8888 information is compressed to 128
@@ -581,7 +587,9 @@ calculated the following way:
 .ETC2-base
 [latexmath]
 ++++++++++++++
-    $$clamp255((base\_codeword) + modifier\times multiplier)$$
+\begin{align*}
+clamp255((base\_codeword) + modifier\times multiplier)
+\end{align*}
 ++++++++++++++
 
 where latexmath:[$clamp255(\cdot)$] maps values outside the range
@@ -685,7 +693,9 @@ block is then represented by the following 64 bit integer:
 
 [latexmath]
 +++++++++++
-  $$int64bit = 256\times(256\times(256\times(256\times(256\times(256\times(256\times q_0+q_1)+q_2)+q_3)+q_4)+q_5)+q_6)+q_7$$
+\begin{align*}
+int64bit & = 256\times(256\times(256\times(256\times(256\times(256\times(256\times q_0+q_1)+q_2)+q_3)+q_4)+q_5)+q_6)+q_7
+\end{align*}
 +++++++++++
 
 This 64-bit word contains information about a single-channel latexmath:[$4\times 4$]
@@ -701,7 +711,9 @@ The decoded value is calculated as:
 [[Equation-r11eac-eqn-start,Equation R11 EAC-start]]
 [latexmath]
 ++++++
-  $$clamp1((base\_codeword+0.5)\times \frac{1}{255.875} + modifier\times multiplier \times \frac{1}{255.875})$$
+\begin{align*}
+clamp1((base\_codeword+0.5)\times \frac{1}{255.875} + modifier\times multiplier \times \frac{1}{255.875})
+\end{align*}
 ++++++
 where latexmath:[$clamp1(\cdot)$] maps values outside the range [0.0, 1.0] to 0.0
 or 1.0.
@@ -718,7 +730,9 @@ To get a value between latexmath:[$0$] and latexmath:[$2047$] we must multiply
 
 [latexmath]
 +++++++
-  $$clamp2((base\_codeword+0.5)\times \frac{2047.0}{255.875} + modifier\times multiplier\times\frac{2047.0}{255.875})$$
+\begin{align*}
+clamp2((base\_codeword+0.5)\times \frac{2047.0}{255.875} + modifier\times multiplier\times\frac{2047.0}{255.875})
+\end{align*}
 +++++++
 
 where latexmath:[$clamp2(\cdot)$] clamps to the range [latexmath:[$0.0$], latexmath:[$2047.0$]]. Since
@@ -728,7 +742,9 @@ latexmath:[$2047.0 \over 255.875$] is exactly latexmath:[$8.0$], the above equat
 .Equation R11 EAC simple
 [latexmath]
 +++++++
-  $$clamp2(base\_codeword \times 8 + 4 + modifier \times multiplier \times 8)$$
+\begin{align*}
+clamp2(base\_codeword \times 8 + 4 + modifier \times multiplier \times 8)
+\end{align*}
 +++++++
 
 The base_codeword is stored in the first 8 bits as shown in
@@ -787,7 +803,9 @@ then be simplified to
 
 [latexmath]
 +++++++
-   $$clamp2(base\_codeword\times 8 + 4 + modifier)$$
+\begin{align*}
+clamp2(base\_codeword\times 8 + 4 + modifier)
+\end{align*}
 +++++++
 
 As an example, assume a base_codeword of 103, a `table index' of 13, a
@@ -843,28 +861,36 @@ choose the base_value latexmath:[$255$], a multiplier of latexmath:[$1$] and the
 
 [latexmath]
 ++++++
-  $$clamp1((base\_codeword+0.5)\times \frac{1}{255.875} + table\_value \times multiplier \times \frac{1}{255.875})$$
+\begin{align*}
+clamp1((base\_codeword+0.5)\times \frac{1}{255.875} + table\_value \times multiplier \times \frac{1}{255.875})
+\end{align*}
 ++++++
 
 we get
 
 [latexmath]
 ++++++
-  $$clamp1((255+0.5)\times \frac{1}{255.875} + \left[ \begin{array}{cccccccc} -3 & -5 & -7 &-9 & 2 & 4 & 6 & 8 \end{array}\right] \times \frac{1}{255.875})$$
+\begin{align*}
+clamp1((255+0.5)\times \frac{1}{255.875} + \left[ \begin{array}{cccccccc} -3 & -5 & -7 &-9 & 2 & 4 & 6 & 8 \end{array}\right] \times \frac{1}{255.875})
+\end{align*}
 ++++++
 
 which equals
 
 [latexmath]
 ++++++
-  $$clamp1(\left[ \begin{array}{cccccccc} 0.987 & 0.979 & 0.971 & 0.963 & 1.00 & 1.01 & 1.02 & 1.03 \end{array}\right])$$
+\begin{align*}
+clamp1(\left[ \begin{array}{cccccccc} 0.987 & 0.979 & 0.971 & 0.963 & 1.00 & 1.01 & 1.02 & 1.03 \end{array}\right])
+\end{align*}
 ++++++
 
 or after clamping
 
 [latexmath]
 ++++++
-  $$\left[ \begin{array}{cccccccc} 0.987 & 0.979 & 0.971 & 0.963 & 1.00 & 1.00 & 1.00 & 1.00\end{array}\right]$$
+\begin{align*}
+\left[ \begin{array}{cccccccc} 0.987 & 0.979 & 0.971 & 0.963 & 1.00 & 1.00 & 1.00 & 1.00\end{array}\right]
+\end{align*}
 ++++++
 
 which shows that several values can be latexmath:[$1.0$], even though the base value
@@ -882,8 +908,10 @@ two 64 bit integers:
 
 [latexmath]
 ++++++
-  $$\mathrm{int64bit0}= 256\times (256\times (256\times (256\times (256\times (256\times (256\times q_0+q_1)+q_2)+q_3)+q_4)+q_5)+q_6)+q_7$$
-  $$\mathrm{int64bit1}= 256\times (256\times (256\times (256\times (256\times (256\times (256\times p_0+p_1)+p_2)+p_3)+p_4)+p_5)+p_6)+p_7$$
+\begin{align*}
+\mathrm{int64bit0} & = 256\times (256\times (256\times (256\times (256\times (256\times (256\times q_0+q_1)+q_2)+q_3)+q_4)+q_5)+q_6)+q_7 \\
+\mathrm{int64bit1} & = 256\times (256\times (256\times (256\times (256\times (256\times (256\times p_0+p_1)+p_2)+p_3)+p_4)+p_5)+p_6)+p_7
+\end{align*}
 ++++++
 The 64-bit word int64bit0 contains information about the red component
 of a two-channel 4x4 pixel block as shown in
@@ -903,7 +931,9 @@ block is then represented by the following 64 bit integer:
 
 [latexmath]
 +++++
-  $$\mathrm{int64bit} = 256\times(256\times(256\times(256\times(256\times(256\times(256\times q_0+q_1)+q_2)+q_3)+q_4)+q_5)+q_6)+q_7$$
+\begin{align*}
+\mathrm{int64bit} & = 256\times(256\times(256\times(256\times(256\times(256\times(256\times q_0+q_1)+q_2)+q_3)+q_4)+q_5)+q_6)+q_7
+\end{align*}
 +++++
 
 This 64-bit word contains information about a single-channel latexmath:[$4\times
@@ -920,7 +950,9 @@ The decoded value is calculated as
 .R11-start
 [latexmath]
 +++++
-  $$clamp1(base\_codeword\times \frac{1}{127.875} + \textit{modifier}\times \textit{multiplier}\times \frac{1}{127.875})$$
+\begin{align*}
+clamp1(base\_codeword\times \frac{1}{127.875} + \textit{modifier}\times \textit{multiplier}\times \frac{1}{127.875})
+\end{align*}
 +++++
 
 where latexmath:[$clamp1(\cdot)$] maps values outside the range [latexmath:[$-1.0$], latexmath:[$1.0$]] to
@@ -937,15 +969,19 @@ To get a value between latexmath:[$-1023$] and latexmath:[$1023$] we must multip
 
 [latexmath]
 +++++
-  $$clamp2(base\_codeword\times \frac{1023.0}{127.875} + modifier\times multiplier\times \frac{1023.0}{127.875})$$
+\begin{align*}
+clamp2(base\_codeword\times \frac{1023.0}{127.875} + modifier\times multiplier\times \frac{1023.0}{127.875})
+\end{align*}
 +++++
 
 where clamp2(.) clamps to the range [latexmath:[$-1023.0$], latexmath:[$1023.0$]]. Since
-latexmath:[$1023.0\over 127.875$] is exactly latexmath:[$8$], the above formula can be written as
+latexmath:[$1023.0\over 127.875$] is exactly latexmath:[$8$], the above formula can be written as:
 
 [latexmath]
 +++++
-  $$clamp2(base\_codeword\times 8 + modifier\times multiplier \times 8).$$
+\begin{align*}
+clamp2(base\_codeword\times 8 + modifier\times multiplier \times 8)
+\end{align*}
 +++++
 
 The _base_codeword_ is stored in the first 8 bits as shown in
@@ -997,11 +1033,13 @@ latexmath:[$-160$]. We now add this to the base value and get latexmath:[$480-16
 If the multiplier_value is zero (i.e., the multiplier bits 55-52 are
 all zero), we should set the multiplier to
 latexmath:[$1.0 \over 8.0$]. Equation-signedr11eac-eqn-simple can then be
-simplified to
+simplified to:
 
 [latexmath]
 +++++
-  $$clamp2(base\_codeword \times 8 + modifier)$$
+\begin{align*}
+clamp2(base\_codeword \times 8 + modifier)
+\end{align*}
 +++++
 
 As an example, assume a base_codeword of 65, a `table index' of latexmath:[$13$], a
@@ -1024,13 +1062,15 @@ example should be expanded to 0011101011001110b = latexmath:[$15054$]. A negativ
 11-bit value must first be made positive before bit replication, and
 then made negative again:
 
-  if (result11bit >= 0)
-    result16bit = (result11bit << 5) + (result11bit >> 5);
-  else
-    result11bit = -result11bit;
-    result16bit = (result11bit << 5) + (result11bit >> 5);
-    result16bit = -result16bit;
-  end
+-----
+if (result11bit >= 0) {
+  result16bit = (result11bit << 5) + (result11bit >> 5);
+} else {
+  result11bit = -result11bit;
+  result16bit = (result11bit << 5) + (result11bit >> 5);
+  result16bit = -result16bit;
+}
+-----
 
 Simply bit replicating a negative number without first making it
 positive will not give a correct result.
@@ -1053,28 +1093,36 @@ Equation-signedr11eac-eqn-start,
 
 [latexmath]
 ++++++
-  $$base\_codeword\times \frac{1}{127.875} + modifier\times multiplier\times \frac{1}{127.875}$$
+\begin{align*}
+base\_codeword\times \frac{1}{127.875} + modifier\times multiplier\times \frac{1}{127.875}
+\end{align*}
 ++++++
 
 we get
 
 [latexmath]
 ++++++
-  $$\frac{127}{127.875} + \left[\begin{array}{cccccccc} -3 & -5 & -7 & -9 & 2 & 4 & 6 & 8 \end{array}\right] \times \frac{1}{127.875}$$
+\begin{align*}
+\frac{127}{127.875} + \left[\begin{array}{cccccccc} -3 & -5 & -7 & -9 & 2 & 4 & 6 & 8 \end{array}\right] \times \frac{1}{127.875}
+\end{align*}
 ++++++
 
 which equals
 
 [latexmath]
 ++++++
-  $$\left[ \begin{array}{cccccccc} 0.970 & 0.954 & 0.938 & 0.923 & 1.01 & 1.02 & 1.04 &1.06\end{array}\right]$$
+\begin{align*}
+\left[ \begin{array}{cccccccc} 0.970 & 0.954 & 0.938 & 0.923 & 1.01 & 1.02 & 1.04 &1.06\end{array}\right]
+\end{align*}
 ++++++
 
 or after clamping
 
 [latexmath]
 ++++++
-  $$\left[ \begin{array}{cccccccc} 0.970 & 0.954 & 0.938 & 0.923 & 1.00 & 1.00 & 1.00 & 1.00 \end{array}\right]$$
+\begin{align*}
+\left[ \begin{array}{cccccccc} 0.970 & 0.954 & 0.938 & 0.923 & 1.00 & 1.00 & 1.00 & 1.00 \end{array}\right]
+\end{align*}
 ++++++
 
 This shows that it is indeed possible to arrive at the value latexmath:[$1.0$]. The
@@ -1101,8 +1149,10 @@ two 64 bit integers:
 
 [latexmath]
 ++++++
-  $$\mathrm{int64bit0}= 256\times (256\times (256\times (256\times (256\times (256\times (256\times q_0+q_1)+q_2)+q_3)+q_4)+q_5)+q_6)+q_7$$
-  $$\mathrm{int64bit1}= 256\times (256\times (256\times (256\times (256\times (256\times (256\times p_0+p_1)+p_2)+p_3)+p_4)+p_5)+p_6)+p_7$$
+\begin{align*}
+\mathrm{int64bit0} & = 256\times (256\times (256\times (256\times (256\times (256\times (256\times q_0+q_1)+q_2)+q_3)+q_4)+q_5)+q_6)+q_7 \\
+\mathrm{int64bit1} & = 256\times (256\times (256\times (256\times (256\times (256\times (256\times p_0+p_1)+p_2)+p_3)+p_4)+p_5)+p_6)+p_7
+\end{align*}
 ++++++
 
 The 64-bit word int64bit0 contains information about the red component
@@ -1192,8 +1242,10 @@ are:
 
 [latexmath]
 ++++++
-  $$\mathit{base}\:\mathit{col}\:\mathit{subblock1} = \mathit{extend\_5to8bits}(R, G, B)$$
-  $$\mathit{base}\:\mathit{col}\:\mathit{subblock2} = \mathit{extend\_5to8bits}(R+dR, G+dG, B+dB)$$
+\begin{align*}
+\mathit{base}\:\mathit{col}\:\mathit{subblock1} & = \mathit{extend\_5to8bits}(R, G, B) \\
+\mathit{base}\:\mathit{col}\:\mathit{subblock2} & = \mathit{extend\_5to8bits}(R+dR, G+dG, B+dB)
+\end{align*}
 ++++++
 
 Note that these additions will not under- or overflow, or one of the
@@ -1299,14 +1351,18 @@ alpha value will be zero, otherwise it will be latexmath:[$255$].  Finally, if t
 alpha value equals latexmath:[$0$], the red-, green- and blue components will also
 be zero.
 
-  if (opaque == 0 && MSB == 1 && LSB == 0)
-    red = 0;
-    green = 0;
-    blue = 0;
-    alpha = 0;
-  else
-    alpha = 255;
-  end
+<<<
+
+-----
+if (opaque == 0 && MSB == 1 && LSB == 0) {
+  red = 0;
+  green = 0;
+  blue = 0;
+  alpha = 0;
+} else {
+  alpha = 255;
+}
+-----
 
 Hence paint color 2 will equal RGBA = (latexmath:[$0$],latexmath:[$0$],latexmath:[$0$],latexmath:[$0$]) if opaque == 0.
 
@@ -1323,16 +1379,20 @@ the two colors are constructed as follows:
 
 [latexmath]
 ++++++
-  $$\mathit{base}\:\mathit{col}\:\mathit{1}= \mathit{extend\_4to8bits}(\: (R1a \ll 2)\: | \: R1b, \: G1, \: B1)$$
-  $$\mathit{base}\:\mathit{col}\:\mathit{2}=\mathit{extend\_4to8bits}(R2, G2, B2)$$
+\begin{align*}
+\mathit{base}\:\mathit{col}\:\mathit{1} & = \mathit{extend\_4to8bits}(\: (R1a \ll 2)\: | \: R1b, \: G1, \: B1) \\\
+\mathit{base}\:\mathit{col}\:\mathit{2} & =\mathit{extend\_4to8bits}(R2, G2, B2)
+\end{align*}
 ++++++
 
 In the `H' mode, the two colors are constructed as follows:
 
 [latexmath]
 ++++++
-  $$\mathit{base}\:\mathit{col}\:\mathit{1}= \mathit{extend\_4to8bits}(R1,\: (G1a \ll 1) \: | \: G1b,\: (B1a \ll 3)\: | \: B1b)$$
-  $$\mathit{base}\:\mathit{col}\:\mathit{2}= \mathit{extend\_4to8bits}(R2, G2, B2)$$
+\begin{align*}
+\mathit{base}\:\mathit{col}\:\mathit{1} & = \mathit{extend\_4to8bits}(R1,\: (G1a \ll 1) \: | \: G1b,\: (B1a \ll 3)\: | \: B1b) \\
+\mathit{base}\:\mathit{col}\:\mathit{2} & = \mathit{extend\_4to8bits}(R2, G2, B2)
+\end{align*}
 ++++++
 
 The function extend_4to8bits() just replicates the four bits
@@ -1357,25 +1417,31 @@ determine the four `paint colors' for a `T' block:
 
 [latexmath]
 ++++++
-  $$\mathit{paint}\:\mathit{color}\:\mathit{0} = \mathit{base}\:\mathit{col}\:\mathit{1}$$
-  $$\mathit{paint}\:\mathit{color}\:\mathit{1} = \mathit{base}\:\mathit{col}\:\mathit{2} + (d, d, d)$$
-  $$\mathit{paint}\:\mathit{color}\:\mathit{2} = \mathit{base}\:\mathit{col}\:\mathit{2}$$
-  $$\mathit{paint}\:\mathit{color}\:\mathit{3} = \mathit{base}\:\mathit{col}\:\mathit{2} - (d, d, d)$$
+\begin{align*}
+\mathit{paint}\:\mathit{color}\:\mathit{0} & = \mathit{base}\:\mathit{col}\:\mathit{1} \\
+\mathit{paint}\:\mathit{color}\:\mathit{1} & = \mathit{base}\:\mathit{col}\:\mathit{2} + (d, d, d) \\
+\mathit{paint}\:\mathit{color}\:\mathit{2} & = \mathit{base}\:\mathit{col}\:\mathit{2} \\
+\mathit{paint}\:\mathit{color}\:\mathit{3} & = \mathit{base}\:\mathit{col}\:\mathit{2} - (d, d, d)
+\end{align*}
 ++++++
 
 In both cases, the value of each channel is clamped to within [latexmath:[$0$],latexmath:[$255$]].
 
+<<<
+
 Just as for the differential mode, the RGB channels are set to zero if
 alpha is zero, and the alpha component is calculated the same way:
 
-  if (opaque == 0 && MSB == 1 && LSB == 0)
-    red = 0;
-    green = 0;
-    blue = 0;
-    alpha = 0;
-  else
-    alpha = 255;
-  end
+-----
+if (opaque == 0 && MSB == 1 && LSB == 0) {
+  red = 0;
+  green = 0;
+  blue = 0;
+  alpha = 0;
+} else {
+  alpha = 255;
+}
+-----
 
 A `distance' value is computed for the `H' mode as well, but doing so
 is slightly more complex. In order to construct the three-bit index
@@ -1389,23 +1455,27 @@ an `H' block, the four `paint colors' will be:
 
 [latexmath]
 ++++++
-  $$\mathit{paint}\:\mathit{color}\:\mathit{0} = \mathit{base}\:\mathit{col}\:\mathit{1} + (d, d, d)$$
-  $$\mathit{paint}\:\mathit{color}\:\mathit{1} = \mathit{base}\:\mathit{col}\:\mathit{1} - (d, d, d)$$
-  $$\mathit{paint}\:\mathit{color}\:\mathit{2} = \mathit{base}\:\mathit{col}\:\mathit{2} + (d, d, d)$$
-  $$\mathit{paint}\:\mathit{color}\:\mathit{3} = \mathit{base}\:\mathit{col}\:\mathit{2} - (d, d, d)$$
+\begin{align*}
+\mathit{paint}\:\mathit{color}\:\mathit{0} & = \mathit{base}\:\mathit{col}\:\mathit{1} + (d, d, d) \\
+\mathit{paint}\:\mathit{color}\:\mathit{1} & = \mathit{base}\:\mathit{col}\:\mathit{1} - (d, d, d) \\
+\mathit{paint}\:\mathit{color}\:\mathit{2} & = \mathit{base}\:\mathit{col}\:\mathit{2} + (d, d, d) \\
+\mathit{paint}\:\mathit{color}\:\mathit{3} & = \mathit{base}\:\mathit{col}\:\mathit{2} - (d, d, d)
+\end{align*}
 ++++++
 
 Yet again, RGB is zeroed if alpha is 0 and the alpha component is
 determined the same way:
 
-  if (opaque == 0 && MSB == 1 && LSB == 0)
-    red = 0;
-    green = 0;
-    blue = 0;
-    alpha = 0;
-  else
-    alpha = 255;
-  end
+-----
+if (opaque == 0 && MSB == 1 && LSB == 0) {
+  red = 0;
+  green = 0;
+  blue = 0;
+  alpha = 0;
+} else {
+  alpha = 255;
+}
+-----
 
 Hence paint color 2 will have R=G=B=alpha=0 if opaque == 0.
 
@@ -1440,15 +1510,19 @@ used for the base colors in other modes. For example, the 6-bit blue
 and red channels are extended by replicating the two most significant
 of the six bits to the two least significant of the final 8 bits.
 
+<<<
+
 With three base colors in RGB888 format, the color of each pixel can
 then be determined as:
 
 [latexmath]
 ++++++
-  $$R(x,y) = {x\times (RH-RO) \over 4.0} + {y\times(RV-RO) \over 4.0} + RO$$
-  $$G(x,y) = {x\times (GH-GO) \over 4.0} + {y\times(GV-GO) \over 4.0} + GO$$
-  $$B(x,y) = {x\times (BH-BO) \over 4.0} + {y\times(BV-BO) \over 4.0} + BO$$
-  $$A(x,y) = 255$$
+\begin{align*}
+R(x,y) & = {x\times (RH-RO) \over 4.0} + {y\times(RV-RO) \over 4.0} + RO \\
+G(x,y) & = {x\times (GH-GO) \over 4.0} + {y\times(GV-GO) \over 4.0} + GO \\
+B(x,y) & = {x\times (BH-BO) \over 4.0} + {y\times(BV-BO) \over 4.0} + BO \\
+A(x,y) & = 255
+\end{align*}
 ++++++
 
 where latexmath:[$x$] and latexmath:[$y$] are values from latexmath:[$0$] to latexmath:[$3$] corresponding to the pixels
@@ -1461,12 +1535,14 @@ integer if there is a tie) and then clamped to a value between latexmath:[$0$] a
 latexmath:[$255$]. Note that this is equivalent to
 
 [latexmath]
-++++++ 
-  $$R(x,y) = clamp255((x\times (RH-RO) + y\times (RV-RO) + 4\times RO + 2) \gg 2)$$
-  $$G(x,y) = clamp255((x\times (GH-GO) + y\times (GV-GO) + 4\times GO + 2) \gg 2)$$
-  $$B(x,y) = clamp255((x\times (BH-BO) + y\times (BV-BO) + 4\times BO + 2) \gg 2)$$
-  $$A(x,y) = 255$$
-++++++
++++++++++++++++
+\begin{align*}
+R(x,y) & = clamp255((x\times (RH-RO) + y\times (RV-RO) + 4\times RO + 2) \gg 2) \\
+G(x,y) & = clamp255((x\times (GH-GO) + y\times (GV-GO) + 4\times GO + 2) \gg 2) \\
+B(x,y) & = clamp255((x\times (BH-BO) + y\times (BV-BO) + 4\times BO + 2) \gg 2) \\
+A(x,y) & = 255
+\end{align*}
++++++++++++++++
 
 where latexmath:[$clamp255$] clamps the value to a number in the range [latexmath:[$0$], latexmath:[$255$]].
 

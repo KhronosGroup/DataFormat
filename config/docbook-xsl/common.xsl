@@ -3,7 +3,7 @@
   Contains common XSL stylesheets parameters.
 
   This is branched from /etc/asciidoc/docbook-xsl/common.xsl in order to use
-  Vulkan-specific CSS. There is probably a less drastic approach to doing
+  Data-format-specific CSS. There is probably a less drastic approach to doing
   this involving multiple stylesheets or some other way to override the
   "html.stylesheet" param.
 -->

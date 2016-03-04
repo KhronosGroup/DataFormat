@@ -1,3 +1,3 @@
 // Copyright (c) 2014-2016 The Khronos Group Inc.
 // Copyright notice at https://www.khronos.org/registry/speccopyright.html
-= Khronos Data Format Specification v1.1 rev 3 pass:[] image:images/Khronos_Dec14.svg[title="",width="525",height="125",align="center"] =
+= Khronos Data Format Specification v1.1 rev 4 pass:[] image:images/Khronos_Dec14.svg[title="",width="525",height="125",align="center"] =

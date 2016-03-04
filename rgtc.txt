@@ -19,9 +19,11 @@ size (in bytes) is:
 
 [latexmath]
 ++++++++++++++++++++++
-    $$\left\lceil { w \over 4 } \right\rceil \times
-    \left\lceil { h \over 4 } \right\rceil \times
-    blocksize$$
+\begin{align*}
+\left\lceil { w \over 4 } \right\rceil \times
+\left\lceil { h \over 4 } \right\rceil \times
+blocksize
+\end{align*}
 ++++++++++++++++++++++
 
 When decoding an RGTC image, the block containing the texel at offset
@@ -29,10 +31,12 @@ latexmath:[$(x,y)$] begins at an offset (in bytes) relative to the base of the i
 
 [latexmath]
 ++++++++++++++++++++++
-    $$blocksize \times
-       \left( { \left\lceil  { w \over 4 } \right\rceil \times
-                \left\lfloor { y \over 4 } \right\rfloor +
-                \left\lfloor { x \over 4 } \right\rfloor } \right)$$
+\begin{align*}
+blocksize \times
+   \left( { \left\lceil  { w \over 4 } \right\rceil \times
+            \left\lfloor { y \over 4 } \right\rfloor +
+            \left\lfloor { x \over 4 } \right\rfloor } \right)
+\end{align*}
 ++++++++++++++++++++++
 
 The data corresponding to a specific texel latexmath:[$(x,y)$] are extracted from a
@@ -40,14 +44,12 @@ latexmath:[$4 \times 4$] texel block using a relative latexmath:[$(x,y)$] value 
 
 [latexmath]
 ++++++++++++++++++++++
-    $$(x \bmod 4,y \bmod 4).$$
+\begin{align*}
+(x \bmod 4,y \bmod 4).
+\end{align*}
 ++++++++++++++++++++++
 
 There are four distinct RGTC image formats:
-
-
-// % _ in subsection headers come out looking awful in the .con file, so
-// % index them separately.
 
 === BC4 unsigned
 
@@ -59,44 +61,44 @@ order of increasing address):
 
 [latexmath]
 ++++++
-    $$red_0, red_1, bits_0, bits_1, bits_2, bits_3, bits_4, bits_5$$
+\begin{align*}
+red_0, red_1, bits_0, bits_1, bits_2, bits_3, bits_4, bits_5
+\end{align*}
 ++++++
 
 The 6 latexmath:[$bits_*$] bytes of the block are decoded into a 48-bit bit vector:
 
 [latexmath]
 ++++++++++++++++++++++
-      $$bits =
-        bits_0 +
-          256 \times
-            \left( { bits_1 + 256 \times
-              \left( { bits_2 + 256 \times
-                \left( { bits_3 + 256 \times
-                  \left( { bits_4 + 256 \times bits_5 }
-                  \right) }
-                \right) }
-              \right) }
-            \right)$$
+\begin{align*}
+bits & =
+bits_0 +
+  256 \times
+    \left( { bits_1 + 256 \times
+      \left( { bits_2 + 256 \times
+        \left( { bits_3 + 256 \times
+          \left( { bits_4 + 256 \times bits_5 }
+          \right) }
+        \right) }
+      \right) }
+    \right)
+\end{align*}
 ++++++++++++++++++++++
 
 latexmath:[$red_0$] and latexmath:[$red_1$] are 8-bit unsigned integers that are unpacked to red
-values latexmath:[$RED_0$] and
-//  \ifdep{
-// $RED_1$ as though they were pixels with a {\em format} of
-// \glc{LUMINANCE} and a {\em type} of \glc{UNSIGNED\_BYTE}.
-//  }{
-latexmath:[$RED_1$].
-//  } %\ifdep
+values latexmath:[$RED_0$] and latexmath:[$RED_1$].
 
 latexmath:[$bits$] is a 48-bit unsigned integer, from which a three-bit control code is
 extracted for a texel at location latexmath:[$(x,y)$] in the block using:
 
 [latexmath]
 ++++++++++++++++++++++
-    $$ code(x,y) =
-        bits \left[
-            3 \times (4 \times y + x) + 2 \dots
-            3 \times (4 \times y + x) + 0 \right]$$
+\begin{align*}
+code(x,y) & =
+ bits \left[
+     3 \times (4 \times y + x) + 2 \dots
+     3 \times (4 \times y + x) + 0 \right]
+\end{align*}
 ++++++++++++++++++++++
 
 where bit 47 is the most significant and bit 0 is the least significant bit.
@@ -132,7 +134,6 @@ latexmath:[$RED_{min}$] and latexmath:[$RED_{max}$] are 0.0 and 1.0 respectively
 Since the decoded texel has a red format, the resulting RGBA value for the
 texel is latexmath:[$(R,0,0,1)$].
 
-
 === BC4 signed
 
 Each latexmath:[$4 \times 4$] block of texels consists of 64 bits of signed red image
@@ -142,28 +143,18 @@ latexmath:[$RED_{min}$], and latexmath:[$RED_{max}$] are signed values defined a
 
 [latexmath]
 ++++++
-  $$RED_0 = \begin{cases}
-     red_0 \over 127.0, & red_0 > -128 \\
-     -1.0, & red_0 = -128
-  \end{cases}$$
-++++++
-
-[latexmath]
-++++++
-  $$RED_1 = \begin{cases}
-     red_1 \over 127.0, & red_1 > -128 \\
-     -1.0, & red_0 = -128
-  \end{cases}$$
-++++++
-
-[latexmath]
-+++++++++++
-        $$RED_{min} = -1.0$$
-+++++++++++
-
-[latexmath]
-+++++++++++
-        $$RED_{max} = 1.0$$
+\begin{align*}
+RED_0 & = \begin{cases}
+ red_0 \over 127.0, & red_0 > -128 \\
+ -1.0, & red_0 = -128
+\end{cases} \\
+RED_1 & = \begin{cases}
+   red_1 \over 127.0, & red_1 > -128 \\
+   -1.0, & red_0 = -128
+\end{cases} \\
+RED_{min} & = -1.0 \\
+RED_{max} & = 1.0
+\end{align*}
 +++++++++++
 
 latexmath:[$red_0$] and latexmath:[$red_1$] are 8-bit signed (twos complement) integers.

@@ -6,7 +6,7 @@
   /repos/util/trunk/SpecificationTemplates/Asciidoc/specStyle/asciidoc.css
 */
 
-/* Vulkan modifications and additions */
+/* Data format modifications and additions */
 
 /* For showing added material in a document */
 div.added { color: red; }
@@ -33,7 +33,7 @@ body {
   font-family: Arial,sans-serif;
 }
 
-/* End Vulkan modifications and additions */
+/* End data format modifications and additions */
 
 code, pre {
   font-family: "Courier New", Courier, monospace;
@@ -50,8 +50,12 @@ body blockquote {
 }
 
 html body {
-  margin: 1em 5% 1em 5%;
+  margin: 125px 5% 1em 5%;
   line-height: 1.2;
+  background-image: url("../images/Khronos_Dec14.svg");
+  background-size: 525px 125px;
+  background-repeat: no-repeat;
+  background-position: center 0px;
 }
 
 body div {
@@ -133,7 +137,12 @@ div.navfooter hr {
 }
 
 body td {
-  line-height: 1.2
+  line-height: 1.2; padding: 0px 3px 0px 3px;
+}
+
+table p {
+  margin-top: 0px;
+  margin-bottom: 0px;
 }
 
 body th {
