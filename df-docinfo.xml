@@ -166,4 +166,12 @@ Added definitions of floating point formats
 Fixed typo in sRGB conversion (thank you, Tom Grim!)
 </revremark>
 </revision>
+<revision>
+<revnumber>1.1 rev 4</revnumber>
+<date>March 2016</date>
+<authorinitials>AG</authorinitials>
+<revremark>
+Fixed typo in ASTC, clarified ASTC with sRGB, typographical improvements
+</revremark>
+</revision>
 </revhistory>
