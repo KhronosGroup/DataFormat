@@ -23,9 +23,11 @@ bytes) is:
 
 [latexmath]
 ++++++++++++++++
-    $$ \left\lceil { w \over 4 } \right\rceil \times
-       \left\lceil { h \over 4 } \right\rceil \times
-       blocksize$$
+\begin{align*}
+\left\lceil { w \over 4 } \right\rceil \times
+\left\lceil { h \over 4 } \right\rceil \times
+blocksize
+\end{align*}
 ++++++++++++++++
 
 When decoding an S3TC image, the block containing the texel at offset
@@ -34,10 +36,12 @@ image of:
 
 [latexmath]
 ++++++++++++++
-    $$blocksize \times
-       \left( { \left\lceil  { w \over 4 } \right\rceil \times
-                \left\lfloor { y \over 4 } \right\rfloor +
-                \left\lfloor { x \over 4 } \right\rfloor } \right)$$
+\begin{align*}
+blocksize \times
+ \left( { \left\lceil  { w \over 4 } \right\rceil \times
+          \left\lfloor { y \over 4 } \right\rfloor +
+          \left\lfloor { x \over 4 } \right\rfloor } \right)
+\end{align*}
 ++++++++++++++
 
 The data corresponding to a specific texel latexmath:[$(x,y)$] are extracted from a
@@ -45,7 +49,9 @@ latexmath:[$4\times 4$] texel block using a relative latexmath:[$(x,y)$] value o
 
 [latexmath]
 ++++++++++++++
-    $$(x \bmod 4,y \bmod 4)$$
+\begin{align*}
+(x \bmod 4,y \bmod 4)
+\end{align*}
 ++++++++++++++
 
 There are four distinct S3TC image formats:
@@ -53,23 +59,27 @@ There are four distinct S3TC image formats:
 === BC1 with no alpha
 
 Each latexmath:[$4 \times 4$] block of texels consists of 64
-bits of RGB image data.  
+bits of RGB image data.
 
 Each RGB image data block is encoded as a sequence of 8 bytes, called (in
 order of increasing address):
 
 [latexmath]
 ++++++
-        $$c0_{lo}, c0_{hi}, c1_{lo}, c1_{hi}, bits_0, bits_1, bits_2, bits_3$$
+\begin{align*}
+c0_{lo}, c0_{hi}, c1_{lo}, c1_{hi}, bits_0, bits_1, bits_2, bits_3
+\end{align*}
 ++++++
 
 The 8 bytes of the block are decoded into three quantities:
 
 [latexmath]
 ++++++
-    $$color_0 = c0_{lo} + c0_{hi} \times 256$$
-    $$color_1 = c1_{lo} + c1_{hi} \times 256$$
-    $$bits   = bits_0 + 256 \times (bits_1 + 256 \times (bits_2 + 256 \times bits_3))$$
+\begin{align*}
+color_0 & = c0_{lo} + c0_{hi} \times 256 \\
+color_1 & = c1_{lo} + c1_{hi} \times 256 \\
+bits    & = bits_0 + 256 \times (bits_1 + 256 \times (bits_2 + 256 \times bits_3))
+\end{align*}
 ++++++
 
 _color0_ and _color1_ are 16-bit unsigned integers that
@@ -81,7 +91,9 @@ is extracted for a texel at location latexmath:[$(x,y)$] in the block using:
 
 [latexmath]
 ++++++
-    $$code(x,y) = bits[2\times (4\times y+x)+1\ \dots\ 2\times(4\times y+x)+0]$$
+\begin{align*}
+code(x,y) & = bits[2\times (4\times y+x)+1\ \dots\ 2\times(4\times y+x)+0]
+\end{align*}
 ++++++
 
 where bit 31 is the most significant and bit 0 is the least
@@ -152,7 +164,7 @@ of 0 should be encoded as zero (black).
 
 Each latexmath:[$4\times 4$] block of texels consists of 64
 bits of uncompressed alpha image data followed by 64 bits of RGB image
-data.  
+data.
 
 Each RGB image data block is encoded according to the
 BC1 formats, with the exception that the two code
@@ -165,15 +177,19 @@ Each alpha image data block is encoded as a sequence of 8 bytes, called
 
 [latexmath]
 ++++++
-    $$a_0, a_1, a_2, a_3, a_4, a_5, a_6, a_7$$
+\begin{align*}
+a_0, a_1, a_2, a_3, a_4, a_5, a_6, a_7
+\end{align*}
 ++++++
 
 The 8 bytes of the block are decoded into one 64-bit integer:
 
 [latexmath]
 ++++++
-    $$alpha = a_0 + 256 \times (a_1 + 256 \times (a_2 + 256 \times (a_3 +
-                 256 \times (a_4 + 256 \times (a_5 + 256 \times (a_6 + 256 \times a_7))))))$$
+\begin{align*}
+alpha & = a_0 + 256 \times (a_1 + 256 \times (a_2 + 256 \times (a_3 +
+                   256 \times (a_4 + 256 \times (a_5 + 256 \times (a_6 + 256 \times a_7))))))
+\end{align*}
 ++++++
 
 _alpha_ is a 64-bit unsigned integer, from which a four-bit alpha value
@@ -181,7 +197,9 @@ is extracted for a texel at location latexmath:[$(x,y)$] in the block using:
 
 [latexmath]
 ++++++
-    $$alpha(x,y) = bits[4\times(4\times y+x)+3 \dots 4\times(4\times y+x)+0]$$
+\begin{align*}
+alpha(x,y) & = bits[4\times(4\times y+x)+3 \dots 4\times(4\times y+x)+0]
+\end{align*}
 ++++++
 
 where bit 63 is the most significant and bit 0 is the least
@@ -206,7 +224,9 @@ Each alpha image data block is encoded as a sequence of 8 bytes, called
 
 [latexmath]
 ++++++
-    $$alpha_0, alpha_1, bits_0, bits_1, bits_2, bits_3, bits_4, bits_5$$
+\begin{align*}
+alpha_0, alpha_1, bits_0, bits_1, bits_2, bits_3, bits_4, bits_5
+\end{align*}
 ++++++
 
 The latexmath:[$alpha_0$] and latexmath:[$alpha_1$] are 8-bit unsigned bytes converted to alpha
@@ -216,8 +236,10 @@ The 6 _bits_ bytes of the block are decoded into one 48-bit integer:
 
 [latexmath]
 ++++++
-  $$bits = bits_0 + 256 \times (bits_1 + 256 \times (bits_2 +
-           256 \times (bits_3 + 256 \times (bits_4 + 256 \times bits_5))))$$
+\begin{align*}
+bits & = bits_0 + 256 \times (bits_1 + 256 \times (bits_2 +
+           256 \times (bits_3 + 256 \times (bits_4 + 256 \times bits_5))))
+\end{align*}
 ++++++
 
 _bits_ is a 48-bit unsigned integer, from which a three-bit control code
@@ -225,7 +247,9 @@ is extracted for a texel at location latexmath:[$(x,y)$] in the block using:
 
 [latexmath]
 ++++++
-    $$code(x,y) = bits[3\times(4\times y+x)+2 \dots 3\times(4\times y+x)+0]$$
+\begin{align*}
+code(x,y) & = bits[3\times(4\times y+x)+2 \dots 3\times(4\times y+x)+0]
+\end{align*}
 ++++++
 
 where bit 47 is the most-significant and bit 0 is the least-significant bit.

@@ -622,7 +622,7 @@ and one sample each of U and V.
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
 2+| 0 (vendor_id) 2+| 0 (descriptor_type)
 2+| 0 (version number) 2+| 24 + 16 times number of samples (descriptor_block_size)
-| color_model | color_primaries | transfer_function | flags 
+| color_model | color_primaries | transfer_function | flags
 | texel_block_dimension_0 | texel_block_dimension_1 | texel_block_dimension_2 | texel_block_dimension_3
 | bytes_plane_0 | bytes_plane_1 | bytes_plane_2 | bytes_plane_3
 | bytes_plane_4 | bytes_plane_5 | bytes_plane_6 | bytes_plane_7
