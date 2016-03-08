@@ -17,7 +17,7 @@ ASTC textures may be either 2D or 3D.
 
 ASTC textures may be encoded using either high or low dynamic range.
 Low dynamic range images may optionally be specified using the sRGB
-transfer function.
+transfer function for the RGB channels.
 
 Two sub-profiles (``LDR Profile'' and ``HDR Profile'') may be implemented,
 which support only 2D images at low or high dynamic range respectively.
@@ -1557,15 +1557,15 @@ endpoints are interpolated and expanded.
 For LDR endpoint modes, each color component C is calculated from the
 corresponding 8-bit endpoint components C~0~ and C~1~ as follows:
 
-If sRGB conversion is not enabled, C~0~ and C~1~ are first expanded to
-16 bits by bit replication:
+If sRGB conversion is not enabled, or for the alpha channel in any case,
+C~0~ and C~1~ are first expanded to 16 bits by bit replication:
 
 -----
 C0 = (C0 << 8) | C0;    C1 = (C1 << 8) | C1;
 -----
 
-If sRGB conversion is enabled, C~0~ and C~1~ are expanded to 16 bits
-differently, as follows:
+If sRGB conversion is enabled, C~0~ and C~1~ for the R, G, and B channels
+are expanded to 16 bits differently, as follows:
 
 -----
 C0 = (C0 << 8) | 0x80;  C1 = (C1 << 8) | 0x80;
@@ -1578,10 +1578,11 @@ C = floor( (C0*(64-i) + C1*i + 32)/64 )
 -----
 
 If sRGB conversion is enabled, the top 8 bits of the interpolation
-result are passed to the external sRGB conversion block. Otherwise, if
-C = 65535, then the final result is 1.0 (0x3C00) otherwise C is divided
-by 65536 and the infinite-precision result of the division is converted
-to FP16 with round-to-zero semantics.
+result for the R, G and B channels are passed to the external sRGB
+conversion block. Otherwise, and for the alpha channel in any case,
+if C = 65535, then the final result is 1.0 (0x3C00); otherwise C is
+divided by 65536 and the infinite-precision result of the division is
+converted to FP16 with round-to-zero semantics.
 
 For HDR endpoint modes, color values are represented in a 12-bit
 pseudo-logarithmic representation, and interpolation occurs in a
