@@ -1,1 +1,0 @@
-Make a soft link in "chunked" from ../df.txt to df.txt.
