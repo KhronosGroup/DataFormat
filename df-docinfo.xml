@@ -174,4 +174,12 @@ Fixed typo in sRGB conversion (thank you, Tom Grim!)
 Fixed typo in ASTC, clarified ASTC with sRGB, typographical improvements
 </revremark>
 </revision>
+<revision>
+<revnumber>1.1 rev 5</revnumber>
+<date>March 2016</date>
+<authorinitials>AG</authorinitials>
+<revremark>
+Switch to official Khronos logo, removed scripts, restored title
+</revremark>
+</revision>
 </revhistory>
