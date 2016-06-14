@@ -7,14 +7,16 @@ XMLLINT    = --no-xmllint
 A2XOPTS    = -a mathjax \
 	     --asciidoc-opts="-f config/mathjax-docbook.conf" \
 	     --xsltproc-opts="--param generate.consistent.ids 1" \
-	     $(XMLLINT) $(VERBOSE)
+	     $(XMLLINT) $(VERBOSE) --icons
 
 html:
-	a2x $(A2XOPTS) -f xhtml df.txt -a a2x-format=html -a docinfo --xsl-file=config/docbook-xsl/xhtml.xsl -a toc2 -a toclevels=2 -D out
+	a2x $(A2XOPTS) -f xhtml df.txt -a a2xhtml=html -a docinfo --xsl-file=config/docbook-xsl/xhtml.xsl -a toc2 -a toclevels=2 -D out
 	mkdir -p out/config
 	mkdir -p out/images
+	mkdir -p out/images/icons
 	cp config/df-xhtml.css out/config
 	cp images/Khronos_Dec14.svg out/images
+	cp images/icons/note.png out/images/icons/note.png
 
 pdf:
 	asciidoc -d book -b docbook -f config/mathjax-docbook.conf -a a2x-format=pdf -a docinfo df.txt && \

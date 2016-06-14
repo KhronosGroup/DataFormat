@@ -66,6 +66,10 @@ possible to quickly determine which block a given texel resides in.
 Each block has a fixed memory footprint of 128 bits, but these bits
 can represent varying numbers of texels (the block ``footprint'').
 
+NOTE: The term ``block footprint'' in ASTC refers to the same concept
+as ``compressed texel block dimensions'' elsewhere in the Data Format
+Specification.
+
 Block footprint sizes are not confined to powers-of-two, and are
 also not confined to be square. They may be 2D, in which case the
 block dimensions range from 4 to 12 texels, or 3D, in which case

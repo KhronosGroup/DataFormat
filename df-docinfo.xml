@@ -43,7 +43,7 @@ Copyright notice at https://www.khronos.org/registry/speccopyright.html
 
 <!--
 <copyright>
-<year>2015</year>
+<year>2016</year>
 <holder>The Khronos Group Inc.</holder>
 </copyright>
 -->
@@ -171,7 +171,7 @@ Fixed typo in sRGB conversion (thank you, Tom Grim!)
 <date>March 2016</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-Fixed typo in ASTC, clarified ASTC with sRGB, typographical improvements
+Fixed typo/clarified sRGB in ASTC, typographical improvements
 </revremark>
 </revision>
 <revision>
@@ -180,6 +180,14 @@ Fixed typo in ASTC, clarified ASTC with sRGB, typographical improvements
 <authorinitials>AG</authorinitials>
 <revremark>
 Switch to official Khronos logo, removed scripts, restored title
+</revremark>
+</revision>
+<revision>
+<revnumber>1.1 rev 6</revnumber>
+<date>June 2016</date>
+<authorinitials>AG</authorinitials>
+<revremark>
+ASTC "block footprint" note, fixed credits/changelog/contents
 </revremark>
 </revision>
 </revhistory>
