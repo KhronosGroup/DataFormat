@@ -66,6 +66,10 @@ possible to quickly determine which block a given texel resides in.
 Each block has a fixed memory footprint of 128 bits, but these bits
 can represent varying numbers of texels (the block ``footprint'').
 
+NOTE: The term ``block footprint'' in ASTC refers to the same concept
+as ``compressed texel block dimensions'' elsewhere in the Data Format
+Specification.
+
 Block footprint sizes are not confined to powers-of-two, and are
 also not confined to be square. They may be 2D, in which case the
 block dimensions range from 4 to 12 texels, or 3D, in which case
@@ -473,6 +477,10 @@ For 2D blocks, the Block Mode field is laid out as shown in
 Note that, due to the encoding of the R field, as described in the
 previous page, bits R2 and R1 cannot both be zero, which disambiguates
 the first five rows from the rest of the table.
+
+Bit positions with a value of x are ignored for purposes of determining
+if a block is a void-extent block or reserved, but may have defined
+encodings for specific void-extent blocks.
 
 The penultimate row of the table is reserved only if bits [5:2] are not
 all 1, in which case it encodes a void-extent block (as shown in the
@@ -1861,6 +1869,8 @@ In the HDR case, if the color component values are infinity or NaN, this
 will result in undefined behavior. As usual, this must not lead to GL
 interruption or termination.
 
+Bits 10 and 11 are reserved and must be 1.
+
 The minimum and maximum coordinate values are treated as unsigned
 integers and then normalized into the range 0..1 (by dividing by 2^13^-1
 or 2^9^-1, for 2D and 3D respectively). The maximum values for each
@@ -1901,6 +1911,8 @@ encodings:
 
 *   The block mode specified is one of the modes explicitly listed
     as Reserved.
+*   A 2D void-extent block that has any of the reserved bits not
+    set to 1.
 *   A block mode has been specified that would require more than
     64 weights total.
 *   A block mode has been specified that would require more than

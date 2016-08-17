@@ -333,7 +333,6 @@
   \end{stdindex}
 }
 
-
 % ##############################################################################
 % ### Commands and environments
 % ##############################################################################
@@ -360,5 +359,34 @@
 \usepackage{dbk_callout}
 \usepackage{dbk_annot}
 
-\makeatother
+\renewenvironment{DBKrevtable}{
+  \renewcommand{\arraystretch}{1.5}
+  \begin{longtable}{ |l|l|l|l| }
+  \hline
+  \emph{Revision number} & \emph{Date} & \emph{Release Info} & \emph{Author} \tabularnewline
+  \hline
+  \endhead
+}{
+  \end{longtable}
+}
 
+\def\DBKinditem#1#2{
+  #2  & #1 \tabularnewline
+  \hline
+}
+\renewenvironment{DBKindtable}{
+  \renewcommand{\arraystretch}{1.5}
+  \begin{longtable}{ |l|l| }
+  \hline
+  \emph{Collaborator} & \emph{Contribution} \tabularnewline
+  \hline
+  \endhead
+}{
+  \end{longtable}
+}
+
+\renewcommand*\l@section{\@dottedtocline{1}{1.5em}{2.8em}}
+\renewcommand*\l@subsection{\@dottedtocline{2}{4.3em}{3.9em}}
+\renewcommand*\l@subsubsection{\@dottedtocline{3}{8.2em}{4.1em}}
+
+\makeatother
