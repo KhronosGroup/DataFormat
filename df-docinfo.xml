@@ -190,4 +190,12 @@ Switch to official Khronos logo, removed scripts, restored title
 ASTC "block footprint" note, fixed credits/changelog/contents
 </revremark>
 </revision>
+<revision>
+<revnumber>1.1 rev 7</revnumber>
+<date>September 2016</date>
+<authorinitials>AG</authorinitials>
+<revremark>
+ASTC multi-point "part" and quint decode typo fixes
+</revremark>
+</revision>
 </revhistory>
