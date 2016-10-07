@@ -403,7 +403,7 @@ directly below the weight bits, as shown in <<astc-multi-partition-layout>>.
 | 31 | 30 | 29 | 28 | 27 | 26 | 25 | 24 | 23 | 22 | 21 | 20 | 19 | 18 | 17 | 16
 3+| 6+| CEM 7+| Partition index
 | 15 | 14 | 13 | 12 | 11 | 10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0
-5+| Partition index 11+| Block mode
+3+| Partition index 2+| Part 11+| Block mode
 |====================
 
 The Partition Index field specifies which partition layout to use. CEM is
@@ -734,7 +734,7 @@ else
     if Q[2:1] = 11
         q2 = 4; C = { Q[4:3], ~Q[6:5], Q[0] }
     else
-        q2 = T[6:5]; C = Q[4:0]
+        q2 = Q[6:5]; C = Q[4:0]
 
     if C[2:0] = 101
         q1 = 4; q0 = C[4:3]
