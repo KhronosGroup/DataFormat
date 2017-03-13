@@ -1,0 +1,557 @@
+// Copyright (c) 2017 The Khronos Group Inc.
+// Copyright notice at https://www.khronos.org/registry/speccopyright.html
+
+[[MODEL_CONVERSION]]
+== Color models
+
+The human eye is more sensitive to high-frequency changes in
+intensity (absolute quantity of light) than to high-frequency
+changes in the dominant wavelength and saturation of a color.
+Additionally the eye does not exhibit equal sensitivity to all
+wavelengths.
+Many image representations take advantage of these facts to
+distribute the number of bits used to represent a texel in a
+more perceptually-uniform manner than is achieved by representing
+the color primaries independently - for example by encoding the
+chroma information at a reduced spatial resolution.
+
+[[MODEL_YUV]]
+=== Y'C~B~C~R~ color model
+
+Color models based on color differences are often referred to with
+incorrect or ambiguous terminology, the most common of which is
+``YUV''.
+
+In the broadcast standards which define these models:
+
+* A prime mark (latexmath:[$'$]) is used to refer to the ``gamma
+  pre-corrected'' version of a value. That is, an approximation to a
+  perceptually linear mapping between value and intensity. The absence
+  of a prime mark indicates that the value is linear in intensity.
+* latexmath:[$R'G'B'$] is used to refer to the red, green and blue reference
+  values in ``gamma pre-corrected'' form. That is, latexmath:[$R'$],
+  latexmath:[$G'$] and latexmath:[$B'$] have a non-linear transfer
+  function, whereas latexmath:[$R$], latexmath:[$G$] and latexmath:[$B$]
+  are linear with respect to light intensity. The transfer function used
+  resembles an exponentiation ``gamma correction'' operation, with a linear
+  segment near zero for mathematical stability. See <<TRANSFER_ITU>> for
+  details of the transfer function typically used in these cases.
+* IEEE standards <<bt601,BT.601>> and <<bt709,BT.709>> use a prefix of _E_
+  to refer to a continuous signal value in the range [0..1], mirroring the
+  terminology in analog standards such as <<bt1700,BT.1700>> and
+  <<smpte170m,SMPTE-170M>>.
+  For example, in these standards, the continuous encoding of latexmath:[$R'$]
+  is written latexmath:[$E_R'$].
+  <<bt2020,BT.2020>> and <<bt2100,BT.2100>> no longer use the _E_ convention,
+  and refer to continuous values as, for example, latexmath:[$R'$] directly.
+  For brevity, this specification does not use the _E_-prefix convention
+  for model conversions, and all values can be assumed to be continuous.
+  <<bt601,BT.601>> refers to the quantized digital version of
+  latexmath:[$E'_R$], latexmath:[$E'_G$] and latexmath:[$E'_B$] as
+  latexmath:[$E'_{R_D}$], latexmath:[$E'_{G_D}$] and latexmath:[$E'_{B_D}$].
+  In <<bt709,BT.709>> the quantized digital representation is instead
+  latexmath:[$D'_R$], latexmath:[$D'_G$] and latexmath:[$D'_B$], in
+  <<bt2020,BT.2020>> and <<bt2100,BT.2100>> written as latexmath:[$DR'$],
+  latexmath:[$DG'$] and latexmath:[$DB'$].
+* latexmath:[$Y'$] is a weighted sum of latexmath:[$R'$], latexmath:[$G'$]
+  and latexmath:[$B'$] values, and represents non-physically-linear
+  (but perceptually-linear) light intensity, as distinct from
+  physically-linear light intensity.
+  Note that the ITU broadcast standards use ``luminance'' for
+  latexmath:[$Y'$] despite some authorities reserving that term for a
+  linear intensity representation.
+  Since this is a weighted sum of non-linear values, latexmath:[$Y'$] is
+  not mathematically equivalent to applying the non-linear transfer function
+  to a weighted sum of linear latexmath:[$R$], latexmath:[$G$] and
+  latexmath:[$B$] values:
+  latexmath:[$R^{\gamma}+G^{\gamma}+B^{\gamma} \neq (R + G + B)^{\gamma}$].
+  The prime symbol is often omitted so that latexmath:[$Y'$] is confusingly
+  written latexmath:[$Y$].
+  <<bt601,BT.601>> and <<bt709,BT.709>> refers to the continuous non-linear
+  ``luminance'' signal as latexmath:[$E'_Y$]; in <<bt2020,BT.2020>> and
+  <<bt2100,BT.2100>> this value is just latexmath:[$Y'$].
+  The quantized digital representation is written as simply latexmath:[$Y'$]
+  in <<bt601,BT.601>>, as latexmath:[$D'_Y$] in <<bt709,BT.709>>, and as
+  latexmath:[$DY'$] in <<bt2020,BT.2020>> and <<bt2100,BT.2100>>.
+  In this standard, latexmath:[$Y'$] refers to a continuous value.
+
+<<<
+
+* For the purposes of this section, we will refer to the weighting factor
+  applied to latexmath:[$R'$] as latexmath:[$K_R$] and the weighting factor
+  applied to latexmath:[$B'$] as latexmath:[$K_B$]. The weighting factor of
+  latexmath:[$G'$] is therefore latexmath:[$1-K_R-K_B$]. Thus
+  latexmath:[$Y' = K_R \times R' + (1-K_R-K_B) \times G' + Kb \times B'$].
+
+Color differences are calculated from the non-linear latexmath:[$Y'$] and
+color components as:
+[latexmath]
+++++++
+\begin{align*}
+  B'-Y' &= (1-K_B) \times B' - (1-K_R-K_B) \times G' - K_R \times R' \\
+  R'-Y' &= (1-K_R) \times R' - (1-K_R-K_B) \times G' - K_B \times B'
+\end{align*}
+++++++
+Note that, for latexmath:[$R'$], latexmath:[$G'$], latexmath:[$B'$] in
+the range [latexmath:[$0..1$]]:
+
+[latexmath]
+++++++
+\begin{align*}
+  (1-K_B) \geq B'-Y' \geq -(1-K_B) \\
+  (1-K_R) \geq R'-Y' \geq -(1-K_R)
+\end{align*}
+++++++
+
+* latexmath:[$(B'-Y')$] scaled appropriately for incorporation into a PAL
+  sub-carrier signal is referred to in <<bt1700,BT.1700>> as latexmath:[$U$];
+  note that the scale factor (0.493) is not the same as that used for digital
+  encoding of this color difference.
+  latexmath:[$U$] is colloquially used for other representations of this
+  value.
+* latexmath:[$(R'-Y')$] scaled appropriately for incorporation into a PAL
+  sub-carrier signal is referred to in <<bt1700,BT.1700>> as latexmath:[$V$];
+  note that the scale factor (0.877) is not the same as that used for digital
+  encoding of this color difference.
+  latexmath:[$V$] is colloquially used for other representations of this
+  value.
+* latexmath:[$(B'-Y')$] scaled to the range [latexmath:[$-0.5..0.5$]] is
+  referred to in <<bt601,BT.601>> and <<bt709,BT.709>> as
+  latexmath:[$E'_{C_B}$], and in <<bt2020,BT.2020>> and <<bt2100,BT.2100>> as
+  simply latexmath:[$C'_B$].
+  In <<st240,ST-240>> this value is referred to as latexmath:[$E_{PB'}$],
+  and the analog signal is colloquially known as latexmath:[$P_B$].
+  This standard uses the latexmath:[$C'_B$] terminology for brevity
+  and consistency with latexmath:[$Y'_CC'_{BC}C'_{RC}$].
+* latexmath:[$(R'-Y')$] scaled to the range [latexmath:[$-0.5..0.5$]] is
+  referred to in <<bt601,BT.601>> and <<bt709,BT.709>> as
+  latexmath:[$E'_{C_R}$], and in <<bt2020,BT.2020>> and <<bt2100,BT.2100>> as
+  simply latexmath:[$C'_R$].
+  In <<st240,ST-240>> this value is referred to as latexmath:[$E_{PR'}$],
+  and the analog signal is colloquially known as latexmath:[$P_R$].
+  This standard uses the latexmath:[$C'_R$] terminology for brevity
+  and consistency with latexmath:[$Y'_CC'_{BC}C'_{RC}$].
+* latexmath:[$(B'-Y')$] scaled and quantized for digital representation is
+  known as simply latexmath:[$C'_B$] in <<bt601,BT.601>>,
+  latexmath:[$D'_{CB}$] in <<bt709,BT.709>> and latexmath:[$DC_B'$]
+  in <<bt2020,BT.2020>> and <<bt2100,BT.2100>>.
+* latexmath:[$(R'-Y')$] scaled and quantized for digital representation is
+  known as simply latexmath:[$C'_R$] in <<bt601,BT.601>>,
+  latexmath:[$D'_{CR}$] in <<bt709,BT.709>> and latexmath:[$DC_R'$]
+  in <<bt2020,BT.2020>> and <<bt2100,BT.2100>>.
+
+Using this terminology, the following conversion formulae can be derived:
+
+[latexmath]
+++++++
+\begin{align*}
+Y'   & = K_r \times R' + (1-K_R-K_B) \times G' + K_B \times B' \\
+C'_B & = {(B' - Y')\over{2(1-K_B)}} \\
+     & = {B'\over{2}} - {{K_R \times R' + (1 - K_R - K_B) \times G'}\over{2(1-K_B)}} \\
+C'_R & = {(R' - Y')\over{2(1-K_R)}} \\
+     & = {R'\over{2}} - {{K_B \times B' + (1 - K_R - K_B) \times G'}\over{2(1-K_R)}}
+\end{align*}
+++++++
+
+<<<
+
+For the inverse conversion:
+[latexmath]
+++++++
+\begin{align*}
+R' & = Y' + 2(1-K_R)\times C'_R \\
+B' & = Y' + 2(1-K_B)\times C'_B
+\end{align*}
+++++++
+The formula for latexmath:[$G'$] can be derived by substituting the formulae
+for latexmath:[$R'$] and latexmath:[$B'$] into the derivation of latexmath:[$Y'$]:
+
+[latexmath]
+++++++
+\begin{align*}
+Y'  = &\ K_R \times R' + (1-K_R-K_B) \times G' + K_B \times B' \\
+    = &\ K_R \times (Y'+2(1-K_R)\times C'_R) + \\
+      &\ (1-K_R-K_B) \times G' + \\
+      &\ K_B \times (Y'+2(1-K_B)\times C'_B) \\
+Y'\times(1-K_R-K_B) = &\ (1-K_R-K_B)\times G' + \\
+                      &\ K_R\times 2(1-K_R)\times C'_R + \\
+                      &\ K_B\times 2(1-K_B)\times C'_B \\
+G'  = &\ Y' - {2(K_R(1-K_R)\times C'_R + K_B(1-K_B)\times C'_B)\over{1-K_R-K_B}}
+\end{align*}
+++++++
+
+The values chosen for latexmath:[$K_R$] and latexmath:[$K_B$] vary
+between standards.
+
+[NOTE]
+====
+The required color model conversion between latexmath:[$Y'C_BC_R$]
+and latexmath:[$R'G'B'$] can typically be deduced from other color
+space parameters:
+
+[options="header",cols="18%,18%,14%,18%,14%,18%"]
+|====
+2+| Primaries 2+| OETF 2+| Color model conversion
+| Defined in | Described in | Defined in | Described in | Defined in | Described in
+| <<bt709,BT.709>>
+
+<<srgb,sRGB>> | <<PRIMARIES_BT709>> | <<bt709,BT.709>> | <<TRANSFER_ITU>>
+| <<bt709,BT.709>> | <<MODEL_BT709>>
+| <<bt709,BT.709>>
+
+<<srgb,sRGB>>
+
+<<scrgb,sYCC>> | <<PRIMARIES_BT709>> | <<srgb,sRGB>>
+
+<<scrgb,sYCC>> | <<TRANSFER_SRGB>>
+| <<bt601,BT.601>> | <<MODEL_BT601>>
+| <<bt601,BT.601>> (625-line) | <<PRIMARIES_BT601_EBU>> | <<bt601,BT.601>> | <<TRANSFER_ITU>>
+| <<bt601,BT.601>> | <<MODEL_BT601>>
+| <<bt601,BT.601>> (525-line)
+
+<<st240,ST-240>> | <<PRIMARIES_BT601_SMPTE>> | <<bt601,BT.601>> | <<TRANSFER_ITU>>
+| <<bt601,BT.601>> | <<MODEL_BT601>>
+| <<bt601,BT.601>> (525-line)
+
+<<st240,ST-240>> | <<PRIMARIES_BT601_SMPTE>> | <<st240,ST-240>> | <<TRANSFER_ST240>>
+| <<st240,ST-240>> | <<MODEL_ST240>>
+| <<bt2020,BT.2020>>
+
+<<bt2100,BT.2100>> | <<PRIMARIES_BT2020>> | <<bt2020,BT.2020>> | <<TRANSFER_ITU>>
+| <<bt2020,BT.2020>> | <<MODEL_BT2020>>
+|====
+====
+
+<<<
+[[MODEL_BT709]]
+==== BT.709 Y'C~B~C~R~ conversion
+
+<<bt709,ITU Rec.709>> defines latexmath:[$K_R = 0.2126$] and latexmath:[$K_B = 0.0722$].
+
+That is, for conversion between latexmath:[$(R', G', B')$] defined in
+<<PRIMARIES_BT709,BT.709 color primaries>> and using the
+<<KHR_DF_TRANSFER_ITU,ITU transfer function>>:
+
+[latexmath]
+++++++
+\begin{align*}
+Y'   & = 0.2126 \times R' + 0.7152 \times G' + 0.0722 \times B' \\
+C'_B & = {(B' - Y')\over{1.8556}} \\
+C'_R & = {(R' - Y')\over{1.5748}} \\
+\end{align*}
+++++++
+Alternatively:
+[latexmath]
+++++++
+  $$\left(\begin{array}{c}Y' \\
+  C'_B \\
+  C'_R\end{array}\right) =
+  \left(\begin{array}{ccc}0.2126, & 0.7152, & 0.0722 \\
+  -{0.2126\over{1.8556}}, & -{0.7152\over{1.8556}}, & 0.5 \\
+  0.5, & -{0.7152\over{1.5748}}, & -{0.0722\over{1.5748}}\end{array}\right)
+  \left(\begin{array}{c}R'\\
+  G'\\
+  B'\end{array}\right)$$
+++++++
+
+For the inverse conversion:
+[latexmath]
+++++++
+  $$\left(\begin{array}{c}R'\\
+  G'\\
+  B'\end{array}\right) =
+  \left(\begin{array}{ccc}1, & 0, & 1.5748\\
+  1, & -{0.13397432\over{0.7152}}, & -{0.33480248\over{0.7152}}\\
+  1, & 1.8556, & 0\end{array}\right)
+  \left(\begin{array}{c}Y'\\
+  C'_B\\
+  C'_R\end{array}\right)$$
+++++++
+
+[[MODEL_BT601]]
+==== BT.601 Y'C~B~C~R~ conversion
+
+<<bt601,ITU Rec.601>> defines latexmath:[$K_R = 0.299$] and latexmath:[$K_B = 0.114$].
+
+That is, for conversion between latexmath:[$(R', G', B')$] defined in
+<<PRIMARIES_BT601_EBU,BT.601 EBU color primaries>> or
+<<PRIMARIES_BT601_SMPTE,BT.601 SMPTE color primaries>>, and using the
+<<KHR_DF_TRANSFER_ITU,ITU transfer function>>:
+
+[latexmath]
+++++++
+\begin{align*}
+Y'   & = 0.299 \times R' + 0.587 \times G' + 0.114 \times B' \\
+C'_B & = {(B' - Y')\over{1.772}} \\
+C'_R & = {(R' - Y')\over{1.402}} \\
+\end{align*}
+++++++
+Alternatively:
+[latexmath]
+++++++
+  $$\left(\begin{array}{c}Y' \\
+  C'_B \\
+  C'_R\end{array}\right) =
+  \left(\begin{array}{ccc}0.299, & 0.587, & 0.114 \\
+  -{0.299\over{1.772}}, & -{0.587\over{1.772}}, & 0.5 \\
+  0.5, & -{0.587\over{1.402}}, & -{0.114\over{1.402}}\end{array}\right)
+  \left(\begin{array}{c}R'\\
+  G'\\
+  B'\end{array}\right)$$
+++++++
+
+For the inverse conversion:
+[latexmath]
+++++++
+  $$\left(\begin{array}{c}R'\\
+  G'\\
+  B'\end{array}\right) =
+  \left(\begin{array}{ccc}1, & 0, & 1.402\\
+  1, & -{0.202008\over{0.587}}, & -{0.419198\over{0.587}}\\
+  1, & 1.772, & 0\end{array}\right)
+  \left(\begin{array}{c}Y'\\
+  C'_B\\
+  C'_R\end{array}\right)$$
+++++++
+
+<<<
+[[MODEL_BT2020]]
+==== BT.2020 Y'C~B~C~R~ conversion
+
+<<bt2020,ITU Rec.2020>> and <<bt2100,ITU Rec.2100>> define
+latexmath:[$K_R = 0.2627$] and latexmath:[$K_B = 0.0593$].
+
+That is, for conversion between latexmath:[$(R', G', B')$] defined in
+<<PRIMARIES_BT2020,BT.2020 color primaries>> and using the
+<<KHR_DF_TRANSFER_ITU,ITU transfer function>>:
+
+[latexmath]
+++++++
+\begin{align*}
+Y'   & = 0.2627 \times R' + 0.6780 \times G' + 0.0593 \times B' \\
+C'_B & = {(B' - Y')\over{1.8814}} \\
+C'_R & = {(R' - Y')\over{1.4746}} \\
+\end{align*}
+++++++
+Alternatively:
+[latexmath]
+++++++
+  $$\left(\begin{array}{c}Y' \\
+  C'_B \\
+  C'_R\end{array}\right) =
+  \left(\begin{array}{ccc}0.2627, & 0.6780, & 0.0593 \\
+  -{0.2627\over{1.8814}}, & -{0.6780\over{1.8814}}, & 0.5 \\
+  0.5, & -{0.6780\over{1.4746}}, & -{0.0593\over{1.4746}}\end{array}\right)
+  \left(\begin{array}{c}R'\\
+  G'\\
+  B'\end{array}\right)$$
+++++++
+
+For the inverse conversion:
+[latexmath]
+++++++
+  $$\left(\begin{array}{c}R'\\
+  G'\\
+  B'\end{array}\right) =
+  \left(\begin{array}{ccc}1, & 0, & 1.4746\\
+  1, & -{0.11156702\over{0.6780}}, & -{0.38737742\over{0.6780}}\\
+  1, & 1.8814, & 0\end{array}\right)
+  \left(\begin{array}{c}Y'\\
+  C'_B\\
+  C'_R\end{array}\right)$$
+++++++
+
+[[MODEL_ST240]]
+==== ST-240/SMPTE 240M Y'C~B~C~R~ conversion
+
+<<st240,ST240>>, formerly SMPTE 240M, defines
+latexmath:[$K_R = 0.212$] and latexmath:[$K_B = 0.087$].
+
+That is, for conversion using the
+<<KHR_DF_TRANSFER_ST240,ST240 transfer function>>:
+
+[latexmath]
+++++++
+\begin{align*}
+Y'   & = 0.212 \times R' + 0.701 \times G' + 0.087 \times B' \\
+C'_B & = {(B' - Y')\over{1.826}} \\
+C'_R & = {(R' - Y')\over{1.576}} \\
+\end{align*}
+++++++
+Alternatively:
+[latexmath]
+++++++
+  $$\left(\begin{array}{c}Y' \\
+  C'_B \\
+  C'_R\end{array}\right) =
+  \left(\begin{array}{ccc}0.212, & 0.701, & 0.087 \\
+  -{0.212\over{1.826}}, & -{0.701\over{1.826}}, & 0.5 \\
+  0.5, & -{0.701\over{1.576}}, & -{0.087\over{1.576}}\end{array}\right)
+  \left(\begin{array}{c}R'\\
+  G'\\
+  B'\end{array}\right)$$
+++++++
+
+For the inverse conversion:
+[latexmath]
+++++++
+  $$\left(\begin{array}{c}R'\\
+  G'\\
+  B'\end{array}\right) =
+  \left(\begin{array}{ccc}1, & 0, & 1.576\\
+  1, & -{0.58862\over{0.701}}, & -{0.334112\over{0.701}}\\
+  1, & 1.826, & 0\end{array}\right)
+  \left(\begin{array}{c}Y'\\
+  C'_B\\
+  C'_R\end{array}\right)$$
+++++++
+
+<<<
+[[MODEL_YCCBCCRC]]
+=== Y'~C~C'~BC~C'~CR~ constant luminance color model
+
+<<bt2020,ITU-T Rec. BT.2020>> introduced a ``constant luminance''
+color representation as an alternative representation to
+latexmath:[$Y'C_BC_R$]:
+
+[latexmath]
+++++++
+\begin{align*}
+Y'_C    & = (0.2627R + 0.6780G + 0.0593B)' \\
+C'_{BC} & = \begin{cases}
+        {{B'-Y'_C}\over{1.9404}}, & -0.9702 \leq B'-Y'_C \leq 0 \\
+        {{B'-Y'_C}\over{1.5816}}, & 0 < B'-Y'_C \leq 0.7908\end{cases} \\
+C'_{RC} & = \begin{cases}
+        {{R'-Y'_C}\over{1.7184}}, & -0.8592 \leq R'-Y'_C \leq 0 \\
+        {{R'-Y'_C}\over{0.9936}}, & 0 < R'-Y'_C \leq 0.4968\end{cases}
+\end{align*}
+++++++
+
+This terminology follow's BT.2020's convention of describing the
+continuous values as latexmath:[$Y'_C$], latexmath:[$C'_{BC}$] and
+latexmath:[$C'_{RC}$], BT.2020 uses latexmath:[$DY'_C$],
+latexmath:[$DC'_{BC}$] and latexmath:[$DC'_{RC}$] to represent the
+quantized integer representations of the same values.
+
+NOTE: latexmath:[$Y'_C$] is derived from applying a non-linear transfer
+function to a combination of linear latexmath:[$RGB$] components and
+applying a non-linear transfer function to the result, but the
+latexmath:[$C'_{BC}$] and latexmath:[$C'_{RC}$] color differences
+still encode differences between non-linear values.
+
+The inverse transformation can be derived from the above:
+
+[latexmath]
+++++++
+\begin{align*}
+B'      & = \begin{cases}
+        Y'_C + 1.9404C'_{BC}, & C'_{BC} \leq 0 \\
+        Y'_C + 1.5816C'_{BC}, & C'_{BC} > 0\end{cases}\\
+R'      & = \begin{cases}
+        Y'_C + 1.7184C'_{RC}, & C'_{RC} \leq 0 \\
+        Y'_C + 0.9936C'_{RC}, & C'_{RC} > 0\end{cases}\\
+G       & = Y_C - 0.2627R - 0.0593B
+\end{align*}
+++++++
+
+NOTE: Performing these calculations requires conversion between
+a linear representation and a non-linear transfer function during
+the transformation. This is distinct from the non-constant-luminance
+case, which is a simple matrix transform.
+
+[[MODEL_ICTCP]]
+=== IC~T~C~P~ constant intensity color model
+
+<<bt2100,ITU-T Rec. BT.2100>> introduced a ``constant intensity''
+color representation as an alternative representation to
+latexmath:[$Y'C_BC_R$]:
+
+[latexmath]
+++++++
+\begin{align*}
+L   & = {(1688R + 2146G + 262B)\over{4096}}\\
+M   & = {(683R + 2951G + 462B)\over{4096}}\\
+S   & = {(99R + 309G + 3688B)\over{4096}}\\
+L'  & = \begin{cases}
+    \textrm{EOTF}^{-1}(L_D), & \textrm{PQ transfer function}\\
+    \textrm{OETF}(L_S), & \textrm{HLG transfer function}\end{cases}\\
+M'  & = \begin{cases}
+    \textrm{EOTF}^{-1}(M_D), & \textrm{PQ transfer function}\\
+    \textrm{OETF}(M_S), & \textrm{HLG transfer function}\end{cases}\\
+S'  & = \begin{cases}
+    \textrm{EOTF}^{-1}(S_D), & \textrm{PQ transfer function}\\
+    \textrm{OETF}(S_S), & \textrm{HLG transfer function}\end{cases}\\
+I   & = 0.5L' + 0.5M'\\
+C_T & = {(6610L' - 13613M' + 7003S')\over{4096}}\\
+C_P & = {(17933L' - 17390M' - 543S')\over{4096}}
+\end{align*}
+++++++
+
+Note that the suffix ~D~ indicates that PQ encoding is
+_display-referred_ and the suffix ~S~ indicates that HLG
+encoding is _scene-referred_ - that is, they refer to
+display and scene light respectively.
+
+To invert this, it can be observed that:
+
+[latexmath]
+++++++
+  $$\left(\begin{array}{c}L' \\
+  M' \\
+  S' \end{array}\right) =
+  4096\times
+  \left(\begin{array}{rrr}2048, & 2048, & 0 \\
+  6610, & -13613, & 7003 \\
+  17933, & -17390, & -543\end{array}\right)^{-1}
+  \left(\begin{array}{c}I\\
+  C_T\\
+  C_P\end{array}\right)$$
+  $$\left(\begin{array}{c}L' \\
+  M' \\
+  S' \end{array}\right) =
+  \left(\begin{array}{rrr}1, & 1112064/129174029, & 14342144/129174029 \\
+  1, & -1112064/129174029, & -14342144/129174029 \\
+  1, & 72341504/129174029, & -41416704/129174029\end{array}\right)
+  \left(\begin{array}{c}I\\
+  C_T\\
+  C_P\end{array}\right)$$
+  $$\left(\begin{array}{c}L' \\
+  M' \\
+  S' \end{array}\right) \approx
+  \left(\begin{array}{rrr}1, & 0.0086090370, & 0.1110296250 \\
+  1, & -0.0086090370, & -0.1110296250 \\
+  1, & 0.5600313357, & -0.3206271750\end{array}\right)
+  \left(\begin{array}{c}I\\
+  C_T\\
+  C_P\end{array}\right)$$
+  $$\{L_D,M_D,S_D\} = \textrm{EOTF}_{\textrm{PQ}}(\{L',M',S'\})$$
+  $$\{L_S,M_S,S_S\} = \textrm{OETF}_{\textrm{HLG}}^{-1}(\{L',M',S'\})$$
+  $$\left(\begin{array}{c}R \\
+  G \\
+  B\end{array}\right) =
+  4096\times
+  \left(\begin{array}{rrr}1688, & 2146, & 262 \\
+  683, & 2951, & 462 \\
+  99, & 309, & 3688\end{array}\right)^{-1}
+  \left(\begin{array}{c}L\\
+  M\\
+  S\end{array}\right)$$
+  $$\left(\begin{array}{c}R \\
+  G \\
+  B \end{array}\right) = {4096\over 12801351680}\times
+  \left(\begin{array}{rrr}10740530, & -7833490, & 218290 \\
+  -2473166, & 6199406, & -600910 \\
+  -81102, & -309138, & 3515570\end{array}\right)
+  \left(\begin{array}{c}L\\
+  M\\
+  S\end{array}\right)$$
+  $$\left(\begin{array}{c}R \\
+  G \\
+  B \end{array}\right) \approx
+  \left(\begin{array}{rrr}3.4366066943, & -2.5064521187, & 0.0698454243 \\
+  -0.7913295556, & 1.9836004518, & -0.1922708962 \\
+  -0.0259498997, & -0.0989137147, & 1.1248636144\end{array}\right)
+  \left(\begin{array}{c}L\\
+  M\\
+  S\end{array}\right)$$
+++++++

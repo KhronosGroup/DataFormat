@@ -543,7 +543,7 @@ Decompression of floating point sRGB values in RGB ETC2 with sRGB encoding
 follows that of floating point RGB values of linear RGB ETC2. The
 result is sRGB-encoded values between latexmath:[$0.0$] and latexmath:[$1.0$]. The further conversion from
 an sRGB encoded component, latexmath:[$cs$], to a linear component, latexmath:[$cl$],
-is done according to the formulae in <<srgbgamma>>.
+is done according to the formulae in <<TRANSFER_SRGB>>.
 Assume latexmath:[$cs$] is the sRGB
 component in the range [latexmath:[$0$],latexmath:[$1$]].
 
@@ -675,7 +675,7 @@ Decompression of floating point sRGB values in RGBA ETC2 with sRGB encoding
 follows that of floating point RGB values of linear RGBA ETC2. The
 result is sRGB values between latexmath:[$0.0$] and latexmath:[$1.0$]. The
 further conversion from an sRGB encoded component, latexmath:[$cs$], to a linear
-component, latexmath:[$cl$], is according to the formula in <<srgbgamma>>. Assume
+component, latexmath:[$cl$], is according to the formula in <<TRANSFER_SRGB>>. Assume
 latexmath:[$cs$] is the sRGB component in the range [0,1].
 
 The alpha component of RGBA ETC2 with sRGB encoding is done in the
@@ -1559,6 +1559,6 @@ RGB ETC2 with sRGB encoding and punchthrough alpha follows that of floating poin
 RGB values of RGB ETC2 with punchthrough alpha. The result is
 sRGB values between latexmath:[$0.0$] and latexmath:[$1.0$]. The further conversion from an sRGB
 encoded component, latexmath:[$cs$], to a linear component, latexmath:[$cl$], is according to
-the formula in <<srgbgamma>>. Assume latexmath:[$cs$] is the sRGB component in the range
+the formula in <<TRANSFER_SRGB>>. Assume latexmath:[$cs$] is the sRGB component in the range
 [latexmath:[$0$],latexmath:[$1$]]. Note that the alpha component is not gamma corrected,
 and hence does not use the above formula.

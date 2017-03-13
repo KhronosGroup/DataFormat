@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2016 The Khronos Group Inc.
+// Copyright (c) 2014-2017 The Khronos Group Inc.
 // Copyright notice at https://www.khronos.org/registry/speccopyright.html
 include::{a2x-format}title.txt[]
 
@@ -13,7 +13,8 @@ excluding useful information that may be ignored by other standards.
 Other APIs are expected to map internal formats to this standard scheme,
 allowing formats to be shared and compared. This document also acts as
 a reference for the memory layout of a number of common compressed
-texture formats.
+texture formats, and describes conversion between a number of common
+color spaces.
 
 == Introduction ==
 
@@ -48,7 +49,7 @@ and the red quantity in the blue channel. Without enforcing a single
 data interpretation on such APIs, it is nonetheless often useful to offer
 a clear definition of the color interpretation convention that is in force,
 both for code maintenance and for communication with external APIs which do
-have a defined intepretation. Should the user wish to use an unconventional
+have a defined interpretation. Should the user wish to use an unconventional
 interpretation of the data, an appropriate descriptor can be defined that
 is specific to this choice, in order to simplify automated interpretation
 of the chosen representation and to provide concise documentation.
@@ -73,7 +74,8 @@ used in Khronos standards is diverse, and a significant portion of this
 specification is devoted to color formats.
 
 Later sections provide a description of the memory layout of a number of
-common texture compression formats.
+common texture compression formats, and describe some of the common
+color space conversions.
 
 == Overview ==
 
@@ -150,8 +152,8 @@ or a bicubic filter is used, and the manner of reconstructing full color data
 from a camera sensor is not defined. Where information making up the data format
 has a spatial aspect, this is part of the descriptor: it is part of the
 descriptor to define the spatial configuration of color samples in a Bayer sensor
-or whether the chroma difference channels in a YUV format are considered to be
-centred or co-sited, but not how this information must be used to generate
+or whether the chroma difference channels in a Y'C~B~C~R~ format are considered to be
+centered or co-sited, but not how this information must be used to generate
 coordinate-aligned full color values.
 
 The data structure defined in this specification is termed a
@@ -192,7 +194,8 @@ particularly for pixels. Formats which cannot be described within this scheme
 can use additional descriptor blocks of other types as necessary.
 
 Later sections of this specification provide a description of the in-memory
-representation of a number of common compressed texture formats.
+representation of a number of common compressed texture formats, and
+describe several common color spaces.
 
 === Glossary ===
 
@@ -245,8 +248,8 @@ a single spatial location. A typical ARGB pixel has four samples,
 one for each channel, held at the same coordinate. A texel block
 from a Bayer sensor might have a different location for different
 channels, and may have multiple samples representing the same channel
-at multiple locations. A YUV buffer with downsampled chroma may have
-more luma sample than chroma, each at different locations.
+at multiple locations. A Y'C~B~C~R~ buffer with downsampled chroma may
+have more luma sample than chroma, each at different locations.
 
 *Plane*
 In some formats, a texel block is not contiguous in
@@ -264,24 +267,18 @@ formats which have proprietary padding requirements that are hard
 to accommodate in a more terse representation.
 
 In many existing APIs, planes may be ``downsampled'' differently.
-For example, in these APIs, a YUV4:2:0 buffer as in <<yuv420>> would typically be
-represented with three planes (<<yuv420conventional>>), one for each channel, with the luma
-plane four times larger than the chroma planes, and with two lines of
-the luma held within the same plane. This approach does not extend
-logically to more complex formats such as a Bayer grid. Therefore in this
-specification, we would instead define the luma channel as in <<yuv420thisapi>>,
-using two planes, vertically interleaved, with each line contiguous (the chroma
-channels remain one each). There is no expectation that the internal format
-used by an API that wishes to make use of the Khronos Data Format Specification
-must use this specification's representation internally: reconstructing
-downsampling information from this standard's representation in order to
-revert to the more conventional representation should be trivial if required.
+For example, in these APIs, a Y'C~B~C~R~ (colloquially ``YUV'') 4:2:0
+buffer as in <<yuv420>> would typically be represented with three
+planes (<<yuv420conventional>>), one for each channel, with the luma
+(Y') plane containing four times as many pixels as the chroma (C~B~
+and C~R~) planes, and with two horizontal lines of the luma held
+within the same plane for each horizontal line of the chroma planes.
 
 [[yuv420]]
-.Possible memory representation of a 4×4 YUV4:2:0 buffer (numbers are byte offsets)
+.Possible memory representation of a 4×4 Y'C~B~C~R~4:2:0 buffer (numbers are byte offsets)
 [cols="1a",width="25%"]
 |==============================
-^|Y channel
+^|Y' channel
 ^|[cols="4"]
 !=====================
 >!0 >!1 >!2 >!3
@@ -289,13 +286,13 @@ revert to the more conventional representation should be trivial if required.
 >!8 >!9 >!10 >!11
 >!12 >!13 >!14 >!15
 !=====================
-^|U channel
+^|C~B~ channel
 ^|[cols="2"]
 !=====================
 ^!16 ^!17
 ^!18 ^!19
 !=====================
-^|V channel
+^|C~R~ channel
 ^|[cols="2"]
 !=====================
 ^!20 ^!21
@@ -304,23 +301,51 @@ revert to the more conventional representation should be trivial if required.
 |==============================
 
 [[yuv420conventional]]
-.Plane descriptors for the above YUV format buffer in a conventional API
+.Plane descriptors for the above Y'C~B~C~R~ format buffer in a conventional API
 [cols="2,2,3,3",width="70%"]
 |==============================
-| Y plane | offset 0 | byte stride 4 | downsample 1×1
-| U plane | offset 16 | byte stride 2 | downsample 2×2
-| V plane | offset 20 | byte stride 2 | downsample 2×2
+| Y' plane | offset 0 | byte stride 4 | downsample 1×1
+| C~B~ plane | offset 16 | byte stride 2 | downsample 2×2
+| C~R~ plane | offset 20 | byte stride 2 | downsample 2×2
 |==============================
 
+This approach does not extend logically to more complex formats such
+as a Bayer grid.
+Therefore in this specification, we would instead define the luma
+channel as in <<yuv420thisapi>>, using two planes, vertically interleaved
+(in a linear mapping between addresses and samples) by the selection of
+a suitable offset and line stride, with each line of luma samples
+contiguous in memory.
+Only one plane is used for each of the chroma channels (or one plane
+collectively if the chroma samples are stored adjacently).
+
 [[yuv420thisapi]]
-.Plane descriptors for the above YUV format buffer using this standard
+.Plane descriptors for the above Y'C~B~C~R~ format buffer using this standard
 [cols="4",width="60%"]
 |==============================
-| Y plane 1 | offset 0 | byte stride 8 | plane bytes 2
-| Y plane 2 | offset 4 | byte stride 8 | plane bytes 2
-| U plane | offset 16 | byte stride 2 | plane bytes 1
-| V plane | offset 20 | byte stride 2 | plane bytes 1
+| Y' plane 1 | offset 0 | byte stride 8 | plane bytes 2
+| Y' plane 2 | offset 4 | byte stride 8 | plane bytes 2
+| C~B~ plane | offset 16 | byte stride 2 | plane bytes 1
+| C~R~ plane | offset 20 | byte stride 2 | plane bytes 1
 |==============================
+
+The same approach can be used to represent a static interlaced image,
+with a texel block consisting of two planes, one per field.
+This mechanism is all that is required to represent a static image
+without downsampled channels; however correct reconstruction of
+interlaced, downsampled color difference formats (such as Y'C~B~C~R~),
+which typically involves interpolation of the nearest chroma samples
+in a given _field_ rather than the whole _frame_, is beyond the remit
+of this specification.
+There are many proprietary and often heuristic approaches to sample
+reconstruction, particularly for Bayer-like formats and for multi-frame
+images, and it is not practical to document them here.
+
+There is no expectation that the internal format used by an API that
+wishes to make use of the Khronos Data Format Specification must use
+this specification's representation internally: reconstructing
+downsampling information from this standard's representation in order to
+revert to the more conventional representation should be trivial if required.
 
 There is no requirement that the number of bytes occupied by the
 texel block be the same in each plane. The descriptor defines the
@@ -370,7 +395,7 @@ data structures are beyond the remit of this specification.
 
 Most simple formats contain a single _plane_ of data. Those formats
 which require additional planes compared with a conventional
-representation are typically downsampled YUV formats, which already
+representation are typically downsampled Y'C~B~C~R~ formats, which already
 have the concept of separate storage for different color channels.
 While this specification uses multiple planes to describe texel
 blocks that span multiple scan lines if the data is disjoint, there is
@@ -401,7 +426,7 @@ texel block. In some proprietary memory tiling formats, such as ones
 that store small rectangular blocks in raster order in consecutive bytes
 or in Morton order, this relationship may be preserved, and the only proprietary
 operation is finding the start of the texel block. In other proprietary
-layouts such as Hilbert curver order, or when the texel block size does
+layouts such as Hilbert curve order, or when the texel block size does
 not divide the tiling size, a direct representation of memory may be
 impossible. In these cases, it is likely that this data format standard
 would be used to describe the data as it would be seen in a linear format,
@@ -481,7 +506,7 @@ Each Descriptor Block has the same prefix, shown in <<DescriptorPrefix>>.
 2+| Format-specific data
 |================================
 
-The *vendor_id* is a 16-bit value uniquely assigned to organisations,
+The *vendor_id* is a 16-bit value uniquely assigned to organizations,
 allocated by Khronos; ID 0 is used to identify Khronos itself. The
 ID 0xFFFF is reserved for internal use which is guaranteed not to
 clash with third-party implementations; this ID should not be shipped
@@ -554,9 +579,9 @@ of contiguous data. This _descriptor block_ consists of information about the
 interpretation of the texel block as a whole, supplemented by a description of
 a number of samples taken from one or more _planes_ of contiguous memory. For
 example, a 24-bit red/green/blue format may be described as a 1×1 pixel region,
-containing three samples, one of each color, in one plane. A YUV 4:2:0
-format may consist of a repeating 2×2 region consisting of four Y samples
-and one sample each of U and V.
+containing three samples, one of each color, in one plane. A Y'C~B~C~R~ 4:2:0
+format may consist of a repeating 2×2 region consisting of four Y' samples
+and one sample each of C~B~ and C~R~.
 
 [[BasicDescriptorBlock]]
 .Basic Data Format Descriptor layout
@@ -576,6 +601,7 @@ and one sample each of U and V.
 The fields of the Basic Data Format Descriptor Block are described in
 the following sections.
 
+<<<
 === vendor_id ===
 
 The *vendor_id* for the Basic Data Format Descriptor Block is 0,
@@ -590,7 +616,7 @@ Khronos-specific descriptor types) as *KHR_DF_KHR_DESCRIPTORTYPE_BASICFORMAT*.
 === version_number ===
 
 The *version_number* relating to the Basic Data Format Descriptor Block
-as described in this specification is 0.
+as described in this specification is 1.
 
 === descriptor_block_size ===
 
@@ -599,6 +625,7 @@ of samples contained within it. The memory requirements for this format
 are 24 bytes of shared data plus 16 bytes per sample. The *descriptor_block_size*
 is measured in bytes.
 
+<<<
 === color_model ===
 
 The *color_model* determines the set of color (or other data) channels which
@@ -607,7 +634,7 @@ of the possible channels from the *color_model* be present. Most data fits
 into a small number of common color models, but compressed texture formats
 each have their own color model enumeration. Note that the data need not
 actually represent a color -- this is just the most common type of content
-using this descriptor.
+using this descriptor. Some standards use *color container* for this concept.
 
 The available color models are described in the *khr_df_model_e* enumeration,
 and are represented as an unsigned 8-bit value.
@@ -623,7 +650,10 @@ these channels will not use this channel ID. Particularly, RGB formats
 do not have luma in channel 0, and a 16-channel undefined format is not
 obligated to represent alpha in any way in channel number 15.
 
-==== KHR_DF_MODEL_UNSPECIFIED ====
+The value of each enumerant is shown in parentheses following the enumerant
+name.
+
+==== KHR_DF_MODEL_UNSPECIFIED (= 0) ====
 
 When the data format is unknown or does not fall into a predefined
 category, utilities which perform automatic conversion based on an
@@ -647,7 +677,7 @@ these formats could be represented by a four-channel ``UNSPECIFIED''
 model, with an extension block describing the interpretation of
 each channel.
 
-==== KHR_DF_MODEL_RGBSDA ====
+==== KHR_DF_MODEL_RGBSDA (= 1) ====
 
 This color model represents additive colors of three channels,
 nominally red, green and blue, supplemented by channels for
@@ -675,48 +705,62 @@ primaries requires an extension to describe the full color space
 of the channels present. There is no practical way to do this
 portably without taking significantly more space.
 
-==== KHR_DF_MODEL_YUVSDA ====
+==== KHR_DF_MODEL_YUVSDA (= 2) ====
 
 This color model represents color differences with three channels,
-nominally luma (Y) and two color-difference chroma channels, U (Cb) and V (Cr),
-supplemented by channels for alpha, depth and stencil, as shown in
-<<YUVSDAChannels>>. These formats are
-distinguished by U and V being a delta between the Y channel and the
-blue and red channels respectively, rather than requiring a full color
-matrix. The conversion between YUV and RGB color spaces is defined in this
-case by the choice of value in the *color_primaries* field.
+nominally luma (Y') and two color-difference chroma channels, U (C~B~) and
+V (C~R~), supplemented by channels for alpha, depth and stencil, as shown in
+<<YUVSDAChannels>>.
+These formats are distinguished by C~B~ and C~R~ being a delta between
+the Y' channel and the blue and red channels respectively, rather than
+requiring a full color matrix.
+The conversion between Y'C~B~C~R~ and RGB color spaces is defined in this
+case by the choice of value in the *color_primaries* field as described in
+<<MODEL_YUV>>.
 
-Note: Most single-channel luma data formats should select *KHR_DF_MODEL_YUVSDA*
-and use only the Y channel, unless there is a reason to do otherwise.
+NOTE: Most single-channel luma/luminance monochrome data formats should
+select *KHR_DF_MODEL_YUVSDA* and use only the Y channel, unless there is
+a reason to do otherwise.
 
 [[YUVSDAChannels]]
 .Basic Data Format YUVSDA channels
 [width="100%",options="header"]
 |================================
 | Channel number 2+| Name | Description
-| 0 2+| KHR_DF_CHANNEL_YUVSDA_Y | Y (luma/luminance)
-| 1 2+| KHR_DF_CHANNEL_YUVSDA_CB | U (Cb)
-| 2 2+| KHR_DF_CHANNEL_YUVSDA_CR | V (Cr)
+| 0 2+| KHR_DF_CHANNEL_YUVSDA_Y | Y/Y' (luma/luminance)
+| 1 2+| KHR_DF_CHANNEL_YUVSDA_CB | C~B~ (alias for U)
+| 1 2+| KHR_DF_CHANNEL_YUVSDA_U | U (alias for C~B~)
+| 2 2+| KHR_DF_CHANNEL_YUVSDA_CR | C~R~ (alias for V)
+| 2 2+| KHR_DF_CHANNEL_YUVSDA_V | V (alias for C~R~)
 | 13 2+| KHR_DF_CHANNEL_YUVSDA_STENCIL | Stencil
 | 14 2+| KHR_DF_CHANNEL_YUVSDA_DEPTH | Depth
 | 15 2+| KHR_DF_CHANNEL_YUVSDA_ALPHA | Alpha (transparency)
 |================================
 
-==== KHR_DF_MODEL_YIQSDA ====
+NOTE: Terminology for this color model is often abused. This model is based
+on the idea of creating a representation of monochrome light intensity as a
+weighted average of color channels, then calculating color differences by
+subtracting two of the color channels from this monochrome value. Proper names
+vary for each variant of the ensuing numbers, but ``YUV'' is colloquially used
+for all of them. In the television standards from which this terminology is
+derived, Y'C~B~C~R~ is more formally used to describe the representation of
+these color differences. See <<MODEL_YUV>> for more detail.
+
+==== KHR_DF_MODEL_YIQSDA (= 3) ====
 
 This color model represents color differences with three channels,
 nominally luma (Y) and two color-difference chroma channels, I and Q,
 supplemented by channels for alpha, depth and stencil, as shown in
-<<YIQSDAChannels>>. This format is
-distinguished by I and Q each requiring all three additive channels to
-evaluate.
+<<YIQSDAChannels>>. This format is distinguished by I and Q each
+requiring all three additive channels to evaluate.
+I and Q are derived from C~B~ and C~R~ by a 33-degree rotation.
 
 [[YIQSDAChannels]]
 .Basic Data Format YIQSDA channels
 [width="100%",options="header"]
 |================================
 | Channel number 2+| Name | Description
-| 0 2+| KHR_DF_CHANNEL_YIQSDA_Y | Y (luma)
+| 0 2+| KHR_DF_CHANNEL_YIQSDA_Y | Y' (luma)
 | 1 2+| KHR_DF_CHANNEL_YIQSDA_I | I (in-phase)
 | 2 2+| KHR_DF_CHANNEL_YIQSDA_Q | Q (quadrature)
 | 13 2+| KHR_DF_CHANNEL_YIQSDA_STENCIL | Stencil
@@ -724,7 +768,8 @@ evaluate.
 | 15 2+| KHR_DF_CHANNEL_YIQSDA_ALPHA | Alpha (transparency)
 |================================
 
-==== KHR_DF_MODEL_LABSDA ====
+<<<
+==== KHR_DF_MODEL_LABSDA (= 4) ====
 
 This color model represents the ICC perceptually-uniform L*a*b*
 color space, combined with the option of an alpha channel, as
@@ -743,7 +788,7 @@ shown in <<LABSDAChannels>>.
 | 15 2+| KHR_DF_CHANNEL_LABSDA_ALPHA | Alpha (transparency)
 |================================
 
-==== KHR_DF_MODEL_CMYKA ====
+==== KHR_DF_MODEL_CMYKA (= 5) ====
 
 This color model represents secondary (subtractive) colors and
 the combined key (black) channel, along with alpha, as shown in
@@ -761,14 +806,14 @@ the combined key (black) channel, along with alpha, as shown in
 | 15 2+| KHR_DF_CHANNEL_CMYKA_ALPHA | Alpha (transparency)
 |================================
 
-==== KHR_DF_MODEL_XYZW ====
+==== KHR_DF_MODEL_XYZW (= 6) ====
 
 This ``color model'' represents channel data used for
 coordinate values, as shown in <<XYZWChannels>> --
-for example, as a representation of
-the surface normal in a bump map. Additional channels
-for higher-dimensional coordinates can be used by
-extending the channel number within the 4-bit limit
+for example, as a representation of the surface normal in
+a bump map.
+Additional channels for higher-dimensional coordinates can
+be used by extending the channel number within the 4-bit limit
 of the *channel_type* field.
 
 [[XYZWChannels]]
@@ -782,7 +827,8 @@ of the *channel_type* field.
 | 3 2+| KHR_DF_CHANNEL_XYZW_W | W
 |================================
 
-==== KHR_DF_MODEL_HSVA_ANG ====
+<<<
+==== KHR_DF_MODEL_HSVA_ANG (= 7) ====
 
 This color model represents color differences with three channels,
 _value_ (luminance or luma), _saturation_ (distance from monochrome)
@@ -802,7 +848,7 @@ wheel.
 | 15 2+| KHR_DF_CHANNEL_HSVA_ANG_ALPHA | Alpha (transparency)
 |================================
 
-==== KHR_DF_MODEL_HSLA_ANG ====
+==== KHR_DF_MODEL_HSLA_ANG (= 8) ====
 
 This color model represents color differences with three channels,
 _lightness_ (maximum intensity), _saturation_ (distance from monochrome)
@@ -822,7 +868,8 @@ wheel.
 | 15 2+| KHR_DF_CHANNEL_HSLA_ANG_ALPHA | Alpha (transparency)
 |================================
 
-==== KHR_DF_MODEL_HSVA_HEX ====
+<<<
+==== KHR_DF_MODEL_HSVA_HEX (= 9) ====
 
 This color model represents color differences with three channels,
 _value_ (luminance or luma), _saturation_ (distance from monochrome)
@@ -842,7 +889,7 @@ extremes on a color hexagon.
 | 15 2+| KHR_DF_CHANNEL_HSVA_HEX_ALPHA | Alpha (transparency)
 |================================
 
-==== KHR_DF_MODEL_HSLA_HEX ====
+==== KHR_DF_MODEL_HSLA_HEX (= 10) ====
 
 This color model represents color differences with three channels,
 _lightness_ (maximum intensity), _saturation_ (distance from monochrome)
@@ -862,7 +909,7 @@ extremes on a color hexagon.
 | 15 2+| KHR_DF_CHANNEL_HSLA_HEX_ALPHA | Alpha (transparency)
 |================================
 
-==== KHR_DF_MODEL_YCGCOA ====
+==== KHR_DF_MODEL_YCGCOA (= 11) ====
 
 This color model represents low-cost approximate color differences with
 three channels, nominally luma (Y) and two color-difference chroma channels,
@@ -880,6 +927,79 @@ supplemented by a channel for alpha, as shown in <<YCoCgAChannels>>.
 | 15 2+| KHR_DF_CHANNEL_YCGCOA_ALPHA | Alpha (transparency)
 |================================
 
+<<<
+==== KHR_DF_MODEL_YCCBCCRC (= 12) ====
+
+This color model represents the ``Constant luminance''
+latexmath:[$Y'_CC'_{BC}C'_{RC}$] color model defined as an optional
+representation in ITU-T BT.2020 and described in <<MODEL_YCCBCCRC>>.
+
+[[YCBCCRCChannels]]
+.Basic Data Format Y~C~C~BC~C~RC~ channels
+[width="100%",options="header"]
+|================================
+| Channel number 2+| Name | Description
+| 0 2+| KHR_DF_CHANNEL_YCCBCCRC_YC | Y~C~ (luminance)
+| 1 2+| KHR_DF_CHANNEL_YCCBCCRC_CBC | C~BC~
+| 2 2+| KHR_DF_CHANNEL_YCCBCCRC_CRC | C~RC~
+| 13 2+| KHR_DF_CHANNEL_YCCBCCRC_STENCIL | Stencil
+| 14 2+| KHR_DF_CHANNEL_YCCBCCRC_DEPTH | Depth
+| 15 2+| KHR_DF_CHANNEL_YCCBCCRC_ALPHA | Alpha (transparency)
+|================================
+
+==== KHR_DF_MODEL_ICTCP (= 13) ====
+
+This color model represents the ``Constant intensity
+latexmath:[$IC_TC_P$] color model'' defined as an optional
+representation in ITU-T BT.2100 and described in <<MODEL_ICTCP>>.
+
+[[ICTCPChannels]]
+.Basic Data Format IC~T~C~P~ channels
+[width="100%",options="header"]
+|================================
+| Channel number 2+| Name | Description
+| 0 2+| KHR_DF_CHANNEL_ICTCP_I | I (intensity)
+| 1 2+| KHR_DF_CHANNEL_ICTCP_CT | C~T~
+| 2 2+| KHR_DF_CHANNEL_ICTCP_CP | C~P~
+| 13 2+| KHR_DF_CHANNEL_ICTCP_STENCIL | Stencil
+| 14 2+| KHR_DF_CHANNEL_ICTCP_DEPTH | Depth
+| 15 2+| KHR_DF_CHANNEL_ICTCP_ALPHA | Alpha (transparency)
+|================================
+
+<<<
+==== KHR_DF_MODEL_CIEXYZ (= 14) ====
+
+This color model represents channel data used to describe
+color coordinates in the <<ciexyc,CIE 1931 XYZ>> coordinate
+space, as shown in <<CIEXYZChannels>>.
+
+[[CIEXYZChannels]]
+.Basic Data Format CIE XYZ channels
+[width="100%",options="header"]
+|================================
+| Channel number 2+| Name | Description
+| 0 2+| KHR_DF_CHANNEL_CIEXYZ_X | X
+| 1 2+| KHR_DF_CHANNEL_CIEXYZ_Y | Y
+| 2 2+| KHR_DF_CHANNEL_CIEXYZ_Z | Z
+|================================
+
+==== KHR_DF_MODEL_CIEXYY (= 15) ====
+
+This color model represents channel data used to describe
+chromaticity coordinates in the <<ciexyc,CIE 1931 xyY>> coordinate
+space, as shown in <<CIEXYYChannels>>.
+
+[[CIEXYYChannels]]
+.Basic Data Format CIE xyY channels
+[width="100%",options="header"]
+|================================
+| Channel number 2+| Name | Description
+| 0 2+| KHR_DF_CHANNEL_CIEXYZ_X | x
+| 1 2+| KHR_DF_CHANNEL_CIEXYZ_YCHROMA | y
+| 2 2+| KHR_DF_CHANNEL_CIEXYZ_YLUMA | Y
+|================================
+
+<<<
 ==== Compressed formats ====
 
 A number of compressed formats are supported as part of *khr_df_model_e*.
@@ -900,14 +1020,14 @@ upper of 0 and UINT32_MAX (for unsigned formats) or INT32_MIN and INT32_MAX
 (for signed formats) are assumed to map the full representable range to
 the 0..1 or -1..1 respectively.
 
-===== KHR_DF_MODEL_DXT1A/KHR_DF_MODEL_BC1A =====
+===== KHR_DF_MODEL_DXT1A/KHR_DF_MODEL_BC1A (= 128) =====
 
 This model represents the DXT1 or BC1 format. Channel 0 indicates
 color. If a second sample is present it should use channel 1 to indicate
 that the ``special value'' of the format should represent transparency --
 otherwise the ``special value'' represents opaque black.
 
-===== KHR_DF_MODEL_DXT2/3/KHR_DF_MODEL_BC2 =====
+===== KHR_DF_MODEL_DXT2/3/KHR_DF_MODEL_BC2 (= 129) =====
 
 This model represents the DXT2/3 format, also described as BC2. The
 alpha premultiplication state (the distinction between DXT2 and DXT3)
@@ -919,7 +1039,7 @@ describe the 16 alpha samples for this position independently,
 since understanding the other channels for any pixel requires the
 whole texel block.
 
-===== KHR_DF_MODEL_DXT4/5/KHR_DF_MODEL_BC3 =====
+===== KHR_DF_MODEL_DXT4/5/KHR_DF_MODEL_BC3 (= 130) =====
 
 This model represents the DXT4/5 format, also described as BC3. The
 alpha premultiplication state (the distinction between DXT4 and DXT5)
@@ -928,13 +1048,13 @@ ID 0 contains the color information and ID 15 contains the alpha
 information. The alpha channel is 64 bits and at offset 0; the color
 channel is 64 bits and at offset 64.
 
-===== KHR_DF_MODEL_BC4 =====
+===== KHR_DF_MODEL_BC4 (= 131) =====
 
 This model represents the Direct3D BC4 format for single-channel
 interpolated 8-bit data. The model has a single channel of id 0
 with offset 0 and length 64 bits.
 
-===== KHR_DF_MODEL_BC5 =====
+===== KHR_DF_MODEL_BC5 (= 132) =====
 
 This model represents the Direct3D BC5 format for dual-channel
 interpolated 8-bit data. The model has two channels, 0 (red) and 1 (green),
@@ -942,24 +1062,24 @@ which should have their bit depths and offsets independently described:
 the red channel has offset 0 and length 64 bits and the green channel
 has offset 64 and length 64 bits.
 
-===== KHR_DF_MODEL_BC6H =====
+===== KHR_DF_MODEL_BC6H (= 133) =====
 
 This model represents the Direct3D BC6H format for RGB floating-point data.
 The model has a single channel 0, representing all three channels, and
 occupying 128 bits.
 
-===== KHR_DF_MODEL_BC7 =====
+===== KHR_DF_MODEL_BC7 (= 134) =====
 
 This model represents the Direct3D BC7 format for RGBA data. This model
 has a single channel 0 of 128 bits.
 
-===== KHR_DF_MODEL_ETC1 =====
+===== KHR_DF_MODEL_ETC1 (= 160) =====
 
 This model represents the original Ericsson Texture Compression format,
 with a guarantee that the format does not rely on ETC2 extensions. It
 contains a single channel of RGB data.
 
-===== KHR_DF_MODEL_ETC2 =====
+===== KHR_DF_MODEL_ETC2 (= 161) =====
 
 This model represents the updated Ericsson Texture Compression format,
 ETC2. Channel 0 represents red, and is used for the R11 EAC format.
@@ -971,7 +1091,7 @@ alpha is supported. If the texel block size is 16 bytes and the alpha
 channel appears in the first 8 bytes, followed by 8 bytes for the RGB
 channel, 8-bit separate alpha is supported.
 
-===== KHR_DF_MODEL_ASTC =====
+===== KHR_DF_MODEL_ASTC (= 162) =====
 
 This model represents Adaptive Scalable Texture Compression as a single
 channel in a texel block of 16 bytes. ASTC HDR (high dynamic range) and
@@ -984,6 +1104,9 @@ bit set to 1. ASTC supports a number of compression ratios defined by different
 texel block sizes; these are selected by changing the texel block size fields
 in the data format. The single sample has a size of 128 bits.
 
+ASTC encoding is described in section <<ASTC>>.
+
+<<<
 === color_primaries ===
 
 It is not sufficient to define a buffer as containing, for example,
@@ -994,7 +1117,9 @@ of the data, but a subset of common primary spaces can be identified
 by the *khr_df_primaries_e* enumeration, represented as an unsigned 8-bit
 integer value.
 
-==== KHR_DF_PRIMARIES_UNSPECIFIED ====
+More information about color primaries is provided in <<PRIMARY_CONVERSION>>.
+
+==== KHR_DF_PRIMARIES_UNSPECIFIED (= 0) ====
 
 This ``set of primaries'' identifies a data representation whose color
 representation is unknown or which does not fit into this list of
@@ -1007,62 +1132,98 @@ indicate that samples represent ``red'', ``green'' and ``blue'', but should
 mark the primaries here as ``unspecified'' and provide a detailed
 description in an extension block.
 
-==== KHR_DF_PRIMARIES_BT709 ====
+==== KHR_DF_PRIMARIES_BT709 (= 1) ====
 
 This value represents the Color Primaries defined by the
-<<bt709,ITU-R BT.709 specification>>, which is also shared by sRGB. RGB data is
-distinguished between BT.709 and sRGB by the Transfer Function.
-Conversion to and from BT.709 Y'CbCr (YUV) representation uses the
-color conversion matrix defined in the BT.709 specification. This
-is the preferred set of color primaries used by HDTV, and likely
-a sensible default set of color primaries for common rendering
-operations.
+<<bt709,ITU-R BT.709 specification>> and described in <<PRIMARIES_BT709>>,
+which are also shared by sRGB.
+
+RGB data is distinguished between BT.709 and sRGB by the Transfer Function.
+Conversion to and from BT.709 Y'C~B~C~R~ (``YUV'') representation uses the
+color conversion matrix defined in the <<bt709,BT.709>> specification, and described
+in <<MODEL_BT709>>, except in the case of sYCC (which can be distinguished
+by the use of the sRGB transfer function), in which case conversion to and
+from BT.709 Y'C~B~C~R~ representation uses the color conversion
+matrix defined in the <<bt601,BT.601>> specification, and described
+in <<MODEL_BT601>>.
+This is the preferred set of color primaries used by HDTV and sRGB, and likely
+a sensible default set of color primaries for common rendering operations.
 
 *KHR_DF_PRIMARIES_SRGB* is provided as a synonym for *KHR_DF_PRIMARIES_BT709*.
 
-==== KHR_DF_PRIMARIES_BT601_EBU ====
+==== KHR_DF_PRIMARIES_BT601_EBU (= 2) ====
 
 This value represents the Color Primaries defined in the
 <<bt601,ITU-R BT.601 specification>> for standard-definition television,
-particularly for 625-line signals. Conversion to and from
-BT.601 Y'CbCr (YUV) uses the color conversion matrix defined
-in the BT.601 specification.
+particularly for 625-line signals, and described in <<PRIMARIES_BT601_EBU>>.
+Conversion to and from BT.601 Y'C~B~C~R~ (``YUV'') typically uses the color conversion
+matrix defined in the BT.601 specification and described in <<MODEL_BT601>>.
 
-==== KHR_DF_PRIMARIES_BT601_SMPTE ====
+==== KHR_DF_PRIMARIES_BT601_SMPTE (= 3) ====
 
 This value represents the Color Primaries defined in the
 <<bt601,ITU-R BT.601 specification>> for standard-definition television,
-particularly for 525-line signals. Conversion to and from
-BT.601 Y'CbCr (YUV) uses the color conversion matrix defined
-in the BT.601 specification.
+particularly for 525-line signals, and described in <<PRIMARIES_BT601_SMPTE>>.
+Conversion to and from BT.601 Y'C~B~C~R~ (``YUV'') typically uses the color conversion
+matrix defined in the BT.601 specification and described in <<MODEL_BT601>>.
 
-==== KHR_DF_PRIMARIES_BT2020 ====
+==== KHR_DF_PRIMARIES_BT2020 (= 4) ====
 
 This value represents the Color Primaries defined in the
-<<bt2020,ITU-R BT.2020 specification>> for ultra-high-definition television.
-Conversion to and from BT.2020 Y'CbCr (YUV) uses the color
-conversion matrix defined in the BT.2020 specification.
+<<bt2020,ITU-R BT.2020 specification>> for ultra-high-definition television
+and described in <<PRIMARIES_BT2020>>. Conversion to and from BT.2020 Y'C~B~C~R~
+(``YUV'') uses the color conversion matrix defined in the BT.2020 specification
+and described in <<MODEL_BT2020>>.
 
-==== KHR_DF_PRIMARIES_CIEXYZ ====
+==== KHR_DF_PRIMARIES_CIEXYZ (= 5) ====
 
 This value represents the theoretical Color Primaries defined
 by the International Color Consortium for the <<ciexyz,ICC XYZ>> linear
 color space.
 
-==== KHR_DF_PRIMARIES_ACES ====
+==== KHR_DF_PRIMARIES_ACES (= 6) ====
 
 This value represents the Color Primaries defined
-for the <<aces,Academy Color Encoding System>>.
+for the <<aces,Academy Color Encoding System>> and
+described in <<PRIMARIES_ACES>>.
 
+==== KHR_DF_PRIMARIES_ACESCC (= 7) ====
+
+This value represents the Color Primaries defined
+for the <<aces,Academy Color Encoding System>>
+compositor and described in <<PRIMARIES_ACESCC>>.
+
+==== KHR_DF_PRIMARIES_NTSC1953 (= 8) ====
+
+This value represents the Color Primaries defined for the
+NTSC 1953 color television transmission standard and described
+in <<PRIMARIES_NTSC>>.
+
+==== KHR_DF_PRIMARIES_PAL525 (= 9) ====
+
+This value represents the Color Primaries defined for
+525-line PAL signals, described in <<PRIMARIES_PAL525>>.
+
+==== KHR_DF_PRIMARIES_DISPLAYP3 (= 10) ====
+
+This value represents the Color Primaries defined for
+the Display P3 color space, described in <<PRIMARIES_DISPLAYP3>>.
+
+==== KHR_DF_PRIMARIES_ADOBERGB (= 11) ====
+
+This value represents the Color Primaries defined in
+<<adobergb,Adobe RGB (1998)>>, described in <<PRIMARIES_ADOBERGB>>.
+
+<<<
 === transfer_function ===
 
-Many color representations contain a nonlinear transfer function
+Many color representations contain a non-linear _transfer function_
 which maps between a linear (intensity-based) representation and
-a more perceptually-uniform encoding. Common Transfer Functions are
+a more perceptually-uniform encoding. Common transfer functions are
 encoded in the *khr_df_transfer_e* enumeration and represented as an
 unsigned 8-bit integer. A fully-flexible transfer function requires
-an extension with a full color space definition. Where the Transfer
-Function can be described as a simple power curve, applying the
+an extension with a full color space definition. Where the transfer
+function can be described as a simple power curve, applying the
 function is commonly known as ``gamma correction''. The transfer
 function is applied to a sample only when the sample's
 *KHR_DF_SAMPLE_DATATYPE_LINEAR* bit is 0; if this bit is 1, the
@@ -1083,98 +1244,141 @@ If all the samples are linear, *KHR_DF_TRANSFER_LINEAR* should be used.
 In this case, no sample should have the *KHR_DF_SAMPLE_DATATYPE_LINEAR*
 bit set.
 
-==== KHR_DF_TRANSFER_UNSPECIFIED ====
+The enumerant value for each of the following transfer functions is
+shown in parentheses alongside the title.
 
-This value should be used when the Transfer Function is unknown,
+==== KHR_DF_TRANSFER_UNSPECIFIED (= 0) ====
+
+This value should be used when the transfer function is unknown,
 or specified only in an extension block, precluding conversion of
 color spaces and correct filtering of the data values using only
 the information in the basic descriptor block.
 
-==== KHR_DF_TRANSFER_LINEAR ====
+==== KHR_DF_TRANSFER_LINEAR (= 1) ====
 
-This value represents a linear Transfer Function: for color data,
+This value represents a linear transfer function: for color data,
 there is a linear relationship between numerical pixel values and
 the intensity of additive colors. This transfer function allows for
 blending and filtering operations to be applied directly to the data
 values.
 
-[[srgbgamma]]
-==== KHR_DF_TRANSFER_SRGB ====
+==== KHR_DF_TRANSFER_SRGB (= 2) ====
 
-This value represents the nonlinear Transfer Function defined in
+This value represents the non-linear transfer function defined in
 the <<srgb,sRGB specification>> for mapping between numerical pixel values
-and intensity.
+and intensity. This is described in <<TRANSFER_SRGB>>.
 
-That is, the conversion from linear latexmath:[$(R, G, B)$] encoding
-to nonlinear latexmath:[$(R', G', B')$] encoding is:
+==== KHR_DF_TRANSFER_ITU (= 3) ====
 
-[latexmath]
-++++++
-  $$R' = \begin{cases}
-      R \times 12.92, & R \leq 0.0031308 \\
-      1.055 \times R^{1\over 2.4} - 0.055, & R > 0.0031308
-  \end{cases}$$
-  $$G' = \begin{cases}
-      G \times 12.92, & G \leq 0.0031308 \\
-      1.055 \times G^{1\over 2.4} - 0.055, & G > 0.0031308
-  \end{cases}$$
-  $$B' = \begin{cases}
-      B \times 12.92, & B \leq 0.0031308 \\
-      1.055 \times B^{1\over 2.4} - 0.055, & B > 0.0031308
-  \end{cases}$$
-++++++
-
-The corresponding conversion from nonlinear latexmath:[$(R', G', B')$] encoding
-to linear latexmath:[$(R, G, B)$] encoding is:
-
-[latexmath]
-++++++
-  $$R = \begin{cases}
-      {R' \over 12.92}, & R' \leq 0.04045 \\
-      \left({R' + 0.055} \over 1.055\right)^{2.4}, & R' > 0.04045
-  \end{cases}$$
-  $$G = \begin{cases}
-      {G' \over 12.92}, & G' \leq 0.04045 \\
-      \left({G' + 0.055} \over 1.055\right)^{2.4}, & G' > 0.04045
-  \end{cases}$$
-  $$B = \begin{cases}
-      {B' \over 12.92}, & B' \leq 0.04045 \\
-      \left({B' + 0.055} \over 1.055\right)^{2.4}, & B' > 0.04045
-  \end{cases}$$
-++++++
-
-==== KHR_DF_TRANSFER_ITU ====
-
-This value represents the nonlinear Transfer Function defined by
+This value represents the non-linear transfer function defined by
 the ITU and used in the BT.601, BT.709 and BT.2020 specifications.
+This is described in <<TRANSFER_ITU>>.
 
-==== KHR_DF_TRANSFER_NTSC ====
+==== KHR_DF_TRANSFER_NTSC (= 4) ====
 
-This value represents the nonlinear Transfer Function defined by
+This value represents the non-linear transfer function defined by
 the original NTSC television broadcast specification.
+This is described in <<TRANSFER_LEGACY_NTSC>>.
 
-==== KHR_DF_TRANSFER_SLOG ====
+NOTE: More recent formulations of this transfer functions, such as that
+defined in SMPTE 170M-2004, use it ITU formulation described above.
+
+==== KHR_DF_TRANSFER_SLOG (= 5) ====
 
 This value represents a nonlinear Transfer Function used by some
-Sony video cameras to represent an increased dynamic range.
+Sony video cameras to represent an increased dynamic range,
+and is described in <<TRANSFER_SLOG>>.
 
-==== KHR_DF_TRANSFER_SLOG2 ====
+==== KHR_DF_TRANSFER_SLOG2 (= 6) ====
 
 This value represents a nonlinear Transfer Function used by some
-Sony video cameras to represent a further increased dynamic range.
+Sony video cameras to represent a further increased dynamic range,
+and is described in <<TRANSFER_SLOG2>>.
 
+==== KHR_DF_TRANSFER_BT1886 (= 7) ====
+
+This value represents the nonlinear OETF defined in <<bt1886,BT.1886>>
+and described in <<TRANSFER_BT1886>>.
+
+==== KHR_DF_TRANSFER_HLG_OETF (= 8) ====
+
+This value represents the Hybrid Log Gamma OETF
+defined by the ITU in BT.2100 for high dynamic range television,
+and described in <<TRANSFER_HLG>>.
+
+==== KHR_DF_TRANSFER_HLG_EOTF (= 9) ====
+
+This value represents the Hybrid Log Gamma OETF
+defined by the ITU in BT.2100 for high dynamic range television,
+and described in <<TRANSFER_HLG>>.
+
+==== KHR_DF_TRANSFER_PQ_EOTF (= 10) ====
+
+This value represents the Perceptual Quantization EOTF
+defined by the ITU in BT.2100 for high dynamic range television,
+and described in <<TRANSFER_PQ>>.
+
+==== KHR_DF_TRANSFER_PQ_OETF (= 11) ====
+
+This value represents the Perceptual Quantization EOTF
+defined by the ITU in BT.2100 for high dynamic range television,
+and described in <<TRANSFER_PQ>>.
+
+==== KHR_DF_TRANSFER_DCIP3 (= 12) ====
+
+This value represents the transfer function defined in DCI P3
+and described in <<TRANSFER_DCIP3>>.
+
+==== KHR_DF_TRANSFER_PAL_OETF (= 13) ====
+
+This value represents the OETF for legacy PAL systems described
+in <<TRANSFER_LEGACY_PAL_OETF>>.
+
+==== KHR_DF_TRANSFER_PAL625_EOTF (= 14) ====
+
+This value represents the EOTF for legacy 625-line PAL systems
+described in <<TRANSFER_LEGACY_PAL_EOTF>>.
+
+==== KHR_DF_TRANSFER_ST240 (= 15) ====
+
+This value represents the transfer function associated with the
+legacy ST-240 (SMPTE240M) standard, described in <<TRANSFER_ST240>>.
+
+==== KHR_DF_TRANSFER_ACESCC (= 16) ====
+
+This value represents the nonlinear Transfer Function used in
+the ACEScc Academy Color Encoding System logarithmic encoding system
+for use within Color Grading Systems, S-2014-003, defined in
+<<aces>>. This is described in <<TRANSFER_ACESCC>>.
+
+==== KHR_DF_TRANSFER_ACESCCT (= 17) ====
+
+This value represents the nonlinear Transfer Function used in
+the ACEScc Academy Color Encoding System quasi-logarithmic encoding
+system for use within Color Grading Systems, S-2016-001, defined in
+<<aces>>. This is described in <<TRANSFER_ACESCCT>>.
+
+==== KHR_DF_TRANSFER_ADOBERGB (= 18) ====
+
+This value represents the transfer function defined in the
+Adobe RGB (1998) specification and described in <<TRANSFER_ADOBERGB>>.
+
+<<<
 === flags ===
 
 The format supports some configuration options in the form of
 boolean flags; these are described in the *khr_df_flags_e*
 enumeration and represented in an unsigned 8-bit integer value.
 
-In this version of the specification, the only flag defined is
-*KHR_DF_FLAG_ALPHA_PREMULTIPIED*. If this bit is set, any color
+==== KHR_DF_FLAG_ALPHA_PREMULTIPLIED (= 1) ====
+
+If the *KHR_DF_FLAG_ALPHA_PREMULTIPLIED* bit is set, any color
 information in the data should be interpreted as having been
 previously scaled by the alpha channel when performing blending
-operations. The value *KHR_DF_FLAG_ALPHA_STRAIGHT* is provided to
-represent this flag not being set, which indicates that the color
+operations.
+
+The value *KHR_DF_FLAG_ALPHA_STRAIGHT* (= 0) is provided
+to represent this flag not being set, which indicates that the color
 values in the data should be interpreted as needing to be scaled
 by the alpha channel when performing blending operations. This flag
 has no effect if there is no alpha channel in the format.
@@ -1201,16 +1405,16 @@ should have a size of 1 in each dimension that it lacks,
 and therefore the corresponding fields in the representation
 should be 0.
 
-For example, a YUV 4:2:0 representation may use a Texel Block
+For example, a Y'C~B~C~R~ 4:2:0 representation may use a Texel Block
 of 2×2 pixels in the nominal coordinate space, corresponding to
-the four Y samples, as shown in <<YUV420Basic>>.
+the four Y' samples, as shown in <<YUV420Basic>>.
 The texel block dimensions in this case
 would be 2×2×1×1 (in the X, Y, Z and T dimensions, if the fourth
 dimension is interpreted as T). The *texel_block_dimensions_[0..3]*
 values would therefore be:
 
 [[YUV420Basic]]
-.Example Basic Data Format *texel_block_dimensions* for YUV 4:2:0
+.Example Basic Data Format *texel_block_dimensions* for Y'C~B~C~R~ 4:2:0
 [width="40%",cols="5,1"]
 |================================
 | texel_block_dimensions_0 | 1
@@ -1219,14 +1423,15 @@ values would therefore be:
 | texel_block_dimensions_3 | 0
 |================================
 
+<<<
 === bytes_plane_[0..7] ===
 
 The Basic Data Format Descriptor divides the image into a number of
 planes, each consisting of an integer number of consecutive bytes.
 The requirement that planes consist of consecutive data means that
-formats with distinct subsampled channels -- such as YUV 4:2:0 --
+formats with distinct subsampled channels -- such as Y'C~B~C~R~ 4:2:0 --
 may require multiple planes to describe a channel. A typical
-YUV 4:2:0 image has _two_ planes for the Y channel in this
+Y'C~B~C~R~ 4:2:0 image has _two_ planes for the Y' channel in this
 representation, offset by one line vertically.
 
 The use of byte granularity to define planes is a choice to
@@ -1273,6 +1478,7 @@ as though the index value were not present, and describe the contents of
 the palette. The full data format descriptor for this example is
 provided in <<palette>> as one of the example format descriptors.
 
+<<<
 === [[sample]]Sample information ===
 
 The layout and position of the information within each plane is
@@ -1347,6 +1553,7 @@ samples should be added; the value for the sample is composed in
 increasing order from least to most significant bit as subsequent
 samples are processed.
 
+<<<
 ==== channel_type ====
 
 The *channel_type* field is an unsigned 8-bit quantity.
@@ -1413,6 +1620,7 @@ larger than 127.5 in any dimension require an extension.
 It is legal, but unusual, to use the same bits to represent multiple
 samples at different coordinate locations.
 
+<<<
 ==== sample_lower ====
 
 *Sample_lower*, combined with *sample_upper*, is used to represent the
@@ -1420,7 +1628,9 @@ mapping between the numerical value stored in the format and the
 conceptual numerical interpretation. For unsigned formats, *sample_lower*
 typically represents the value which should be interpreted as zero
 (the black point). For signed formats, *sample_lower* typically
-represents ``-1''.
+represents ``-1''. For color difference models such as Y'C~B~C~R~,
+*sample_lower* represents the lower extent of the color difference
+range (which corresponds to an encoding of -0.5 in numerical terms).
 
 If the channel encoding is an integer format, the *sample_lower* value
 is represented as a 32-bit integer -- signed or unsigned according to
@@ -1468,12 +1678,16 @@ value mapping from -1.0 to 1.0. Setting *sample_lower* to the minimum
 signed integer value representable in the channel is equivalent to
 defining an ``snorm'' texture.
 
+<<<
 ==== sample_upper ====
 
 *Sample_upper*, combined with *sample_lower*, is used to represent the
 mapping between the numerical value stored in the format and the
 conceptual numerical interpretation. *Sample_upper* typically represents
 the value which should be interpreted as ``1.0'' (the ``white point'').
+For color difference models such as Y'C~B~C~R~, *sample_upper* represents
+the lower extent of the color difference range (which corresponds to an
+encoding of 0.5 in numerical terms).
 
 If the channel encoding is an integer format, the *sample_upper* value
 is represented as a 32-bit integer -- signed or unsigned according to
@@ -1610,7 +1824,7 @@ block that contains only the enumeration. The descriptor itself has a
 
 It is possible for a vendor to use the extension block to store peripheral
 information required to access the image -- plane base addresses, stride, etc.
-Since different implementations have different kinds of nonlinear ordering
+Since different implementations have different kinds of non-linear ordering
 and proprietary alignment requirements, this is not described as part of the
 standard. By many conventional definitions, this information is not part of
 the ``format'', and particularly it ensures that an identical copy of the image
@@ -1649,10 +1863,10 @@ Enumerations are fast and easy to process, but are limited in that any
 software can only be aware of the enumeration values in place when it
 was defined. Software often behaves differently according to properties
 of a format, and must perform a look-up on the enumeration -- if it knows
-what it is -- in order to change behaviours. A descriptive format allows
+what it is -- in order to change behaviors. A descriptive format allows
 for more flexible software which can support a wide range of formats
 without needing each to be listed, and simplifies the programming of
-conditional behaviour based on format properties.
+conditional behavior based on format properties.
 
 === Why describe this standard within Khronos? ===
 
@@ -1670,9 +1884,10 @@ users of data -- particularly pixel-like data -- to have additional
 requirements. Capturing these requirements portably reduces the need
 for additional metadata to be associated with a proprietary descriptor.
 It is also common for additional functionality to be added retrospectively
-to existing libraries -- for example, YUV support is often an afterthought
-in rendering APIs. Having a consistent and flexible representation in
-place from the start can reduce the pain of retrofitting this functionality.
+to existing libraries -- for example, Y'C~B~C~R~ support is often an
+afterthought in rendering APIs.
+Having a consistent and flexible representation in place from the start
+can reduce the pain of retrofitting this functionality.
 
 Note that there is no expectation that the format descriptor from this
 standard be used directly, although it can be. The impact of providing
@@ -1699,38 +1914,6 @@ described in some way, and this may be useful for image formats that contain
 comment sections. However, since many multilingual text representations
 do not have a fixed character size, this use is not seen as an obvious match
 for this standard.
-
-== External references ==
-
-=== [[bt601]]ITU-T BT.601 specification for digital television ===
-
-link:http://www.itu.int/rec/R-REC-BT.601/en[http://www.itu.int/rec/R-REC-BT.601/en]
-
-=== [[bt709]]ITU-T BT.709 specification for HDTV ===
-
-link:http://www.itu.int/rec/R-REC-BT.709-5-200204-I/en[http://www.itu.int/rec/R-REC-BT.709-5-200204-I/en]
-
-=== [[bt2020]]ITU-T BT.2020 specification for UHDTV ===
-
-link:http://www.itu.int/rec/R-REC-BT.2020/en[http://www.itu.int/rec/R-REC-BT.2020/en]
-
-=== [[ciexyz]]CIE 1931 XYZ tristimulus values ===
-
-link:http://cie.co.at/index.php?i_ca_id=823[http://cie.co.at/index.php?i_ca_id=823]
-
-=== [[aces]]Academy Color Encoding System ===
-
-link:http://www.oscars.org/science-technology/sci-tech-projects/aces[http://www.oscars.org/science-technology/sci-tech-projects/aces]
-
-=== [[srgb]]sRGB specification ===
-
-link:http://www.w3.org/Graphics/Color/srgb[http://www.w3.org/Graphics/Color/srgb]
-
-=== [[IEEE 754]]IEEE Standard for Floating-Point Arithmetic
-
-IEEE Std 754-2008
-http://dx.doi.org/10.1109/IEEESTD.2008.4610935,
-August, 2008.
 
 include::compformats.txt[]
 
@@ -1997,6 +2180,10 @@ may require rounding, truncation and special value management rules which
 are beyond the scope of a data format specification and may be documented
 in APIs which generate these formats.
 
+include::conversions.txt[]
+
+include::references.txt[]
+
 == Example format descriptors ==
 
 .Four co-sited 8-bit sRGB channels, assuming premultiplied alpha
@@ -2175,7 +2362,7 @@ in APIs which generate these formats.
 4+| 255 (sample_upper)
 |================================
 
-.YUV4:2:0: BT.709 reduced-range data, with U and V aligned to the midpoint of the Y samples.
+.Y'C~B~C~R~ 4:2:0: BT.709 reduced-range data, with C~B~ and C~R~ aligned to the midpoint of the Y samples.
 [options="header"]
 |================================
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
@@ -2339,7 +2526,7 @@ in APIs which generate these formats.
 4+| 15 (sample_upper) - unique B upper value
 |================================
 
-.V210 format (full-range YUV)
+.V210 format (full-range Y'C~B~C~R~)
 [options="header"]
 |================================
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
@@ -2548,5 +2735,9 @@ David Sena
 Mark Callow
 
 Jon Leech
+
+Jan Outters
+
+Courtney Goeltzenleuchter
 
 endif::[]

@@ -1,6 +1,6 @@
-/* The Khronos Data Format Specification (version 1.1) */
+/* The Khronos Data Format Specification (version 1.2) */
 /*
-** Copyright (c) 2015 The Khronos Group Inc.
+** Copyright (c) 2015-17 The Khronos Group Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and/or associated documentation files (the
@@ -72,11 +72,20 @@ typedef enum _khr_df_model_e {
     /* Hue, saturation, lightness, hue angle on color circle, plus alpha */
     KHR_DF_MODEL_HSLA_ANG     = 8U,
     /* Hue, saturation, value, hue on color hexagon, plus alpha */
-    KHR_DF_MODEL_HSVA_HEX     = 7U,
+    KHR_DF_MODEL_HSVA_HEX     = 9U,
     /* Hue, saturation, lightness, hue on color hexagon, plus alpha */
-    KHR_DF_MODEL_HSLA_HEX     = 8U,
+    KHR_DF_MODEL_HSLA_HEX     = 10U,
     /* Lightweight approximate color difference (luma, orange, green) */
-    KHR_DF_MODEL_YCGCOA       = 9U,
+    KHR_DF_MODEL_YCGCOA       = 11U,
+    /* ITU BT.2020 constant luminance YcCbcCrc */
+    KHR_DF_MODEL_YCCBCCRC     = 12U,
+    /* ITU BT.2100 constant intensity ICtCp */
+    KHR_DF_MODEL_ICTCP        = 13U,
+    /* CIE 1931 XYZ color coordinates (X, Y, Z) */
+    KHR_DF_MODEL_CIEXYZ       = 14U,
+    /* CIE 1931 xyY color coordinates (X, Y, Y) */
+    KHR_DF_MODEL_CIEXYY       = 15U,
+    
 
     /* Compressed formats start at 128. */
     /* These compressed formats should generally have a single sample,
@@ -251,6 +260,14 @@ typedef enum _khr_df_model_channels_e {
     KHR_DF_CHANNEL_YCGCOA_CO      =  2U,
     KHR_DF_CHANNEL_YCGCOA_ALPHA   = 15U,
     KHR_DF_CHANNEL_YCGCOA_A       = 15U,
+    /* MODEL_CIEXYZ - CIE 1931 X, Y, Z */
+    KHR_DF_CHANNEL_CIEXYZ_X = 0U,
+    KHR_DF_CHANNEL_CIEXYZ_Y = 1U,
+    KHR_DF_CHANNEL_CIEXYZ_Z = 2U,
+    /* MODEL_CIEXYY - CIE 1931 x, y, Y */
+    KHR_DF_CHANNEL_CIEXYY_X        = 0U,
+    KHR_DF_CHANNEL_CIEXYY_YCHROMA  = 1U,
+    KHR_DF_CHANNEL_CIEXYY_YLUMA    = 2U,
 
     /* Compressed formats */
     /* MODEL_DXT1A/MODEL_BC1A */
@@ -330,6 +347,16 @@ typedef enum _khr_df_primaries_e {
     KHR_DF_PRIMARIES_CIEXYZ      = 5U,
     /* Academy Color Encoding System primaries */
     KHR_DF_PRIMARIES_ACES        = 6U,
+    /* Color primaries of ACEScc */
+    KHR_DF_PRIMARIES_ACESCC      = 7U,
+    /* Legacy NTSC 1953 primaries */
+    KHR_DF_PRIMARIES_NTSC1953    = 8U,
+    /* Legacy PAL 525-line primaries */
+    KHR_DF_PRIMARIES_PAL525      = 9U,
+    /* Color primaries of Display P3 */
+    KHR_DF_PRIMARIES_DISPLAYP3   = 10U,
+    /* Color primaries of Adobe RGB (1998) */
+    KHR_DF_PRIMARIES_ADOBERGB    = 11U,
     KHR_DF_PRIMARIES_MAX         = 0xFFU
 } khr_df_primaries_e;
 
@@ -345,14 +372,40 @@ typedef enum _khr_df_transfer_e {
     KHR_DF_TRANSFER_LINEAR      = 1U,
     /* Perceptually-linear transfer function of sRGH (~2.4) */
     KHR_DF_TRANSFER_SRGB        = 2U,
-    /* Perceptually-linear transfer function of ITU specifications (~1/.45) */
+    /* Perceptually-linear transfer function of ITU non-HDR specifications (~1/.45) */
     KHR_DF_TRANSFER_ITU         = 3U,
-    /* Perceptually-linear gamma function of NTSC (simple 2.2 gamma) */
+    /* SMTPE170M (digital NTSC) defines an alias for the ITU transfer function (~1/.45) */
+    KHR_DF_TRANSFER_SMTPE170M   = 3U,
+    /* Perceptually-linear gamma function of original NTSC (simple 2.2 gamma) */
     KHR_DF_TRANSFER_NTSC        = 4U,
     /* Sony S-log used by Sony video cameras */
     KHR_DF_TRANSFER_SLOG        = 5U,
     /* Sony S-log 2 used by Sony video cameras */
     KHR_DF_TRANSFER_SLOG2       = 6U,
+    /* ITU BT.1886 EOTF */
+    KHR_DF_TRANSFER_BT1886      = 7U,
+    /* ITU BT.2100 HLG OETF */
+    KHR_DF_TRANSFER_HLG_OETF    = 8U,
+    /* ITU BT.2100 HLG EOTF */
+    KHR_DF_TRANSFER_HLG_EOTF    = 9U,
+    /* ITU BT.2100 PQ EOTF */
+    KHR_DF_TRANSFER_PQ_EOTF     = 10U,
+    /* ITU BT.2100 PQ OETF */
+    KHR_DF_TRANSFER_PQ_OETF     = 11U,
+    /* DCI P3 transfer function */
+    KHR_DF_TRANSFER_DCIP3       = 12U,
+    /* Legacy PAL OETF */
+    KHR_DF_TRANSFER_PAL_OETF    = 13U,
+    /* Legacy PAL 625-line EOTF */
+    KHR_DF_TRANSFER_PAL625_EOTF = 14U,
+    /* Legacy ST240 transfer function */
+    KHR_DF_TRANSFER_ST240       = 15U,
+    /* ACEScc transfer function */
+    KHR_DF_TRANSFER_ACESCC      = 16U,
+    /* ACEScct transfer function */
+    KHR_DF_TRANSFER_ACESCCT     = 17U,
+    /* Adobe RGB (1998) transfer function */
+    KHR_DF_TRANSFER_ADOBERGB    = 18U,
     KHR_DF_TRANSFER_MAX         = 0xFFU
 } khr_df_transfer_e;
 

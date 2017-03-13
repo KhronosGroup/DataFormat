@@ -1,0 +1,1360 @@
+// Copyright (c) 2017 The Khronos Group Inc.
+// Copyright notice at https://www.khronos.org/registry/speccopyright.html
+
+[[PRIMARY_CONVERSION]]
+== Color primaries
+
+*Color primaries* define the interpretation of each color channel of the
+color model, particularly with respect to the RGB color model. In the context
+of a typical display, *color primaries* describe the color of the red, green
+and blue phosphors or filters.
+
+Primaries are typically defined using the <<ciexyz,CIE 1931 XYZ color space>>,
+which is a color space which preserves the linearity of light intensity.
+Consequently, the transform from linear-intensity latexmath:[$(R, G, B)$]
+to latexmath:[$(X, Y, Z)$] is a simple matrix multiplication. Conversion
+between two sets of latexmath:[$(R, G, B)$] color primaries can be performed
+by converting to the latexmath:[$(X, Y, Z)$] space and back.
+
+The latexmath:[$(X, Y, Z)$] space describes absolute intensity. Since most
+standards do not make a requirement about the absolute intensity of the
+display, color primaries are typically defined using the latexmath:[$x$]
+and latexmath:[$y$] components of the latexmath:[$xyY$] color space, in
+which the latexmath:[$Y$] channel represents linear luminance.
+latexmath:[$xyY$] is related to latexmath:[$XYZ$] via the following formulae:
+
+[latexmath]
+++++++
+\begin{align*}
+x & = {X\over{X + Y + Z}} &&&y & = {Y\over{X + Y + Z}} &&&z & = {Z\over{X + Y + Z}} = 1 - x - y\\
+&&X & = {Y\over{y}}x &&&Z & = {Y\over{y}}(1-x-y)
+\end{align*}
+++++++
+
+This is relevant because, although the brightness of the display in a color
+space definition is typically undefined, the *white point* is known:
+the latexmath:[$x$] and latexmath:[$y$] coordinates in latexmath:[$xyY$]
+color space which corresponds to equal amounts of latexmath:[$R$],
+latexmath:[$G$] and latexmath:[$B$]. This makes it possible to determine the
+relative intensities of these color primaries.
+
+NOTE: Many color standards use the CIE D65 standard illuminant as a white
+point. D65 is intended to represent average daylight, and has a color
+temperature of approximately 6500K. In <<ciexyz,CIE 1931>> terms, this
+white point is defined in ITU standards as latexmath:[$x=0.3127,\ y=0.3290$],
+but elsewhere given as latexmath:[$x=0.312713,\ y=0.329016$].
+Different coordinates will affect the conversion matrices given below.
+The definition of the D65 white point is complicated by the constants in
+Planck's Law (which is a component in calculating the white point from
+the color temperature) having been revised since D65 was standardized, such
+that the standard formula for calculating CIE coordinates from the color
+temperature do not agree with the D65 standard.
+The actual color temperature of D65 is nearer to
+latexmath:[$6500\times {1.4388\over 1.438} \approx 6503.6\textrm{K}$].
+
+Assuming an arbitrary white luminance (latexmath:[$Y$] value) of 1.0,
+it is possible to express the following identity for the latexmath:[$X$],
+latexmath:[$Y$] and latexmath:[$Z$] coordinates of each color channel
+latexmath:[$R$], latexmath:[$G$] and latexmath:[$B$], and of the white
+point latexmath:[$W$]:
+
+[latexmath]
+++++++
+\begin{align*}
+W_X &= R_X + G_X + B_X &W_Y &= R_Y + G_Y + B_Y = 1.0 &W_Z &= R_Z + G_Z + B_Z
+\end{align*}
+++++++
+
+The identities latexmath:[$X = Y{x\over{y}}$] and
+latexmath:[$Z = Y{{(1-x-y)}\over{y}}$] can be used to
+re-express the above terms in the latexmath:[$xyY$] space:
+
+[latexmath]
+++++++
+\begin{align*}
+R_Y\left({R_x\over{R_y}}\right) +
+G_Y\left({G_x\over{G_y}}\right) +
+B_Y\left({B_x\over{B_y}}\right) &
+= W_Y\left({W_x\over{W_y}}\right)
+= {W_x\over{W_y}} \\
+R_Y + G_Y + B_Y & = W_Y = 1.0 \\
+R_Y\left({1-R_x-R_y\over{R_y}}\right) +
+G_Y\left({1-G_x-G_y\over{G_y}}\right) +
+B_Y\left({1-B_x-B_y\over{B_y}}\right) &
+= W_Y\left({1-W_x-W_y\over{W_y}}\right)
+= {1-W_x-W_y\over{W_y}}
+\end{align*}
+++++++
+
+This equation for latexmath:[$W_Z$] can be simplified to:
+
+[latexmath]
+++++++
+\begin{align*}
+R_Y\left({1-R_x\over{R_y}}-1\right) +
+G_Y\left({1-G_x\over{G_y}}-1\right) +
+B_Y\left({1-B_x\over{B_y}}-1\right) &
+= W_Y\left({1-W_x\over{W_y}}-1\right)
+= {1-W_x\over{W_y}}-1
+\end{align*}
+++++++
+
+Since latexmath:[$R_Y + G_Y + B_Y = W_Y = 1$], this further
+simplifies to:
+
+[latexmath]
+++++++
+\begin{align*}
+R_Y\left({1-R_x\over{R_y}}\right) +
+G_Y\left({1-G_x\over{G_y}}\right) +
+B_Y\left({1-B_x\over{B_y}}\right) &
+= {1-W_x\over{W_y}}
+\end{align*}
+++++++
+
+The latexmath:[$R_Y+G_Y+B_Y$] term for latexmath:[$W_Y$] can be multiplied by
+latexmath:[$R_x\over{R_y}$] and subtracted from the equation for latexmath:[$W_X$]:
+
+[latexmath]
+++++++
+$$ G_Y\left({G_x\over{G_y}}-{R_x\over{R_y}}\right) +
+   B_Y\left({B_x\over{B_y}}-{R_x\over{R_y}}\right) =
+   {W_x\over{W_y}}-{R_x\over{R_y}}$$
+++++++
+
+Similarly, the latexmath:[$R_Y+G_Y+B_Y$] term can be multiplied by
+latexmath:[$1-R_x\over{R_y}$] and subtracted from the simplified
+latexmath:[$W_Z$] line:
+
+[latexmath]
+++++++
+$$ G_Y\left({1-G_x\over{G_y}}-{1-R_x\over{R_y}}\right) +
+   B_Y\left({1-B_x\over{B_y}}-{1-R_x\over{R_y}}\right) =
+   {1-W_x\over{W_y}}-{1-R_x\over{R_y}}$$
+++++++
+
+Finally, the latexmath:[$G_Y$] term can be eliminated by multiplying the former of these
+two equations by latexmath:[${1-G_x\over{G_y}}-{1-R_x\over{R_y}}$] and subtracting it
+from the latter multiplied by latexmath:[${G_x\over{G_y}}-{R_x\over{R_y}}$], giving:
+
+[latexmath]
+++++++
+$$ B_Y\left(\left({1-B_x\over{B_y}}-{1-R_x\over{R_y}}\right)
+   \left({G_x\over{G_y}}-{R_x\over{R_y}}\right) -
+   \left({B_x\over{B_y}}-{R_x\over{R_y}}\right)
+   \left({1-G_x\over{G_y}}-{1-R_x\over{R_y}}\right)\right)$$
+$$ = \left({1-W_x\over{W_y}}-{1-R_x\over{R_y}}\right)
+   \left({G_x\over{G_y}}-{R_x\over{R_y}}\right) -
+   \left({W_x\over{W_y}}-{R_x\over{R_y}}\right)
+   \left({1-G_x\over{G_y}}-{1-R_x\over{R_y}}\right)$$
+++++++
+
+Thus:
+
+[latexmath]
+++++++
+$$ B_Y = {{\left({1-W_x\over{W_y}}-{1-R_x\over{R_y}}\right)
+   \left({G_x\over{G_y}}-{R_x\over{R_y}}\right) -
+   \left({W_x\over{W_y}}-{R_x\over{R_y}}\right)
+   \left({1-G_x\over{G_y}}-{1-R_x\over{R_y}}\right)}
+   \over{\left({1-B_x\over{B_y}}-{1-R_x\over{R_y}}\right)
+   \left({G_x\over{G_y}}-{R_x\over{R_y}}\right) -
+   \left({B_x\over{B_y}}-{R_x\over{R_y}}\right)
+   \left({1-G_x\over{G_y}}-{1-R_x\over{R_y}}\right)}}$$
+++++++
+
+This allows latexmath:[$G_Y$] to be calculated by rearranging an earlier equation:
+
+[latexmath]
+++++++
+$$ G_Y =
+   {{W_x\over{W_y}}-{R_x\over{R_y}}
+   -B_Y\left({B_x\over{B_y}}-{R_x\over{R_y}}\right)
+   \over{{G_x\over{G_y}}-{R_x\over{R_y}}}}$$
+++++++
+
+And finally:
+[latexmath]
+++++++
+$$ R_Y = 1 - G_Y - B_Y $$
+++++++
+
+These relative magnitudes allow the definition of vectors representing
+the color primaries in the latexmath:[$XYZ$] space, which in turn
+provides a transformation between colors specified in terms of the color
+primaries and the latexmath:[$XYZ$] space. Without an absolute magnitude
+the transformation to latexmath:[$XYZ$] is incomplete, but sufficient to
+allow transformation to another set of color primaries.
+
+The transform from the defined color primaries to latexmath:[$XYZ$]
+space is:
+
+[latexmath]
+++++++
+$$ \left(\begin{array}{c}X\\
+Y\\
+Z\end{array}\right) =
+\left(\begin{array}{ccc}R_X, & G_X, & B_X \\
+R_Y, & G_Y, & B_Y \\
+R_Z, & G_Z, & B_Z\end{array}\right)
+\left(\begin{array}{c}R \\
+G \\
+B\end{array}\right) =
+\left(\begin{array}{ccc}{R_Y\over{R_y}}R_x, & {G_Y\over{G_y}}G_x, & {B_Y\over{B_y}}B_x \\
+R_Y, & G_Y, & B_Y \\
+{R_Y\over{R_y}}(1-R_x-R_y), & {G_Y\over{G_y}}(1-G_x-G_y), & {B_Y\over{B_y}}(1-B_x-B_y)
+\end{array}\right)\left(\begin{array}{c}R\\
+G\\
+B\end{array}\right)$$
+++++++
+
+The transform from latexmath:[$XYZ$] space to the defined
+color primaries is therefore:
+
+[latexmath]
+++++++
+$$ \left(\begin{array}{c}R\\
+G\\
+B\end{array}\right) =
+\left(\begin{array}{ccc}R_X, & G_X, & B_X \\
+R_Y, & G_Y, & B_Y \\
+R_Z, & G_Z, & B_Z\end{array}\right)^{-1}
+\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right) =
+\left(\begin{array}{ccc}{R_Y\over{R_y}}R_x, & {G_Y\over{G_y}}G_x, & {B_Y\over{B_y}}B_x \\
+R_Y, & G_Y, & B_Y \\
+{R_Y\over{R_y}}(1-R_x-R_y), & {G_Y\over{G_y}}(1-G_x-G_y), & {B_Y\over{B_y}}(1-B_x-B_y)
+\end{array}\right)^{-1}\left(\begin{array}{c}X\\
+Y\\
+Z\end{array}\right)$$
+++++++
+
+NOTE: These transforms assume that the black point for the color space
+is at latexmath:[$(X, Y, Z) = (0, 0, 0)$]. If the black point is non-zero,
+these transforms require a translational component. In some color spaces the
+black point has the same color as the white point, in which case it is also
+possible to adjust the latexmath:[$(R, G, B)$] values outside the matrix.
+
+[[PRIMARIES_BT709]]
+=== BT.709 color primaries
+
+<<bt709,ITU-T BT.709>> (HDTV) defines the following chromaticity coordinates:
+[latexmath]
+++++++
+\begin{align*}
+R_x &= 0.640  & R_y &= 0.330 \\
+G_x &= 0.300  & G_y &= 0.600 \\
+B_x &= 0.150  & B_y &= 0.060 \\
+W_x &= 0.3127 & W_y &= 0.3290\ (\textrm{D}65)
+\end{align*}
+++++++
+
+These chromaticity coordinates are also shared by <<srgb,sRGB>> and <<scrgb,scRGB>>.
+
+Therefore to convert from linear color values defined in terms of BT.709 color
+primaries to latexmath:[$XYZ$] space the formulae in <<PRIMARY_CONVERSION>> result
+in the following matrix:
+[latexmath]
+++++++
+$$\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right) \approx
+\left(\begin{array}{ccc}
+0.412391, & 0.357584, & 0.180481 \\
+0.212639, & 0.715169, & 0.072192 \\
+0.019331, & 0.119195, & 0.950532\end{array}\right)
+\left(\begin{array}{c} R_{709} \\
+G_{709} \\
+B_{709}\end{array}\right)$$
+++++++
+
+The inverse transformation, from the latexmath:[$XYZ$] space to a color defined
+in terms of BT.709 color primaries, is:
+ifeval::["{svgpdf}"=="pdf"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{709} \\
+G_{709} \\
+B_{709}\end{array}\right) \approx
+\left(\begin{array}{r@{}lr@{}lr@{}l}
+ 3.&240970, & -1.&537383, & -0.&498611 \\
+-0.&969244, &  1.&875968, &  0.&041555 \\
+ 0.&055630, & -0.&203977, &  1.&056972\end{array}\right)
+\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right)
+$$
+++++++
+endif::[]
+ifeval::["{svgpdf}"=="svg"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{709} \\
+G_{709} \\
+B_{709}\end{array}\right) \approx
+\left(\begin{array}{ccc}
+ 3.240970, & -1.537383, & -0.498611 \\
+-0.969244, &  1.875968, &  0.041555 \\
+ 0.055630, & -0.203977, &  1.056972\end{array}\right)
+\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right)
+$$
+++++++
+endif::[]
+
+NOTE: <<scrgb,sYCC>> lists a slightly different version of this matrix,
+possibly due to rounding errors.
+
+[[PRIMARIES_BT601_EBU]]
+=== BT.601 625-line color primaries
+
+<<bt601,ITU-T Rec.601>> defines different color primaries for 625-line systems
+(as used in most PAL systems) and for 525-line systems (as used in
+the <<smpte170m,SMPTE 170M-2004>> standard for NTSC).
+
+The following chromaticity coordinates are defined for 625-line ``EBU'' systems:
+[latexmath]
+++++++
+\begin{align*}
+R_x &= 0.640  & R_y &= 0.330 \\
+G_x &= 0.290  & G_y &= 0.600 \\
+B_x &= 0.150  & B_y &= 0.060 \\
+W_x &= 0.3127 & W_y &= 0.3290
+\end{align*}
+++++++
+
+NOTE: <<bt470,BT.470-6>>, which also describes these constants in a legacy
+context, approximates D65 as latexmath:[$x = 0.313,\ y = 0.329$].
+
+Therefore to convert from linear color values defined in terms of BT.601 color
+primaries for 625-line systems to latexmath:[$XYZ$] space the formulae in
+<<PRIMARY_CONVERSION>> result in the following matrix:
+[latexmath]
+++++++
+$$\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right) \approx
+\left(\begin{array}{ccc}
+0.430554, & 0.341550, & 0.178352 \\
+0.222004, & 0.706655, & 0.071341 \\
+0.020182, & 0.129553, & 0.939322\end{array}\right)
+\left(\begin{array}{c} R_{601\textrm{EBU}} \\
+G_{601\textrm{EBU}} \\
+B_{601\textrm{EBU}}\end{array}\right)$$
+++++++
+
+The inverse transformation, from the latexmath:[$XYZ$] space to a color defined
+in terms of BT.601 ``EBU'' 625-line color primaries, is:
+ifeval::["{svgpdf}"=="pdf"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{601\textrm{EBU}} \\
+G_{601\textrm{EBU}} \\
+B_{601\textrm{EBU}}\end{array}\right) \approx
+\left(\begin{array}{r@{}lr@{}lr@{}l}
+ 3.&063361, & -1.&393390, & -0.&475824 \\
+-0.&969244, &  1.&875968, &  0.&041555 \\
+ 0.&067861, & -0.&228799, &  1.&069090\end{array}\right)
+\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right)
+$$
+++++++
+endif::[]
+ifeval::["{svgpdf}"=="svg"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{601\textrm{EBU}} \\
+G_{601\textrm{EBU}} \\
+B_{601\textrm{EBU}}\end{array}\right) \approx
+\left(\begin{array}{ccc}
+ 3.063361, & -1.393390, & -0.475824 \\
+-0.969244, &  1.875968, &  0.041555 \\
+ 0.067861, & -0.228799, &  1.069090\end{array}\right)
+\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right)
+$$
+++++++
+endif::[]
+
+[[PRIMARIES_BT601_SMPTE]]
+=== BT.601 525-line color primaries
+
+<<bt601,ITU-T Rec.601>> defines different color primaries for 625-line systems
+(as used in most PAL systems) and for 525-line systems (as used in
+the <<smpte170m,SMPTE 170M-2004>> standard for NTSC).
+
+The following chromaticity coordinates are defined in BT.601 for 525-line
+digital systems and in SMPTE-170M:
+[latexmath]
+++++++
+\begin{align*}
+R_x &= 0.630  & R_y &= 0.340 \\
+G_x &= 0.310  & G_y &= 0.595 \\
+B_x &= 0.155  & B_y &= 0.070 \\
+W_x &= 0.3127 & W_y &= 0.3290
+\end{align*}
+++++++
+
+Therefore to convert from linear color values defined in terms of BT.601 color
+primaries for 525-line systems to latexmath:[$XYZ$] space the formulae in
+<<PRIMARY_CONVERSION>> result in the following matrix:
+ifeval::["{svgpdf}"=="pdf"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right) \approx
+\left(\begin{array}{ccc}
+0.393521, & 0.365258, & 0.191677 \\
+0.212376, & 0.701060, & 0.086564 \\
+0.018739, & 0.111934, & 0.958385\end{array}\right)
+\left(\begin{array}{c} R_{601\textrm{SMPTE}} \\
+G_{601\textrm{SMPTE}} \\
+B_{601\textrm{SMPTE}}\end{array}\right)$$
+++++++
+endif::[]
+ifeval::["{svgpdf}"=="svg"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right) \approx
+\left(\begin{array}{ccc}
+0.393521, & 0.365258, & 0.191677 \\
+0.212376, & 0.701060, & 0.086564 \\
+0.018739, & 0.111934, & 0.958385\end{array}\right)
+\left(\begin{array}{c} R_{601\textrm{SMPTE}} \\
+G_{601\textrm{SMPTE}} \\
+B_{601\textrm{SMPTE}}\end{array}\right)$$
+++++++
+endif::[]
+
+The inverse transformation, from the latexmath:[$XYZ$] space to a color defined
+in terms of BT.601 525-line color primaries, is:
+ifeval::["{svgpdf}"=="pdf"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{601\textrm{SMPTE}} \\
+G_{601\textrm{SMPTE}} \\
+B_{601\textrm{SMPTE}}\end{array}\right) \approx
+\left(\begin{array}{r@{}lr@{}lr@{}l}
+ 3.506003, & -1.739791, & -0.544058 \\
+-1.069048, &  1.977779, &  0.035171 \\
+ 0.056307, & -0.196976, &  1.049952\end{array}\right)
+\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right)
+$$
+++++++
+endif::[]
+ifeval::["{svgpdf}"=="svg"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{601\textrm{SMPTE}} \\
+G_{601\textrm{SMPTE}} \\
+B_{601\textrm{SMPTE}}\end{array}\right) \approx
+\left(\begin{array}{ccc}
+ 3.506003, & -1.739791, & -0.544058 \\
+-1.069048, &  1.977779, &  0.035171 \\
+ 0.056307, & -0.196976, &  1.049952\end{array}\right)
+\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right)
+$$
+++++++
+endif::[]
+
+NOTE: <<bt1700,Analog 525-line PAL systems>> used a different white point,
+and therefore have a <<PRIMARIES_PAL525,different>> conversion matrix.
+
+[[PRIMARIES_BT2020]]
+=== BT.2020 color primaries
+
+The following chromaticity coordinates are defined in <<bt2020,BT.2020>> for
+ultra-high-definition television:
+[latexmath]
+++++++
+\begin{align*}
+R_x &= 0.708  & R_y &= 0.292 \\
+G_x &= 0.170  & G_y &= 0.797 \\
+B_x &= 0.131  & B_y &= 0.046 \\
+W_x &= 0.3127 & W_y &= 0.3290
+\end{align*}
+++++++
+
+The same primaries are used for <<bt2100,BT.2100>> for HDR TV.
+
+Therefore to convert from linear color values defined in terms of BT.2020 color
+primaries to latexmath:[$XYZ$] space the formulae in <<PRIMARY_CONVERSION>> result
+in the following matrix:
+ifeval::["{svgpdf}"=="pdf"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right) \approx
+\left(\begin{array}{r@{}lr@{}lr@{}l}
+0.&636958, & 0.&144617, & 0.&168881 \\
+0.&262700, & 0.&677998, & 0.&059302 \\
+0.&000000, & 0.&028073, & 1.&060985\end{array}\right)
+\left(\begin{array}{c} R_{2020} \\
+G_{2020} \\
+B_{2020}\end{array}\right)$$
+++++++
+endif::[]
+ifeval::["{svgpdf}"=="svg"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right) \approx
+\left(\begin{array}{ccc}
+0.636958, & 0.144617, & 0.168881 \\
+0.262700, & 0.677998, & 0.059302 \\
+0.000000, & 0.028073, & 1.060985\end{array}\right)
+\left(\begin{array}{c} R_{2020} \\
+G_{2020} \\
+B_{2020}\end{array}\right)$$
+++++++
+endif::[]
+
+The inverse transformation, from the latexmath:[$XYZ$] space to a color
+defined in terms of BT.2020 color primaries, is:
+ifeval::["{svgpdf}"=="pdf"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{2020} \\
+G_{2020} \\
+B_{2020}\end{array}\right) \approx
+\left(\begin{array}{r@{}lr@{}lr@{}l}
+ 1.&716651, & -0.&355671, & -0.&253366 \\
+-0.&666684, &  1.&616481, &  0.&015769 \\
+ 0.&017640, & -0.&042771, &  0.&942103\end{array}\right)
+\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right)
+$$
+++++++
+endif::[]
+ifeval::["{svgpdf}"=="svg"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{2020} \\
+G_{2020} \\
+B_{2020}\end{array}\right) \approx
+\left(\begin{array}{ccc}
+ 1.716651, & -0.355671, & -0.253366 \\
+-0.666684, &  1.616481, &  0.015769 \\
+ 0.017640, & -0.042771, &  0.942103\end{array}\right)
+\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right)
+$$
+++++++
+endif::[]
+
+<<<
+[[PRIMARIES_NTSC]]
+=== NTSC 1953 color primaries
+
+The following chromaticity coordinates are defined in
+<<bt470,ITU-R BT.470-6>> and <<smpte170m,SMPTE 170m>> as a reference
+to the legacy NTSC standard:
+[latexmath]
+++++++
+\begin{align*}
+R_x &= 0.67  & R_y &= 0.33 \\
+G_x &= 0.21  & G_y &= 0.71 \\
+B_x &= 0.14  & B_y &= 0.08 \\
+W_x &= 0.310 & W_y &= 0.316\ (\textrm{Illuminant C})
+\end{align*}
+++++++
+
+NOTE: These primaries apply to the 1953 revision of the NTSC standard.
+Modern NTSC systems, which reflect displays that are optimized for
+brightness over saturation, use the color primaries as described in
+<<PRIMARIES_BT601_SMPTE>>.
+The white point used in the original NTSC 1953 specification is CIE
+Standard Illuminant C, 6774K, as distinct from the CIE Illuminant D65
+white point used by most modern standards.
+BT.470-6 notes that SECAM systems may use these NTSC primaries and
+white point.
+Japanese legacy NTSC systems used the same primaries but with the white
+point set to D-white at 9300K.
+
+Therefore to convert from linear color values defined in terms of NTSC 1953 color
+primaries to latexmath:[$XYZ$] space the formulae in <<PRIMARY_CONVERSION>> result
+in the following matrix:
+ifeval::["{svgpdf}"=="pdf"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right) \approx
+\left(\begin{array}{r@{}lr@{}lr@{}l}
+0.&606993, & 0.&173449, & 0.&200571 \\
+0.&298967, & 0.&586421, & 0.&114612 \\
+0.&000000, & 0.&066076, & 1.&117469\end{array}\right)
+\left(\begin{array}{c} R_{\textrm{NTSC}} \\
+G_{\textrm{NTSC}} \\
+B_{\textrm{NTSC}}\end{array}\right)$$
+++++++
+endif::[]
+ifeval::["{svgpdf}"=="svg"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right) \approx
+\left(\begin{array}{ccc}
+0.606993, & 0.173449, & 0.200571 \\
+0.298967, & 0.586421, & 0.114612 \\
+0.000000, & 0.066076, & 1.117469\end{array}\right)
+\left(\begin{array}{c} R_{\textrm{NTSC}} \\
+G_{\textrm{NTSC}} \\
+B_{\textrm{NTSC}}\end{array}\right)$$
+++++++
+endif::[]
+
+The inverse transformation, from the latexmath:[$XYZ$] space to a color
+defined in terms of NTSC 1953 color primaries, is:
+ifeval::["{svgpdf}"=="pdf"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{\textrm{NTSC}} \\
+G_{\textrm{NTSC}} \\
+B_{\textrm{NTSC}}\end{array}\right) \approx
+\left(\begin{array}{r@{}lr@{}lr@{}l}
+ 1.&909675, & -0.&532365, & -0.&288161 \\
+-0.&984965, &  1.&999777, & -0.&028317 \\
+ 0.&058241, & -0.&118246, &  0.&896554\end{array}\right)
+\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right)
+$$
+++++++
+endif::[]
+ifeval::["{svgpdf}"=="svg"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{\textrm{NTSC}} \\
+G_{\textrm{NTSC}} \\
+B_{\textrm{NTSC}}\end{array}\right) \approx
+\left(\begin{array}{ccc}
+ 1.909675, & -0.532365, & -0.288161 \\
+-0.984965, &  1.999777, & -0.028317 \\
+ 0.058241, & -0.118246, &  0.896554\end{array}\right)
+\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right)
+$$
+++++++
+endif::[]
+
+[[PRIMARIES_PAL525]]
+=== PAL 525-line analog color primaries
+
+<<bt1700,ITU-R BT.1700>> defines the following chromaticity coordinates
+for legacy 525-line PAL systems:
+[latexmath]
+++++++
+\begin{align*}
+R_x &= 0.630  & R_y &= 0.340 \\
+G_x &= 0.310  & G_y &= 0.595 \\
+B_x &= 0.155  & B_y &= 0.070 \\
+W_x &= 0.3101 & W_y &= 0.3162\ (\textrm{Illuminant C})
+\end{align*}
+++++++
+
+NOTE: This matches the color primaries from <<smpte170m,SMPTE-170m>> analog NTSC
+and <<bt601,BT.601>> 525-line encoding, but the white point used is CIE Standard
+Illuminant C, 6774K, as distinct from the CIE Illuminant D65 white point used by
+most modern standards.
+
+Therefore to convert from linear color values defined in terms of PAL 525-line color
+primaries to latexmath:[$XYZ$] space the formulae in <<PRIMARY_CONVERSION>> result
+in the following matrix:
+ifeval::["{svgpdf}"=="pdf"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right) \approx
+\left(\begin{array}{r@{}lr@{}lr@{}l}
+0.&415394, & 0.&354637, & 0.&210677 \\
+0.&224181, & 0.&680675, & 0.&095145 \\
+0.&019781, & 0.&108679, & 1.&053387\end{array}\right)
+\left(\begin{array}{c} R_{\textrm{PAL525}} \\
+G_{\textrm{PAL525}} \\
+B_{\textrm{PAL525}}\end{array}\right)$$
+++++++
+endif::[]
+ifeval::["{svgpdf}"=="svg"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right) \approx
+\left(\begin{array}{ccc}
+0.415394, & 0.354637, & 0.210677 \\
+0.224181, & 0.680675, & 0.095145 \\
+0.019781, & 0.108679, & 1.053387\end{array}\right)
+\left(\begin{array}{c} R_{\textrm{PAL525}} \\
+G_{\textrm{PAL525}} \\
+B_{\textrm{PAL525}}\end{array}\right)$$
+++++++
+endif::[]
+
+The inverse transformation, from the latexmath:[$XYZ$] space to a color
+defined in terms of PAL 525-line 1953 color primaries, is:
+ifeval::["{svgpdf}"=="pdf"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{\textrm{PAL525}} \\
+G_{\textrm{PAL525}} \\
+B_{\textrm{PAL525}}\end{array}\right) \approx
+\left(\begin{array}{r@{}lr@{}lr@{}l}
+ 3.&321392, & -1.&648181, & -0.&515410 \\
+-1.&101064, &  2.&037011, &  0.&036225 \\
+ 0.&051228, & -0.&179211, &  0.&955260\end{array}\right)
+\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right)
+$$
+++++++
+endif::[]
+ifeval::["{svgpdf}"=="svg"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{\textrm{PAL525}} \\
+G_{\textrm{PAL525}} \\
+B_{\textrm{PAL525}}\end{array}\right) \approx
+\left(\begin{array}{ccc}
+ 3.321392, & -1.648181, & -0.515410 \\
+-1.101064, &  2.037011, &  0.036225 \\
+ 0.051228, & -0.179211, &  0.955260\end{array}\right)
+\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right)
+$$
+++++++
+endif::[]
+
+[[PRIMARIES_ACES]]
+=== ACES color primaries
+
+The following chromaticity coordinates are defined in <<aces,SMPTE ST 2065-1>>
+[latexmath]
+++++++
+\begin{align*}
+R_x &= 0.73470  & R_y &= 0.26530 \\
+G_x &= 0.0      & G_y &= 1.0 \\
+B_x &= 0.00010  & B_y &= -0.0770 \\
+W_x &= 0.32168  & W_y &= 0.33767
+\end{align*}
+++++++
+
+Therefore to convert from linear color values defined in terms of ACES color
+primaries to latexmath:[$XYZ$] space the formulae in <<PRIMARY_CONVERSION>> result
+in the following matrix:
+ifeval::["{svgpdf}"=="pdf"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right) \approx
+\left(\begin{array}{r@{}lr@{}lr@{}l}
+0.&9525523959, & 0.&0,          &  0.&0000936786 \\
+0.&3439664498, & 0.&7281660966, & -0.&0721325464 \\
+0.&0,          & 0.&0,          &  1.&0088251844\end{array}\right)
+\left(\begin{array}{c} R_{\textrm{ACES}} \\
+G_{\textrm{ACES}} \\
+B_{\textrm{ACES}}\end{array}\right)$$
+++++++
+endif::[]
+ifeval::["{svgpdf}"=="svg"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right) \approx
+\left(\begin{array}{ccc}
+0.9525523959, & 0.0,          &  0.0000936786 \\
+0.3439664498, & 0.7281660966, & -0.0721325464 \\
+0.0,          & 0.0,          &  1.0088251844\end{array}\right)
+\left(\begin{array}{c} R_{\textrm{ACES}} \\
+G_{\textrm{ACES}} \\
+B_{\textrm{ACES}}\end{array}\right)$$
+++++++
+endif::[]
+The inverse transformation, from the latexmath:[$XYZ$] space to a color
+defined in terms of ACES color primaries, is:
+ifeval::["{svgpdf}"=="pdf"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{\textrm{ACES}} \\
+G_{\textrm{ACES}} \\
+B_{\textrm{ACES}}\end{array}\right) \approx
+\left(\begin{array}{r@{}lr@{}lr@{}l}
+ 1.&0498110175, & 0.&0,          & -0.&0000974845 \\
+-0.&4959030231, & 1.&3733130458, &  0.&0982400361 \\
+ 0.&0,          & 0.&0,          &  0.&9912520182\end{array}\right)
+\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right)
+$$
+++++++
+endif::[]
+ifeval::["{svgpdf}"=="svg"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{\textrm{ACES}} \\
+G_{\textrm{ACES}} \\
+B_{\textrm{ACES}}\end{array}\right) \approx
+\left(\begin{array}{ccc}
+ 1.0498110175, & 0.0,          & -0.0000974845 \\
+-0.4959030231, & 1.3733130458, &  0.0982400361 \\
+ 0.0,          & 0.0,          &  0.9912520182\end{array}\right)
+\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right)
+$$
+++++++
+endif::[]
+
+[[PRIMARIES_ACESCC]]
+=== ACEScc color primaries
+
+The following chromaticity coordinates are defined in <<aces,Academy S-2016-001>>
+(ACEScct) and S-2014-003 (ACEScc), which share the same primaries:
+[latexmath]
+++++++
+\begin{align*}
+R_x &= 0.713   & R_y &= 0.293 \\
+G_x &= 0.165   & G_y &= 0.830 \\
+B_x &= 0.128   & B_y &= 0.044 \\
+W_x &= 0.32168 & W_y &= 0.33767
+\end{align*}
+++++++
+
+Therefore to convert from linear color values defined in terms of ACEScc/ACEScct
+color primaries to latexmath:[$XYZ$] space the formulae in <<PRIMARY_CONVERSION>>
+result in the following matrix:
+ifeval::["{svgpdf}"=="pdf"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right) \approx
+\left(\begin{array}{r@{}lr@{}lr@{}l}
+ 0.&6624541811, & 0.&1340042065, & 0.&1561876870 \\
+ 0.&2722287168, & 0.&6740817658, & 0.&0536895174 \\
+-0.&0055746495, & 0.&0040607335, & 1.&0103391003\end{array}\right)
+\left(\begin{array}{c} R_{\textrm{ACEScct}} \\
+G_{\textrm{ACEScct}} \\
+B_{\textrm{ACEScct}}\end{array}\right)$$
+++++++
+endif::[]
+ifeval::["{svgpdf}"=="svg"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right) \approx
+\left(\begin{array}{ccc}
+ 0.6624541811, & 0.1340042065, & 0.1561876870 \\
+ 0.2722287168, & 0.6740817658, & 0.0536895174 \\
+-0.0055746495, & 0.0040607335, & 1.0103391003\end{array}\right)
+\left(\begin{array}{c} R_{\textrm{ACEScct}} \\
+G_{\textrm{ACEScct}} \\
+B_{\textrm{ACEScct}}\end{array}\right)$$
+++++++
+endif::[]
+The inverse transformation, from the latexmath:[$XYZ$] space to a color
+defined in terms of ACEScc/ACEScct color primaries, is:
+ifeval::["{svgpdf}"=="pdf"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{\textrm{ACEScc}} \\
+G_{\textrm{ACEScc}} \\
+B_{\textrm{ACEScc}}\end{array}\right) \approx
+\left(\begin{array}{r@{}lr@{}lr@{}l}
+ 1.&6410233797, & -0.&3248032942, & -0.&2364246952 \\
+-0.&6636628587, &  1.&6153315917, &  0.&0167563477 \\
+ 0.&0117218943, & -0.&0082844420, &  0.&9883948585\end{array}\right)
+\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right)
+$$
+++++++
+endif::[]
+ifeval::["{svgpdf}"=="svg"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{\textrm{ACEScc}} \\
+G_{\textrm{ACEScc}} \\
+B_{\textrm{ACEScc}}\end{array}\right) \approx
+\left(\begin{array}{ccc}
+ 1.6410233797, & -0.3248032942, & -0.2364246952 \\
+-0.6636628587, &  1.6153315917, &  0.0167563477 \\
+ 0.0117218943, & -0.0082844420, &  0.9883948585\end{array}\right)
+\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right)
+$$
+++++++
+endif::[]
+
+<<<
+[[PRIMARIES_DISPLAYP3]]
+=== Display P3 color primaries
+
+The following chromaticity coordinates are defined in <<dcip3,Display P3>>:
+[latexmath]
+++++++
+\begin{align*}
+R_x &= 0.6800  & R_y &= 0.3200 \\
+G_x &= 0.2650  & G_y &= 0.6900 \\
+B_x &= 0.1500  & B_y &= 0.0600 \\
+W_x &= 0.3127  & W_y &= 0.3290
+\end{align*}
+++++++
+
+NOTE: The DCI P3 color space defines the bounds of its gamut using
+these primaries, but actual color data in DCI P3 is encoded using
+CIE XYZ coordinates.
+Display P3, on the other hand, uses these values as primaries in an
+RGB color space, with a D65 white point.
+
+Therefore to convert from linear color values defined in terms of Display P3
+color primaries to latexmath:[$XYZ$] space the formulae in <<PRIMARY_CONVERSION>>
+result in the following matrix:
+ifeval::["{svgpdf}"=="pdf"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right) \approx
+\left(\begin{array}{r@{}lr@{}lr@{}l}
+0.&4865709486, & 0.&2656676932, & 0.&1982172852 \\
+0.&2289745641, & 0.&6917385218, & 0.&0792869141 \\
+0.&0000000000, & 0.&0451133819, & 1.&0439443689\end{array}\right) =
+\left(\begin{array}{c} R_{\textrm{DisplayP3}} \\
+G_{\textrm{DisplayP3}} \\
+B_{\textrm{DisplayP3}}\end{array}\right)$$
+++++++
+endif::[]
+ifeval::["{svgpdf}"=="svg"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right) \approx
+\left(\begin{array}{ccc}
+0.4865709486, & 0.2656676932, & 0.1982172852 \\
+0.2289745641, & 0.6917385218, & 0.0792869141 \\
+0.0000000000, & 0.0451133819, & 1.0439443689\end{array}\right) =
+\left(\begin{array}{c} R_{\textrm{DisplayP3}} \\
+G_{\textrm{DisplayP3}} \\
+B_{\textrm{DisplayP3}}\end{array}\right)$$
+++++++
+endif::[]
+The inverse transformation, from the latexmath:[$XYZ$] space to a color
+defined in terms of DisplayP3 color primaries, is:
+ifeval::["{svgpdf}"=="pdf"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{\textrm{DisplayP3}} \\
+G_{\textrm{DisplayP3}} \\
+B_{\textrm{DisplayP3}}\end{array}\right) \approx
+\left(\begin{array}{r@{}lr@{}lr@{}l}
+ 2.&4934969119, & -0.&9313836179, & -0.&4027107845 \\
+-0.&8294889696, &  1.&7626640603, &  0.&0236246858 \\
+ 0.&0358458302, & -0.&0761723893, &  0.&9568845240\end{array}\right)
+\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right)
+$$
+++++++
+endif::[]
+ifeval::["{svgpdf}"=="svg"]
+++++++
+$$\left(\begin{array}{c} R_{\textrm{DisplayP3}} \\
+G_{\textrm{DisplayP3}} \\
+B_{\textrm{DisplayP3}}\end{array}\right) \approx
+\left(\begin{array}{ccc}
+ 2.4934969119, & -0.9313836179, & -0.4027107845 \\
+-0.8294889696, &  1.7626640603, &  0.0236246858 \\
+ 0.0358458302, & -0.0761723893, &  0.9568845240\end{array}\right)
+\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right)
+$$
+++++++
+endif::[]
+
+NOTE: These matrices differ from those given in <<dcip3,SMPTE EG 432-1>>
+due to the choice of a D65 white point in Display P3.
+The matrices in 432-1 can be reproduced by applying a white point
+of latexmath:[$W_x = 0.314,\ W_y = 0.351$] to the above primaries.
+
+<<<
+[[PRIMARIES_ADOBERGB]]
+=== Adobe RGB (1998) color primaries
+
+The following chromaticity coordinates are defined in
+<<adobergb,Adobe RGB (1998)>>:
+[latexmath]
+++++++
+\begin{align*}
+R_x &= 0.6400  & R_y &= 0.3300 \\
+G_x &= 0.2100  & G_y &= 0.7100 \\
+B_x &= 0.1500  & B_y &= 0.0600 \\
+W_x &= 0.3127  & W_y &= 0.3290
+\end{align*}
+++++++
+
+Therefore to convert from linear color values defined in terms of Adobe RGB
+(1998) color primaries to latexmath:[$XYZ$] space the formulae in
+<<PRIMARY_CONVERSION>> result in the following matrix:
+[latexmath]
+++++++
+$$\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right) \approx
+\left(\begin{array}{ccc}
+0.5766690429, & 0.1855582379, & 0.1882286462 \\
+0.2973449753, & 0.6273635663, & 0.0752914585 \\
+0.0270313614, & 0.0706888525, & 0.9913375368\end{array}\right) =
+\left(\begin{array}{c} R_{\textrm{AdobeRGB}} \\
+G_{\textrm{AdobeRGB}} \\
+B_{\textrm{AdobeRGB}}\end{array}\right)$$
+++++++
+The inverse transformation, from the latexmath:[$XYZ$] space to a color
+defined in terms of Adobe RGB (1998) color primaries, is:
+ifeval::["{svgpdf}"=="pdf"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{\textrm{AdobeRGB}} \\
+G_{\textrm{AdobeRGB}} \\
+B_{\textrm{AdobeRGB}}\end{array}\right) \approx
+\left(\begin{array}{r@{}lr@{}lr@{}l}
+ 2.&0415879038, & -0.&5650069743, & -0.&3447313508 \\
+-0.&9692436363, &  1.&8759675015, &  0.&0415550574 \\
+ 0.&0134442806, & -0.&1183623922, &  1.&0151749944\end{array}\right)
+\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right)
+$$
+++++++
+endif::[]
+ifeval::["{svgpdf}"=="svg"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{\textrm{AdobeRGB}} \\
+G_{\textrm{AdobeRGB}} \\
+B_{\textrm{AdobeRGB}}\end{array}\right) \approx
+\left(\begin{array}{ccc}
+ 2.0415879038, & -0.5650069743, & -0.3447313508 \\
+-0.9692436363, &  1.8759675015, &  0.0415550574 \\
+ 0.0134442806, & -0.1183623922, &  1.0151749944\end{array}\right)
+\left(\begin{array}{c}X \\
+Y \\
+Z\end{array}\right)
+$$
+++++++
+endif::[]
+
+Adobe RGB (1998) defines a reference display white brightness of 160cd/m^2^ and
+a black point 0.34731% of this brightness, or 0.5557cd/m^2^, for a contrast
+ratio of 287.9.
+The black point has the same color temperature as the white point, and
+this does not affect the above matrices.
+
+<<<
+=== BT.709/BT.601 625-line primary conversion example
+
+Conversion from <<bt709,BT.709>> to <<bt601,BT.601>> 625-line primaries can
+be performed using the matrices in <<PRIMARIES_BT709>> and <<PRIMARIES_BT601_EBU>>
+as follows:
+
+ifeval::["{svgpdf}"=="pdf"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{601\textrm{EBU}} \\
+G_{601\textrm{EBU}} \\
+B_{601\textrm{EBU}}\end{array}\right) \approx
+\left(\begin{array}{r@{}lr@{}lr@{}l}
+ 3.&063361, & -1.&393390, & -0.&475824 \\
+-0.&969244, &  1.&875968, &  0.&041555 \\
+ 0.&067861, & -0.&228799, &  1.&069090\end{array}\right)
+\left(\begin{array}{ccc}
+0.412391, & 0.357584, & 0.180481 \\
+0.212639, & 0.715169, & 0.072192 \\
+0.019331, & 0.119195, & 0.950532\end{array}\right)
+\left(\begin{array}{c} R_{709} \\
+G_{709} \\
+B_{709}\end{array}\right)$$
+++++++
+endif::[]
+ifeval::["{svgpdf}"=="svg"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{601\textrm{EBU}} \\
+G_{601\textrm{EBU}} \\
+B_{601\textrm{EBU}}\end{array}\right) \approx
+\left(\begin{array}{ccc}
+ 3.063361, & -1.393390, & -0.475824 \\
+-0.969244, &  1.875968, &  0.041555 \\
+ 0.067861, & -0.228799, &  1.069090\end{array}\right)
+\left(\begin{array}{ccc}
+0.412391, & 0.357584, & 0.180481 \\
+0.212639, & 0.715169, & 0.072192 \\
+0.019331, & 0.119195, & 0.950532\end{array}\right)
+\left(\begin{array}{c} R_{709} \\
+G_{709} \\
+B_{709}\end{array}\right)$$
+++++++
+endif::[]
+
+ifeval::["{svgpdf}"=="pdf"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{601\textrm{EBU}} \\
+G_{601\textrm{EBU}} \\
+B_{601\textrm{EBU}}\end{array}\right) \approx
+\left(\begin{array}{r@{}lr@{}lr@{}l}
+0.&957815, &  0.&042184, & 0.&0 \\
+0.&0,      &  1.&0,      & 0.&0 \\
+0.&0,      & -0.&011934, & 1.&011934\end{array}\right)
+\left(\begin{array}{c} R_{709} \\
+G_{709} \\
+B_{709}\end{array}\right)$$
+++++++
+endif::[]
+ifeval::["{svgpdf}"=="svg"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{601\textrm{EBU}} \\
+G_{601\textrm{EBU}} \\
+B_{601\textrm{EBU}}\end{array}\right) \approx
+\left(\begin{array}{ccc}
+0.957815, &  0.042184, & 0.0 \\
+0.0,      &  1.0,      & 0.0 \\
+0.0,      & -0.011934, & 1.011934\end{array}\right)
+\left(\begin{array}{c} R_{709} \\
+G_{709} \\
+B_{709}\end{array}\right)$$
+++++++
+endif::[]
+
+Conversion from BT.601 625-line to BT.709 primaries can be performed
+using these matrices:
+
+ifeval::["{svgpdf}"=="pdf"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{709} \\
+G_{709} \\
+B_{709}\end{array}\right) \approx
+\left(\begin{array}{r@{}lr@{}lr@{}l}
+ 3.&240970, & -1.&537383, & -0.&498611 \\
+-0.&969244, &  1.&875968, &  0.&041555 \\
+ 0.&055630, & -0.&203977, &  1.&056972\end{array}\right)
+\left(\begin{array}{ccc}
+0.430554, & 0.341550, & 0.178352 \\
+0.222004, & 0.706655, & 0.071341 \\
+0.020182, & 0.129553, & 0.939322\end{array}\right)
+\left(\begin{array}{c} R_{601\textrm{EBU}} \\
+G_{601\textrm{EBU}} \\
+B_{601\textrm{EBU}}\end{array}\right)$$
+++++++
+endif::[]
+ifeval::["{svgpdf}"=="svg"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{709} \\
+G_{709} \\
+B_{709}\end{array}\right) \approx
+\left(\begin{array}{ccc}
+ 3.240970, & -1.537383, & -0.498611 \\
+-0.969244, &  1.875968, &  0.041555 \\
+ 0.055630, & -0.203977, &  1.056972\end{array}\right)
+\left(\begin{array}{ccc}
+0.430554, & 0.341550, & 0.178352 \\
+0.222004, & 0.706655, & 0.071341 \\
+0.020182, & 0.129553, & 0.939322\end{array}\right)
+\left(\begin{array}{c} R_{601\textrm{EBU}} \\
+G_{601\textrm{EBU}} \\
+B_{601\textrm{EBU}}\end{array}\right)$$
+++++++
+endif::[]
+
+ifeval::["{svgpdf}"=="pdf"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{709} \\
+G_{709} \\
+B_{709}\end{array}\right) \approx
+\left(\begin{array}{r@{}lr@{}lr@{}l}
+1.&044044, & -0.&044043, & 0.&0 \\
+0.&0,      &  1.&0,      & 0.&0 \\
+0.&0,      &  0.&011793, & 0.&988207\end{array}\right)
+\left(\begin{array}{c} R_{601\textrm{EBU}} \\
+G_{601\textrm{EBU}} \\
+B_{601\textrm{EBU}}\end{array}\right)$$
+++++++
+endif::[]
+ifeval::["{svgpdf}"=="svg"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{709} \\
+G_{709} \\
+B_{709}\end{array}\right) \approx
+\left(\begin{array}{ccc}
+1.044044, & -0.044043, & 0.0 \\
+0.0,      &  1.0,      & 0.0 \\
+0.0,      &  0.011793, & 0.988207\end{array}\right)
+\left(\begin{array}{c} R_{601\textrm{EBU}} \\
+G_{601\textrm{EBU}} \\
+B_{601\textrm{EBU}}\end{array}\right)$$
+++++++
+endif::[]
+
+=== BT.709/BT.2020 primary conversion example
+
+Conversion from <<bt709,BT.709>> to <<bt2020,BT.2020>> primaries can
+be performed using the matrices in <<PRIMARIES_BT2020>> and <<PRIMARIES_BT709>>
+as follows:
+
+ifeval::["{svgpdf}"=="pdf"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{2020} \\
+G_{2020} \\
+B_{2020}\end{array}\right) \approx
+\left(\begin{array}{r@{}lr@{}lr@{}l}
+ 1.&716651, & -0.&355671, & -0.&253366 \\
+-0.&666684, &  1.&616481, &  0.&015769 \\
+ 0.&017640, & -0.&042771, &  0.&942103\end{array}\right)
+\left(\begin{array}{ccc}
+0.412391, & 0.357584, & 0.180481 \\
+0.212639, & 0.715169, & 0.072192 \\
+0.019331, & 0.119195, & 0.950532\end{array}\right)
+\left(\begin{array}{c} R_{709} \\
+G_{709} \\
+B_{709}\end{array}\right)$$
+++++++
+endif::[]
+ifeval::["{svgpdf}"=="svg"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{2020} \\
+G_{2020} \\
+B_{2020}\end{array}\right) \approx
+\left(\begin{array}{ccc}
+ 1.716651, & -0.355671, & -0.253366 \\
+-0.666684, &  1.616481, &  0.015769 \\
+ 0.017640, & -0.042771, &  0.942103\end{array}\right)
+\left(\begin{array}{ccc}
+0.412391, & 0.357584, & 0.180481 \\
+0.212639, & 0.715169, & 0.072192 \\
+0.019331, & 0.119195, & 0.950532\end{array}\right)
+\left(\begin{array}{c} R_{709} \\
+G_{709} \\
+B_{709}\end{array}\right)$$
+++++++
+endif::[]
+
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{2020} \\
+G_{2020} \\
+B_{2020}\end{array}\right) \approx
+\left(\begin{array}{ccc}
+0.627404, & 0.329282, & 0.043314 \\
+0.069097, & 0.919541, & 0.011362 \\
+0.016392, & 0.088013, & 0.895595\end{array}\right)
+\left(\begin{array}{c} R_{709} \\
+G_{709} \\
+B_{709}\end{array}\right)$$
+++++++
+
+Conversion from BT.2020 primaries to BT.709 primaries can be
+performed with the following matrices:
+
+ifeval::["{svgpdf}"=="pdf"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{709} \\
+G_{709} \\
+B_{709}\end{array}\right) \approx
+\left(\begin{array}{r@{}lr@{}lr@{}l}
+ 3.&240970, & -1.&537383, & -0.&498611 \\
+-0.&969244, &  1.&875968, &  0.&041555 \\
+ 0.&055630, & -0.&203977, &  1.&056972\end{array}\right)
+\left(\begin{array}{r@{}lr@{}lr@{}l}
+0.&636958, & 0.&144617, & 0.&168881 \\
+0.&262700, & 0.&677998, & 0.&059302 \\
+0.&000000, & 0.&028073, & 1.&060985\end{array}\right)
+\left(\begin{array}{c} R_{2020} \\
+G_{2020} \\
+B_{2020}\end{array}\right)$$
+++++++
+endif::[]
+ifeval::["{svgpdf}"=="svg"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{709} \\
+G_{709} \\
+B_{709}\end{array}\right) \approx
+\left(\begin{array}{ccc}
+ 3.240970, & -1.537383, & -0.498611 \\
+-0.969244, &  1.875968, &  0.041555 \\
+ 0.055630, & -0.203977, &  1.056972\end{array}\right)
+\left(\begin{array}{ccc}
+0.636958, & 0.144617, & 0.168881 \\
+0.262700, & 0.677998, & 0.059302 \\
+0.000000, & 0.028073, & 1.060985\end{array}\right)
+\left(\begin{array}{c} R_{2020} \\
+G_{2020} \\
+B_{2020}\end{array}\right)$$
+++++++
+endif::[]
+
+ifeval::["{svgpdf}"=="pdf"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{709} \\
+G_{709} \\
+B_{709}\end{array}\right) \approx
+\left(\begin{array}{r@{}lr@{}lr@{}l}
+ 1.&660491, & -0.&587641, & -0.&072850 \\
+-0.&124551, &  1.&132900, & -0.&008349 \\
+-0.&018151, & -0.&100579, &  1.&118730
+\end{array}\right)
+\left(\begin{array}{c} R_{2020} \\
+G_{2020} \\
+B_{2020}\end{array}\right)$$
+++++++
+endif::[]
+ifeval::["{svgpdf}"=="svg"]
+[latexmath]
+++++++
+$$\left(\begin{array}{c} R_{709} \\
+G_{709} \\
+B_{709}\end{array}\right) \approx
+\left(\begin{array}{ccc}
+ 1.660491, & -0.587641, & -0.072850 \\
+-0.124551, &  1.132900, & -0.008349 \\
+-0.018151, & -0.100579, &  1.118730
+\end{array}\right)
+\left(\begin{array}{c} R_{2020} \\
+G_{2020} \\
+B_{2020}\end{array}\right)$$
+++++++
+endif::[]

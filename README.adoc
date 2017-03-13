@@ -1,0 +1,38 @@
+Khronos^(TM)^ Data Format Specification
+=======================================
+
+This repository contains source for the Khronos Data Format Specification.
+
+The Khronos Data Format Specification describes a portable mechanism
+for describing a wide range of image/texture formats and other forms
+of data.
+It solely describes the format of what may be considered to be a single
+"pixel" or a repeating group of pixels considered to be a "texture block".
+
+A wide variety of incompatible mechanisms exist in the industry for
+describing formats that may be supported by an API.
+These mechanisms typically consist of a simple enumeration, and need
+retrospectively supplementing by metadata.
+It is therefore common for generic code which can handle multiple
+ormats to require multiple large switch statements to distinguish
+different features of the formats that it supports, and for the
+handling of image metadata to be awkward or incomplete.
+The intent of this specification is to provide a machine-readable
+and precise description that directly incorporates most common
+metadata, while being extensible to specific needs.
+
+This specification also contains a detailed description of the
+in-memory representation of a number of compressed texture formats,
+and describes some common color spaces.
+
+Building the Specification
+==========================
+
+The build system relies on
+link:http://www.methods.co.nz/asciidoc/index.html[asciidoc], which is
+available as part of many Linux distributions.
+The PDF build subsequently depends on
+link:http://dblatex.sourceforge.net[dblatex].
+
+Both forms of the specification may be built with a simple "make"
+command; use "make pdf" or "make html" to build just one target.
