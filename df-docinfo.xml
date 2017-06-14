@@ -198,4 +198,12 @@ ASTC "block footprint" note, fixed credits/changelog/contents
 ASTC multi-point "part" and quint decode typo fixes
 </revremark>
 </revision>
+<revision>
+<revnumber>1.1 rev 8</revnumber>
+<date>June 2017</date>
+<authorinitials>AG</authorinitials>
+<revremark>
+ETC2 legibility and table typo fix
+</revremark>
+</revision>
 </revhistory>

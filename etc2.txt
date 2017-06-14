@@ -597,11 +597,11 @@ where latexmath:[$clamp255(\cdot)$] maps values outside the range
 latexmath:[$255.0$].
 
 The latexmath:[$base\_codeword$] is stored in the first 8 bits (bits 63--56) as
-shown in <<Table-etc2eac-dataformat>>a. This is the first term
+shown in <<Table-etc2eac-dataformat>> part (a). This is the first term
 in <<Equation-etc2eac-eqn-base>>.
 
 Next, we want to obtain the modifier. Bits 51--48 in
-<<Table-etc2eac-dataformat>>a form a 4-bit index used to select
+<<Table-etc2eac-dataformat>> part (a) form a 4-bit index used to select
 one of 16 pre-determined `modifier tables', shown in
 <<Table-etc2eac-modifiers>>.
 
@@ -632,7 +632,7 @@ For example, a table index of latexmath:[$13$] (1101 binary) means that we shoul
 use table [latexmath:[$-1$], latexmath:[$-2$], latexmath:[$-3$], latexmath:[$-10$], latexmath:[$0$], latexmath:[$1$], latexmath:[$2$], latexmath:[$9$]]. To select
 which of these values we should use, we consult the pixel index of the
 pixel we want to decode. As shown in
-<<Table-etc2eac-dataformat>>b, bits 47--0 are used to store
+<<Table-etc2eac-dataformat>> part (b), bits 47--0 are used to store
 a 3-bit index for each pixel in the block, selecting one of the 8
 possible values. Assume we are interested in pixel latexmath:[$b$]. Its pixel
 indices are stored in bit 44--42, with the most significant bit stored
@@ -748,7 +748,7 @@ clamp2(base\_codeword \times 8 + 4 + modifier \times multiplier \times 8)
 +++++++
 
 The base_codeword is stored in the first 8 bits as shown in
-<<Table-etc2eac-dataformat>>a. Bits 63--56 in each block
+<<Table-etc2eac-dataformat>> part (a). Bits 63--56 in each block
 represent an eight-bit integer (base_codeword) which is multiplied by
 8 by shifting three steps to the left. We can add latexmath:[$4$] to this value
 without addition logic by just inserting 100 binary in the last three
@@ -985,7 +985,7 @@ clamp2(base\_codeword\times 8 + modifier\times multiplier \times 8)
 +++++
 
 The _base_codeword_ is stored in the first 8 bits as shown in
-<<Table-etc2eac-dataformat>>a. It is a two's-complement value
+<<Table-etc2eac-dataformat>> part (a). It is a two's-complement value
 in the range [latexmath:[$-127$], latexmath:[$127$]], and where the value latexmath:[$-128$] is not allowed;
 however, if it should occur anyway it must be treated as latexmath:[$-127$]. The
 base_codeword is then multiplied by latexmath:[$8$] by shifting it left three
@@ -1169,7 +1169,7 @@ information about a four-channel latexmath:[$4 \times 4$] pixel block as shown i
 <<Table-etc2-pixellayout>>.
 
 The blocks are compressed using one of four different `modes'.
-<<Table-etc2punch-dataformat>>a shows the bits used for
+<<Table-etc2punch-dataformat>> part (a) shows the bits used for
 determining the mode used in a given block.
 
 [[Table-etc2punch-dataformat]]
@@ -1191,7 +1191,7 @@ determining the mode used in a given block.
 32+| e) bit layout for bits 31 through 0 for `diff', `T' and `H' modes
 >| ~31~ >| ~30~ >| ~29~ >| ~28~ >| ~27~ >| ~26~ >| ~25~ >| ~24~ >| ~23~ >| ~22~ >| ~21~ >| ~20~ >| ~19~ >| ~18~ >| ~17~ >| ~16~ >| ~15~ >| ~14~ >| ~13~ >| ~12~ >| ~11~ >| ~10~ >| ~9~ >| ~8~ >| ~7~ >| ~6~ >| ~5~ >| ~4~ >| ~3~ >| ~2~ >| ~1~ >| ~0~
 ^| ~p0~ ^| ~o0~ ^| ~n0~ ^| ~m0~ ^| ~l0~ ^| ~k0~ ^| ~j0~ ^| ~i0~ ^| ~h0~ ^| ~g0~ ^| ~f0~ ^| ~e0~ ^| ~d0~ ^| ~c0~ ^| ~b0~ ^| ~a0~ ^| ~p1~ ^| ~o1~ ^| ~n1~ ^| ~m1~ ^| ~l1~ ^| ~k1~ ^| ~j1~ ^| ~i1~ ^| ~h1~ ^| ~g1~ ^| ~f1~ ^| ~e1~ ^| ~d1~ ^| ~c1~ ^| ~b1~ ^| ~a1~
-32+| g) bit layout for bits 63 through 0 for `planar' mode:
+32+| f) bit layout for bits 63 through 0 for `planar' mode:
 >| ~63~ >| ~62~ >| ~61~ >| ~60~ >| ~59~ >| ~58~ >| ~57~ >| ~56~ >| ~55~ >| ~54~ >| ~53~ >| ~52~ >| ~51~ >| ~50~ >| ~49~ >| ~48~ >| ~47~ >| ~46~ >| ~45~ >| ~44~ >| ~43~ >| ~42~ >| ~41~ >| ~40~ >| ~39~ >| ~38~ >| ~37~ >| ~36~ >| ~35~ >| ~34~ >| ~33~ >| ~32~
 ^| . 6+^| R O ^| G O 1 ^| . 6+^| G O 2 | B O 1 3+^| ... 2+^| B O 2 ^| . 3+^| B O 3 5+^| R H 1 ^| 1 ^| R H 2
 >| ~31~ >| ~30~ >| ~29~ >| ~28~ >| ~27~ >| ~26~ >| ~25~ >| ~24~ >| ~23~ >| ~22~ >| ~21~ >| ~20~ >| ~19~ >| ~18~ >| ~17~ >| ~16~ >| ~15~ >| ~14~ >| ~13~ >| ~12~ >| ~11~ >| ~10~ >| ~9~ >| ~8~ >| ~7~ >| ~6~ >| ~5~ >| ~4~ >| ~3~ >| ~2~ >| ~1~ >| ~0~
@@ -1210,7 +1210,7 @@ selected. Finally, if all of the aforementioned sums lie between latexmath:[$0$]
 latexmath:[$31$], the `differential' mode is selected.
 
 The layout of the bits used to decode the `differential' mode is shown
-in <<Table-etc2punch-dataformat>>b. In this mode, the latexmath:[$4
+in <<Table-etc2punch-dataformat>> part (b). In this mode, the latexmath:[$4
 \times 4$] block is split into two subblocks of either size latexmath:[$2\times 4$] or
 latexmath:[$4\times 2$]. This is controlled by bit 32, which we dub the `flip
 bit'.  If the `flip bit' is 0, the block is divided into two latexmath:[$2\times
@@ -1220,7 +1220,7 @@ subblocks on top of each other, as shown in <<Table-etc2-ontop>>. For each
 subblock, a `base color' is stored.
 
 In the `differential' mode, following the layout shown in
-<<Table-etc2punch-dataformat>>b, the base color for
+<<Table-etc2punch-dataformat>> part (b), the base color for
 subblock 1 is derived from the five-bit codewords R, G and B. These
 five-bit codewords are extended to eight bits by replicating the top
 three highest order bits to the three lowest order bits. For instance,
@@ -1285,7 +1285,7 @@ alternative decompression modes would have been chosen instead of the
 After obtaining the base color, a table is chosen using the table
 codewords: For subblock 1, table codeword 1 is used (bits 39--37), and
 for subblock 2, table codeword 2 is used (bits 36--34), see
-<<Table-etc2punch-dataformat>>b. The table codeword is used
+<<Table-etc2punch-dataformat>> part (b). The table codeword is used
 to select one of eight modifier tables. If the `opaque'-bit (bit 33)
 is set, <<Table-etc2punch-modifiers-a>> is used. If it is
 unset, <<Table-etc2punch-modifiers-b>> is used.  For
@@ -1301,7 +1301,7 @@ using the two `pixel index' bits. The pixel index bits are unique for
 each pixel. For instance, the pixel index for pixel d (see
 <<Table-etc2-pixellayout>>) can be found in bits 19 (most
 significant bit, MSB), and 3 (least significant bit, LSB), see
-<<Table-etc2punch-dataformat>>e. Note that the pixel index
+<<Table-etc2punch-dataformat>> part (e). Note that the pixel index
 for a particular texel is always stored in the same bit position,
 irrespectively of the `flipbit'.
 
@@ -1319,7 +1319,7 @@ latexmath:[$37$], latexmath:[$45$]). These values are then clamped to [latexmath
 color (latexmath:[$255$], latexmath:[$37$], latexmath:[$45$]).
 
 [[Table-etc2punch-pixelindices-a]]
-.a) ETC2 mapping from pixel index values to modifier values when `opaque'-bit is set.
+.ETC2 mapping from pixel index values to modifier values when `opaque'-bit is set.
 [options="header",cols="1,1,3",width="50%"]
 |============
 2+^| Pixel index value +| Resulting modifier value
@@ -1331,7 +1331,7 @@ color (latexmath:[$255$], latexmath:[$37$], latexmath:[$45$]).
 |============
 
 [[Table-etc2punch-pixelindices-b]]
-.b) ETC2 mapping from pixel index values to modifier values when `opaque'-bit is unset.
+.ETC2 mapping from pixel index values to modifier values when `opaque'-bit is unset.
 [options="header",cols="1,1,3",width="50%"]
 |============
 2+^| Pixel index value +| Resulting modifier value
@@ -1344,7 +1344,7 @@ color (latexmath:[$255$], latexmath:[$37$], latexmath:[$45$]).
 
 The alpha component is decoded using the `opaque'-bit, which is
 positioned in bit 33 (see
-<<Table-etc2punch-dataformat>>b). If the `opaque'-bit is
+<<Table-etc2punch-dataformat>> part (b)). If the `opaque'-bit is
 set, alpha is always latexmath:[$255$]. However, if the `opaque'-bit is zero, the
 alpha-value depends on the pixel indices; if MSB==1 and LSB==0, the
 alpha value will be zero, otherwise it will be latexmath:[$255$].  Finally, if the
@@ -1373,8 +1373,8 @@ decoded RGBA-tuple will be (latexmath:[$255$], latexmath:[$37$], latexmath:[$45$
 The `T' and `H' compression modes share some characteristics: both use
 two base colors stored using 4 bits per channel. These bits are not
 stored sequentially, but in the layout shown in
-<<Table-etc2punch-dataformat>>c and
-<<Table-etc2punch-dataformat>>d. To clarify, in the `T' mode,
+<<Table-etc2punch-dataformat>> part (c) and
+<<Table-etc2punch-dataformat>> part (d). To clarify, in the `T' mode,
 the two colors are constructed as follows:
 
 [latexmath]
@@ -1406,7 +1406,7 @@ simply the first base color, and `paint color 2' is the second base
 color. To obtain the other `paint colors', a `distance' is first
 determined, which will be used to modify the luminance of one of the
 base colors. This is done by combining the values `da' and `db' shown
-in <<Table-etc2punch-dataformat>>c} by latexmath:[$(da\ll 1)|db$], and
+in <<Table-etc2punch-dataformat>> part (c) by latexmath:[$(da\ll 1)|db$], and
 then using this value as an index into the small look-up table shown
 in <<Table-etc2-distancetable>>. For example, if `da' is 10 binary and
 `db' is 1 binary, the index is 101 binary and the selected distance will
@@ -1446,7 +1446,7 @@ if (opaque == 0 && MSB == 1 && LSB == 0) {
 A `distance' value is computed for the `H' mode as well, but doing so
 is slightly more complex. In order to construct the three-bit index
 into the distance table shown in <<Table-etc2-distancetable>>, `da'
-and `db' shown in <<Table-etc2punch-dataformat>>d are used
+and `db' shown in <<Table-etc2punch-dataformat>> part (d) are used
 as the most significant bit and middle bit, respectively, but the
 least significant bit is computed as (base col 1 value latexmath:[$\geq$] base col
 2 value), the `value' of a color for the comparison being equal to
@@ -1496,7 +1496,7 @@ base colors are supplied and used to form a color plane used to
 determine the color of the individual pixels in the block.
 
 All three base colors are stored in RGB 676 format, and stored in the
-manner shown in <<Table-etc2punch-dataformat>>f.
+manner shown in <<Table-etc2punch-dataformat>> part (f).
 The three colors are there labelled
 `O', `H' and `V', so that the three components of color `V' are RV, GV
 and BV, for example. Some color channels are split into
