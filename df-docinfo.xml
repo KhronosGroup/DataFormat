@@ -1,5 +1,5 @@
 <!--
-Copyright (c) 2014-2016 The Khronos Group Inc.
+Copyright (c) 2014-2017 The Khronos Group Inc.
 Copyright notice at https://www.khronos.org/registry/speccopyright.html
  -->
 
@@ -43,13 +43,13 @@ Copyright notice at https://www.khronos.org/registry/speccopyright.html
 
 <!--
 <copyright>
-<year>2016</year>
+<year>2017</year>
 <holder>The Khronos Group Inc.</holder>
 </copyright>
 -->
 <legalnotice>
 <simpara>
-Copyright (C) 2014-2016  The Khronos Group Inc. All Rights Reserved.
+Copyright (C) 2014-2017  The Khronos Group Inc. All Rights Reserved.
 </simpara>
 <simpara>
 This specification is protected by copyright laws and contains material proprietary to the Khronos Group, Inc. It or any components may not be reproduced, republished, distributed, transmitted, displayed, broadcast, or otherwise exploited in any manner without the express prior written permission of Khronos Group. You may use this specification for implementing the functionality therein, without altering or removing any trademark, copyright or other notice from the specification, but the receipt or possession of this specification does not convey any rights to reproduce, disclose, or distribute its contents, or to manufacture, use, or sell anything that it may describe, in whole or in part.
@@ -196,6 +196,14 @@ ASTC "block footprint" note, fixed credits/changelog/contents
 <authorinitials>AG</authorinitials>
 <revremark>
 ASTC multi-point "part" and quint decode typo fixes
+</revremark>
+</revision>
+<revision>
+<revnumber>1.1 rev 8</revnumber>
+<date>June 2017</date>
+<authorinitials>AG</authorinitials>
+<revremark>
+ETC2 legibility and table typo fix
 </revremark>
 </revision>
 </revhistory>
