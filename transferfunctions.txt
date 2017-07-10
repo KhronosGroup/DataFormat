@@ -188,12 +188,14 @@ due to filtering.
 Working solely with the EOTF or OETF results in ignoring the intended OOTF of
 the system.
 
-In practice the OOTF is usually near enough to linear that this distinction
-is subtle and rarely made for computer graphics, especially since these may
-be designed to be viewed in brighter conditions which would merit a linear
-OOTF.
-For video content viewed in darker conditions, the non-linearity of the OOTF
-is significant.
+In practice, the OOTF is usually near enough to linear that this distinction
+is subtle and rarely worth making for computer graphics, especially since
+computer-generated images may be designed to be viewed in brighter conditions
+which would merit a linear OOTF, and since a lot of graphical content is
+inherently not photo-realistic (or of limited realism, so that the transfer
+functions are not the most important factor in suspending disbelief).
+For video and photographic content viewed in darker conditions, the
+non-linearity of the OOTF is significant.
 The effect of a non-linear OOTF is usually secondary to the benefits of using
 non-linear encoding to reduce quantization.
 
