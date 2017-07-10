@@ -16,6 +16,20 @@ A color space consists of three basic components:
   Since the human eye's sensitivity to changes in intensity is
   non-linear, a non-linear encoding scheme typically allows
   improved visual quality at reduced storage cost.
+** An opto-electrical transfer function (OETF) describes the
+   conversion from ``scene-referred'' normalized linear light
+   intensity to a (typically) non-linear electronic representation.
+   The inverse function is written ``OETF^&#160;-1^''.
+** An electro-optical transfer function (EOTF) describes the
+   conversion from the electronic representation to
+   ``display-referred'' normalized linear light intensity in
+   the display system.
+   The inverse function is written ``EOTF^&#160;-1^''.
+** An opto-optical transfer function (OOTF) describes the
+   relationship between the linear scene light intensity and
+   linear display light intensity: OOTF(x) = EOTF(EOTF(x)).
+   OETF&#160;=&#160;EOTF^&#160;-1^ and
+   EOTF&#160;=&#160;OETF^&#160;-1^ only if the OOTF is linear.
 ** Historically, a non-linear transfer function has been implicit
    due to the non-linear relationship between voltage and intensity
    provided by a CRT display.
@@ -43,6 +57,8 @@ A color space consists of three basic components:
    spectrum.
 ** Use of incorrect primaries introduces a shift of hue, most
    visible in saturated colors.
+
+<<<
 * <<MODEL_CONVERSION,Color models>> describe the distinction
   between a color representation and additive colors.
   Since the human visual system treats differences in absolute
@@ -62,7 +78,6 @@ A color space consists of three basic components:
    may represent white in CMYK, or saturated green in color
    difference models.
 
-<<<
 === Operations in a color conversion
 
 Conversion between color representations may require a number of

@@ -41,22 +41,24 @@ When combined with a linear segment, the power function has a different
 exponent from the pure power function that best approximates the
 resulting curve.
 
-A consequence of this non-linear encoding is that a number of image
-processing operations should not be applied directly to the numerical
-values associated with the texels: linear color gradients will appear
-non-linear due to the encoding unless adjusted, lighting calculations
-produce linear results, and filtering operations work with linear values.
+A consequence of this non-linear encoding is that many image
+processing operations should not be applied directly to the raw
+non-linearly-encoded numbers, but require conversion back to a
+linear representation.
+For example, linear color gradients will appear distorted unless the
+encoding is adjusted to compensate for the encoding; CGI lighting
+calculations need linear intensity values for operation, and filtering
+operations require texel intensities converted to linear form.
 
 In the following example, the checker patterns are filtered in the
-right-most square of each row by averaging the checker colors, to
-emulate the effect of viewing the pattern from a distance
-at which the individual squares can no longer be discerned.
+right-most square of each row by averaging the checker colors,
+emulating a view of the pattern from a distance at which the
+individual squares are no longer distinct.
 The intended effect can be seen by viewing the diagram from a
 distance, or deliberately out of focus.
-The output in this example is interpreted using the
-<<TRANSFER_SRGB,sRGB transfer function>>, which is approximately the
-behavior of a typical CRT device to which uncorrected signals are provided.
-The gray background represents an intensity of 50%.
+The output is interpreted using the <<TRANSFER_SRGB,sRGB EOTF>>,
+approximating the behavior of a CRT with uncorrected signals.
+The background represents 50% gray.
 
 image::images/tf_sampling.{svgpdf}[title="Averaging checker values with different transfer functions",width="{svgpdf@pdf:210:576}",align="center"]
 
@@ -66,48 +68,55 @@ image::images/tf_sampling.{svgpdf}[title="Averaging checker values with differen
    than the average value of the black and white texels, so the gray box
    appears darker than the average intensity of the checker pattern.
  * *In row 2* the 0.5 average of the frame buffer is corrected using the
-   sRGB (electro-optical) transfer function to a value of roughly 0.74.
-   The result is that the gray box is now a good match for the average
-   intensity of the black and white squares when viewed on most media.
+   sRGB (electro-optical) EOTF^&#160;-1^ to latexmath:[${\sim}0.74$].
+   The gray box accordingly appears a good match for the average intensity
+   of the black and white squares on most media.
  * *In row 3* the checker pattern instead represents values of 25% and
    75% of the light intensity (the average of which should be the same
    as the correct average of the black and white squares in the first two
    rows).
    These checker values have been converted to their non-linear
    representations, as might be the case for a texture in this format:
-   the darker squares are represented by roughly 0.54, and the lighter
-   squares are represented by roughly 0.88.
+   the darker squares are represented by latexmath:[${\sim}0.54$], and
+   the lighter squares are represented by latexmath:[${\sim}0.88$].
    Averaging these two values to get a value of 0.71 results in the
    right-most square: this appears slightly too dark compared with the
-   correct representation of mid-gray (0.74) because, due to the
-   non-linearity, the calculated value should not lie exactly half
-   way between the two end points.
+   correct representation of mid-gray (latexmath:[${\sim}0.74$]) because,
+   due to the non-linear encoding, the calculated value should not lie
+   exactly half way between the two end points.
    Since the end points of the interpolation are less distant than the
    black and white case, the error is smaller than in the first example,
    and can more clearly be seen by comparing with the background gray.
- * *In row 4* the checker values have been converted to a linear
-   representation which can be correctly interpolated, but the resulting
-   output represents linear light, which is therefore interpreted as too
-   dark by the non-linear display.
+ * *In row 4* the checker values have been converted using the
+   EOTF to a linear representation which can be correctly interpolated,
+   but the resulting output represents linear light, which is therefore
+   interpreted as too dark by the non-linear display.
  * *In row 5* the results of row 4 have been converted back to the
-   non-linear representation.
-   The result is that the checker colors have been restored to their
-   correct values, but also that the interpolated value is now correctly
-   the average intensity of the two colors.
+   non-linear representation using the EOTF^&#160;-1^.
+   The checker colors are restored to their correct values, and
+   the interpolated value is now the correct average intensity of the
+   two colors.
 
-image::images/tf_scene_store_display.{svgpdf}[title="Opto-electronics and electro-optical transfer functions",width="{svgpdf@pdf:450:800}",align="center"]
+Incorrectly-applied transfer functions can also introduce color shifts,
+as demonstrated by the saturation change in the following examples:
 
+image::images/tf_colorshift_intensitylinearvalues.png[title="R,G,B and combined color gradient with linear light intensity in each channel",width="{svgpdf@pdf:150:256}",align="center"]
+image::images/tf_colorshift_srgblinearvalues.png[title="R',G',B' and combined color gradient with non-linear sRGB encoding in each channel",width="{svgpdf@pdf:150:256}",align="center"]
+
+<<<
 A standard for image representation typically defines one or both of
 two types of transfer functions:
 
+image::images/tf_scene_store_display.{svgpdf}[title="Opto-electronics and electro-optical transfer functions",width="{svgpdf@pdf:450:800}",align="center"]
+
  * An opto-electronic transfer function (OETF) defines the conversion
-   between a linear light intensity as recorded in the scene, and a
-   non-linear electronic representation.
+   between a normalized linear light intensity as recorded in the scene,
+   and a non-linear electronic representation.
    Note that there is no requirement that this directly correspond to
    actual captured light: the content creator or scene capture hardware
    may adjust the apparent intensity compared to reality for aesthetic
-   reasons, as though the colors of objects in the scene were similarly
-   adjusted.
+   reasons, as though the colors (or lighting) of objects in the scene
+   were similarly different from reality.
    For example, a camera may implement a roll-off function for
    highlights, and a content creator may introduce tone mapping
    to preserve shadow detail in the created content, with these
@@ -118,7 +127,7 @@ two types of transfer functions:
    OETF^&#160;-1^(_n_).
  * An electro-optical transfer function (EOTF) converts between
    a non-linear electronic representation and a linear light
-   intensity as produced by the output display.
+   normalized intensity as produced by the output display.
    The inverse of the EOTF (the conversion from linear display
    light to the non-linear electronic representation) is written
    EOTF^&#160;-1^(_n_).
@@ -130,6 +139,9 @@ two types of transfer functions:
    reality will be modified by the viewer's aesthetic configuration
    choices and environment, and by the implementation choices of the
    display medium.
+   Modern displays often incorporate proprietary variations from the
+   reference intensity, particularly when mapping high dynamic range
+   content to the capablities of the hardware.
 
 NOTE: Some color models derive chroma (color difference) channels
 wholly or partly from non-linear intensities.
@@ -265,34 +277,39 @@ latexmath:[$\delta$] can be deduced from latexmath:[$\alpha \times \beta^{0.45}
 latexmath:[$4.5 \times \beta$] due to rounding. See the following section
 for the derivation of these values.
 
-<<smpte170m,SMPTE 170M-2004>>, which defines the behavior of NTSC televisions, defines
-the EOTF of the ``reference reproducer'' as the OETF^&#160;-1^ function above, with
-latexmath:[$\delta$] explicitly written as 0.0812.
+<<smpte170m,SMPTE 170M-2004>>, which defines the behavior of NTSC
+televisions, defines the EOTF of the ``reference reproducer'' as the
+OETF^&#160;-1^ function above, with latexmath:[$\delta$] explicitly
+written as 0.0812.
 Therefore the SMPTE 170M-2004 EOTF^&#160;-1^ equals the OETF given above.
-The ``reference camera'' of SMTPE 170M-2004 has an OETF function matching that
-of the ITU specifications.
-That is, the OOTF of the system described in SMPTE 170M-2004 provides a linear
-mapping of captured scene intensity to display intensity: the OETF is described
-as being chosen to result in a linear OOTF on a typical display.
-This is distinct from the current ITU specifications, which assume a non-linear
-OOTF.
-SMPTE 170M-2004 also represents a change from the ``assumed gamma'' of 2.2 associated
-with most NTSC display devices as described in <<bt470,ITU-T BT.470-6>> and
-<<bt2043,BT.2043>>, although these also define a linear OOTF.
+The ``reference camera'' of SMTPE 170M-2004 has an OETF function matching
+that of the ITU specifications.
+That is, the OOTF of the system described in SMPTE 170M-2004 provides a
+linear mapping of captured scene intensity to display intensity: the SMPTE
+170M-2004 OETF is described as being chosen to result in a linear OOTF
+on a typical display.
+This is distinct from the current ITU specifications, which assume a
+non-linear OOTF.
+SMPTE 170M-2004 also represents a change from the ``assumed gamma'' of
+2.2 associated with most NTSC display devices as described in
+<<bt470,ITU-T BT.470-6>> and <<bt2043,BT.2043>>, although these
+standards also define a linear OOTF.
 
 <<<
-This OETF is closely approximated by a simple power function with an
-exponent of 0.5 (and therefore the OETF^&#160;-1^ is quite closely
-approximated by a simple power function with an exponent of 2.0).
+This ``ITU'' OETF is closely approximated by a simple power function with
+an exponent of 0.5 (and therefore the OETF^&#160;-1^ is quite closely
+approximated by a simple power function with an exponent of 2.0);
+the linear segment and offset mean that the best match is _not_ the
+exponent of 0.45 that forms part of the exact equation.
 ITU standards deliberately chose a different transfer curve from that of a
 typical CRT in order to introduce a non-linear OOTF, as a means to compensate
 for the typically dim conditions in which a television is viewed.
 <<bt2087,ITU BT.2087>> refers to the approximation of the OETF with a
 square root (latexmath:[$\gamma = {1\over{2}}$]) function.
 
-The following graph shows the relationship between the ITU OETF (shown
-in red) and a pure power function with latexmath:[$\gamma={1\over{2}}$]
-(in blue).
+The following graph shows the close relationship between the ITU OETF
+(shown in red) and a pure power function with
+latexmath:[$\gamma={1\over{2}}$] (in blue).
 The difference between the curves is shown in black.
 The largest difference between the curve values at the same point when
 quantized to 8 bits is 15, mostly due to the sharp vertical gradient
@@ -382,7 +399,8 @@ and results in values of:
 \begin{align*}
 \beta &\approx 0.018053968510808\\
 \alpha &\approx 1.099296826809443\\
-\delta &\approx 0.081242858298635\\
+\delta &= \alpha\times\beta^{0.45} - (\alpha-1) = 4.5\times\beta\\
+&\approx 0.081242858298635\\
 \end{align*}
 ++++++
 
@@ -467,7 +485,7 @@ represent 1.0.
 
 The following graph shows the relationship between the sRGB EOTF (shown in red)
 and the <<TRANSFER_ITU,ITU OETF>> (shown in blue).
-The result of applying the to functions in turn, resulting in the OOTF of a combined
+The result of applying the two functions in turn, resulting in the OOTF of a combined
 ITU-sRGB system, is shown in black. Since the sRGB EOTF approximates a power function
 with latexmath:[$\gamma=2.2$] and the ITU OETF approximates a power function with
 latexmath:[$\gamma=2.0$], also shown in green is the resulting OOTF corresponding to a
@@ -588,22 +606,24 @@ can be written as:
 \end{align*}
 ++++++
 
-The values of latexmath:[$\alpha$] and latexmath:[$\beta$] in the sRGB function
-were apparently chosen such that the linear segment and power segment meet at the
-same value and with the same derivative (that is, the linear segment meets the
-power segment at a tangent).
-The latexmath:[$\alpha$] and latexmath:[$\beta$] values can be derived as follows:
+Like the ITU transfer function above, the values of latexmath:[$\alpha$]
+and latexmath:[$\beta$] in the sRGB function appear to have been chosen
+such that the linear segment and power segment meet at the same value and
+with the same derivative (that is, the linear segment meets the power
+segment at a tangent).
+The latexmath:[$\alpha$] and latexmath:[$\beta$] values can be derived as
+follows:
 
-At latexmath:[$\{R',G',B'\} = \beta$], the linear and non-linear segments of the curve
-must calculate the same value:
+At latexmath:[$\{R',G',B'\} = \beta$], the linear and non-linear segments
+of the function must calculate the same value:
 
 [latexmath]
 ++++++
 $$12.92 \times \beta = \alpha \times \beta^{1\over{2.4}} - (\alpha - 1)$$
 ++++++
 
-Additionally, the derivatives of the linear and non-linear segments of the curve
-must match:
+Additionally, the derivatives of the linear and non-linear segments of
+the function must match:
 
 [latexmath]
 ++++++
@@ -646,16 +666,32 @@ latexmath:[$1.4-1.4\beta^{-{1\over{2.4}}}$]), and results in values of:
 [latexmath]
 ++++++
 \begin{align*}
-\beta &\approx 0.003041282560128\\
+\beta &\approx  0.003041282560128\\
 \alpha &\approx 1.055010718947587\\
-\delta &\approx 0.039293370676848\\
+\delta &= 12.92\times\beta = \alpha\times\beta^{1\over{2.5}}-(\alpha-1.0)\\
+&\approx 0.039293370676848\\
 \end{align*}
 ++++++
 
-Where latexmath:[$\delta$] is the value of the EOTF^&#160;-1^ at latexmath:[$\{R',G',B'\} = \beta$].
-Note that these values are appreciably different from those in the sRGB specification.
+Where latexmath:[$\delta$] is the value of the EOTF^&#160;-1^ at
+latexmath:[$\{R',G',B'\} = \beta$].
 
-The EOTF can therefore be written as:
+[NOTE]
+====
+These deduced values are appreciably different from those in the sRGB
+specification, which does not state the origin of its constants.
+The intersection point of the sRGB EOTF has less numerical stability
+(and more nearby local minima in curves being optimized) that the
+corresponding ITU function - it is sensitive to the start value used
+for numerical approximations.
+This may explain how different values were reached for the sRGB
+specification.
+However, the errors both in value and derivative at the point of
+selection between the linear and exponent segments are small in
+practice.
+====
+
+The EOTF can be written with these derived values as:
 
 [latexmath]
 ++++++
@@ -693,6 +729,12 @@ From our above formulae:
 \delta &\approx 0.039
 \end{align*}
 ++++++
+
+The only one of these values which does not match the numbers in the
+sRGB specification is latexmath:[$\delta$], which the sRGB specification
+would define as 0.04045 rather than 0.039.
+
+&#160;
 
 The extra precision may be needed over the constants in the sRGB specification
 due to the use of additional bits of accuracy in the Display P3 representation,
@@ -748,7 +790,7 @@ display).
 
 The following graph shows the relationship between the BT.1886 EOTF (shown in red)
 and the <<TRANSFER_ITU,ITU OETF>> such as used for <<bt709,BT.709>> (shown in blue).
-The result of applying the to functions in turn, resulting in the OOTF of a combined
+The result of applying the two functions in turn, resulting in the OOTF of a combined
 BT.709-BT.1886 system, is shown in black. Since the ITU OETF approximates a power
 function with latexmath:[$\gamma=2.0$], also shown in green is the resulting OOTF
 corresponding to a power function with latexmath:[$\gamma={2.4\over{2.0}}=1.2$].
@@ -786,6 +828,10 @@ L &= \begin{cases}
 
 [[TRANSFER_HLG]]
 === BT.2100 HLG transfer functions
+
+HLG (and <<TRANSFER_PQ,PQ>>, below) are intended to allow a better
+encoding of high-dynamic-range content compared with the standard
+ITU OETF.
 
 ==== HLG OETF
 
@@ -1084,21 +1130,51 @@ E' &= \textrm{G}_{709}(E) &= &\begin{cases}
 [NOTE]
 ====
 <<bt2390,ITU-R BT.2390>> explains the derivation of the scale factor:
+
+&#160;
+
 PQ can encode 100 times the display brightness of a standard dynamic
-range signal (compared with the 100cd/m^2^ reference display described
-in <<bt1886,BT.1886>>).
-The OOTF of SDR is roughly latexmath:[$\gamma = 1.2$] (deviating from
-this curve more near a 0 value), so the maximum scene light intensity that
-can be represented is roughly latexmath:[$100^{1\over 1.2} \approx 46.42$]
-times that of a SDR signal.
-Using exact equations from <<bt709,BT.709>> and <<bt1886,BT.1886>>,
-the maximum representable scene brightness, if 1.0 is the maximum
-brightness in SDR, is:
+range (``SDR'') encoding (10000cd/m^2^ compared with the 100cd/m^2^
+SDR reference display described in <<bt1886,BT.1886>>).
+High dynamic range (HDR) displays are intended to represent the
+majority of scene content within a ``standard'' dynamic range, and
+exposure of a normalized SDR signal is chosen to provide suitable
+exposure.
+HDR displays offer extra capability for representation of small
+or transient highlights (few HDR displays can actually reach the
+maximum 10000cd/m^2^ encodable brightness, and few HDR displays can
+maintain their maximum intensity over a large area for an extended
+period without overheating).
+Therefore the behavior of HDR displays is intended to approximate
+a conventional standard dynamic range display for most of the image,
+while retaining the ability to encode extreme values.
+
+&#160;
+
+As described in BT.2390, the OOTF of SDR is roughly
+latexmath:[$\gamma = 1.2$] (deviating from this curve more near a 0 value),
+so the maximum _scene_ light intensity that can be represented is roughly
+latexmath:[$100^{1\over 1.2} \approx 46.42$] times that of a SDR encoding.
+
+&#160;
+
+Using exact equations from <<bt709,BT.709>> and <<bt1886,BT.1886>>
+to create the OOTF, rather than the latexmath:[$\gamma = 1.2$]
+approximation, the maximum representable scene brightness, if 1.0 is the
+maximum normalized SDR brightness is:
 
 [latexmath]
 +++++
 \begin{align*}
-\left({100^{1\over 2.4} + 0.099\over 1.099}\right)^{1\over 0.45} &\approx 59.5208 \\
+\left({100^{1\over 2.4} + 0.099\over 1.099}\right)^{1\over 0.45} &\approx 59.5208
+\end{align*}
++++++
+
+The other constants in the G~709~ formula are derived as follows:
+
+[latexmath]
++++++
+\begin{align*}
 {0.018\over 59.5208} &\approx 0.0003024 \\
 4.5\times 59.5208 &\approx 267.84
 \end{align*}
@@ -1118,17 +1194,19 @@ The OETF of PQ is described in terms of the above OOTF:
 $$E' = \textrm{OETF}(E) = \textrm{EOTF}^{-1}(\textrm{OOTF}(E)) = \textrm{EOTF}^{-1}(F_D)$$
 +++++
 
+<<<
 ==== PQ OOTF^&#160;-1^
 
-The PQ OOTF^&#160;^ is:
+The PQ OOTF^&#160;-1^ is:
 
 [latexmath]
 +++++
-$$E=\textrm{OOTF}(F_D)=\textrm{G}_{709}^{-1}(\textrm{G}_{1886}^{-1}(F_D))$$
+$$E=\textrm{OOTF}^{-1}(F_D)=\textrm{G}_{709}^{-1}(\textrm{G}_{1886}^{-1}(F_D))$$
 +++++
 
-where _F~D~_ is one of latexmath:[$\{R_D,G_D,B_D,Y_D,I_D\}$], and
-E is the corresponding scene intensity.
+where _F~D~_, display intensity, is one of
+latexmath:[$\{R_D,G_D,B_D,Y_D,I_D\}$], and
+E is the corresponding normalized scene intensity.
 
 [latexmath]
 +++++
