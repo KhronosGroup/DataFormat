@@ -670,7 +670,7 @@ latexmath:[$1.4-1.4\beta^{-{1\over{2.4}}}$]), and results in values of:
 \begin{align*}
 \beta &\approx  0.003041282560128\\
 \alpha &\approx 1.055010718947587\\
-\delta &= 12.92\times\beta = \alpha\times\beta^{1\over{2.5}}-(\alpha-1.0)\\
+\delta &= 12.92\times\beta = \alpha\times\beta^{1\over{2.4}}-(\alpha-1.0)\\
 &\approx 0.039293370676848\\
 \end{align*}
 ++++++
