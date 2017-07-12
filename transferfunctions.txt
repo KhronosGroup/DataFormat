@@ -593,6 +593,7 @@ non-linearly encoded with the EOTF.
 
 <<<
 
+[[TRANSFER_SRGB_DERIVED]]
 ==== Derivation of the sRGB constants (informative)
 
 Similar to the ITU transfer function, the EOTF^&#160;-1^ of the sRGB function
@@ -671,7 +672,7 @@ latexmath:[$1.4-1.4\beta^{-{1\over{2.4}}}$]), and results in values of:
 \beta &\approx  0.003041282560128\\
 \alpha &\approx 1.055010718947587\\
 \delta &= 12.92\times\beta = \alpha\times\beta^{1\over{2.4}}-(\alpha-1.0)\\
-&\approx 0.039293370676848\\
+&\approx 0.039293370676848
 \end{align*}
 ++++++
 
@@ -705,11 +706,10 @@ The EOTF can be written with these derived values as:
 
 [NOTE]
 ====
-Apple appear to have used this derivation in their definition of the
-<<dcip3,Display P3 color space>>, which is described as using the sRGB
-transfer function.
-The profile viewer in Apple's ColorSync utility reports that, if the transfer
-function is:
+Apple describes the <<dcip3,Display P3 color space>> as using the
+sRGB transfer function.
+The profile viewer in Apple's ColorSync utility reports that
+the EOTF is of the following form:
 
 [latexmath]
 ++++++
@@ -719,32 +719,77 @@ function is:
   \end{cases}$$
 ++++++
 
-latexmath:[$\gamma=2.4,\ a=0.948,\ b=0.52,\ c=0.077,$] and latexmath:[$d=0.039$].
-From our above formulae:
+The reported figures for latexmath:[$\gamma=2.4,\ a=0.948,\ b=0.52$]
+and latexmath:[$c=0.077$] correspond to the equivalent values in
+the sRGB specification:
 
 [latexmath]
 ++++++
 \begin{align*}
-{1\over{\alpha}} &\approx 0.948 \\
-{{\alpha-1}\over\alpha} &\approx 0.52 \\
-{1\over{12.92}} &\approx 0.077 \\
-\delta &\approx 0.039
+{1\over{\alpha}} &\approx 0.948 = a\\
+{{\alpha-1}\over\alpha} &\approx 0.52 = b\\
+{1\over{12.92}} &\approx 0.077 = c
 \end{align*}
 ++++++
 
-The only one of these values which does not match the numbers in the
-sRGB specification is latexmath:[$\delta$], which the sRGB specification
-would define as 0.04045 rather than 0.039.
+These values are correct to the reported precision both for the value
+latexmath:[$\alpha = 1.055$] in the sRGB specification and for the more
+precise latexmath:[$\alpha \approx 1.055010718947587$] derived above.
 
 &#160;
 
-The extra precision may be needed over the constants in the sRGB specification
-due to the use of additional bits of accuracy in the Display P3 representation,
-which may expose a discontinuity due to rounding with the original numbers.
-When calculated over a [0..1] range with 8-bit precision, there is no difference
-between the formula calculated with the constants derived above and those given
-in the sRGB specification.
+However, where the sRGB specification states that
+latexmath:[$\delta = 0.04045$], the profile viewer reports
+a corresponding d&#160;=&#160;0.039.
+The disparity can be explained if the profile values have been
+derived as described in this section:
+
+[latexmath]
+++++++
+$$\delta \approx 0.039293370676848\approx 0.039 = d$$
+++++++
+
+Note that this value assumes a correspondingly corrected version
+of latexmath:[$\alpha$] rather than latexmath:[$a = 1.055$].
+
+&#160;
+
+The extra precision may be needed over the constants in the sRGB
+specification due to the use of additional bits of accuracy in the
+Display P3 representation, which may expose a discontinuity due to
+rounding with the original numbers, particularly in the gradient of
+the curve.
+However, this distinction is subtle: when calculated over a [0..1]
+range, the derived EOTF and EOTF^&#160;-1^ agree with the official
+sRGB formulae to greater than 16-bit precision.
 ====
+
+Without allowing for adjusting the latexmath:[$\alpha = 1.055$]
+constant in the sRGB formula, the power function cannot be made
+to intersect perfectly at a tangent to the linear segment with
+gradient of 12.92.
+However, the intersection point latexmath:[$\beta$] can be
+found by solving:
+
+[latexmath]
+++++++
+$$1.055\times\beta^{1\over{2.4}}-12.92\times\beta-0.055 = 0$$
+++++++
+
+This equation can give us a slightly more precise pair of values
+for the original sRGB equation:
+
+[latexmath]
+++++++
+\begin{align*}
+\beta &\approx 0.003130668 \\
+\delta &\approx 0.040448236
+\end{align*}
+++++++
+
+In practice this makes no measurable difference, but does suggest
+that the values of latexmath:[$\beta = 0.0031308$] in the sRGB
+specification may have been incorrectly rounded.
 
 <<<
 
