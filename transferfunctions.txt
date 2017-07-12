@@ -411,8 +411,11 @@ and results in values of:
 [[TRANSFER_SRGB]]
 === sRGB transfer functions
 
+[[TRANSFER_SRGB_EOTF]]
+==== sRGB EOTF
+
 The <<srgb,sRGB specification>> defines an electro-optical transfer function.
-The (EOTF) conversion from non-linear latexmath:[$(R', G', B')$] encoding
+The EOTF conversion from non-linear latexmath:[$(R', G', B')$] encoding
 to linear latexmath:[$(R, G, B)$] encoding is:
 
 [[srgbgamma]]
@@ -434,7 +437,10 @@ to linear latexmath:[$(R, G, B)$] encoding is:
 \end{align*}
 ++++++
 
-The corresponding (EOTF^&#160;-1^) conversion from linear
+[[TRANSFER_SRGB_INVEOTF]]
+==== sRGB EOTF^-1^
+
+The corresponding sRGB EOTF^&#160;-1^ conversion from linear
 latexmath:[$(R, G, B)$] encoding to non-linear latexmath:[$(R', G', B')$]
 encoding is:
 
@@ -456,7 +462,10 @@ encoding is:
 \end{align*}
 ++++++
 
-NOTE: This function approximates a simple power function with an
+[[TRANSFER_SRGB_EOTFVSGAMMA]]
+==== sRGB EOTF vs gamma 2.2
+
+The sRGB EOTF approximates a simple power function with an
 exponent of 2.2, which is intended to be consistent with legacy CRT
 content, particularly for <<TRANSFER_LEGACY_NTSC,NTSC>> devices, and to
 approximate the expected EOTF for <<TRANSFER_ITU,BT.709>> content,
@@ -469,6 +478,7 @@ compared with 100cd/m^2^ for BT.1886.
 sRGB is also distinct from <<smpte170m,SMPTE 170M>>, which defines
 its EOTF as the inverse of its (and BT.709's) OETF.
 
+<<<
 The following graph compares the sRGB EOTF (in red) and a pure power
 function with latexmath:[$\gamma=2.2$] (in blue); the area between the
 two curves is shown in black.
@@ -496,6 +506,9 @@ power function with latexmath:[$\gamma={2.2\over{2.0}}=1.1$].
 image::images/tf_ituvssrgb256.png[title="sRGB EOTF and ITU OETF",width="{svgpdf@pdf:192:257}",align="center"]
 
 <<<
+[[TRANSFER_SCRGB_EOTF]]
+==== scRGB EOTF and EOTF^-1^
+
 The original sRGB specification was defined only in terms of positive
 values between 0 and 1.
 Subsequent standards, such as <<scrgb,scRGB>> annex B, use the same transfer
@@ -534,7 +547,6 @@ Since both calculations agree to seven decimal places, this
 is unlikely to be significant in most applications.
 scRGB annex B does not define the EOTF^&#160;-1^, so the
 formulae below are derived by extending the sRGB formulae.
-
 
 [latexmath]
 ++++++
