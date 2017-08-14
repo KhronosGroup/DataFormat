@@ -180,7 +180,7 @@ C'_{Bnorm}   & = {{{DC'_B\times{224\times ^{n-8}}} + 128\times 2^{n-8}}\over{2^{
 Y'_{Cnorm}   & = {{{Y'_C\times{219\times 2^{n-8}}} + 16\times{2^{n-8}}}\over{2^{n-1}}} &
 C'_{CBnorm}  & = {{{DC'_{CB}\times{224\times ^{n-8}}} + 128\times 2^{n-8}}\over{2^{n-1}}} \\
 &&C'_{CRnorm}  & = {{{DC'_{CR}\times{224\times ^{n-8}}} + 128\times 2^{n-8}}\over{2^{n-1}}} \\
-I_{norm}     & = {{{R'\times{219\times 2^{n-8}}} + 16\times{2^{n-8}}}\over{2^{n-1}}} &
+I_{norm}     & = {{{I\times{219\times 2^{n-8}}} + 16\times{2^{n-8}}}\over{2^{n-1}}} &
 C'_{Tnorm}   & = {{{DC'_{T}\times{224\times ^{n-8}}} + 128\times 2^{n-8}}\over{2^{n-1}}} \\
 &&C'_{Pnorm}   & = {{{DC'_{P}\times{224\times ^{n-8}}} + 128\times 2^{n-8}}\over{2^{n-1}}}
 \end{align*}
@@ -190,11 +190,232 @@ C'_{Tnorm}   & = {{{DC'_{T}\times{224\times ^{n-8}}} + 128\times 2^{n-8}}\over{2
 [[QUANTIZATION_FULL]]
 === ``Full range'' encoding
 
-<<bt2100,ITU-T Rec. BT.2100>> formalized an optional encoding scheme that does
+<<bt2100,ITU-T Rec. BT.2100>>-1 and the current <<jfif,Rec. T.871>> JFIF
+specification define the following quantization scheme that does
+not incorporate any reserved head-room or foot-room, which is optional
+and described as ``full range'' in BT.2100, and integral to Rec. T.871.
+
+NOTE: Both these specifications modify a definition used in previous versions
+of their specifications, which is described <<QUANTIZATION_LEGACY_FULL,below>>.
+
+For bit depth latexmath:[$n = \{8$] (JFIF)latexmath:[$,10,12$] (Rec.2100)
+latexmath:[$\}$]:
+
+[latexmath]
+++++++
+\begin{align*}
+DG'        & = \textrm{Round}\left(G'\times (2^n-1)\right) &
+DB'        & = \textrm{Round}\left(B'\times (2^n-1)\right) \\
+&&DR'      & = \textrm{Round}\left(R'\times (2^n-1)\right) \\
+DY'        & = \textrm{Round}\left(Y'\times (2^n-1)\right) &
+DC'_B      & = \textrm{Round}\left(C'_B\times (2^n-1) + 2^{n-1}\right) \\
+&&DC'_R    & = \textrm{Round}\left(C'_R\times (2^n-1) + 2^{n-1}\right) \\
+DY'_C      & = \textrm{Round}\left(Y'_C\times (2^n-1)\right) &
+DC'_{CB}   & = \textrm{Round}\left(C'_{CB}\times (2^n-1) + 2^{n-1}\right) \\
+&&DC'_{CR} & = \textrm{Round}\left(C'_{CR}\times (2^n-1) + 2^{n-1}\right) \\
+DI         & = \textrm{Round}\left(I\times (2^n-1)\right) &
+DC'_T      & = \textrm{Round}\left(C'_T\times (2^n-1) + 2^{n-1}\right) \\
+&&DC'_P    & = \textrm{Round}\left(C'_P\times (2^n-1) + 2^{n-1}\right)
+\end{align*}
+++++++
+
+<<bt2100,BT.2100>>-1 defines Round() as:
+
+[latexmath]
+++++++
+\begin{align*}
+\textrm{Round}(x) &= \textrm{Sign}(x)\times\lfloor|x| + 0.5\rfloor \\
+\textrm{Sign}(x) &= \begin{cases}
+1, & x > 0 \\
+0, & x = 0 \\
+-1, & x < 0
+\end{cases}
+\end{align*}
+++++++
+
+Note that a chroma channel value of exactly 0.5 corresponds to a quantized
+encoding of latexmath:[$2^n$], and must therefore be clamped to the nominal
+peak value of latexmath:[$2^n-1$].
+<<QUANTIZATION_NARROW,Narrow-range encoding>> does not have this problem.
+A chroma channel value of -0.5 corresponds to a quantized encoding of 1,
+which is the nominal minimum peak value.
+
+In <<jfif,Rec. T.871>> (which defines only n = 8), the corresponding
+formula is:
+
+[latexmath]
+++++++
+\begin{align*}
+\textrm{Round}(x) &= \textrm{Clamp}(\lfloor|x| + 0.5\rfloor) \\
+\textrm{clamp}(x) &= \begin{cases}
+255, & x > 255 \\
+0, & x < 0 \\
+x, & \textrm{otherwise}
+\end{cases}
+\end{align*}
+++++++
+
+Allowing for the clamping at a chroma value of 0.5, these formulae are
+equivalent across the expected -0.5..0.5 range for chroma and 0.0..1.0
+range for luma values.
+
+The dequantization formulae are therefore:
+
+[latexmath]
+++++++
+\begin{align*}
+G'      & = {DG'\over{2^n - 1}} &
+Y'      & = {DY'\over{2^n - 1}} &
+Y'_C    & = {DY_C'\over{2^n - 1}} &
+I       & = {DI'\over{2^n - 1}} \\
+B'      & = {DB'\over{2^n - 1}} &
+C'_B    & = {DC'_B - 2^{n-1}\over{2^n - 1}} &
+C'_{CB} & = {DC'_{CB} - 2^{n-1}\over{2^n - 1}} &
+C'_T    & = {DC'_T - 2^{n-1}\over{2^n - 1}} \\
+R'      & = {DR'\over{2^n - 1}} &
+C'_R    & = {DC'_R - 2^{n-1}\over{2^n - 1}} &
+C'_{CR} & = {DC'_{CR} - 2^{n-1}\over{2^n - 1}} &
+C'_P    & = {DC'_P - 2^{n-1}\over{2^n - 1}}
+\end{align*}
+++++++
+
+<<<
+That is, in ``full range'' encoding:
+
+[options="header",cols="18%,34%,48%"]
+|======
+| Value | Continuous encoding value | Quantized encoding
+| Black |
+{latexmath:[$R'$],
+latexmath:[$G'$],
+latexmath:[$B'$],
+latexmath:[$Y'$],
+latexmath:[$Y'_C$],
+latexmath:[$I$]} =
+latexmath:[$0.0$]
+|
+{latexmath:[$DR'$],
+latexmath:[$DG'$],
+latexmath:[$DB'$],
+latexmath:[$DY'$],
+latexmath:[$DY'_C$],
+latexmath:[$DI$]} =
+latexmath:[$0$]
+| Peak brightness |
+{latexmath:[$R'$],
+latexmath:[$G'$],
+latexmath:[$B'$],
+latexmath:[$Y'$],
+latexmath:[$Y'_C$],
+latexmath:[$I$]} =
+latexmath:[$1.0$]
+|
+{latexmath:[$DR'$],
+latexmath:[$DG'$],
+latexmath:[$DB'$],
+latexmath:[$DY'$],
+latexmath:[$DY'_C$],
+latexmath:[$DI$]} =
+latexmath:[$2^n - 1$]
+| Minimum color difference value |
+{latexmath:[$C'_B$],
+latexmath:[$C'_R$],
+latexmath:[$C'_{BC}$],
+latexmath:[$C'_{RC}$],
+latexmath:[$C_T$],
+latexmath:[$C_P$]} =
+latexmath:[$-0.5$]
+|
+{latexmath:[$DC'_B$],
+latexmath:[$DC'_R$],
+latexmath:[$DC'_{BC}$],
+latexmath:[$DC'_{CR}$],
+latexmath:[$DC_T$],
+latexmath:[$DC_P$]} =
+latexmath:[$1$]
+| Maximum color difference value |
+{latexmath:[$C'_B$],
+latexmath:[$C'_R$],
+latexmath:[$C'_{BC}$],
+latexmath:[$C'_{RC}$],
+latexmath:[$C_T$],
+latexmath:[$C_P$]} =
+latexmath:[$0.5$]
+|
+{latexmath:[$DC'_B$],
+latexmath:[$DC'_R$],
+latexmath:[$DC'_{BC}$],
+latexmath:[$DC'_{CR}$],
+latexmath:[$DC_T$],
+latexmath:[$DC_P$]} =
+latexmath:[$2^n - 1$]
+
+(clamped)
+| Achromatic colors |
+latexmath:[$R'$] = latexmath:[$G'$] = latexmath:[$B'$]
+
+{latexmath:[$C'_B$],
+latexmath:[$C'_R$],
+latexmath:[$C'_{BC}$],
+latexmath:[$C'_{RC}$],
+latexmath:[$C_T$],
+latexmath:[$C_P$]} =
+latexmath:[$0.0$]
+|
+{latexmath:[$DC'_B$],
+latexmath:[$DC'_R$],
+latexmath:[$DC'_{BC}$],
+latexmath:[$DC'_{CR}$],
+latexmath:[$DC_T$],
+latexmath:[$DC_P$]} =
+latexmath:[$2^{n-1}$]
+|======
+
+If, instead of the quantized values, the input is interpreted as fixed-point
+values in the range 0.0..1.0, as might be the case if the values were treated
+as unsigned normalized quantities in a computer graphics API, the following
+conversions can be applied instead:
+
+[latexmath]
+++++++
+\begin{align*}
+G'      & = G'_{norm} &
+B'      & = B'_{norm} \\
+&&R'      & = R'_{norm} \\
+Y'      & = Y'_{norm} &
+C'_B    & = DC'_{Bnorm} - {2^{n-1}\over{2^n - 1}} \\
+&&C'_R    & = DC'_{Rnorm} - {2^{n-1}\over{2^n - 1}} \\
+Y'_C    & = Y'_{Cnorm} &
+C'_{CB} & = DC'_{CBnorm} - {2^{n-1}\over{2^n - 1}} \\
+&&C'_{CR} & = DC'_{CRnorm} - {2^{n-1}\over{2^n - 1}} \\
+I       & = I'_{norm} &
+C'_T    & = DC'_{Tnorm} - {2^{n-1}\over{2^n - 1}} \\
+&&C'_P    & = DC'_{Pnorm} - {2^{n-1}\over{2^n - 1}} \\
+G'_{norm}    & = G' &
+B'_{norm}    & = B' \\
+&&R'_{norm}    & = R' \\
+Y'_{norm}    & = Y' &
+C'_{Bnorm}   & = DC'_B + {2^{n-1}\over{2^n - 1}} \\
+&&C'_{Rnorm}   & = DC'_R + {2^{n-1}\over{2^n - 1}} \\
+Y'_{Cnorm}   & = Y'_C &
+C'_{CBnorm}  & = DC'_{CB} + {2^{n-1}\over{2^n - 1}} \\
+&&C'_{CRnorm}  & = DC'_{CR} + {2^{n-1}\over{2^n - 1}} \\
+I_{norm}     & = I &
+C'_{Tnorm}   & = DC'_{T} + {2^{n-1}\over{2^n - 1}} \\
+&&C'_{Pnorm}   & = DC'_{P} + {2^{n-1}\over{2^n - 1}}
+\end{align*}
+++++++
+
+<<<
+[[QUANTIATION_LEGACY_FULL]]
+=== Legacy ``full range'' encoding.
+
+<<bt2100,ITU-T Rec. BT.2100>>-0 formalized an optional encoding scheme that does
 not incorporate any reserved head-room or foot-room.
-The JPEG standard similarly uses the full range of 8-bit channels to represent
-latexmath:[$Y'C_BC_R$] color.
-For bit depth latexmath:[$n = \{8,10,12\}$]:
+The legacy <<jfif,JFIF specification>> similarly used the full range of 8-bit
+channels to represent latexmath:[$Y'C_BC_R$] color.
+For bit depth latexmath:[$n = \{8$] (JFIF)latexmath:[$,10,12$] (Rec.2100)
+latexmath:[$\}$]:
 
 [latexmath]
 ++++++
@@ -241,7 +462,7 @@ be represented directly.
 Out-of-bounds values must be clamped to the largest representable
 value.
 
-NOTE: ITU-R BT.2100 dictates that in 12-bit coding, the largest
+NOTE: ITU-R BT.2100-0 dictates that in 12-bit coding, the largest
 values encoded should be 4092 (``for consistency'' with 10-bit
 encoding, with a maximum value of 1023).
 This slightly reduces the maximum intensity which can be expressed,
@@ -265,7 +486,7 @@ Y'      & = {{Y'_{norm}\times (2^n-1)}\over{2^n}} &
 C'_B    & = {{C'_{Bnorm}\times (2^n-1)}\over{2^n}} - 0.5 &
 C'_R    & = {{C'_{Rnorm}\times (2^n-1)}\over{2^n}} - 0.5 \\
 Y'_C    & = {{Y_{Cnorm}'\times (2^n-1)}\over{2^n}} &
-C'_{CB} & = {{C'_{CBnorm}\times (2^n-1)}\over{2^n}} -0.5 &
+C'_{CB} & = {{C'_{CBnorm}\times (2^n-1)}\over{2^n}} - 0.5 &
 C'_{CR} & = {{C'_{CRnorm}\times (2^n-1)}\over{2^n}} - 0.5 \\
 I       & = {{I'_{norm}\times (2^n-1)}\over{2^n}} &
 C'_T    & = {{C'_{Tnorm}\times (2^n-1)}\over{2^n}} - 0.5 &
@@ -290,3 +511,22 @@ C'_{Tnorm}  & = {{(C'_{T} + 0.5)\times 2^n}\over{2^n-1}} &
 C'_{Pnorm}  & = {{(C'_{P} + 0.5)\times 2^n}\over{2^n-1}}
 \end{align*}
 ++++++
+
+That is, to match the behavior described in these specifications,
+the inputs to color model conversion should be expanded such that
+the maximum representable value is that defined by the quantization
+of these encodings (255/256, 1023/1024 or 4095/4096), and the
+inverse operation should be applied to the result of the model
+conversion.
+
+For example, a legacy shader-based JPEG decoder may read values
+in a normalized 0..1 range, where the in-memory value 0 represents
+0.0 and the in-memory value 1 represents 1.0.
+The decoder should scale the latexmath:[$Y'$] value by a factor of
+255/256 to match the encoding in the <<jfif,JFIF3>> document, and
+latexmath:[$C'_B$] and latexmath:[$C_R$] should be scaled by 255/256
+and offset by 0.5.
+After the model conversion matrix has been applied, the
+latexmath:[$R'$], latexmath:[$G'$] and latexmath:[$B'$] values
+should be scaled by 256/255, restoring the ability to represent
+pure white.

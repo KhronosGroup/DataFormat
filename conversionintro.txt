@@ -5,7 +5,7 @@
 === Color space composition
 
 A ``color space'' determines the meaning of decoded numerical
-color values --- that is, it is distinct from the bit patterns,
+color values: that is, it is distinct from the bit patterns,
 compression schemes and locations in memory used to store the data.
 
 A color space consists of three basic components:
@@ -73,7 +73,7 @@ A color space consists of three basic components:
    (``latexmath:[$Y'C_BC_R$]'' - colloquially ``YUV''), or
    separate hue, saturation and intensity (``HSV''/``HSL'').
 ** Interpreting an image with an incorrect color model typically
-   results in wildly incorrect colors --- a (0,0,0) triple in an
+   results in wildly incorrect colors: a (0,0,0) triple in an
    RGB additive color model typically represents black, but
    may represent white in CMYK, or saturated green in color
    difference models.

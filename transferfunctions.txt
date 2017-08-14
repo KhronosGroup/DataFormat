@@ -141,7 +141,7 @@ image::images/tf_scene_store_display.{svgpdf}[title="Opto-electronics and electr
    display medium.
    Modern displays often incorporate proprietary variations from the
    reference intensity, particularly when mapping high dynamic range
-   content to the capablities of the hardware.
+   content to the capabilities of the hardware.
 
 NOTE: Some color models derive chroma (color difference) channels
 wholly or partly from non-linear intensities.
@@ -174,7 +174,7 @@ brightness).
 Adaptation to the surround means that the top left and lower right images
 look similar.
 
-image::images/tf_surround_luminance.{svgpdf}[title="Simultanous contrast",width="{svgpdf@pdf:450:800}",align="center"]
+image::images/tf_surround_luminance.{svgpdf}[title="Simultaneous contrast",width="{svgpdf@pdf:450:800}",align="center"]
 
 In the context of a non-linear OOTF, an application should be aware of whether
 operations on the image are intended to reflect the representation of colors in
@@ -892,10 +892,105 @@ HLG (and <<TRANSFER_PQ,PQ>>, below) are intended to allow a better
 encoding of high-dynamic-range content compared with the standard
 ITU OETF.
 
-==== HLG OETF
+[[TRANSFER_HLG_OETF_NORM]]
+==== HLG OETF (normalized)
 
-The <<bt2100,BT.2100>> Hybrid Log Gamma description defines the following
+The  <<bt2100,BT.2100>>-1 Hybrid Log Gamma description defines the following
 OETF for linear scene light:
+
+[latexmath]
+++++++
+   $$E'_{norm} = \textrm{OETF}(E) = \begin{cases}
+   \sqrt{3E}, & 0 \leq E \leq {1\over{12}} \\
+   a \times \textrm{ln}((12\times E) - b) + c, & {1\over{12}} < E \leq 1
+   \end{cases}$$
+++++++
+
+[width="80%",grid="none",frame="none"]
+|============
+<|latexmath:[$E$] = the latexmath:[$R_S$], latexmath:[$G_S$] or latexmath:[$B_S$] color component of linear scene light, normalized to [0..1]
+<|latexmath:[$E'$] = the resulting non-linear latexmath:[$R_S'$], latexmath:[$G_S'$] or latexmath:[$B_S'$] non-linear scene light value in in the range [0..1]
+<|_a_ = 0.17883277
+<|_b_ = latexmath:[$1 - 4\times a = 0.28466892$]
+<|_c_ = latexmath:[$0.5 - a\times ln(4\times a) \approx 0.55991073$]
+|============
+
+[NOTE]
+====
+BT.2100-0, in note 5b, defines these formulae equivalently, but slightly
+differently:
+
+[latexmath]
+++++++
+   $$E'_{norm} = \textrm{OETF}(E) = \begin{cases}
+   \sqrt{3E}, & 0 \leq E \leq {1\over{12}} \\
+   a \times \textrm{ln}(E - b_0) + c_0, & {1\over{12}} < E \leq 1
+   \end{cases}$$
+++++++
+
+This formulation in BT.2100-0 uses different constants for _b_ and _c_
+(_a_ is unmodified), as follows:
+
+[width="50%",options="header",cols="1,5,5"]
+|============
+| | BT.2100-1 | BT.2100-0
+| _b_ | _b_~1~ = 0.28466892 | _b_~0~ = 0.02372241
+| _c_ | _c_~1~ = 0.55991073 | _c_~0~ = 1.00429347
+|============
+
+These variations can be derived from the BT.2100-1 numbers as:
+
+[latexmath]
+++++++
+\begin{align*}
+a \times \textrm{ln}((12 \times E) - b_1)+ c_1 & = a \times \textrm{ln}\left(12\times\left(E - {b_1\over{12}}\right)\right) + c_1\\
+& = a \times \textrm{ln}\left(E - {{b_1}\over{12}}\right) + a\times\textrm{ln}(12) + c_1 \\
+{{b_1}\over{12}} = {{0.28466892}\over{12}} &= 0.023772241 = b_0 \\
+a\times\textrm{ln}(12) + c_1 = 0.17883277\times\textrm{ln}(12) + 0.55991073 &= 1.00429347 = c_0
+\end{align*}
+++++++
+
+====
+
+<<<
+[[TRANSFER_HLG_IOETF_NORM]]
+==== HLG OETF^&#160;-1^ (normalized)
+
+The OETF^&#160;-1^ of normalized HLG is:
+
+[latexmath]
+++++++
+   $$E = \textrm{OETF}^{-1}(E') = \begin{cases}
+   {{E'^2}\over 3}, & 0 \leq E' \leq {1\over 2} \\
+   {1\over 12} \times \left({b + e^{(E'-c)/a}}\right), & {1\over 2} < E' \leq 1
+   \end{cases}$$
+++++++
+
+_a_, _b_ and _c_ are defined as for the normalized HLG OETF.
+BT.2100-0 again defines an equivalent formula without the
+latexmath:[$1\over{12}$] scale factor in the
+latexmath:[${1\over 2}$]&#160;&lt;&#160;latexmath:[$E' \leq 1$] term,
+using the modified _b_~0~ and _c_~0~ constants described in
+the note in the <<TRANSFER_HLG_OETF_NORM,HLG OETF>> above.
+
+[NOTE]
+====
+<<bt2100,BT.2100>>-1 (the current version at the time of writing)
+includes an apparent typographical error in its definition of the
+OETF^&#160;-1^, providing both the equation with _E_ normalized
+to the range [0..1] and the (legacy) <<TRANSFER_HLG_IOETF_UNNORM,
+equation with _E_ normalized to the range [0..12]>>, without
+explanation.
+====
+
+[[TRANSFER_HLG_OETF_UNNORM]]
+==== Unnormalized HLG OETF
+
+BT.2100-0 describes the HLG OETF formulae with _E_ ``normalized'' to the
+range [0..12], with the <<TRANSFER_HLG_OETF_NORM,variant with the range
+normalized to [0..1]>> as an alternative.
+Only the variant normalized to the range [0..1] is described in the updated
+version of the specification, BT.2100-1.
 
 [latexmath]
 ++++++
@@ -914,60 +1009,125 @@ OETF for linear scene light:
 <|_c_ = 0.55991073
 |============
 
-==== HLG OETF^&#160;-1^
+Note that these constants are the same as those used in the BT.2100-1
+version of the <<TRANSFER_HLG_OETF_NORM,normalized formulae>>.
 
-The OETF^&#160;-1^ is therefore:
+[[TRANSFER_HLG_IOETF_UNNORM]]
+==== Unnormalized HLG OETF^&#160;-1^
+
+The OETF^&#160;-1^ of ``unnormalized'' HLG (producing _E_ in the range [0..12]) is:
 
 [latexmath]
 ++++++
    $$E = \textrm{OETF}^{-1}(E') = \begin{cases}
    4\times E'^2, & 0 \leq E' \leq {1\over 2} \\
-   e^{{E'-c}\over a} + b, & {1\over 2} < E
+   e^{{E'-c}\over a} + b, & {1\over 2} < E'
    \end{cases}$$
 ++++++
 
-==== Normalized HLG OETF and OETF^&#160;-1^
+_a_, _b_ and _c_ are defined as for the
+<<TRANSFER_HLG_OETF_UNNORM,unnormalized HLG OETF>>.
+
+BT.2100-0 describes this ``unnormalized'' version of the formulae, with the
+variant with the E normalized to [0..1] as an alternative.
+Only the variant with E normalized to [0..1] is described in the updated
+version, BT.2100-1.
+
+<<<
+==== Derivation of the HLG constants
+
+HLG constants appear to have chosen _a_, _b_ and _c_ to meet the following
+constraints, which are easiest to express in terms of the unnormalized
+OETF^&#160;-1^:
+
+ * The derivative of the latexmath:[$0 \leq E' \leq {1\over 2}$] term of
+   the unnormalized EOTF^&#160;-1^ has the same value as the derivative of
+   the latexmath:[${1\over 2}$]&#160;&lt;&#160;latexmath:[$E' \leq 1$] term
+   of the unnormalized EOTF^&#160;-1^ at latexmath:[$E' = {1\over 2}$]:
++
+[latexmath]
+++++++
+\begin{align*}
+{{d(4\times E'^2)}\over{dE'}} = 8\times E' &= 8 \times {1\over 2} = 4
+            \textrm{ (derivative of the } 0 \leq E' \leq {1\over 2} \textrm{ case)}\\
+{{d(e^{(E'-c)/a} + b)}\over{dE'}} &=
+                    {{d{(e^{E'/a}\times e^{-c/a} + b)}}\over{dE'}}
+                    \textrm{ (derivative of the } {1\over 2} < E' \textrm{ case)} \\
+&= {{d((e^{E'}\times e^{-c})^{1/a} + b)}\over{dE'}} \\
+&= {1\over a}\times\left(e^{E'}\times e^{-c}\right)^{(1/a) - 1}\times\left(e^{E'}\times e^{-c}\right)\\
+& = {1\over a}\times\left(e^{E'}\times e^{-c}\right)^{1/a}\\
+4 &= {1\over a}\times\left(e^{0.5}\times e^{-c}\right)^{1/a} \textrm{at } E' = {1\over 2}\\
+\implies (4\times a)^a &= e^{0.5}\times e^{-c}\\
+\implies c &= -\textrm{ln}\left({{(4\times a)^a}\over{e^{0.5}}}\right)\\
+     &= 0.5 - a\times\textrm{ln}(4\times a)
+\end{align*}
+++++++
+ * The latexmath:[$0 \leq E' \leq {1\over 2}$] term of the unnormalized
+   EOTF^&#160;-1^ has the same value as the
+   latexmath:[${1\over 2}$]&#160;&lt;&#160;latexmath:[$E'\leq 1$]
+   term of the unnormalized EOTF^&#160;-1^ at latexmath:[$E' = {1\over 2}$]:
++
+[latexmath]
+++++++
+\begin{align*}
+4\times{E'}^2 &= e^{{E' - c}\over a} + b
+\textrm{ (from the }0 \leq E' \leq {1\over 2}\textrm{ and }{1\over 2} < E' \textrm{ cases})\\
+4\times{1\over 2}^2 = 1 &= e^{{0.5 - c}\over a} + b \textrm{ (at }E' = {1\over 2})\\
+&= e^{{0.5 - 0.5 + a\times\textrm{ln}(4\times a)}\over a} + b \\
+&= e^{\textrm{ln}(4\times a)} + b\\
+b &= 1 - 4\times a
+\end{align*}
+++++++
+ * At _E'_ = 1, the latexmath:[${1\over 2}$]&#160;&lt;&#160;latexmath:[$E'$]
+   term of the unnormalized EOTF^&#160;-1^ = 12:
++
+[latexmath]
+++++++
+\begin{align*}
+12 &= e^{{E'-c}\over a} + b\\
+&= {e^{{1 - 0.5 + a\times\textrm{ln}(4\times a)}\over a} + 1 - 4\times a} \\
+11 + 4\times a &= e^{{0.5\over a} + \textrm{ln}(4\times a)} \\
+11 + 4\times a &= (4\times a)\times e^{0.5\over a} \\
+{11\over{4\times a}} + 1 &= \sqrt{e^{1\over a}} \\
+{121\over{16\times a^2}} + {11\over{2\times a}} + 1 &= e^{1\over a}\\
+{121\over{16}} + {a\times 11\over 2} + a^2 \times (1 - e^{1\over a}) = 0
+\end{align*}
+++++++
+
+This last equation can be solved numerically to find:
+[latexmath]
+++++++
+\begin{align*}
+a \approx 0.1788327726569497656312771
+\end{align*}
+++++++
+
+With this precision, more accurate values of the other constants are:
+
+[latexmath]
+++++++
+\begin{align*}
+b &= 0.28466890937 \\
+c &= 0.55991072776
+\end{align*}
+++++++
+
+The _b_ = 0.28466892 official figure assumes the rounded
+_a_ = 0.17883277 value as an input to the _b_ = latexmath:[$1 - 4\times a$]
+relation.
 
 [NOTE]
 ====
-BT.2100 notes that the equivalent OETF formula with _E_ normalized to the range [0..1] is:
-
-[latexmath]
-++++++
-   $$E'_{norm} = \textrm{OETF}(E_{norm}) = \begin{cases}
-   {{\sqrt{3E}}\over{2}}, & 0 \leq E_{norm} \leq {1\over{12}} \\
-   a \times \textrm{ln}(E-b) + c, & {1\over{12}} < E
-   \end{cases}$$
-++++++
-
-[width="80%",grid="none",frame="none"]
-|============
-<|latexmath:[$E_{norm}$] = the latexmath:[$R_S$], latexmath:[$G_S$] or latexmath:[$B_S$] color component of linear scene light, normalized to [0..1]
-<|latexmath:[$E'_{norm}$] = the resulting non-linear latexmath:[$R_S'$], latexmath:[$G_S'$] or latexmath:[$B_S'$] value in in the range [0..1]
-<|_a_ = 0.17883277
-<|_b_ = 0.02372241
-<|_c_ = 1.00429347
-|============
-
-The OETF^&#160;-1^ in this case is therefore:
-
-[latexmath]
-++++++
-   $$E_{norm} = \textrm{OETF}^{-1}(E'_{norm}) = \begin{cases}
-   {{E'^2}\over 3}, & 0 \leq E' \leq {1\over 2} \\
-   e^{{E'-c}\over a} + b, & {1\over 2} < E
-   \end{cases}$$
-++++++
-
-In this case, _a_, _b_ and _c_ are defined as above in this note. +
-
 No explanation for the choice of [0..12] range in the official version of
-the formula is explicitly offered in BT.2100, but allowing for the difference
-in the maximum display brightness of HDR and SDR systems (nominally around
-<<bt2100,1000>>cd/m^2^ and <<bt1886,100>>cd/m^2^), there is deliberate
-compatibility between the HLG OETF and the <<TRANSFER_ITU,BT.2020 OETF>>
-(which itself approximates a square root function) over the encodable dynamic
-range of a BT.2020 system.
+the formula is explicitly offered in BT.2100-0 (it does _not_, for example,
+appear to relate to the <<bt1886,BT.1886>> OOTF latexmath:[$\gamma = 1.2$]
+combined with the latexmath:[$10\times$] ratio between the
+<<bt2100,1000>>cd/m^2^ of a standard HLG HDR TV and the <<bt1886,100>>cd/m^2^
+of a standard dynamic range set).
+However, allowing for the difference in the maximum display brightness of
+HDR and SDR systems there is deliberate scaled compatibility between the HLG
+OETF and the <<TRANSFER_ITU,BT.2020 OETF>> (which itself approximates a square
+root function) over the encodable dynamic range of a BT.2020 system.
 Since HDR content is intended to support accurate highlights more than
 to maintain a higher persistent screen brightness (many HDR displays can
 only support maximum brightness in a small area or over a small period
@@ -993,7 +1153,7 @@ B_D &= \alpha\times Y_S^{\gamma-1}\times B_S + \beta \\
 where _R~D~_, _G~D~_ and _B~D~_ describe the luminance of the displayed
 linear component in cd/m^2^ and _R~S~_, _G~S~_ and _B~S~_ describe each
 color component in scene linear light, scaled by camera exposure and
-normalized to the range [0..12].
+normalized to the representable range.
 
 NOTE: BT.2100 notes that some legacy displays apply the
 latexmath:[$\gamma$] function to each channel separately, rather than
@@ -1006,15 +1166,36 @@ _Y~S~_ is the normalized scene luminance, defined as:
 
 [latexmath]
 +++++
-\begin{align*}
-Y_S &= 0.2627\times R_S + 0.6780\times G_S + 0.0593\times B_S \\
-\alpha &= {{L_W - L_B}\over{\left(12\right)^\gamma}} \\
-\beta &= L_B
-\end{align*}
+$$Y_S = 0.2627\times R_S + 0.6780\times G_S + 0.0593\times B_S$$
 +++++
+
+latexmath:[$\beta$] represents the black level (display ``brightness''):
+
+[latexmath]
++++++
+$$\beta = L_B$$
++++++
+
+latexmath:[$\alpha$] represents the black level (display ``contrast''):
+
+[width="50%",options="header",cols="1,5,5"]
+|============
+| | Scene light normalized to [0..1] | Scene light normalized to [0..12]
+| latexmath:[$\alpha$] | latexmath:[${L_W - L_B}$] | latexmath:[${{L_W - L_B}\over{\left(12\right)^\gamma}}$]
+|============
 
 _L~W~_ is the nominal peak luminance of the display in cd/m^2^, and
 _L~B~_ is the display luminance of black in cd/m^2^.
+
+[NOTE]
+====
+<<bt2100,BT.2100>>-1 (the current version at the time of writing)
+includes an apparent typographical error in its definition of the
+OOTF, providing both the equation with scene light normalized
+to the range [0..1] and the (legacy) <<TRANSFER_HLG_IOETF_UNNORM,
+equation with scene light normalized to the range [0..12]>>, without
+explanation.
+====
 
 latexmath:[$\gamma = 1.2$] for a nominal peak display luminance of 1000cd/m^2^.
 For displays with higher peak luminance or if peak luminance is reduced through
@@ -1060,7 +1241,8 @@ Y_D =& 0.2627\times R_D + 0.6780\times G_D + 0.0593\times B_D \\
 =& \alpha\times Y_S^{\gamma-1}\times(0.2627\times R_S
 + 0.6780\times G_S + 0.0593\times B_S)+\beta \\
 =& \alpha\times Y_S^{\gamma}+\beta \\
-\therefore Y_S =& \left({{Y_D-\beta}\over\alpha}\right)^{1\over\gamma}
+\therefore Y_S =& \left({{Y_D-\beta}\over\alpha}\right)^{1\over\gamma}\\
+Y_S^{1-\gamma} =& \left({{Y_D-\beta}\over\alpha}\right)^{(1-\gamma)/\gamma}
 \end{align*}
 +++++
 
@@ -1068,30 +1250,34 @@ From this, the following relations can be derived:
 [latexmath]
 +++++
 \begin{align*}
-R_S &= {(R_D - \beta)\over{\alpha\times Y_S^{\gamma-1}}} \\
-G_S &= {(G_D - \beta)\over{\alpha\times Y_S^{\gamma-1}}} \\
+R_S &= {(R_D - \beta)\over{\alpha\times Y_S^{\gamma-1}}}
+= Y_S^{1-\gamma}\times{{(R_D-\beta)}\over\alpha}
+= \left({{Y_D - \beta}\over\alpha}\right)^{(1-\gamma)/\gamma} \times
+    \left({{R_D - \beta}\over{\alpha}}\right) \\
+G_S &= {(G_D - \beta)\over{\alpha\times Y_S^{\gamma-1}}}
+= Y_S^{1-\gamma}\times{{(G_D-\beta)}\over\alpha}
+= \left({{Y_D - \beta}\over\alpha}\right)^{(1-\gamma)/\gamma} \times
+    \left({{G_D - \beta}\over{\alpha}}\right) \\
 B_S &= {(B_D - \beta)\over{\alpha\times Y_S^{\gamma-1}}}
+= Y_S^{1-\gamma}\times{{(B_D-\beta)}\over\alpha}
+= \left({{Y_D - \beta}\over\alpha}\right)^{(1-\gamma)/\gamma} \times
+    \left({{B_D - \beta}\over{\alpha}}\right)
 \end{align*}
 +++++
 
-NOTE: Suitable care needs to be taken to handle black (_Y~S~_ = 0)
-in this case.
-
-If latexmath:[$\beta = 0$], the above formulae can be simplified:
+For processing without knowledge of the display, latexmath:[$\alpha$]
+can be treated as 1.0cd/m^2^ and latexmath:[$\beta$] can be considered
+to be 0.0cd/m^2^.
+This simplifies the equations as follows:
 
 [latexmath]
 +++++
 \begin{align*}
-Y_S &= \left(Y_D\over\alpha\right)^{1\over\gamma} \\
-&= \alpha^{-{1\over\gamma}}\times Y_D^{1\over\gamma} \\
-Y_S^{1-\gamma} &= \alpha^{({\gamma-1\over\gamma})}\times Y_D^{({1-\gamma\over\gamma})} \\
-&= \alpha^{(1-{1\over\gamma})}\times Y_D^{({{1\over\gamma} - 1})} \\
-\rho &= {1\over{\alpha\times Y_S^{\gamma-1}}} \\
-&= \alpha^{-1}\times Y_S^{1-\gamma} \\
-&= \alpha^{-{1\over\gamma}}\times Y_D^{{1\over\gamma}-1} \\
-R_S&=R_D\times\rho=R_D\times\alpha^{-{1\over\gamma}}\times Y_D^{{1\over\gamma}-1} \\
-G_S&=G_D\times\rho=G_D\times\alpha^{-{1\over\gamma}}\times Y_D^{{1\over\gamma}-1} \\
-B_S&=B_D\times\rho=B_D\times\alpha^{-{1\over\gamma}}\times Y_D^{{1\over\gamma}-1}
+Y_S &= Y_D^{1/\gamma} \\
+Y_S^{1-\gamma} &= Y_D^{(1/\gamma)-1} \\
+R_S&=Y_D^{(1/\gamma)-1}\times R_D \\
+G_S&=Y_D^{(1/\gamma)-1}\times G_D \\
+B_S&=Y_D^{(1/\gamma)-1}\times B_D
 \end{align*}
 +++++
 

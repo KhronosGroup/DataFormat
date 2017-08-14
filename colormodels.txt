@@ -123,6 +123,8 @@ the range [latexmath:[$0..1$]]:
   and the analog signal is colloquially known as latexmath:[$P_B$].
   This standard uses the latexmath:[$C'_B$] terminology for brevity
   and consistency with latexmath:[$Y'_CC'_{BC}C'_{RC}$].
+  It is common, especially in the name of a color model, to omit the
+  prime symbol and write simply latexmath:[$C_B$].
 * latexmath:[$(R'-Y')$] scaled to the range [latexmath:[$-0.5..0.5$]] is
   referred to in <<bt601,BT.601>> and <<bt709,BT.709>> as
   latexmath:[$E'_{C_R}$], and in <<bt2020,BT.2020>> and <<bt2100,BT.2100>> as
@@ -131,6 +133,8 @@ the range [latexmath:[$0..1$]]:
   and the analog signal is colloquially known as latexmath:[$P_R$].
   This standard uses the latexmath:[$C'_R$] terminology for brevity
   and consistency with latexmath:[$Y'_CC'_{BC}C'_{RC}$].
+  It is common, especially in the name of a color model, to omit the
+  prime symbol and write simply latexmath:[$C_R$].
 * latexmath:[$(B'-Y')$] scaled and quantized for digital representation is
   known as simply latexmath:[$C'_B$] in <<bt601,BT.601>>,
   latexmath:[$D'_{CB}$] in <<bt709,BT.709>> and latexmath:[$DC_B'$]
@@ -139,6 +143,9 @@ the range [latexmath:[$0..1$]]:
   known as simply latexmath:[$C'_R$] in <<bt601,BT.601>>,
   latexmath:[$D'_{CR}$] in <<bt709,BT.709>> and latexmath:[$DC_R'$]
   in <<bt2020,BT.2020>> and <<bt2100,BT.2100>>.
+* This section considers the color channels in continuous terms;
+  the terminology latexmath:[$DC_B'$] and latexmath:[$DC_R'$] is used
+  in <<CONVERSION_QUANTIZATION>>.
 
 Using this terminology, the following conversion formulae can be derived:
 
