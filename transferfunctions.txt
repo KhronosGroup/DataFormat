@@ -225,6 +225,8 @@ The ITU does define other transfer functions, for example the
 described below (originating in <<bt2100,BT.2100>>) and the list
 of EOTFs listed in <<bt470,BT.470-6>>.
 
+==== ITU OETF
+
 The ITU-T <<bt601,BT.601>>, <<bt709,BT.709>> and <<bt2020,BT.2020>>
 specifications (for standard definition television, HDTV and UHDTV
 respectively), and <<smpte170m,SMPTE 170M>>, which defines NTSC
@@ -253,6 +255,8 @@ B' &= \begin{cases}
 Where latexmath:[$\alpha = 1.0993$] and latexmath:[$\beta = 0.0181$]
 for 12-bit encoding in the BT.2020 specification, and
 latexmath:[$\alpha = 1.099$] and latexmath:[$\beta = 0.018$] otherwise.
+
+==== ITU OETF^&#160;-1^
 
 From this the inverse (OETF^&#160;-1^) transformation can be deduced:
 
@@ -338,7 +342,7 @@ The difference between the curves is shown in black.
 image::images/tf_ituvsgamma2_2.png[title="ITU OETF vs pure gamma 1/2.2",width="{svgpdf@pdf:160:257}",align="center"]
 ====
 
-==== Derivation of the alpha and beta constants (informative)
+==== Derivation of the ITU alpha and beta constants (informative)
 
 Using the 12-bit encoding values for latexmath:[$\alpha$] and latexmath:[$\beta$]
 from <<bt2020,Rec.2020>>, there is an overlap around a non-linear value of 0.08145.
@@ -1021,7 +1025,7 @@ The OETF^&#160;-1^ of ``unnormalized'' HLG (producing _E_ in the range [0..12]) 
 ++++++
    $$E = \textrm{OETF}^{-1}(E') = \begin{cases}
    4\times E'^2, & 0 \leq E' \leq {1\over 2} \\
-   e^{{E'-c}\over a} + b, & {1\over 2} < E'
+   b + e^{(E'-c)/a}, & {1\over 2} < E'
    \end{cases}$$
 ++++++
 
@@ -1034,7 +1038,7 @@ Only the variant with E normalized to [0..1] is described in the updated
 version, BT.2100-1.
 
 <<<
-==== Derivation of the HLG constants
+==== Derivation of the HLG constants (informative)
 
 HLG constants appear to have chosen _a_, _b_ and _c_ to meet the following
 constraints, which are easiest to express in terms of the unnormalized
@@ -1125,16 +1129,29 @@ combined with the latexmath:[$10\times$] ratio between the
 <<bt2100,1000>>cd/m^2^ of a standard HLG HDR TV and the <<bt1886,100>>cd/m^2^
 of a standard dynamic range set).
 However, allowing for the difference in the maximum display brightness of
-HDR and SDR systems there is deliberate scaled compatibility between the HLG
+HDR and SDR systems there is deliberate (scaled) compatibility between the HLG
 OETF and the <<TRANSFER_ITU,BT.2020 OETF>> (which itself approximates a square
-root function) over the encodable dynamic range of a BT.2020 system.
+root function) over much of the encodable dynamic range of a BT.2020 system.
 Since HDR content is intended to support accurate highlights more than
 to maintain a higher persistent screen brightness (many HDR displays can
 only support maximum brightness in a small area or over a small period
 without overheating), agreement over a significant chunk of the tone curve
-allows a simple adaptation between HDR and SDR devices.
+allows a simple adaptation between HDR and SDR devices: fed HLG-encoded
+content, an SDR display may represent darker tones accurately and simply
+under-represent highlights.
 The origins of both HLG and PQ are discussed in <<bt2390,ITU-R BT.2390>>.
+
+&#160;
+
+As graphed in <<bt2390,ITU-R BT.2390>>, the ``unnormalized'' HLG OETF (red)
+is a good approximation to the standard dynamic range ITU transfer function
+(blue, output scaled by 0.5) up to latexmath:[$E \approx 1$] and
+latexmath:[$\textrm{OETF}(E) = E' \approx 0.5$], with a smooth
+curve up to the maximum HLG representable scene light value of ``12'':
+
+image::images/tf_hlg.{svgpdf}[title="HLG OETF (red) vs ITU OETF/2 (blue)",width="{svgpdf@pdf:200:300}",align="center"]
 ====
+
 
 <<<
 ==== HLG OOTF
