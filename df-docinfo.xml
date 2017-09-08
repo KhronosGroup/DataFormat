@@ -39,6 +39,8 @@ Copyright notice at https://www.khronos.org/registry/speccopyright.html
 <othercredit><firstname>David</firstname><surname>Sena</surname></othercredit>
 <othercredit><firstname>Mark</firstname><surname>Callow</surname></othercredit>
 <othercredit><firstname>Jon</firstname><surname>Leech</surname></othercredit>
+<othercredit><firstname>Jan</firstname><surname>Outters</surname></othercredit>
+<othercredit><firstname>Courtney</firstname><surname>Goeltzenleuchter</surname></othercredit>
 </contrib>
 
 <!--
@@ -48,6 +50,9 @@ Copyright notice at https://www.khronos.org/registry/speccopyright.html
 </copyright>
 -->
 <legalnotice>
+<title>
+Khronos Data Format Specification License Information
+</title>
 <simpara>
 Copyright (C) 2014-2017  The Khronos Group Inc. All Rights Reserved.
 </simpara>
@@ -204,6 +209,14 @@ ASTC multi-point "part" and quint decode typo fixes
 <authorinitials>AG</authorinitials>
 <revremark>
 ETC2 legibility and table typo fix
+</revremark>
+</revision>
+<revision>
+<revnumber>1.2 rev 0</revnumber>
+<date>September 2017</date>
+<authorinitials>AG</authorinitials>
+<revremark>
+Added color conversion formulae and extra options
 </revremark>
 </revision>
 </revhistory>

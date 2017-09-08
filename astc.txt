@@ -1306,7 +1306,7 @@ e1.alpha = v7;
 
 Note that in this mode, the alpha values are interpreted (and
 interpolated) as 8-bit unsigned normalized values, as in the LDR modes.
-This is the only mode that exhibits this behaviour.
+This is the only mode that exhibits this behavior.
 
 ==== HDR Endpoint Mode 15
 
@@ -1545,7 +1545,7 @@ position as shown in <<astc-simplex-interpolation-parameters>>.
 ^| False  ^| False  ^| _False_  ^| N latexmath:[$\times$] M ^| N   ^| latexmath:[$16-f_r$]  ^| latexmath:[$f_r-f_t$]  ^| latexmath:[$f_t-f_s$] ^| latexmath:[$f_s$]
 |==================
 
-Italicised test results are implied by the others. The effective
+Italicized test results are implied by the others. The effective
 weight _i_ is then calculated as:
 
 -----
