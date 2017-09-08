@@ -1,6 +1,6 @@
 # Copyright (c) 2014-2017 The Khronos Group Inc.
 # Copyright notice at https://www.khronos.org/registry/speccopyright.html
-all: html pdf header
+all: inlinehtml pdf header
 
 XMLLINT    = --no-xmllint
 
@@ -19,6 +19,9 @@ html:
 	cp images/Khronos_Dec14.svg out/images
 	cp images/icons/note.png out/images/icons/note.png
 
+inlinehtml: html
+	./inlinecss.pl < out/dataformat.1.2.html | ./inlineimages.pl > out/dataformat.1.2.inline.html
+
 pdf:
 	asciidoc -d book -b docbook -f config/mathjax-docbook.conf -a svgpdf=pdf -a a2x-format=pdf -a docinfo df.txt && \
 	dblatex -b pdftex -p config/docbook-xsl/pdf.xsl -s dblatex/df.sty df.xml -o out/dataformat.1.2.pdf
@@ -28,5 +31,5 @@ header:
 	cp headers/khr_df.h out/headers/khr_df.h
 
 clean:
-	rm -f out/dataformat.1.2.pdf df.xml out/dataformat.1.2.html
+	rm -f out/dataformat.1.2.pdf df.xml out/dataformat.1.2.html out/dataformat.1.2.inline.html
 	rm -rf out/config out/images out/headers

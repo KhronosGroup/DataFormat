@@ -34,5 +34,22 @@ available as part of many Linux distributions.
 The PDF build subsequently depends on
 link:http://dblatex.sourceforge.net[dblatex].
 
-Both forms of the specification may be built with a simple "make"
-command; use "make pdf" or "make html" to build just one target.
+All forms of the specification may be built with a simple "make"
+or "make all" command, with an output into the "out" directory.
+
+Use "make pdf" to build just the PDF specification.
+
+Use "make html" to build the HTML version of the specification
+without inline images, which are accessed from the "out" directory;
+this is smaller than the "inlinehtml" version.
+
+Use "make inlinehtml" to create the HTML and then generate a version
+with inlined images, allowing it to be transferred as a single
+file; note that the HTML still relies on access to
+link:http://www.mathjax.org[MathJax] and is therefore not completely
+stand-alone.
+This build option requires PERL.
+
+"make header" copies the header file into the "out/headers" directory.
+
+"make clean" removes the contents out "out" and temporary files.
