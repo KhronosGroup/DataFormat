@@ -109,7 +109,7 @@ in <<BC1blocks>>.
 ^| Block value | Condition
 ^| latexmath:[$RGB_0$] | latexmath:[$color_0 > color_1$] and latexmath:[$code(x,y) = 0$]
 ^| latexmath:[$RGB_1$] | latexmath:[$color_0 > color_1$] and latexmath:[$code(x,y) = 1$]
-^| latexmath:[$(2\times RGB_9 + RGB_1)\over 3$] | latexmath:[$color_0 > color_1$] and latexmath:[$code(x,y) = 2$]
+^| latexmath:[$(2\times RGB_0 + RGB_1)\over 3$] | latexmath:[$color_0 > color_1$] and latexmath:[$code(x,y) = 2$]
 ^| latexmath:[$(RGB_0 + 2\times RGB_1)\over 3$] | latexmath:[$color_0 > color_1$] and latexmath:[$code(x,y) = 3$]
 ^| latexmath:[$RGB_0$] | latexmath:[$color_0 \le color_1$] and latexmath:[$code(x,y) = 0$]
 ^| latexmath:[$RGB_1$] | latexmath:[$color_0 \le color_1$] and latexmath:[$code(x,y) = 1$]
