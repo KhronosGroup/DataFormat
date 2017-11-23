@@ -202,7 +202,7 @@ R1' (5 bits)
 dR2
 5+^| base col1
 
-G1' (4 bits)
+G1' (5 bits)
 3+^| dcol 2
 
 dG2
