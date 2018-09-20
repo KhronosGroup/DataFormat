@@ -48,15 +48,17 @@
 <xsl:param name="callout.list.table" select="'1'"/>
 
 <!-- This does not seem to work. -->
-<xsl:param name="section.autolabel.max.depth" select="2"/>
+<!-- <xsl:param name="section.autolabel.max.depth" select="2"/> -->
+<xsl:param name="doc.section.depth" select="5"/>
 
+ 
 <xsl:param name="chunk.first.sections" select="1"/>
 <xsl:param name="chunk.section.depth" select="1"/>
 <xsl:param name="chunk.quietly" select="0"/>
 <xsl:param name="chunk.toc" select="''"/>
 <xsl:param name="chunk.tocs.and.lots" select="0"/>
 
-<xsl:param name="html.cellpadding" select="'4px'"/>
+<xsl:param name="html.cellpadding" select="'2px'"/>
 <xsl:param name="html.cellspacing" select="''"/>
 
 <xsl:param name="table.borders.with.css" select="1"/>

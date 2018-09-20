@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Khronos Group Inc.
+// Copyright (c) 2017-2019 The Khronos Group Inc.
 // Copyright notice at https://www.khronos.org/registry/speccopyright.html
 
 [[TRANSFER_CONVERSION]]
@@ -24,11 +24,11 @@ would suggest, and that mid-values in the non-linear encoding typically
 represent darker intensities than their fraction of the representation
 of white would suggest.
 
-image::images/tf_curves.{svgpdf}[title="Conversion curves between linear light and encoded values (sRGB example)",width="{svgpdf@pdf:350:576}",align="center"]
+image::images/tf_curves.{svgpdf}[title="Conversion curves between linear light and encoded values (sRGB example)",width="{svgpdf@pdf:350pt:576}",align="center"]
 
 The behavior has historically been approximated by a power function
 with an exponent conventionally called latexmath:[$\gamma$]: +
-{R,G,B}~non-linear~ = {R,G,B}~linear~^latexmath:[$\gamma$]^.
+{_R_,_G_,_B_}~non-linear~ = {_R_,_G_,_B_}~linear~^latexmath:[$\gamma$]^.
 Hence this conversion is colloquially known as _gamma correction_.
 
 NOTE: Many practical transfer functions incorporate a small linear
@@ -60,7 +60,7 @@ The output is interpreted using the <<TRANSFER_SRGB,sRGB EOTF>>,
 approximating the behavior of a CRT with uncorrected signals.
 The background represents 50% gray.
 
-image::images/tf_sampling.{svgpdf}[title="Averaging checker values with different transfer functions",width="{svgpdf@pdf:210:576}",align="center"]
+image::images/tf_sampling.{svgpdf}[title="Averaging checker values with different transfer functions",width="{svgpdf@pdf:210pt:576}",align="center"]
 
  * *In row 1* black (0.0) and white (1.0) texels are averaged to calculate
    a 0.5 value in the frame buffer.
@@ -68,7 +68,7 @@ image::images/tf_sampling.{svgpdf}[title="Averaging checker values with differen
    than the average value of the black and white texels, so the gray box
    appears darker than the average intensity of the checker pattern.
  * *In row 2* the 0.5 average of the frame buffer is corrected using the
-   sRGB (electro-optical) EOTF^&#160;-1^ to latexmath:[${\sim}0.74$].
+   sRGB (electro-optical) EOTF^&#160;-1^ to &sim;0.74.
    The gray box accordingly appears a good match for the average intensity
    of the black and white squares on most media.
  * *In row 3* the checker pattern instead represents values of 25% and
@@ -77,11 +77,11 @@ image::images/tf_sampling.{svgpdf}[title="Averaging checker values with differen
    rows).
    These checker values have been converted to their non-linear
    representations, as might be the case for a texture in this format:
-   the darker squares are represented by latexmath:[${\sim}0.54$], and
-   the lighter squares are represented by latexmath:[${\sim}0.88$].
+   the darker squares are represented by &sim;0.54, and
+   the lighter squares are represented by &sim;0.88.
    Averaging these two values to get a value of 0.71 results in the
    right-most square: this appears slightly too dark compared with the
-   correct representation of mid-gray (latexmath:[${\sim}0.74$]) because,
+   correct representation of mid-gray (&sim;0.74) because,
    due to the non-linear encoding, the calculated value should not lie
    exactly half way between the two end points.
    Since the end points of the interpolation are less distant than the
@@ -100,14 +100,14 @@ image::images/tf_sampling.{svgpdf}[title="Averaging checker values with differen
 Incorrectly-applied transfer functions can also introduce color shifts,
 as demonstrated by the saturation change in the following examples:
 
-image::images/tf_colorshift_intensitylinearvalues.png[title="R,G,B and combined color gradient with linear light intensity in each channel",width="{svgpdf@pdf:150:256}",align="center"]
-image::images/tf_colorshift_srgblinearvalues.png[title="R',G',B' and combined color gradient with non-linear sRGB encoding in each channel",width="{svgpdf@pdf:150:256}",align="center"]
+image::images/tf_colorshift_intensitylinearvalues.png[title="Color channels and combined color gradient with linear light intensity in each channel",width="{svgpdf@pdf:150pt:256}",align="center"]
+image::images/tf_colorshift_srgblinearvalues.png[title="Color channels and combined color gradient with non-linear sRGB encoding in each channel",width="{svgpdf@pdf:150pt:256}",align="center"]
 
 <<<
 A standard for image representation typically defines one or both of
 two types of transfer functions:
 
-image::images/tf_scene_store_display.{svgpdf}[title="Opto-electronics and electro-optical transfer functions",width="{svgpdf@pdf:450:800}",align="center"]
+image::images/tf_scene_store_display.{svgpdf}[title="Opto-electronics and electro-optical transfer functions",width="{svgpdf@pdf:450pt:800}",align="center"]
 
  * An opto-electronic transfer function (OETF) defines the conversion
    between a normalized linear light intensity as recorded in the scene,
@@ -174,7 +174,7 @@ brightness).
 Adaptation to the surround means that the top left and lower right images
 look similar.
 
-image::images/tf_surround_luminance.{svgpdf}[title="Simultaneous contrast",width="{svgpdf@pdf:450:800}",align="center"]
+image::images/tf_surround_luminance.{svgpdf}[title="Simultaneous contrast",width="{svgpdf@pdf:450pt:800}",align="center"]
 
 In the context of a non-linear OOTF, an application should be aware of whether
 operations on the image are intended to reflect the representation of colors in
@@ -200,9 +200,9 @@ The effect of a non-linear OOTF is usually secondary to the benefits of using
 non-linear encoding to reduce quantization.
 
 By convention, non-linearly-encoded values are distinguished from
-linearly-encoded values by the addition of a prime (latexmath:[$'$])
-symbol. For example, (latexmath:[$R, G, B$]) may represent a linear
-set of red, green and blue components; (latexmath:[$R', G', B'$])
+linearly-encoded values by the addition of a prime (&prime;)
+symbol. For example, (_R_,_G_,_B_) may represent a linear set of
+red, green and blue components; (_R_&prime;,_G_&prime;,_B_&prime;)
 would represent the non-linear encoding of each value. Typically
 the non-linear encoding is applied to additive primary colors;
 derived color differences may or may not retain the prime symbol.
@@ -231,28 +231,28 @@ The ITU-T <<bt601,BT.601>>, <<bt709,BT.709>> and <<bt2020,BT.2020>>
 specifications (for standard definition television, HDTV and UHDTV
 respectively), and <<smpte170m,SMPTE 170M>>, which defines NTSC
 broadcasts, define an opto-electrical transfer function.
-The (OETF) conversion from linear latexmath:[$(R, G, B)$] encoding
-to non-linear latexmath:[$(R', G', B')$] encoding is:
+The (OETF) conversion from linear (_R_,_G_,_B_) encoding
+to non-linear (_R&prime;_,_G&prime;_,_B&prime;_) encoding is:
 
 [latexmath]
 ++++++
 \begin{align*}
-R' &= \begin{cases}
-      R \times 4.500, & R < \beta \\
-      \alpha \times R^{0.45} - (\alpha - 1), & R \geq \beta
+\textit{R}' &= \begin{cases}
+      \textit{R} \times 4.500, & \textit{R} < \beta \\
+      \alpha \times \textit{R}^{0.45} - (\alpha - 1), & \textit{R} \geq \beta
   \end{cases} \\
-G' &= \begin{cases}
-      G \times 4.500, & G < \beta \\
-      \alpha \times G^{0.45} - (\alpha - 1), & G \geq \beta
+\textit{G}' &= \begin{cases}
+      \textit{G} \times 4.500, & \textit{G} < \beta \\
+      \alpha \times \textit{G}^{0.45} - (\alpha - 1), & \textit{G} \geq \beta
   \end{cases} \\
-B' &= \begin{cases}
-      B \times 4.500, & B < \beta \\
-      \alpha \times B^{0.45} - (\alpha - 1), & B \geq \beta
+\textit{B}' &= \begin{cases}
+      \textit{B} \times 4.500, & \textit{B} < \beta \\
+      \alpha \times \textit{B}^{0.45} - (\alpha - 1), & \textit{B} \geq \beta
   \end{cases}
 \end{align*}
 ++++++
 
-Where latexmath:[$\alpha = 1.0993$] and latexmath:[$\beta = 0.0181$]
+Where _&alpha;_ = 1.0993 and _&beta;_ = 0.0181
 for 12-bit encoding in the BT.2020 specification, and
 latexmath:[$\alpha = 1.099$] and latexmath:[$\beta = 0.018$] otherwise.
 
@@ -263,29 +263,29 @@ From this the inverse (OETF^&#160;-1^) transformation can be deduced:
 [latexmath]
 ++++++
 \begin{align*}
-R &= \begin{cases}
-      {{R'}\over{4.500}}, & R' < \delta \\
-      {\left({R' + (\alpha - 1)}\over{\alpha}\right)}^{1\over{0.45}}, & R' \geq \delta
+\textit{R} &= \begin{cases}
+      {{\textit{R}'}\over{4.500}}, & \textit{R}' < \delta \\
+      {\left({\textit{R}' + (\alpha - 1)}\over{\alpha}\right)}^{1\over{0.45}}, & \textit{R}' \geq \delta
   \end{cases} \\
-G &= \begin{cases}
-      {{G'}\over{4.500}}, & G' < \delta \\
-      {\left({G' + (\alpha - 1)}\over{\alpha}\right)}^{1\over{0.45}}, & G' \geq \delta
+\textit{G} &= \begin{cases}
+      {{\textit{G}'}\over{4.500}}, & \textit{G}' < \delta \\
+      {\left({\textit{G}' + (\alpha - 1)}\over{\alpha}\right)}^{1\over{0.45}}, & \textit{G}' \geq \delta
   \end{cases} \\
 B &= \begin{cases}
-      {{B'}\over{4.500}}, & B' < \delta \\
-      {\left({B' + (\alpha - 1)}\over{\alpha}\right)}^{1\over{0.45}}, & B' \geq \delta
+      {{\textit{B}'}\over{4.500}}, & \textit{B}' < \delta \\
+      {\left({\textit{B}' + (\alpha - 1)}\over{\alpha}\right)}^{1\over{0.45}}, & \textit{B}' \geq \delta
   \end{cases}
 \end{align*}
 ++++++
 
-latexmath:[$\delta$] can be deduced from latexmath:[$\alpha \times \beta^{0.45}
-- (\alpha - 1) \approx 0.0812$]. Note that this is subtly different from
-latexmath:[$4.5 \times \beta$] due to rounding. See the following section
+_&delta;_ can be deduced from _&alpha;_ {times} _&beta;_^0.45^
+- (_&alpha;_ - 1) &#8776; 0.0812. Note that this is subtly different from
+4.5 {times} _&beta;_ due to rounding. See the following section
 for the derivation of these values.
 
 <<smpte170m,SMPTE 170M-2004>>, which defines the behavior of NTSC
 televisions, defines the EOTF of the ``reference reproducer'' as the
-OETF^&#160;-1^ function above, with latexmath:[$\delta$] explicitly
+OETF^&#160;-1^ function above, with _&delta;_ explicitly
 written as 0.0812.
 Therefore the SMPTE 170M-2004 EOTF^&#160;-1^ equals the OETF given above.
 The ``reference camera'' of SMTPE 170M-2004 has an OETF function matching
@@ -311,7 +311,7 @@ ITU standards deliberately chose a different transfer curve from that of a
 typical CRT in order to introduce a non-linear OOTF, as a means to compensate
 for the typically dim conditions in which a television is viewed.
 <<bt2087,ITU BT.2087>> refers to the approximation of the OETF with a
-square root (latexmath:[$\gamma = {1\over{2}}$]) function.
+square root latexmath:[$\left(\gamma = {1\over{2}}\right)$] function.
 
 The following graph shows the close relationship between the ITU OETF
 (shown in red) and a pure power function with
@@ -321,7 +321,7 @@ The largest difference between the curve values at the same point when
 quantized to 8 bits is 15, mostly due to the sharp vertical gradient
 near 0.
 
-image::images/tf_ituvsgamma2_0.png[title="ITU OETF vs pure gamma 0.5",width="{svgpdf@pdf:160:257}",align="center"]
+image::images/tf_ituvsgamma2_0.png[title="ITU OETF vs pure gamma 0.5",width="{svgpdf@pdf:160pt:257}",align="center"]
 
 [NOTE]
 ====
@@ -339,28 +339,28 @@ difference between the ITU OETF (shown in red) and a pure power function
 with latexmath:[$\gamma={1\over{2.2}}$] (in blue).
 The difference between the curves is shown in black.
 
-image::images/tf_ituvsgamma2_2.png[title="ITU OETF vs pure gamma 1/2.2",width="{svgpdf@pdf:160:257}",align="center"]
+image::images/tf_ituvsgamma2_2.png[title="ITU OETF vs pure gamma 1/2.2",width="{svgpdf@pdf:160pt:257}",align="center"]
 ====
 
 ==== Derivation of the ITU alpha and beta constants (informative)
 
-Using the 12-bit encoding values for latexmath:[$\alpha$] and latexmath:[$\beta$]
+Using the 12-bit encoding values for _&alpha;_ and _&beta;_
 from <<bt2020,Rec.2020>>, there is an overlap around a non-linear value of 0.08145.
 In other cases, the conversion from linear to non-linear representation with
 encoding introduces a discontinuity between
-latexmath:[$(0.018 \times 4.500) = 0.081$] and
-latexmath:[$(1.099 \times 0.018^{0.45} - 0.099) \approx 0.0812$], corresponding
-to roughly a single level in a 12-bit range.
+(0.018&nbsp;{times}&nbsp;4.500)&nbsp;=&nbsp;0.081 and
+(1.099&nbsp;{times}&nbsp;0.018^0.45^&nbsp;-&nbsp;0.099)&nbsp;&#8776;&nbsp;0.0812,
+corresponding to roughly a single level in a 12-bit range.
 <<smpte170m,SMPTE 170M-2004>> provides formulae for both transformations and uses
 0.0812 as a case selector for the non-linear-to-linear transformation.
 
-The values of latexmath:[$\alpha$] and latexmath:[$\beta$] in the ITU function
+The values of _&alpha;_ and _&beta;_ in the ITU function
 were apparently chosen such that the linear segment and power segment meet at the
 same value and with the same derivative (that is, the linear segment meets the
 power segment at a tangent).
-The latexmath:[$\alpha$] and latexmath:[$\beta$] values can be derived as follows:
+The _&alpha;_ and _&beta;_ values can be derived as follows:
 
-At latexmath:[$\{R,G,B\} = \beta$], the linear and non-linear segments of the curve
+At {_R_,_G_,_B_}&nbsp;= _&beta;_, the linear and non-linear segments of the curve
 must calculate the same value:
 
 [latexmath]
@@ -489,7 +489,7 @@ two curves is shown in black.
 The largest non-linear difference at the same linear value when
 quantized to 8 bits is 3.
 
-image::images/tf_srgbvsgamma.png[title="sRGB EOTF vs pure gamma 2.2",width="{svgpdf@pdf:192:257}",align="center"]
+image::images/tf_srgbvsgamma.png[title="sRGB EOTF vs pure gamma 2.2",width="{svgpdf@pdf:192pt:257}",align="center"]
 
 NOTE: The sRGB standard assumes a quantization scheme in which
 0.0 is represented by the value 0 and 1.0 is represented by 255.
@@ -507,7 +507,7 @@ with latexmath:[$\gamma=2.2$] and the ITU OETF approximates a power function wit
 latexmath:[$\gamma=2.0$], also shown in green is the resulting OOTF corresponding to a
 power function with latexmath:[$\gamma={2.2\over{2.0}}=1.1$].
 
-image::images/tf_ituvssrgb256.png[title="sRGB EOTF and ITU OETF",width="{svgpdf@pdf:192:257}",align="center"]
+image::images/tf_ituvssrgb256.png[title="sRGB EOTF and ITU OETF",width="{svgpdf@pdf:192pt:257}",align="center"]
 
 <<<
 [[TRANSFER_SCRGB_EOTF]]
@@ -858,7 +858,7 @@ BT.709-BT.1886 system, is shown in black. Since the ITU OETF approximates a powe
 function with latexmath:[$\gamma=2.0$], also shown in green is the resulting OOTF
 corresponding to a power function with latexmath:[$\gamma={2.4\over{2.0}}=1.2$].
 
-image::images/tf_ituvsgamma256.png[title="BT.1886 EOTF and BT.709 OETF",width="{svgpdf@pdf:192:257}",align="center"]
+image::images/tf_ituvsgamma256.png[title="BT.1886 EOTF and BT.709 OETF",width="{svgpdf@pdf:192pt:257}",align="center"]
 
 [NOTE]
 ====
@@ -904,7 +904,7 @@ OETF for linear scene light:
 
 [latexmath]
 ++++++
-   $$E'_{norm} = \textrm{OETF}(E) = \begin{cases}
+   $$E'_\mathit{norm} = \textrm{OETF}(E) = \begin{cases}
    \sqrt{3E}, & 0 \leq E \leq {1\over{12}} \\
    a \times \textrm{ln}((12\times E) - b) + c, & {1\over{12}} < E \leq 1
    \end{cases}$$
@@ -926,7 +926,7 @@ differently:
 
 [latexmath]
 ++++++
-   $$E'_{norm} = \textrm{OETF}(E) = \begin{cases}
+   $$E'_\mathit{norm} = \textrm{OETF}(E) = \begin{cases}
    \sqrt{3E}, & 0 \leq E \leq {1\over{12}} \\
    a \times \textrm{ln}(E - b_0) + c_0, & {1\over{12}} < E \leq 1
    \end{cases}$$
@@ -1149,7 +1149,7 @@ is a good approximation to the standard dynamic range ITU transfer function
 latexmath:[$\textrm{OETF}(E) = E' \approx 0.5$], with a smooth
 curve up to the maximum HLG representable scene light value of ``12'':
 
-image::images/tf_hlg.{svgpdf}[title="HLG OETF (red) vs ITU OETF/2 (blue)",width="{svgpdf@pdf:200:300}",align="center"]
+image::images/tf_hlg.{svgpdf}[title="HLG OETF (red) vs ITU OETF/2 (blue)",width="{svgpdf@pdf:200pt:300}",align="center"]
 ====
 
 
@@ -1195,7 +1195,7 @@ $$\beta = L_B$$
 
 latexmath:[$\alpha$] represents the black level (display ``contrast''):
 
-[width="50%",options="header",cols="1,5,5"]
+[width="70%",options="header",cols="1,5,5"]
 |============
 | | Scene light normalized to [0..1] | Scene light normalized to [0..12]
 | latexmath:[$\alpha$] | latexmath:[${L_W - L_B}$] | latexmath:[${{L_W - L_B}\over{\left(12\right)^\gamma}}$]
@@ -1495,7 +1495,7 @@ $$E = \textrm{OETF}^{-1}(E') = \textrm{OOTF}^{-1}(\textrm{EOTF}(E')) = \textrm{O
 === DCI P3 transfer functions
 
 <<dcip3,DCI P3>> defines a simple power function with an exponent of 2.6
-(applied to scaled CIE XYZ values).
+(applied to scaled CIE _XYZ_ values).
 
 That is:
 
@@ -1511,9 +1511,9 @@ That is:
 \end{align*}
 +++++
 
-This power function is applied directly to scaled CIE XYZ color
+This power function is applied directly to scaled CIE _XYZ_ color
 coordinates: the ``primaries'' in DCI define the bounds of the gamut,
-but the actual color encoding uses XYZ coordinates.
+but the actual color encoding uses _XYZ_ coordinates.
 DCI scales the resulting non-linear values to the range [0..4095]
 prior to quantization, rounding to nearest.
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Khronos Group Inc.
+// Copyright (c) 2019 The Khronos Group Inc.
 // Copyright notice at https://www.khronos.org/registry/speccopyright.html
 
 == Introduction to color conversions
@@ -27,7 +27,7 @@ A color space consists of three basic components:
    The inverse function is written ``EOTF^&#160;-1^''.
 ** An opto-optical transfer function (OOTF) describes the
    relationship between the linear scene light intensity and
-   linear display light intensity: OOTF(x) = EOTF(EOTF(x)).
+   linear display light intensity: OOTF(x) = EOTF(OETF(x)).
    OETF&#160;=&#160;EOTF^&#160;-1^ and
    EOTF&#160;=&#160;OETF^&#160;-1^ only if the OOTF is linear.
 ** Historically, a non-linear transfer function has been implicit
@@ -69,13 +69,13 @@ A color space consists of three basic components:
   Color models are frequently ``named'' by listing their
   component color channels.
 ** For example, a color model might directly represent additive
-   primaries (``RGB''), simple color difference values
-   (``latexmath:[$Y'C_BC_R$]'' - colloquially ``YUV''), or
-   separate hue, saturation and intensity (``HSV''/``HSL'').
+   primaries (_RGB_), simple color difference values
+   (_Y&prime;C~B~C~R~_ -- colloquially _YUV_), or
+   separate hue, saturation and intensity (_HSV_/_HSL_).
 ** Interpreting an image with an incorrect color model typically
    results in wildly incorrect colors: a (0,0,0) triple in an
-   RGB additive color model typically represents black, but
-   may represent white in CMYK, or saturated green in color
+   _RGB_ additive color model typically represents black, but
+   may represent white in _CMYK_, or saturated green in color
    difference models.
 
 === Operations in a color conversion
@@ -89,20 +89,20 @@ separate conversion operations:
   color primaries, this transformation forms the ``core'' of the
   conversion.
 
-* The color primary conversion operates on linear latexmath:[$RGB$]
+* The color primary conversion operates on linear _RGB_
   additive color values; if the input or output are not defined in
   linear terms but with a non-linear <<TRANSFER_CONVERSION,transfer
   function>>, any color primary conversion must be ``wrapped'' with
-  any transfer functions; conventionally, non-linear latexmath:[$RGB$]
-  values are written latexmath:[$R'G'B'$].
+  any transfer functions; conventionally, non-linear _RGB_
+  values are written _R&prime;G&prime;B&prime;_.
 
 * If the input or output <<MODEL_CONVERSION,color model>> is not
   defined in terms of additive primaries (for example,
-  latexmath:[$Y'C_BC_R$], colloquially known as ``YUV''), the model
-  conversion is applied to the non-linear latexmath:[$R'G'B'$] values;
-  the latexmath:[$Y'_CC'_{CB}C'_{CR}$] and latexmath:[$IC_TC_P$]
+  _Y&prime;C~B~C~R~_ -- colloquially known as _YUV_), the model
+  conversion is applied to the non-linear _R&prime;G&prime;B&prime;_
+  values; the _Y&prime;~C~C&prime;~CB~C&prime;~CR~_ and _IC~T~C~P~_
   color models are created from both linear and non-linear
-  latexmath:[$RGB$].
+  _RGB_.
 
 * Converting numerical values stored in memory to the representation
   of the color model may itself require additional operations - in
@@ -126,20 +126,20 @@ the legal framework required for implementation.
 
 <<<
 
-Common cases such as converting a latexmath:[$Y'C_BC_R$] image
-encoded for 625-line <<bt601,BT.601>> to a latexmath:[$Y'C_BC_R$]
+Common cases such as converting a _Y&prime;C~B~C~R~_ image
+encoded for 625-line <<bt601,BT.601>> to a _Y&prime;C~B~C~R~_
 image encoded for <<bt709,BT.709>> can involve multiple costly
 operations.
 An example is shown in the following diagram, which represents
-sampling from a latexmath:[$Y'C_BC_R$] texture in one color space,
+sampling from a _Y&prime;C~B~C~R~_ texture in one color space,
 and the operations needed to generate a different set of
-latexmath:[$Y'C_BC_R$] values representing the color of the sample
+_Y&prime;C~B~C~R~_ values representing the color of the sample
 position in a different color space:
 
-image::images/colorconversion_accurate.{svgpdf}[title="Example sampling in one space and converting to a different space",width="{svgpdf@pdf:475:576}",align="center"]
+image::images/colorconversion_accurate.{svgpdf}[title="Example sampling in one space and converting to a different space",width="{svgpdf@pdf:475pt:576}",align="center"]
 
-In this diagram, non-linear luma latexmath:[$Y'$] channels are shown
-in black and white, color difference latexmath:[$C_B$]/latexmath:[$C_R$]
+In this diagram, non-linear luma _Y&prime;_ channels are shown
+in black and white, color difference _C~B~_/_C~R~_
 channels are shown with the colors at the extremes of their range, and
 color primary channels are shown as the primary color and black.
 Linear representations are shown diagonally divided by a straight line;
@@ -149,8 +149,8 @@ The luma and color difference representation is discussed in
 The interpretation of color primaries is discussed in
 <<PRIMARY_CONVERSION>>.
 Non-linear transfer functions are described in <<TRANSFER_CONVERSION>>.
-As described below, the diagram shows a 2&times;3 grid of
-input chroma texel values, corresponding to a 4&times;6 grid of
+As described below, the diagram shows a 2{times}3 grid of
+input chroma texel values, corresponding to a 4{times}6 grid of
 luma texel values, since the chroma channels are stored at half
 the horizontal and half the vertical resolution of the luma
 channel (i.e. in ``4:2:0'' representation).
@@ -163,8 +163,8 @@ The stages numbered in the above diagram show the following operations:
 
 . Arranging the channels from the representation correctly for the
   conversion operations (a ``swizzle'').
-  In this example, the implementation requires that the latexmath:[$C_B$]
-  and latexmath:[$C_R$] values be swapped.
+  In this example, the implementation requires that the _C~B~_
+  and _C~R~_ values be swapped.
 
 . Range expansion to the correct range for the values in the color
   model (handled differently, for example, for ``<<QUANTIZATION_FULL,full>>''
@@ -188,28 +188,28 @@ implementations may wish to take advantage of the sparseness.
   align the chroma samples differently.
   Note that interpolation for channel reconstruction necessarily happens
   in a non-linear representation for color difference representations
-  such as latexmath:[$Y'C_BC_R$]: creating a linear representation would
-  require converting to latexmath:[$RGB$], which in turn requires a full
-  set of latexmath:[$Y'C_BC_R$] samples for a given location.
+  such as _Y&prime;C~B~C~R~_: creating a linear representation would
+  require converting to _RGB_, which in turn requires a full
+  set of _Y&prime;C~B~C~R~_ samples for a given location.
 
-. Conversion between color models - in this example, from non-linear
-  latexmath:[$Y'C_BC_R$] to non-linear latexmath:[$R'G'B'$].
+. Conversion between color models -- in this example, from non-linear
+  _Y&prime;C~B~C~R~_ to non-linear _R&prime;G&prime;B&prime;_.
   For example, the conversion might be that between BT.601
-  latexmath:[$Y'C_BC_R$] and BT.601 non-linear latexmath:[$R'G'B'$]
+  _Y&prime;C~B~C~R~_ and BT.601 non-linear _R&prime;G&prime;B&prime;_
   described in <<MODEL_BT601>>.
-  For latexmath:[$Y'C_BC_R$] to latexmath:[$R'G'B'$], this
+  For _Y&prime;C~B~C~R~_ to _R&prime;G&prime;B&prime;_, this
   conversion is a sparse matrix multiplication.
 
 . Application of a transfer function to convert from non-linear
-  latexmath:[$R'G'B'$] to linear latexmath:[$RGB$], using the
+  _R&prime;G&prime;B&prime;_ to linear _RGB_, using the
   color primaries of the input representation.
   In this case, the conversion might be the EOTF^&#160;-1^ described
   in <<TRANSFER_ITU>>.
 +
-The separation of stages 4 and 5 is specific to the latexmath:[$Y'C_BC_R$]
-to latexmath:[$R'G'B'$] color model conversion.
-Other representations such as latexmath:[$Y'_CC'_{BC}C'_{RC}$] and
-latexmath:[$IC_TC_P$] have more complex interactions between the color
+The separation of stages 4 and 5 is specific to the _Y&prime;C~B~C~R~_
+to _R&prime;G&prime;B&prime;_ color model conversion.
+Other representations such as _Y&prime;~C~C&prime;~BC~C&prime;~RC~_ and
+_IC~T~C~P~_ have more complex interactions between the color
 model conversion and the transfer function.
 
 . Interpolation of linear color values at the sampling position shown
@@ -222,12 +222,12 @@ model conversion and the transfer function.
   primaries, as described in <<PRIMARIES_BT601_EBU>> and
   <<PRIMARIES_BT709>>.
 
-. Convert from the linear latexmath:[$RGB$] representation using the
-  target primaries to a non-linear latexmath:[$R'G'B'$] representation,
-  for example the OETF described in <<TRANSFER_ITU>>.
+. Convert from the linear _RGB_ representation using the
+  target primaries to a non-linear _R&prime;G&prime;B&prime;_
+  representation, for example the OETF described in <<TRANSFER_ITU>>.
 
-. Conversion from non-linear latexmath:[$R'G'B'$] to the
-  latexmath:[$Y'C_BC_R$] color model, for example as defined
+. Conversion from non-linear _R&prime;G&prime;B&prime;_ to the
+  _Y&prime;C~B~C~R~_ color model, for example as defined
   in as defined in <<MODEL_BT709>>
   (a matrix multiplication).
 
@@ -236,18 +236,18 @@ chroma channels, chroma values for multiple samples need to be combined.
 Note that it is easy to introduce inadvertent chroma blurring in this
 operation if the source space chroma values are generated by interpolation.
 
-In this example, generating the four linear latexmath:[$RGB$] values
+In this example, generating the four linear _RGB_ values
 required for linear interpolation at the magenta cross position
 requires _six_ chroma samples.
-In the example shown, all four latexmath:[$Y'$] values fall between the
+In the example shown, all four _Y&prime;_ values fall between the
 same two chroma sample centers on the horizontal axis, and therefore
 recreation of these samples by linear blending on the horizontal axis
 only requires two horizontally-adjacent samples.
-However, the upper pair of latexmath:[$Y'$] values are sited above
+However, the upper pair of _Y&prime;_ values are sited above
 the sample position of the middle row of chroma sample centers, and
 therefore reconstruction of the corresponding chroma values requires
 interpolation between the upper four source chroma values.
-The lower pair of latexmath:[$Y'$] values are sited below the sample
+The lower pair of _Y&prime;_ values are sited below the sample
 position of the middle row of chroma sample centers, and
 therefore reconstruction of the corresponding chroma values requires
 interpolation between the lower four source chroma values.
@@ -263,7 +263,7 @@ replication (nearest-neighbor filtering) rather than interpolation.
 An approximation to the above conversion is depicted in the following
 diagram:
 
-image::images/colorconversion_approximate.{svgpdf}[title="Example approximated sampling in one space and converting to a different space",width="{svgpdf@pdf:475:576}",align="center"]
+image::images/colorconversion_approximate.{svgpdf}[title="Example approximated sampling in one space and converting to a different space",width="{svgpdf@pdf:475pt:576}",align="center"]
 
 A performance-optimized approximation to our example conversion may
 use the following steps:
@@ -275,12 +275,12 @@ use the following steps:
   approximated by adjusting the sample locations to compensate
   for the reduced resolution and sample positions of the chroma
   channels, resulting in a single set of non-linear
-  latexmath:[$Y'C_BC_R$] values.
-. Model conversion from latexmath:[$Y'C_BC_R$] to latexmath:[$R'G'B'$]
+  _Y&prime;C~B~C~R~_ values.
+. Model conversion from _Y&prime;C~B~C~R~_ to _R&prime;G&prime;B&prime;_
   as described in <<MODEL_BT601>>, here performed _after_ the
   sampling/filtering operation.
-. Conversion from non-linear latexmath:[$R'G'B'$] to linear
-  latexmath:[$RGB$], using the EOTF^&#160;-1^ described
+. Conversion from non-linear _R&prime;G&prime;B&prime;_ to linear
+  _RGB_, using the EOTF^&#160;-1^ described
   in <<TRANSFER_ITU>>.
 . Conversion of color primaries, corresponding to step 7 of the
   previous example.
@@ -297,7 +297,8 @@ matrix transformation.
 
 <<<
 
-Large areas of color will be correctly converted by this approximation.
+Large areas of constant color will be correctly converted by this
+approximation.
 However, there are two sources of errors near color boundaries:
 
 . Interpolation takes place on values with a non-linear representation;
@@ -305,7 +306,7 @@ However, there are two sources of errors near color boundaries:
   but can introduce both intensity and color shifts.
   Note that applying a non-linear transfer function as part of filtering
   does not improve accuracy for color models other than
-  latexmath:[$R'G'B'$] since the non-linear additive values have been
+  _R&prime;G&prime;B&prime;_ since the non-linear additive values have been
   transformed as part of the color model representation.
 . When chroma reconstruction is bilinear and the final sample operation
   is bilinear, the interpolation operation now only access a maximum of
@@ -325,30 +326,29 @@ sequence of operations in two cases:
   coordinate position is adjusted to the nearest luma sample location.
 
 As another example, the conversion from BT.709-encoded
-latexmath:[$Y'C_BC_R$] to sRGB latexmath:[$R'G'B'$] may be considered
+_Y&prime;C~B~C~R~_ to sRGB _R&prime;G&prime;B&prime;_ may be considered
 to be a simple <<MODEL_YUV,model conversion>> (to
-<<PRIMARIES_BT709,BT.709>> latexmath:[$R'G'B'$] non-linear primaries
+<<PRIMARIES_BT709,BT.709>> _R&prime;G&prime;B&prime;_ non-linear primaries
 using the ``<<TRANSFER_ITU,ITU>>'' OETF), since sRGB shares the BT.709
 color primaries and is defined as a complementary <<TRANSFER_SRGB,EOTF>>
 intended to be combined with BT.709's OETF.
-This interpretation imposes a latexmath:[$\gamma \approx 1.1$]
+This interpretation imposes a latexmath:[$\gamma \approx$] 1.1
 OOTF.
 Matching the OOTF of a
 <<TRANSFER_ITU,BT.709>>-<<TRANSFER_BT1886,BT.1886>> system,
-for which latexmath:[$\gamma \approx 1.2$], implies using the
+for which latexmath:[$\gamma \approx$] 1.2, implies using the
 <<TRANSFER_BT1886,BT.1886>> EOTF to convert to linear light,
 then the <<TRANSFER_SRGB,sRGB>> EOTF^&#160;-1^ to convert back
 to sRGB non-linear space.
 Encoding linear scene light with linear OOTF means applying
 the <<TRANSFER_ITU,BT.709>> OETF^&#160;-1^; if the sRGB
-latexmath:[$R'G'B'$] target is itself intended to represent
-a linear OOTF, then the {latexmath:[$R'_{sRGB}$],
-latexmath:[$G'_{sRGB}$], latexmath:[$B'_{sRGB}$]} should be
-calculated as:
+_R&prime;G&prime;B&prime;_ target is itself intended to represent
+a linear OOTF, then the {_R&prime;~sRGB~_, _G&prime;~sRGB~_,
+_B&prime;~sRGB~_} should be calculated as:
 
 [latexmath]
 +++++
-$$\{R'_{sRGB},G'_{sRGB},B'_{sRGB}\} =
-\textrm{EOTF}^{-1}_{sRGB}(\textrm{OETF}^{-1}_{BT.709}
-(\{R'_{BT.709},G'_{BT.709},B'_{BT.709}\}))$$
+$$\{\mathit{R}'_\mathit{sRGB},\mathit{G}'_\mathit{sRGB},\mathit{B}'_\mathit{sRGB}\} =
+\textrm{EOTF}^{-1}_{sRGB}(\textrm{OETF}^{-1}_{\mathit{BT}.709}
+(\{\mathit{R}'_{\mathit{BT}.709},\mathit{G}'_{\mathit{BT}.709},\mathit{B}'_{\mathit{BT}.709}\}))$$
 +++++

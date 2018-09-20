@@ -1,7 +1,8 @@
-// Copyright (c) 2014-2017 The Khronos Group Inc.
+// Copyright (c) 2014-2019 The Khronos Group Inc.
 // Copyright notice at https://www.khronos.org/registry/speccopyright.html
-include::{a2x-format}title.txt[]
-
+ifdef::a2xhtml[]
+= Khronos Data Format Specification v1.2 rev 1 =
+endif::[]
 [abstract]
 
 This document describes a data format specification for non-opaque
@@ -15,6 +16,19 @@ allowing formats to be shared and compared. This document also acts as
 a reference for the memory layout of a number of common compressed
 texture formats, and describes conversion between a number of common
 color spaces.
+
+// Symbols...
+:times: ×
+:plus: +
+:check: ✓
+:alpha: &alpha;
+:beta: &beta;
+:gamma: &gamma;
+:rho: &rho;
+:leq: &#8804;
+:geq: &#8805;
+:cdot: &#183;
+:asciidoc-numbered:
 
 == Introduction ==
 
@@ -93,28 +107,26 @@ The ``bulk data'' may be, for example:
 * Vertex data
 * A buffer of simple type
 
-The layout of proprietary data structures is beyond the remit of this specification,
-but the large number of ways to describe colors, vertices and other repeated
-data makes standardization useful.
+The layout of proprietary data structures is beyond the remit of this
+specification, but the large number of ways to describe colors, vertices
+and other repeated data makes standardization useful.
 
-The data structure in this specification describes the elements in the bulk data,
-not the layout of the whole. For example, it may describe the size, location and
-interpretation of color channels within a pixel, but is not responsible for
-determining the mapping between spatial coordinates and the location of pixels
-in memory. That is, two textures which share the same pixel layout can share
-the same descriptor as defined in this specification, but may have different
+The data structure in this specification describes the elements in the
+bulk data in memory, not the layout of the whole.
+For example, it may describe the size, location and interpretation of
+color channels within a pixel, but is not responsible for determining the
+mapping between spatial coordinates and the location of pixels in memory.
+That is, two textures which share the same pixel layout can share the same
+descriptor as defined in this specification, but may have different
 sizes, line strides, tiling or dimensionality. An example pixel format is
-described in <<SimpleTexelBlock>>.
+described in <<SimpleTexelBlock>>: a single 5:6:5-bit pixel with blue in
+the low 5 bits, green in the next 6 bits, and red in the top 5 bits of a
+16-bit word as laid out in memory on a little-endian machine (see
+<<565DFD>>).
 
 [[SimpleTexelBlock]]
-.A simple texel block -- three channels representing one pixel
-[width="30%",cols="1a"]
-|==============
-^|
-!==========
-^! Red ^! Green ^! Blue
-!==========
-|==============
+.A simple one-texel texel block
+image::images/565pixels.{svgpdf}[title="A simple one-texel texel block",width="{svgpdf@pdf:400pt:800}",align="center"]
 
 In some cases, the elements of bulk texture data may not correspond to a
 conventional texel. For example, in a compressed texture it is common for
@@ -125,36 +137,20 @@ a repeating pattern according to a Bayer or other layout, as shown in
 termed a _texel block_, that is described by this standard.
 
 [[SimpleBayerBlock]]
-.A simple Bayer-pattern texel block -- three channels spread across 2×2 pixels
-[width="25%",cols="1a,1a"]
-|==============
-^|
-!==========
-^! Red
-!==========
-^|
-!==========
-^! Green
-!==========
-^|
-!==========
-^! Green
-!==========
-^|
-!==========
-^! Blue
-!==========
-|==============
+.A Bayer-sampled image with a repeating 2×2 RG/GB texel block
+image::images/Bayer.{svgpdf}[title="A Bayer-sampled image with a repeating 2×2 RG/GB texel block",width="{svgpdf@pdf:100pt:170}",align="center"]
 
-The sampling or reconstruction of texel data is not a function of the data
-format. That is, a texture has the same format whether it is point sampled
-or a bicubic filter is used, and the manner of reconstructing full color data
-from a camera sensor is not defined. Where information making up the data format
-has a spatial aspect, this is part of the descriptor: it is part of the
-descriptor to define the spatial configuration of color samples in a Bayer sensor
-or whether the chroma difference channels in a Y'C~B~C~R~ format are considered to be
-centered or co-sited, but not how this information must be used to generate
-coordinate-aligned full color values.
+The sampling or reconstruction of texel data is not a function of the
+data format.
+That is, a texture has the same format whether it is point sampled or
+a bicubic filter is used, and the manner of reconstructing full color
+data from a camera sensor is not defined.
+Where information making up the data format has a spatial aspect, this
+is part of the descriptor: it is part of the descriptor to define the
+spatial configuration of color samples in a Bayer sensor or whether the
+chroma difference channels in a _Y&prime;C~B~C~R~_ format are considered
+to be centered or co-sited, but not how this information must be used to
+generate coordinate-aligned full color values.
 
 The data structure defined in this specification is termed a
 _<<dataformatdescriptor,data format descriptor>>_.
@@ -176,12 +172,12 @@ extensible by the addition of new descriptor blocks.
 .Data format descriptor and descriptor blocks
 [width="75%",cols="1a"]
 |=============
-|Data format descriptor
+^|_Data format descriptor_
 [width="100%",cols="1"]
 !=============
-! Descriptor block 1
-! Descriptor block 2
-! :
+! _&nbsp;Descriptor block 1_
+! _&nbsp;Descriptor block 2_
+! &nbsp;:
 !=============
 |=============
 
@@ -199,7 +195,7 @@ describe several common color spaces.
 
 === Glossary ===
 
-*Data format*
+_Data format:_
 The interpretation of individual elements in bulk data. Examples
 include the channel ordering and bit positions in pixel data or
 the configuration of samples in a Bayer image. The format describes
@@ -207,7 +203,7 @@ the elements, not the bulk data itself: an image's size, stride, tiling,
 dimensionality, border control modes, and image reconstruction filter are
 not part of the format and are the responsibility of the application.
 
-*<<dataformatdescriptor,Data format descriptor>>*
+_<<dataformatdescriptor,Data format descriptor>>:_
 A contiguous block of memory containing information about how data is
 represented, in accordance with this specification. A data format
 descriptor is a container, within which can be found one or more
@@ -218,21 +214,21 @@ data, perhaps as part of a file format header, or the descriptor may
 be stored in a CPU memory while the bulk data that it describes resides
 within GPU memory; this choice is application-specific.
 
-*<<descriptorblock,(Data format) descriptor block>>*
+_<<descriptorblock,(Data format) descriptor block>>:_
 A contiguous block of memory with a defined layout, held within a
 data format descriptor. Each descriptor block has a common header
 that allows applications to identify and skip descriptor blocks
 that it does not understand, while continuing to process any other
 descriptor blocks that may be held in the data format descriptor.
 
-*<<basicdescriptor,Basic (data format) descriptor block>>*
+_<<basicdescriptor,Basic (data format) descriptor block>>:_
 The initial form of descriptor block as described in this standard.
 Where present, it must be the first descriptor block held in the
 data format descriptor. This descriptor block can describe a large
 number of common formats and may be the only type of descriptor block
 that many portable applications will need to support.
 
-*Texel block*
+_Texel block:_
 The units described by the Basic Data Format Descriptor: a repeating
 element within bulk data. In simple texture formats, a texel
 block may describe a single pixel. In formats with subsampled
@@ -241,17 +237,18 @@ block-based compressed texture, the texel block typically describes
 the compression block unit. The basic descriptor block supports
 texel blocks of up to four dimensions.
 
-*<<sample,Sample>>*
+_<<sample,Sample>>:_
 In this standard, texel blocks are considered to be composed of
 contiguous bit patterns with a single channel or component type and
-a single spatial location. A typical ARGB pixel has four samples,
+a single spatial location. A typical _ARGB_ pixel has four samples,
 one for each channel, held at the same coordinate. A texel block
 from a Bayer sensor might have a different location for different
 channels, and may have multiple samples representing the same channel
-at multiple locations. A Y'C~B~C~R~ buffer with downsampled chroma may
-have more luma sample than chroma, each at different locations.
+at multiple locations. A _Y&prime;C~B~C~R~_ buffer with downsampled
+chroma may have more luma samples than chroma, each at different
+locations.
 
-*Plane*
+_Plane:_
 In some formats, a texel block is not contiguous in
 memory. In a two-dimensional texture, the texel block may be
 spread across multiple scan lines, or channels may be stored
@@ -267,33 +264,52 @@ formats which have proprietary padding requirements that are hard
 to accommodate in a more terse representation.
 
 In many existing APIs, planes may be ``downsampled'' differently.
-For example, in these APIs, a Y'C~B~C~R~ (colloquially ``YUV'') 4:2:0
-buffer as in <<yuv420>> would typically be represented with three
-planes (<<yuv420conventional>>), one for each channel, with the luma
-(Y') plane containing four times as many pixels as the chroma (C~B~
-and C~R~) planes, and with two horizontal lines of the luma held
-within the same plane for each horizontal line of the chroma planes.
+For example, in these APIs, a _Y&prime;C~B~C~R~_ (colloquially
+_YUV_) 4:2:0 buffer as in <<yuv420>> (with byte offsets shown for
+each channel/location) would typically be represented with three
+planes (<<yuv420conventional>>), one for each channel, with the
+luma (_Y&prime;_) plane containing four times as many pixels as
+the chroma (_C~B~_ and _C~R~_) planes, and with two horizontal
+lines of the luma held within the same plane for each horizontal
+line of the chroma planes.
 
 [[yuv420]]
-.Possible memory representation of a 4×4 Y'C~B~C~R~4:2:0 buffer (numbers are byte offsets)
-[cols="1a",width="25%"]
+.Possible memory representation of a 4×4 _Y&prime;C~B~C~R~_ 4:2:0 buffer
+ifdef::a2xhtml[]
+[cols="1a"]
+endif::[]
+ifndef::a2xhtml[]
+[width="14%",cols="1a"]
+endif::[]
 |==============================
-^|Y' channel
-^|[cols="4"]
+^|_Y&prime;_ channel
+^|[cols="4",width="97%"]
 !=====================
->!0 >!1 >!2 >!3
->!4 >!5 >!6 >!7
->!8 >!9 >!10 >!11
->!12 >!13 >!14 >!15
+^! 0 ^! 1 ^! 2 ^! 3
+^! 4 ^! 5 ^! 6 ^! 7
+^! 8 ^! 9 ^!10 ^!11
+^!12 ^!13 ^!14 ^!15
 !=====================
-^|C~B~ channel
-^|[cols="2"]
+^|_C~B~_ channel
+^|
+ifdef::a2xhtml[]
+[cols="2"]
+endif::[]
+ifndef::a2xhtml[]
+[width="50%",cols="2"]
+endif::[]
 !=====================
 ^!16 ^!17
 ^!18 ^!19
 !=====================
-^|C~R~ channel
-^|[cols="2"]
+^|_C~R~_ channel
+^|
+ifdef::a2xhtml[]
+[cols="2"]
+endif::[]
+ifndef::a2xhtml[]
+[width="50%",cols="2"]
+endif::[]
 !=====================
 ^!20 ^!21
 ^!22 ^!23
@@ -301,12 +317,12 @@ within the same plane for each horizontal line of the chroma planes.
 |==============================
 
 [[yuv420conventional]]
-.Plane descriptors for the above Y'C~B~C~R~ format buffer in a conventional API
+.Plane descriptors for the above _Y&prime;C~B~C~R~_-format buffer in a conventional API
 [cols="2,2,3,3",width="70%"]
 |==============================
-| Y' plane | offset 0 | byte stride 4 | downsample 1×1
-| C~B~ plane | offset 16 | byte stride 2 | downsample 2×2
-| C~R~ plane | offset 20 | byte stride 2 | downsample 2×2
+| &nbsp; _Y&prime;_ plane | &nbsp; offset 0 | &nbsp; byte stride 4 | &nbsp; downsample 1×1
+| &nbsp; _C~B~_ plane | &nbsp; offset 16 | &nbsp; byte stride 2 | &nbsp; downsample 2×2
+| &nbsp; _C~R~_ plane | &nbsp; offset 20 | &nbsp; byte stride 2 | &nbsp; downsample 2×2
 |==============================
 
 This approach does not extend logically to more complex formats such
@@ -320,23 +336,23 @@ Only one plane is used for each of the chroma channels (or one plane
 collectively if the chroma samples are stored adjacently).
 
 [[yuv420thisapi]]
-.Plane descriptors for the above Y'C~B~C~R~ format buffer using this standard
+.Plane descriptors for the above _Y&prime;C~B~C~R~_-format buffer using this standard
 [cols="4",width="60%"]
 |==============================
-| Y' plane 1 | offset 0 | byte stride 8 | plane bytes 2
-| Y' plane 2 | offset 4 | byte stride 8 | plane bytes 2
-| C~B~ plane | offset 16 | byte stride 2 | plane bytes 1
-| C~R~ plane | offset 20 | byte stride 2 | plane bytes 1
+| &nbsp; _Y&prime;_ plane 1 | &nbsp; offset 0 | &nbsp; byte stride 8 | &nbsp; plane bytes 2
+| &nbsp; _Y&prime;_ plane 2 | &nbsp; offset 4 | &nbsp; byte stride 8 | &nbsp; plane bytes 2
+| &nbsp; _C~B~_ plane | &nbsp; offset 16 | &nbsp; byte stride 2 | &nbsp; plane bytes 1
+| &nbsp; _C~R~_ plane | &nbsp; offset 20 | &nbsp; byte stride 2 | &nbsp; plane bytes 1
 |==============================
 
 The same approach can be used to represent a static interlaced image,
 with a texel block consisting of two planes, one per field.
 This mechanism is all that is required to represent a static image
 without downsampled channels; however correct reconstruction of
-interlaced, downsampled color difference formats (such as Y'C~B~C~R~),
-which typically involves interpolation of the nearest chroma samples
-in a given _field_ rather than the whole _frame_, is beyond the remit
-of this specification.
+interlaced, downsampled color difference formats (such as
+_Y&prime;C~B~C~R~_), which typically involves interpolation of the nearest
+chroma samples in a given _field_ rather than the whole _frame_, is beyond
+the remit of this specification.
 There are many proprietary and often heuristic approaches to sample
 reconstruction, particularly for Bayer-like formats and for multi-frame
 images, and it is not practical to document them here.
@@ -384,18 +400,18 @@ For the first dimension, the memory stride between texels may simply be the
 byte size of texel block in that plane -- this implies that there are no
 gaps between texel blocks. For other dimensions, the stride is a function
 of the size of the data structure being represented -- for example, in a compact
-representation of a two-dimensional buffer, the texel block at coordinate (x,y+1)
-might be found at the address of coordinate (x,y) plus the buffer width multiplied
+representation of a two-dimensional buffer, the texel block at coordinate (_x_,_y_+1)
+might be found at the address of coordinate (_x_,_y_) plus the buffer width multiplied
 by the texel size in bytes. Similarly in a three-dimensional buffer, the address
-of the pixel at (x,y,z+1) may be at the address of (x,y,z) plus the byte size of
+of the pixel at (_x_,_y_,_z_+1) may be at the address of (_x_,_y_,_z_) plus the byte size of
 a two-dimensional slice of the texture. In practice, even linear layouts may have
 padding, and often more complex relationships between coordinates and memory
 location are used to encourage locality of reference. The details of all of these
 data structures are beyond the remit of this specification.
 
 Most simple formats contain a single _plane_ of data. Those formats
-which require additional planes compared with a conventional
-representation are typically downsampled Y'C~B~C~R~ formats, which already
+which require additional planes compared with a conventional representation
+are typically downsampled _Y&prime;C~B~C~R~_ formats, which already
 have the concept of separate storage for different color channels.
 While this specification uses multiple planes to describe texel
 blocks that span multiple scan lines if the data is disjoint, there is
@@ -416,6 +432,8 @@ usually has a very limited number of possibilities. In most cases,
 the layout of texels within the tile should be described by whatever
 interface is aware of image-specific information such as size and stride,
 and only the format of the texels should be described by a format descriptor.
+
+<<<
 
 The complication to this is where texel blocks larger than a single pixel
 are themselves encoded using proprietary tiling. The spatial layout of
@@ -463,36 +481,29 @@ little-endian for the purposes of data transfer, but may be implemented
 in the natural endianness of the platform for internal use.
 
 The data format descriptor consists of a contiguous area of memory,
-as shown in <<DataFormatDescriptorOverview>>,
-divided into one or more _descriptor blocks_, as in
-<<DataFormatDescriptorHeader>> which are tagged by the type of
-descriptor that they contain. The size of the data format descriptor
-varies according to its content.
+as shown in <<DataFormatDescriptorOverview>>, divided into one or more
+_descriptor blocks_, which are tagged by the type of descriptor that
+they contain.
+The size of the data format descriptor varies according to its content.
 
 [[DataFormatDescriptorOverview]]
 .Data Format Descriptor layout
+[width="60%",cols="1,2"]
 |=====================================
-| uint32_t | total_size
-| Descriptor block | first descriptor
-| Descriptor block | second descriptor (optional) etc.
+>| *++uint32_t++* &nbsp; ^| &nbsp; *_totalSize_*
+>| _Descriptor block_ &nbsp; ^| &nbsp; _First descriptor_
+>| _Descriptor block_ &nbsp; ^| &nbsp; _Second descriptor (optional) etc._
 |=====================================
 
-The *total_size* field, measured in bytes, allows the full format descriptor
+The *_totalSize_* field, measured in bytes, allows the full format descriptor
 to be copied without need for details of the descriptor to be interpreted.
-
-[[DataFormatDescriptorHeader]]
-.Data format descriptor header and descriptor blocks
-[width="75%",cols="1a"]
-|=============
-|total_size
-[width="100%",cols="1"]
-!=============
-! Descriptor block 1
-! Descriptor block 2
-! :
-!=============
-|=============
-
+*_totalSize_* includes its own *++uint32_t++*, not just the following
+descriptor blocks.
+For example, we will see below that a four-sample Khronos Basic
+Data Format Descriptor Block occupies 88 bytes; if there are no
+other descriptor blocks in the data format descriptor, the *_totalSize_*
+field would then indicate 88 {plus} 4 bytes (for the *_totalSize_* field
+itself) for a final value of 92.
 
 == [[descriptorblock]]Descriptor block ==
 
@@ -500,34 +511,35 @@ Each Descriptor Block has the same prefix, shown in <<DescriptorPrefix>>.
 
 [[DescriptorPrefix]]
 .Descriptor Block layout
+[width="60%",cols="1,4"]
 |================================
-| uint32_t | vendor_id \| (descriptor_type << 16)
-| uint32_t | version_number \| (descriptor_block_size << 16)
-2+| Format-specific data
+| &nbsp; *++uint32_t++* &nbsp; ^| *_vendorId_* \| (*_descriptorType_* << 16)
+| &nbsp; *++uint32_t++* &nbsp; ^| *_versionNumber_* \| (*_descriptorBlockSize_* << 16)
+2+| &nbsp; _Format-specific data_
 |================================
 
-The *vendor_id* is a 16-bit value uniquely assigned to organizations,
+The *_vendorId_* is a 16-bit value uniquely assigned to organisations,
 allocated by Khronos; ID 0 is used to identify Khronos itself. The
 ID 0xFFFF is reserved for internal use which is guaranteed not to
 clash with third-party implementations; this ID should not be shipped
 in libraries to avoid conflicts with development code.
 
-The *descriptor_type* is a unique identifier defined by the vendor
+The *_descriptorType_* is a unique identifier defined by the vendor
 to distinguish between potential data representations.
 
-The *version_number* is vendor-defined, and intended to allow for
+The *_versionNumber_* is vendor-defined, and is intended to allow for
 backwards-compatible updates to existing descriptor blocks.
 
-The *descriptor_block_size* indicates the size in bytes of this
+The *_descriptorBlockSize_* indicates the size in bytes of this
 Descriptor Block, remembering that there may be multiple
-Descriptor Blocks within one container, as shown in <<DataFormatDescriptorHeaderExample>>.
-The *descriptor_block_size*
-therefore gives the offset between the start of the current
-Descriptor Block and the start of the next -- so the size includes
-the *vendor_id*, *descriptor_type*, *version_number* and
-*descriptor_block_size* fields, which collectively contribute 8 bytes.
+Descriptor Blocks within one container, as shown in
+<<DataFormatDescriptorHeaderExample>>.
+The *_descriptorBlockSize_* therefore gives the offset between the start
+of the current Descriptor Block and the start of the next -- so the size
+includes the *_vendorId_*, *_descriptorType_*, *_versionNumber_* and
+*_descriptorBlockSize_* fields, which collectively contribute 8 bytes.
 
-Having an explicit *descriptor_block_size* allows implementations to skip a
+Having an explicit *_descriptorBlockSize_* allows implementations to skip a
 descriptor block whose format is unknown, allowing known data to be
 interpreted and unknown information to be ignored. Some descriptor
 block types may not be of a uniform size, and may vary according to
@@ -544,23 +556,22 @@ standard Descriptor.
 .Data format descriptor header and descriptor block headers
 [width="75%",cols="1a"]
 |=============
-|total_size
+|*_&nbsp;totalSize_*
 |
 [width="100%"]
 !=============
-! vendor_id \| (descriptor_type << 16)
-! version_number \| (descriptor_block_size << 16)
-! :
+! &nbsp; *_vendorId_* \| (*_descriptorType_* << 16)
+! &nbsp; *_versionNumber_* \| (*_descriptorBlockSize_* << 16)
+! &nbsp; :
 !=============
 |
 [width="100%"]
 !=============
-! vendor_id \| (descriptor_type << 16)
-! version_number \| (descriptor_block_size << 16)
-! :
+! &nbsp; *_vendorId_* \| (*_descriptorType_* << 16)
+! &nbsp; *_versionNumber_* \| (*_descriptorBlockSize_* << 16)
+! &nbsp; :
 !=============
 |=============
-
 
 == [[basicdescriptor]]Khronos Basic Data Format Descriptor Block ==
 
@@ -573,70 +584,70 @@ comprehensive descriptor reduces the risk that metadata needed by different APIs
 will be lost in translation.
 
 The format is described in terms of a repeating axis-aligned _texel block_
-composed of of _samples_. Each sample contains a single channel of information
+composed of _samples_. Each sample contains a single channel of information
 with a single spatial offset within the texel block, and consists of an amount
 of contiguous data. This _descriptor block_ consists of information about the
 interpretation of the texel block as a whole, supplemented by a description of
 a number of samples taken from one or more _planes_ of contiguous memory. For
 example, a 24-bit red/green/blue format may be described as a 1×1 pixel region,
-containing three samples, one of each color, in one plane. A Y'C~B~C~R~ 4:2:0
-format may consist of a repeating 2×2 region consisting of four Y' samples
-and one sample each of C~B~ and C~R~.
+containing three samples, one of each color, in one plane.
+A _Y&prime;C~B~C~R~_ 4:2:0 format may consist of a repeating 2×2 region
+consisting of four _Y&prime;_ samples and one sample each of _C~B~_ and _C~R~_.
 
 [[BasicDescriptorBlock]]
 .Basic Data Format Descriptor layout
-[options="header"]
+[options="header",width="100%"]
 |================================
-| Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
-2+| 0 (vendor_id) 2+| 0 (descriptor_type)
-2+| 0 (version number) 2+| 24 + 16 times number of samples (descriptor_block_size)
-| color_model | color_primaries | transfer_function | flags
-| texel_block_dimension_0 | texel_block_dimension_1 | texel_block_dimension_2 | texel_block_dimension_3
-| bytes_plane_0 | bytes_plane_1 | bytes_plane_2 | bytes_plane_3
-| bytes_plane_4 | bytes_plane_5 | bytes_plane_6 | bytes_plane_7
-4+|Sample information for first sample
-4+|Sample information for second sample (optional), etc.
+| &nbsp; Byte 0 (LSB) | &nbsp; Byte 1 | &nbsp; Byte 2 | &nbsp; Byte 3 (MSB)
+2+| &nbsp; 0 (*_vendorId_*) 2+| &nbsp; 0 (*_descriptorType_*)
+2+| &nbsp; 1 (*_versionNumber_*) 2+| &nbsp; 24 + 16 {times} _#samples_ (*_descriptorBlockSize_*)
+| &nbsp; *_colorModel_* | &nbsp; *_colorPrimaries_* | &nbsp; *_transferFunction_* | &nbsp; *_flags_* 
+| &nbsp; *_texelBlockDimension0_* | &nbsp; *_texelBlockDimension1_* | &nbsp; *_texelBlockDimension2_* | &nbsp; *_texelBlockDimension3_*
+| &nbsp; *_bytesPlane0_* | &nbsp; *_bytesPlane1_* | &nbsp; *_bytesPlane2_* | &nbsp; *_bytesPlane3_*
+| &nbsp; *_bytesPlane4_* | &nbsp; *_bytesPlane5_* | &nbsp; *_bytesPlane6_* | &nbsp; *_bytesPlane7_*
+4+| &nbsp; _Sample information for the first sample_
+4+| &nbsp; _Sample information for the second sample (optional), etc._
 |================================
 
 The fields of the Basic Data Format Descriptor Block are described in
 the following sections.
 
 <<<
-=== vendor_id ===
+=== *_vendorId_* ===
 
-The *vendor_id* for the Basic Data Format Descriptor Block is 0,
-defined as *KHR_DF_VENDORID_KHRONOS* in *khr_df_vendorid_e*.
+The *_vendorId_* for the Basic Data Format Descriptor Block is 0,
+defined as *++KHR_DF_VENDORID_KHRONOS++* in the enum *++khr_df_vendorid_e++*.
 
-=== descriptor_type ===
+=== *_descriptorType_* ===
 
-The *descriptor_type* for the Basic Data Format Descriptor Block is 0,
-a value reserved in *khr_df_khr_descriptortype_e* (the enumeration of
-Khronos-specific descriptor types) as *KHR_DF_KHR_DESCRIPTORTYPE_BASICFORMAT*.
+The *_descriptorType_* for the Basic Data Format Descriptor Block is 0,
+a value reserved in the enum of Khronos-specific descriptor types,
+*++khr_df_khr_descriptortype_e++*, as *++KHR_DF_KHR_DESCRIPTORTYPE_BASICFORMAT++*.
 
-=== version_number ===
+=== *_versionNumber_* ===
 
-The *version_number* relating to the Basic Data Format Descriptor Block
+The *_versionNumber_* relating to the Basic Data Format Descriptor Block
 as described in this specification is 1.
 
-=== descriptor_block_size ===
+=== *_descriptorBlockSize_* ===
 
 The size of the Basic Data Format Descriptor Block depends on the number
 of samples contained within it. The memory requirements for this format
-are 24 bytes of shared data plus 16 bytes per sample. The *descriptor_block_size*
+are 24 bytes of shared data plus 16 bytes per sample. The *_descriptorBlockSize_*
 is measured in bytes.
 
 <<<
-=== color_model ===
+=== *_colorModel_* ===
 
-The *color_model* determines the set of color (or other data) channels which
+The *_colorModel_* determines the set of color (or other data) channels which
 may be encoded within the data, though there is no requirement that all
-of the possible channels from the *color_model* be present. Most data fits
+of the possible channels from the *_colorModel_* be present. Most data fits
 into a small number of common color models, but compressed texture formats
 each have their own color model enumeration. Note that the data need not
 actually represent a color -- this is just the most common type of content
-using this descriptor. Some standards use *color container* for this concept.
+using this descriptor. Some standards use _color container_ for this concept.
 
-The available color models are described in the *khr_df_model_e* enumeration,
+The available color models are described in the *++khr_df_model_e++* enumeration,
 and are represented as an unsigned 8-bit value.
 
 Note that the numbering of the component channels is chosen such that those
@@ -646,14 +657,14 @@ depth is always encoded as channel ID 14, and stencil is always encoded as
 channel ID 13. Luma/Luminance is always in channel ID 0. This numbering
 convention is intended to simplify code which can process a range of color
 models. Note that there is no guarantee that models which do not support
-these channels will not use this channel ID. Particularly, RGB formats
+these channels will not use this channel ID. Particularly, _RGB_ formats
 do not have luma in channel 0, and a 16-channel undefined format is not
 obligated to represent alpha in any way in channel number 15.
 
 The value of each enumerant is shown in parentheses following the enumerant
 name.
 
-==== KHR_DF_MODEL_UNSPECIFIED (= 0) ====
+==== *++KHR_DF_MODEL_UNSPECIFIED++* (= 0) ====
 
 When the data format is unknown or does not fall into a predefined
 category, utilities which perform automatic conversion based on an
@@ -664,20 +675,20 @@ the data using only the basic descriptor block.
 For portability reasons, it is recommended that pixel-like formats
 with up to sixteen channels, but which cannot have those channels
 described in the basic block, be represented with a basic descriptor
-block with the appropriate number of samples from UNSPECIFIED channels,
+block with the appropriate number of samples from *++UNSPECIFIED++* channels,
 and then for the channel description to be stored in an extension block.
 This allows software which understands only the basic descriptor to
 be able to perform operations that depend only on channel location,
 not channel interpretation (such as image cropping). For example, a
 camera may store a raw format taken with a modified Bayer sensor,
-with ``RGBW'' (red, green, blue and white) sensor sites, or ``RGBE''
+with _RGBW_ (red, green, blue and white) sensor sites, or _RGBE_
 (red, green, blue and ``emerald''). Rather than trying to encode the
 exact color coordinates of each sample in the basic descriptor,
-these formats could be represented by a four-channel ``UNSPECIFIED''
+these formats could be represented by a four-channel *++UNSPECIFIED++*
 model, with an extension block describing the interpretation of
 each channel.
 
-==== KHR_DF_MODEL_RGBSDA (= 1) ====
+==== *++KHR_DF_MODEL_RGBSDA++* (= 1) ====
 
 This color model represents additive colors of three channels,
 nominally red, green and blue, supplemented by channels for
@@ -688,16 +699,16 @@ are formats for which integrating depth and stencil with color
 data makes sense.
 
 [[RGBSDAChannels]]
-.Basic Data Format RGBSDA channels
+.Basic Data Format _RGBSDA_ channels
 [width="100%",options="header"]
 |================================
-| Channel number 2+| Name | Description
-| 0 2+| KHR_DF_CHANNEL_RGBSDA_RED | Red
-| 1 2+| KHR_DF_CHANNEL_RGBSDA_GREEN | Green
-| 2 2+| KHR_DF_CHANNEL_RGBSDA_BLUE | Blue
-| 13 2+| KHR_DF_CHANNEL_RGBSDA_STENCIL | Stencil
-| 14 2+| KHR_DF_CHANNEL_RGBSDA_DEPTH | Depth
-| 15 2+| KHR_DF_CHANNEL_RGBSDA_ALPHA | Alpha (transparency)
+^| Channel number 2+| &nbsp; Name | &nbsp; Description
+^| 0 2+| &nbsp; *++KHR_DF_CHANNEL_RGBSDA_RED++* | &nbsp; Red
+^| 1 2+| &nbsp; *++KHR_DF_CHANNEL_RGBSDA_GREEN++* | &nbsp; Green
+^| 2 2+| &nbsp; *++KHR_DF_CHANNEL_RGBSDA_BLUE++* | &nbsp; Blue
+^| 13 2+| &nbsp; *++KHR_DF_CHANNEL_RGBSDA_STENCIL++* | &nbsp; Stencil
+^| 14 2+| &nbsp; *++KHR_DF_CHANNEL_RGBSDA_DEPTH++* | &nbsp; Depth
+^| 15 2+| &nbsp; *++KHR_DF_CHANNEL_RGBSDA_ALPHA++* | &nbsp; Alpha (opacity)
 |================================
 
 Portable representation of additive colors with more than three
@@ -705,108 +716,108 @@ primaries requires an extension to describe the full color space
 of the channels present. There is no practical way to do this
 portably without taking significantly more space.
 
-==== KHR_DF_MODEL_YUVSDA (= 2) ====
+==== *++KHR_DF_MODEL_YUVSDA++* (= 2) ====
 
 This color model represents color differences with three channels,
-nominally luma (Y') and two color-difference chroma channels, U (C~B~) and
-V (C~R~), supplemented by channels for alpha, depth and stencil, as shown in
-<<YUVSDAChannels>>.
-These formats are distinguished by C~B~ and C~R~ being a delta between
-the Y' channel and the blue and red channels respectively, rather than
-requiring a full color matrix.
-The conversion between Y'C~B~C~R~ and RGB color spaces is defined in this
-case by the choice of value in the *color_primaries* field as described in
-<<MODEL_YUV>>.
+nominally luma (_Y&prime;_) and two color-difference chroma channels,
+_U_ (_C~B~_) and _V_ (_C~R~_), supplemented by channels for alpha, depth
+and stencil, as shown in <<YUVSDAChannels>>.
+These formats are distinguished by _C~B~_ and _C~R~_ being a delta between
+the _Y&prime;_ channel and the blue and red channels respectively, rather
+than requiring a full color matrix.
+The conversion between _Y&prime;C~B~C~R~_ and _RGB_ color spaces is defined
+in this case by the choice of value in the *_colorPrimaries_* field as
+described in <<MODEL_YUV>>.
 
 NOTE: Most single-channel luma/luminance monochrome data formats should
-select *KHR_DF_MODEL_YUVSDA* and use only the Y channel, unless there is
+select *++KHR_DF_MODEL_YUVSDA++* and use only the _Y_ channel, unless there is
 a reason to do otherwise.
 
 [[YUVSDAChannels]]
-.Basic Data Format YUVSDA channels
+.Basic Data Format _YUVSDA_ channels
 [width="100%",options="header"]
 |================================
-| Channel number 2+| Name | Description
-| 0 2+| KHR_DF_CHANNEL_YUVSDA_Y | Y/Y' (luma/luminance)
-| 1 2+| KHR_DF_CHANNEL_YUVSDA_CB | C~B~ (alias for U)
-| 1 2+| KHR_DF_CHANNEL_YUVSDA_U | U (alias for C~B~)
-| 2 2+| KHR_DF_CHANNEL_YUVSDA_CR | C~R~ (alias for V)
-| 2 2+| KHR_DF_CHANNEL_YUVSDA_V | V (alias for C~R~)
-| 13 2+| KHR_DF_CHANNEL_YUVSDA_STENCIL | Stencil
-| 14 2+| KHR_DF_CHANNEL_YUVSDA_DEPTH | Depth
-| 15 2+| KHR_DF_CHANNEL_YUVSDA_ALPHA | Alpha (transparency)
+^| Channel number 2+| &nbsp; Name | &nbsp; Description
+^| 0 2+| &nbsp; *++KHR_DF_CHANNEL_YUVSDA_Y++* | &nbsp; _Y_/_Y&prime;_ (luma/luminance)
+^| 1 2+| &nbsp; *++KHR_DF_CHANNEL_YUVSDA_CB++* | &nbsp; _C~B~_ (alias for _U_)
+^| 1 2+| &nbsp; *++KHR_DF_CHANNEL_YUVSDA_U++* | &nbsp; _U_ (alias for _C~B~_)
+^| 2 2+| &nbsp; *++KHR_DF_CHANNEL_YUVSDA_CR++* | &nbsp; _C~R~_ (alias for _V_)
+^| 2 2+| &nbsp; *++KHR_DF_CHANNEL_YUVSDA_V++* | &nbsp; _V_ (alias for _C~R~_)
+^| 13 2+| &nbsp; *++KHR_DF_CHANNEL_YUVSDA_STENCIL++* | &nbsp; Stencil
+^| 14 2+| &nbsp; *++KHR_DF_CHANNEL_YUVSDA_DEPTH++* | &nbsp; Depth
+^| 15 2+| &nbsp; *++KHR_DF_CHANNEL_YUVSDA_ALPHA++* | &nbsp; Alpha (opacity)
 |================================
 
 NOTE: Terminology for this color model is often abused. This model is based
 on the idea of creating a representation of monochrome light intensity as a
 weighted average of color channels, then calculating color differences by
 subtracting two of the color channels from this monochrome value. Proper names
-vary for each variant of the ensuing numbers, but ``YUV'' is colloquially used
+vary for each variant of the ensuing numbers, but _YUV_ is colloquially used
 for all of them. In the television standards from which this terminology is
-derived, Y'C~B~C~R~ is more formally used to describe the representation of
-these color differences. See <<MODEL_YUV>> for more detail.
+derived, _Y&prime;C~B~C~R~_ is more formally used to describe the representation
+of these color differences. See <<MODEL_YUV>> for more detail.
 
-==== KHR_DF_MODEL_YIQSDA (= 3) ====
+==== *++KHR_DF_MODEL_YIQSDA++* (= 3) ====
 
 This color model represents color differences with three channels,
-nominally luma (Y) and two color-difference chroma channels, I and Q,
+nominally luma (_Y_) and two color-difference chroma channels, _I_ and _Q_,
 supplemented by channels for alpha, depth and stencil, as shown in
-<<YIQSDAChannels>>. This format is distinguished by I and Q each
+<<YIQSDAChannels>>. This format is distinguished by _I_ and _Q_ each
 requiring all three additive channels to evaluate.
-I and Q are derived from C~B~ and C~R~ by a 33-degree rotation.
+_I_ and _Q_ are derived from _C~B~_ and _C~R~_ by a 33-degree rotation.
 
 [[YIQSDAChannels]]
-.Basic Data Format YIQSDA channels
+.Basic Data Format _YIQSDA_ channels
 [width="100%",options="header"]
 |================================
-| Channel number 2+| Name | Description
-| 0 2+| KHR_DF_CHANNEL_YIQSDA_Y | Y' (luma)
-| 1 2+| KHR_DF_CHANNEL_YIQSDA_I | I (in-phase)
-| 2 2+| KHR_DF_CHANNEL_YIQSDA_Q | Q (quadrature)
-| 13 2+| KHR_DF_CHANNEL_YIQSDA_STENCIL | Stencil
-| 14 2+| KHR_DF_CHANNEL_YIQSDA_DEPTH | Depth
-| 15 2+| KHR_DF_CHANNEL_YIQSDA_ALPHA | Alpha (transparency)
+^| Channel number 2+| &nbsp; Name | &nbsp; Description
+^| 0 2+| &nbsp; *++KHR_DF_CHANNEL_YIQSDA_Y++* | &nbsp; _Y_ (luma)
+^| 1 2+| &nbsp; *++KHR_DF_CHANNEL_YIQSDA_I++* | &nbsp; _I_ (in-phase)
+^| 2 2+| &nbsp; *++KHR_DF_CHANNEL_YIQSDA_Q++* | &nbsp; _Q_ (quadrature)
+^| 13 2+| &nbsp; *++KHR_DF_CHANNEL_YIQSDA_STENCIL++* | &nbsp; Stencil
+^| 14 2+| &nbsp; *++KHR_DF_CHANNEL_YIQSDA_DEPTH++* | &nbsp; Depth
+^| 15 2+| &nbsp; *++KHR_DF_CHANNEL_YIQSDA_ALPHA++* | &nbsp; Alpha (opacity)
 |================================
 
 <<<
-==== KHR_DF_MODEL_LABSDA (= 4) ====
+==== *++KHR_DF_MODEL_LABSDA++* (= 4) ====
 
-This color model represents the ICC perceptually-uniform L*a*b*
+This color model represents the ICC perceptually-uniform _L*a*b*_
 color space, combined with the option of an alpha channel, as
 shown in <<LABSDAChannels>>.
 
 [[LABSDAChannels]]
-.Basic Data Format LABSDA channels
+.Basic Data Format _LABSDA_ channels
 [width="100%",options="header"]
 |================================
-| Channel number 2+| Name | Description
-| 0 2+| KHR_DF_CHANNEL_LABSDA_L | L* (luma)
-| 1 2+| KHR_DF_CHANNEL_LABSDA_A | a*
-| 2 2+| KHR_DF_CHANNEL_LABSDA_B | b*
-| 13 2+| KHR_DF_CHANNEL_LABSDA_STENCIL | Stencil
-| 14 2+| KHR_DF_CHANNEL_LABSDA_DEPTH | Depth
-| 15 2+| KHR_DF_CHANNEL_LABSDA_ALPHA | Alpha (transparency)
+^| Channel number 2+| &nbsp; Name | &nbsp; Description
+^| 0 2+| &nbsp; *++KHR_DF_CHANNEL_LABSDA_L++* | &nbsp; _L_* (luma)
+^| 1 2+| &nbsp; *++KHR_DF_CHANNEL_LABSDA_A++* | &nbsp; _a_*
+^| 2 2+| &nbsp; *++KHR_DF_CHANNEL_LABSDA_B++* | &nbsp; _b_*
+^| 13 2+| &nbsp; *++KHR_DF_CHANNEL_LABSDA_STENCIL++* | &nbsp; Stencil
+^| 14 2+| &nbsp; *++KHR_DF_CHANNEL_LABSDA_DEPTH++* | &nbsp; Depth
+^| 15 2+| &nbsp; *++KHR_DF_CHANNEL_LABSDA_ALPHA++* | &nbsp; Alpha (opacity)
 |================================
 
-==== KHR_DF_MODEL_CMYKA (= 5) ====
+==== *++KHR_DF_MODEL_CMYKA++* (= 5) ====
 
 This color model represents secondary (subtractive) colors and
 the combined key (black) channel, along with alpha, as shown in
 <<CMYKAChannels>>.
 
 [[CMYKAChannels]]
-.Basic Data Format CMYKA channels
+.Basic Data Format _CMYKA_ channels
 [width="100%",options="header"]
 |================================
-| Channel number 2+| Name | Description
-| 0 2+| KHR_DF_CHANNEL_CMYKA_CYAN | Cyan
-| 1 2+| KHR_DF_CHANNEL_CMYKA_MAGENTA | Magenta
-| 2 2+| KHR_DF_CHANNEL_CMYKA_YELLOW | Yellow
-| 3 2+| KHR_DF_CHANNEL_CMYKA_KEY | Key/Black
-| 15 2+| KHR_DF_CHANNEL_CMYKA_ALPHA | Alpha (transparency)
+^| Channel number 2+| &nbsp; Name | &nbsp; Description
+^| 0 2+| &nbsp; *++KHR_DF_CHANNEL_CMYKA_CYAN++* | &nbsp; Cyan
+^| 1 2+| &nbsp; *++KHR_DF_CHANNEL_CMYKA_MAGENTA++* | &nbsp; Magenta
+^| 2 2+| &nbsp; *++KHR_DF_CHANNEL_CMYKA_YELLOW++* | &nbsp; Yellow
+^| 3 2+| &nbsp; *++KHR_DF_CHANNEL_CMYKA_KEY++* | &nbsp; Key/Black
+^| 15 2+| &nbsp; *++KHR_DF_CHANNEL_CMYKA_ALPHA++* | &nbsp; Alpha (opacity)
 |================================
 
-==== KHR_DF_MODEL_XYZW (= 6) ====
+==== *++KHR_DF_MODEL_XYZW++* (= 6) ====
 
 This ``color model'' represents channel data used for
 coordinate values, as shown in <<XYZWChannels>> --
@@ -814,21 +825,21 @@ for example, as a representation of the surface normal in
 a bump map.
 Additional channels for higher-dimensional coordinates can
 be used by extending the channel number within the 4-bit limit
-of the *channel_type* field.
+of the *_channelType_* field.
 
 [[XYZWChannels]]
-.Basic Data Format XYZW channels
+.Basic Data Format _XYZW_ channels
 [width="100%",options="header"]
 |================================
-| Channel number 2+| Name | Description
-| 0 2+| KHR_DF_CHANNEL_XYZW_X | X
-| 1 2+| KHR_DF_CHANNEL_XYZW_Y | Y
-| 2 2+| KHR_DF_CHANNEL_XYZW_Z | Z
-| 3 2+| KHR_DF_CHANNEL_XYZW_W | W
+^| Channel number 2+| &nbsp; Name | &nbsp; Description
+^| 0 2+| &nbsp; *++KHR_DF_CHANNEL_XYZW_X++* | &nbsp; _X_
+^| 1 2+| &nbsp; *++KHR_DF_CHANNEL_XYZW_Y++* | &nbsp; _Y_
+^| 2 2+| &nbsp; *++KHR_DF_CHANNEL_XYZW_Z++* | &nbsp; _Z_
+^| 3 2+| &nbsp; *++KHR_DF_CHANNEL_XYZW_W++* | &nbsp; _W_
 |================================
 
 <<<
-==== KHR_DF_MODEL_HSVA_ANG (= 7) ====
+==== *++KHR_DF_MODEL_HSVA_ANG++* (= 7) ====
 
 This color model represents color differences with three channels,
 _value_ (luminance or luma), _saturation_ (distance from monochrome)
@@ -838,17 +849,17 @@ In this model, the hue relates to the angular offset on a color
 wheel.
 
 [[HSVAAngChannels]]
-.Basic Data Format HSVA_ANG channels
+.Basic Data Format angular _HSVA_ channels
 [width="100%",options="header"]
 |================================
-| Channel number 2+| Name | Description
-| 0 2+| KHR_DF_CHANNEL_HSVA_ANG_VALUE | V (value)
-| 1 2+| KHR_DF_CHANNEL_HSVA_ANG_SATURATION | S (saturation)
-| 2 2+| KHR_DF_CHANNEL_HSVA_ANG_HUE | H (hue)
-| 15 2+| KHR_DF_CHANNEL_HSVA_ANG_ALPHA | Alpha (transparency)
+^| Channel number 2+| &nbsp; Name | &nbsp; Description
+^| 0 2+| &nbsp; *++KHR_DF_CHANNEL_HSVA_ANG_VALUE++* | &nbsp; _V_ (value)
+^| 1 2+| &nbsp; *++KHR_DF_CHANNEL_HSVA_ANG_SATURATION++* | &nbsp; _S_ (saturation)
+^| 2 2+| &nbsp; *++KHR_DF_CHANNEL_HSVA_ANG_HUE++* | &nbsp; _H_ (hue)
+^| 15 2+| &nbsp; *++KHR_DF_CHANNEL_HSVA_ANG_ALPHA++* | &nbsp; Alpha (opacity)
 |================================
 
-==== KHR_DF_MODEL_HSLA_ANG (= 8) ====
+==== *++KHR_DF_MODEL_HSLA_ANG++* (= 8) ====
 
 This color model represents color differences with three channels,
 _lightness_ (maximum intensity), _saturation_ (distance from monochrome)
@@ -858,18 +869,18 @@ In this model, the hue relates to the angular offset on a color
 wheel.
 
 [[HSLAAngChannels]]
-.Basic Data Format HSLA_ANG channels
+.Basic Data Format angular _HSLA_ channels
 [width="100%",options="header"]
 |================================
-| Channel number 2+| Name | Description
-| 0 2+| KHR_DF_CHANNEL_HSLA_ANG_LIGHTNESS | L (lightness)
-| 1 2+| KHR_DF_CHANNEL_HSLA_ANG_SATURATION | S (saturation)
-| 2 2+| KHR_DF_CHANNEL_HSLA_ANG_HUE | H (hue)
-| 15 2+| KHR_DF_CHANNEL_HSLA_ANG_ALPHA | Alpha (transparency)
+^| Channel number 2+| &nbsp; Name | &nbsp; Description
+^| 0 2+| &nbsp; *++KHR_DF_CHANNEL_HSLA_ANG_LIGHTNESS++* | &nbsp; _L_ (lightness)
+^| 1 2+| &nbsp; *++KHR_DF_CHANNEL_HSLA_ANG_SATURATION++* | &nbsp; _S_ (saturation)
+^| 2 2+| &nbsp; *++KHR_DF_CHANNEL_HSLA_ANG_HUE++* | &nbsp; _H_ (hue)
+^| 15 2+| &nbsp; *++KHR_DF_CHANNEL_HSLA_ANG_ALPHA++* | &nbsp; Alpha (opacity)
 |================================
 
 <<<
-==== KHR_DF_MODEL_HSVA_HEX (= 9) ====
+==== *++KHR_DF_MODEL_HSVA_HEX++* (= 9) ====
 
 This color model represents color differences with three channels,
 _value_ (luminance or luma), _saturation_ (distance from monochrome)
@@ -879,17 +890,17 @@ In this model, the hue is generated by interpolation between
 extremes on a color hexagon.
 
 [[HSVAHexChannels]]
-.Basic Data Format HSVA_HEX channels
+.Basic Data Format hexagonal _HSVA_ channels
 [width="100%",options="header"]
 |================================
-| Channel number 2+| Name | Description
-| 0 2+| KHR_DF_CHANNEL_HSVA_HEX_VALUE | V (value)
-| 1 2+| KHR_DF_CHANNEL_HSVA_HEX_SATURATION | S (saturation)
-| 2 2+| KHR_DF_CHANNEL_HSVA_HEX_HUE | H (hue)
-| 15 2+| KHR_DF_CHANNEL_HSVA_HEX_ALPHA | Alpha (transparency)
+^| Channel number 2+| &nbsp; Name | &nbsp; Description
+^| 0 2+| &nbsp; *++KHR_DF_CHANNEL_HSVA_HEX_VALUE++* | &nbsp; _V_ (value)
+^| 1 2+| &nbsp; *++KHR_DF_CHANNEL_HSVA_HEX_SATURATION++* | &nbsp; _S_ (saturation)
+^| 2 2+| &nbsp; *++KHR_DF_CHANNEL_HSVA_HEX_HUE++* | &nbsp; _H_ (hue)
+^| 15 2+| &nbsp; *++KHR_DF_CHANNEL_HSVA_HEX_ALPHA++* | &nbsp; Alpha (opacity)
 |================================
 
-==== KHR_DF_MODEL_HSLA_HEX (= 10) ====
+==== *++KHR_DF_MODEL_HSLA_HEX++* (= 10) ====
 
 This color model represents color differences with three channels,
 _lightness_ (maximum intensity), _saturation_ (distance from monochrome)
@@ -899,111 +910,111 @@ In this model, the hue is generated by interpolation between
 extremes on a color hexagon.
 
 [[HSLAHexChannels]]
-.Basic Data Format HSLA_HEX channels
+.Basic Data Format hexagonal _HSLA_ channels
 [width="100%",options="header"]
 |================================
-| Channel number 2+| Name | Description
-| 0 2+| KHR_DF_CHANNEL_HSLA_HEX_LIGHTNESS | L (lightness)
-| 1 2+| KHR_DF_CHANNEL_HSLA_HEX_SATURATION | S (saturation)
-| 2 2+| KHR_DF_CHANNEL_HSLA_HEX_HUE | H (hue)
-| 15 2+| KHR_DF_CHANNEL_HSLA_HEX_ALPHA | Alpha (transparency)
+^| Channel number 2+| &nbsp; Name | &nbsp; Description
+^| 0 2+| &nbsp; *++KHR_DF_CHANNEL_HSLA_HEX_LIGHTNESS++* | &nbsp; _L_ (lightness)
+^| 1 2+| &nbsp; *++KHR_DF_CHANNEL_HSLA_HEX_SATURATION++* | &nbsp; _S_ (saturation)
+^| 2 2+| &nbsp; *++KHR_DF_CHANNEL_HSLA_HEX_HUE++* | &nbsp; _H_ (hue)
+^| 15 2+| &nbsp; *++KHR_DF_CHANNEL_HSLA_HEX_ALPHA++* | &nbsp; Alpha (opacity)
 |================================
 
-==== KHR_DF_MODEL_YCGCOA (= 11) ====
+==== *++KHR_DF_MODEL_YCGCOA++* (= 11) ====
 
 This color model represents low-cost approximate color differences with
-three channels, nominally luma (Y) and two color-difference chroma channels,
-Cg (green/purple color difference) and Co (orange/cyan color difference),
+three channels, nominally luma (_Y_) and two color-difference chroma channels,
+_Cg_ (green/purple color difference) and _Co_ (orange/cyan color difference),
 supplemented by a channel for alpha, as shown in <<YCoCgAChannels>>.
 
 [[YCoCgAChannels]]
-.Basic Data Format YCoCgA channels
+.Basic Data Format _YCoCgA_ channels
 [width="100%",options="header"]
 |================================
-| Channel number 2+| Name | Description
-| 0 2+| KHR_DF_CHANNEL_YCGCOA_Y | Y
-| 1 2+| KHR_DF_CHANNEL_YCGCOA_CG | Cg
-| 2 2+| KHR_DF_CHANNEL_YCGCOA_CO | Co
-| 15 2+| KHR_DF_CHANNEL_YCGCOA_ALPHA | Alpha (transparency)
+^| Channel number 2+| &nbsp; Name | &nbsp; Description
+^| 0 2+| &nbsp; *++KHR_DF_CHANNEL_YCGCOA_Y++* | &nbsp; _Y_
+^| 1 2+| &nbsp; *++KHR_DF_CHANNEL_YCGCOA_CG++* | &nbsp; _Cg_
+^| 2 2+| &nbsp; *++KHR_DF_CHANNEL_YCGCOA_CO++* | &nbsp; _Co_
+^| 15 2+| &nbsp; *++KHR_DF_CHANNEL_YCGCOA_ALPHA++* | &nbsp; Alpha (opacity)
 |================================
 
 <<<
-==== KHR_DF_MODEL_YCCBCCRC (= 12) ====
+==== *++KHR_DF_MODEL_YCCBCCRC++* (= 12) ====
 
 This color model represents the ``Constant luminance''
-latexmath:[$Y'_CC'_{BC}C'_{RC}$] color model defined as an optional
-representation in ITU-T BT.2020 and described in <<MODEL_YCCBCCRC>>.
+latexmath:[$Y'_CC'_\mathit{BC}C'_\mathit{RC}$] color model defined as an
+optional representation in ITU-T BT.2020 and described in <<MODEL_YCCBCCRC>>.
 
 [[YCBCCRCChannels]]
-.Basic Data Format Y~C~C~BC~C~RC~ channels
+.Basic Data Format _Y&prime;~C~C&prime;~BC~C&prime;~RC~_ channels
 [width="100%",options="header"]
 |================================
-| Channel number 2+| Name | Description
-| 0 2+| KHR_DF_CHANNEL_YCCBCCRC_YC | Y~C~ (luminance)
-| 1 2+| KHR_DF_CHANNEL_YCCBCCRC_CBC | C~BC~
-| 2 2+| KHR_DF_CHANNEL_YCCBCCRC_CRC | C~RC~
-| 13 2+| KHR_DF_CHANNEL_YCCBCCRC_STENCIL | Stencil
-| 14 2+| KHR_DF_CHANNEL_YCCBCCRC_DEPTH | Depth
-| 15 2+| KHR_DF_CHANNEL_YCCBCCRC_ALPHA | Alpha (transparency)
+^| Channel number 2+| &nbsp; Name | &nbsp; Description
+^| 0 2+| &nbsp; *++KHR_DF_CHANNEL_YCCBCCRC_YC++* | &nbsp; latexmath:[$Y'_C$] (luminance)
+^| 1 2+| &nbsp; *++KHR_DF_CHANNEL_YCCBCCRC_CBC++* | &nbsp; latexmath:[$C'_\mathit{BC}$]
+^| 2 2+| &nbsp; *++KHR_DF_CHANNEL_YCCBCCRC_CRC++* | &nbsp; latexmath:[$C'_\mathit{RC}$]
+^| 13 2+| &nbsp; *++KHR_DF_CHANNEL_YCCBCCRC_STENCIL++* | &nbsp; Stencil
+^| 14 2+| &nbsp; *++KHR_DF_CHANNEL_YCCBCCRC_DEPTH++* | &nbsp; Depth
+^| 15 2+| &nbsp; *++KHR_DF_CHANNEL_YCCBCCRC_ALPHA++* | &nbsp; Alpha (opacity)
 |================================
 
-==== KHR_DF_MODEL_ICTCP (= 13) ====
+==== *++KHR_DF_MODEL_ICTCP++* (= 13) ====
 
 This color model represents the ``Constant intensity
-latexmath:[$IC_TC_P$] color model'' defined as an optional
+_IC~T~C~P~_ color model'' defined as an optional
 representation in ITU-T BT.2100 and described in <<MODEL_ICTCP>>.
 
 [[ICTCPChannels]]
-.Basic Data Format IC~T~C~P~ channels
+.Basic Data Format _IC~T~C~P~_ channels
 [width="100%",options="header"]
 |================================
-| Channel number 2+| Name | Description
-| 0 2+| KHR_DF_CHANNEL_ICTCP_I | I (intensity)
-| 1 2+| KHR_DF_CHANNEL_ICTCP_CT | C~T~
-| 2 2+| KHR_DF_CHANNEL_ICTCP_CP | C~P~
-| 13 2+| KHR_DF_CHANNEL_ICTCP_STENCIL | Stencil
-| 14 2+| KHR_DF_CHANNEL_ICTCP_DEPTH | Depth
-| 15 2+| KHR_DF_CHANNEL_ICTCP_ALPHA | Alpha (transparency)
+^| Channel number 2+| &nbsp; Name | &nbsp; Description
+^| 0 2+| &nbsp; *++KHR_DF_CHANNEL_ICTCP_I++* | &nbsp; _I_ (intensity)
+^| 1 2+| &nbsp; *++KHR_DF_CHANNEL_ICTCP_CT++* | &nbsp; _C~T~_
+^| 2 2+| &nbsp; *++KHR_DF_CHANNEL_ICTCP_CP++* | &nbsp; _C~P~_
+^| 13 2+| &nbsp; *++KHR_DF_CHANNEL_ICTCP_STENCIL++* | &nbsp; Stencil
+^| 14 2+| &nbsp; *++KHR_DF_CHANNEL_ICTCP_DEPTH++* | &nbsp; Depth
+^| 15 2+| &nbsp; *++KHR_DF_CHANNEL_ICTCP_ALPHA++* | &nbsp; Alpha (opacity)
 |================================
 
 <<<
-==== KHR_DF_MODEL_CIEXYZ (= 14) ====
+==== *++KHR_DF_MODEL_CIEXYZ++* (= 14) ====
 
 This color model represents channel data used to describe
 color coordinates in the <<ciexyc,CIE 1931 XYZ>> coordinate
 space, as shown in <<CIEXYZChannels>>.
 
 [[CIEXYZChannels]]
-.Basic Data Format CIE XYZ channels
+.Basic Data Format CIE _XYZ_ channels
 [width="100%",options="header"]
 |================================
-| Channel number 2+| Name | Description
-| 0 2+| KHR_DF_CHANNEL_CIEXYZ_X | X
-| 1 2+| KHR_DF_CHANNEL_CIEXYZ_Y | Y
-| 2 2+| KHR_DF_CHANNEL_CIEXYZ_Z | Z
+^| Channel number 2+| &nbsp; Name | &nbsp; Description
+^| 0 2+| &nbsp; *++KHR_DF_CHANNEL_CIEXYZ_X++* | &nbsp; _X_
+^| 1 2+| &nbsp; *++KHR_DF_CHANNEL_CIEXYZ_Y++* | &nbsp; _Y_
+^| 2 2+| &nbsp; *++KHR_DF_CHANNEL_CIEXYZ_Z++* | &nbsp; _Z_
 |================================
 
-==== KHR_DF_MODEL_CIEXYY (= 15) ====
+==== *++KHR_DF_MODEL_CIEXYY++* (= 15) ====
 
 This color model represents channel data used to describe
 chromaticity coordinates in the <<ciexyc,CIE 1931 xyY>> coordinate
 space, as shown in <<CIEXYYChannels>>.
 
 [[CIEXYYChannels]]
-.Basic Data Format CIE xyY channels
+.Basic Data Format CIE _xyY_ channels
 [width="100%",options="header"]
 |================================
-| Channel number 2+| Name | Description
-| 0 2+| KHR_DF_CHANNEL_CIEXYZ_X | x
-| 1 2+| KHR_DF_CHANNEL_CIEXYZ_YCHROMA | y
-| 2 2+| KHR_DF_CHANNEL_CIEXYZ_YLUMA | Y
+^| Channel number 2+| &nbsp; Name | &nbsp; Description
+^| 0 2+| &nbsp; *++KHR_DF_CHANNEL_CIEXYZ_X++* | &nbsp; _x_
+^| 1 2+| &nbsp; *++KHR_DF_CHANNEL_CIEXYZ_YCHROMA++* | &nbsp; _y_
+^| 2 2+| &nbsp; *++KHR_DF_CHANNEL_CIEXYZ_YLUMA++* | &nbsp; _Y_
 |================================
 
 <<<
-==== Compressed formats ====
+=== *_colorModel_* for compressed formats ===
 
-A number of compressed formats are supported as part of *khr_df_model_e*.
-In general, these formats will have a texel block dimension of the
+A number of compressed formats are supported as part of *++khr_df_model_e++*.
+In general, these formats will have the texel block dimensions of the
 compression block size. Most contain a single sample of channel type 0
 at offset 0,0 -- where further samples are required, they should also
 be sited at 0,0. By convention, models which have multiple channels that
@@ -1011,23 +1022,23 @@ are disjoint in memory have these channel locations described accurately.
 
 The ASTC family of formats have a number of possible channels,
 and are distinguished by samples which reference some set of these
-channels. The *texel_block_dimensions* field determines the compression
+channels. The *_texelBlockDimension_* fields determine the compression
 ratio for ASTC.
 
 Floating-point compressed formats have lower and upper limits specified
 in floating point format. Integer compressed formats with a lower and
-upper of 0 and UINT32_MAX (for unsigned formats) or INT32_MIN and INT32_MAX
-(for signed formats) are assumed to map the full representable range to
-the 0..1 or -1..1 respectively.
+upper of 0 and *++UINT32_MAX++* (for unsigned formats) or *++INT32_MIN++*
+and *++INT32_MAX++* (for signed formats) are assumed to map the full
+representable range to 0..1 or -1..1 respectively.
 
-===== KHR_DF_MODEL_DXT1A/KHR_DF_MODEL_BC1A (= 128) =====
+==== *++KHR_DF_MODEL_DXT1A++*/*++KHR_DF_MODEL_BC1A++* (= 128) ====
 
 This model represents the DXT1 or BC1 format. Channel 0 indicates
 color. If a second sample is present it should use channel 1 to indicate
 that the ``special value'' of the format should represent transparency --
 otherwise the ``special value'' represents opaque black.
 
-===== KHR_DF_MODEL_DXT2/3/KHR_DF_MODEL_BC2 (= 129) =====
+==== *++KHR_DF_MODEL_DXT2++*/*++3++*/*++KHR_DF_MODEL_BC2++* (= 129) ====
 
 This model represents the DXT2/3 format, also described as BC2. The
 alpha premultiplication state (the distinction between DXT2 and DXT3)
@@ -1039,7 +1050,7 @@ describe the 16 alpha samples for this position independently,
 since understanding the other channels for any pixel requires the
 whole texel block.
 
-===== KHR_DF_MODEL_DXT4/5/KHR_DF_MODEL_BC3 (= 130) =====
+==== *++KHR_DF_MODEL_DXT4++*/*++5++*/*++KHR_DF_MODEL_BC3++* (= 130) ====
 
 This model represents the DXT4/5 format, also described as BC3. The
 alpha premultiplication state (the distinction between DXT4 and DXT5)
@@ -1048,13 +1059,13 @@ ID 0 contains the color information and ID 15 contains the alpha
 information. The alpha channel is 64 bits and at offset 0; the color
 channel is 64 bits and at offset 64.
 
-===== KHR_DF_MODEL_BC4 (= 131) =====
+==== *++KHR_DF_MODEL_BC4++* (= 131) ====
 
 This model represents the Direct3D BC4 format for single-channel
 interpolated 8-bit data. The model has a single channel of id 0
 with offset 0 and length 64 bits.
 
-===== KHR_DF_MODEL_BC5 (= 132) =====
+==== *++KHR_DF_MODEL_BC5++* (= 132) ====
 
 This model represents the Direct3D BC5 format for dual-channel
 interpolated 8-bit data. The model has two channels, 0 (red) and 1 (green),
@@ -1062,64 +1073,67 @@ which should have their bit depths and offsets independently described:
 the red channel has offset 0 and length 64 bits and the green channel
 has offset 64 and length 64 bits.
 
-===== KHR_DF_MODEL_BC6H (= 133) =====
+==== *++KHR_DF_MODEL_BC6H++* (= 133) ====
 
-This model represents the Direct3D BC6H format for RGB floating-point data.
+This model represents the Direct3D BC6H format for _RGB_ floating-point data.
 The model has a single channel 0, representing all three channels, and
 occupying 128 bits.
 
-===== KHR_DF_MODEL_BC7 (= 134) =====
+==== *++KHR_DF_MODEL_BC7++* (= 134) ====
 
-This model represents the Direct3D BC7 format for RGBA data. This model
+This model represents the Direct3D BC7 format for _RGBA_ data. This model
 has a single channel 0 of 128 bits.
 
-===== KHR_DF_MODEL_ETC1 (= 160) =====
+==== *++KHR_DF_MODEL_ETC1++* (= 160) ====
 
 This model represents the original Ericsson Texture Compression format,
 with a guarantee that the format does not rely on ETC2 extensions. It
-contains a single channel of RGB data.
+contains a single channel of _RGB_ data.
 
-===== KHR_DF_MODEL_ETC2 (= 161) =====
+==== *++KHR_DF_MODEL_ETC2++* (= 161) ====
 
 This model represents the updated Ericsson Texture Compression format,
-ETC2. Channel 0 represents red, and is used for the R11 EAC format.
-Channel 1 represents green, and both red and green should be present
-for the RG11 EAC format. Channel 2 represents RGB combined content.
-Channel 15 indicates the presence of alpha. If the texel block size
-is 8 bytes and the RGB and alpha channels are co-sited, ``punch through''
-alpha is supported. If the texel block size is 16 bytes and the alpha
-channel appears in the first 8 bytes, followed by 8 bytes for the RGB
-channel, 8-bit separate alpha is supported.
+ETC2, and also the related R11 EAC and RG11 EAC formats.
+Channel ID 0 represents red, and is used for the R11 EAC format.
+Channel ID 1 represents green, and both red and green should be present
+for the RG11 EAC format.
+Channel ID 2 represents _RGB_ combined content, for ETC2.
+Channel 15 indicates the presence of alpha.
+If the texel block size is 8 bytes and the _RGB_ and alpha channels are
+co-sited, ``punch through'' alpha is supported.
+If the texel block size is 16 bytes and the alpha channel appears in the
+first 8 bytes, followed by 8 bytes for the _RGB_ channel, 8-bit separate
+alpha is supported.
 
-===== KHR_DF_MODEL_ASTC (= 162) =====
+==== *++KHR_DF_MODEL_ASTC++* (= 162) ====
 
 This model represents Adaptive Scalable Texture Compression as a single
 channel in a texel block of 16 bytes. ASTC HDR (high dynamic range) and
-LDR (low dynamic range) modes are distinguished by the *channel_id* containing
-the flag *KHR_DF_SAMPLE_DATATYPE_FLOAT*: an ASTC texture that is guaranteed by
-the user to contain only LDR-encoded blocks should have the *channel_id*
-*KHR_DF_SAMPLE_DATATYPE_FLOAT* bit clear, and an ASTC texture that may include
-HDR-encoded blocks should have the *channel_id* *KHR_DF_SAMPLE_DATATYPE_FLOAT*
+LDR (low dynamic range) modes are distinguished by the *_channelId_* containing
+the flag *++KHR_DF_SAMPLE_DATATYPE_FLOAT++*: an ASTC texture that is guaranteed by
+the user to contain only LDR-encoded blocks should have the *_channelId_*
+*++KHR_DF_SAMPLE_DATATYPE_FLOAT++* bit clear, and an ASTC texture that may include
+HDR-encoded blocks should have the *_channelId_* *++KHR_DF_SAMPLE_DATATYPE_FLOAT++*
 bit set to 1. ASTC supports a number of compression ratios defined by different
 texel block sizes; these are selected by changing the texel block size fields
 in the data format. The single sample has a size of 128 bits.
 
-ASTC encoding is described in section <<ASTC>>.
+ASTC encoding is described in <<ASTC>>.
 
 <<<
-=== color_primaries ===
+=== *_colorPrimaries_* ===
 
 It is not sufficient to define a buffer as containing, for example,
 additive primaries. Additional information is required to define
 what ``red'' is provided by the ``red'' channel. A full definition of
 primaries requires an extension which provides the full color space
 of the data, but a subset of common primary spaces can be identified
-by the *khr_df_primaries_e* enumeration, represented as an unsigned 8-bit
+by the *++khr_df_primaries_e++* enumeration, represented as an unsigned 8-bit
 integer value.
 
 More information about color primaries is provided in <<PRIMARY_CONVERSION>>.
 
-==== KHR_DF_PRIMARIES_UNSPECIFIED (= 0) ====
+==== *++KHR_DF_PRIMARIES_UNSPECIFIED++* (= 0) ====
 
 This ``set of primaries'' identifies a data representation whose color
 representation is unknown or which does not fit into this list of
@@ -1132,129 +1146,130 @@ indicate that samples represent ``red'', ``green'' and ``blue'', but should
 mark the primaries here as ``unspecified'' and provide a detailed
 description in an extension block.
 
-==== KHR_DF_PRIMARIES_BT709 (= 1) ====
+==== *++KHR_DF_PRIMARIES_BT709++* (= 1) ====
 
 This value represents the Color Primaries defined by the
 <<bt709,ITU-R BT.709 specification>> and described in <<PRIMARIES_BT709>>,
 which are also shared by sRGB.
 
-RGB data is distinguished between BT.709 and sRGB by the Transfer Function.
-Conversion to and from BT.709 Y'C~B~C~R~ (``YUV'') representation uses the
+_RGB_ data is distinguished between BT.709 and sRGB by the Transfer Function.
+Conversion to and from BT.709 _Y&prime;C~B~C~R~_ (_YUV_) representation uses the
 color conversion matrix defined in the <<bt709,BT.709>> specification, and described
 in <<MODEL_BT709>>, except in the case of sYCC (which can be distinguished
 by the use of the sRGB transfer function), in which case conversion to and
-from BT.709 Y'C~B~C~R~ representation uses the color conversion
+from BT.709 _Y&prime;C~B~C~R~_ representation uses the color conversion
 matrix defined in the <<bt601,BT.601>> specification, and described
 in <<MODEL_BT601>>.
 This is the preferred set of color primaries used by HDTV and sRGB, and likely
 a sensible default set of color primaries for common rendering operations.
 
-*KHR_DF_PRIMARIES_SRGB* is provided as a synonym for *KHR_DF_PRIMARIES_BT709*.
+*++KHR_DF_PRIMARIES_SRGB++* is provided as a synonym for *++KHR_DF_PRIMARIES_BT709++*.
 
-==== KHR_DF_PRIMARIES_BT601_EBU (= 2) ====
+==== *++KHR_DF_PRIMARIES_BT601_EBU++* (= 2) ====
 
 This value represents the Color Primaries defined in the
 <<bt601,ITU-R BT.601 specification>> for standard-definition television,
 particularly for 625-line signals, and described in <<PRIMARIES_BT601_EBU>>.
-Conversion to and from BT.601 Y'C~B~C~R~ (``YUV'') typically uses the color conversion
+Conversion to and from BT.601 _Y&prime;C~B~C~R~_ (_YUV_) typically uses the color conversion
 matrix defined in the BT.601 specification and described in <<MODEL_BT601>>.
 
-==== KHR_DF_PRIMARIES_BT601_SMPTE (= 3) ====
+==== *++KHR_DF_PRIMARIES_BT601_SMPTE++* (= 3) ====
 
 This value represents the Color Primaries defined in the
 <<bt601,ITU-R BT.601 specification>> for standard-definition television,
 particularly for 525-line signals, and described in <<PRIMARIES_BT601_SMPTE>>.
-Conversion to and from BT.601 Y'C~B~C~R~ (``YUV'') typically uses the color conversion
+Conversion to and from BT.601 _Y&prime;C~B~C~R~_ (_YUV_) typically uses the color conversion
 matrix defined in the BT.601 specification and described in <<MODEL_BT601>>.
 
-==== KHR_DF_PRIMARIES_BT2020 (= 4) ====
+==== *++KHR_DF_PRIMARIES_BT2020++* (= 4) ====
 
 This value represents the Color Primaries defined in the
 <<bt2020,ITU-R BT.2020 specification>> for ultra-high-definition television
-and described in <<PRIMARIES_BT2020>>. Conversion to and from BT.2020 Y'C~B~C~R~
-(``YUV'') uses the color conversion matrix defined in the BT.2020 specification
+and described in <<PRIMARIES_BT2020>>. Conversion to and from BT.2020 _Y&prime;C~B~C~R~_
+(_YUV_ uses the color conversion matrix defined in the BT.2020 specification
 and described in <<MODEL_BT2020>>.
 
-==== KHR_DF_PRIMARIES_CIEXYZ (= 5) ====
+==== *++KHR_DF_PRIMARIES_CIEXYZ++* (= 5) ====
 
 This value represents the theoretical Color Primaries defined
 by the International Color Consortium for the <<ciexyz,ICC XYZ>> linear
 color space.
 
-==== KHR_DF_PRIMARIES_ACES (= 6) ====
+==== *++KHR_DF_PRIMARIES_ACES++* (= 6) ====
 
 This value represents the Color Primaries defined
 for the <<aces,Academy Color Encoding System>> and
 described in <<PRIMARIES_ACES>>.
 
-==== KHR_DF_PRIMARIES_ACESCC (= 7) ====
+==== *++KHR_DF_PRIMARIES_ACESCC++* (= 7) ====
 
 This value represents the Color Primaries defined
 for the <<aces,Academy Color Encoding System>>
 compositor and described in <<PRIMARIES_ACESCC>>.
 
-==== KHR_DF_PRIMARIES_NTSC1953 (= 8) ====
+==== *++KHR_DF_PRIMARIES_NTSC1953++* (= 8) ====
 
 This value represents the Color Primaries defined for the
 NTSC 1953 color television transmission standard and described
 in <<PRIMARIES_NTSC>>.
 
-==== KHR_DF_PRIMARIES_PAL525 (= 9) ====
+==== *++KHR_DF_PRIMARIES_PAL525++* (= 9) ====
 
 This value represents the Color Primaries defined for
 525-line PAL signals, described in <<PRIMARIES_PAL525>>.
 
-==== KHR_DF_PRIMARIES_DISPLAYP3 (= 10) ====
+==== *++KHR_DF_PRIMARIES_DISPLAYP3++* (= 10) ====
 
 This value represents the Color Primaries defined for
 the Display P3 color space, described in <<PRIMARIES_DISPLAYP3>>.
 
-==== KHR_DF_PRIMARIES_ADOBERGB (= 11) ====
+==== *++KHR_DF_PRIMARIES_ADOBERGB++* (= 11) ====
 
 This value represents the Color Primaries defined in
 <<adobergb,Adobe RGB (1998)>>, described in <<PRIMARIES_ADOBERGB>>.
 
 <<<
-=== transfer_function ===
+=== *_transferFunction_* ===
 
 Many color representations contain a non-linear _transfer function_
 which maps between a linear (intensity-based) representation and
-a more perceptually-uniform encoding. Common transfer functions are
-encoded in the *khr_df_transfer_e* enumeration and represented as an
-unsigned 8-bit integer. A fully-flexible transfer function requires
-an extension with a full color space definition. Where the transfer
-function can be described as a simple power curve, applying the
-function is commonly known as ``gamma correction''. The transfer
-function is applied to a sample only when the sample's
-*KHR_DF_SAMPLE_DATATYPE_LINEAR* bit is 0; if this bit is 1, the
-sample is represented linearly irrespective of the *transfer_function*.
+a more perceptually-uniform encoding.
+Common transfer functions are represented as an unsigned 8-bit integer
+and encoded in the enumeration *++khr_df_transfer_e++*.
+A fully-flexible transfer function requires an extension with a full
+color space definition.
+Where the transfer function can be described as a simple power curve,
+applying the function is commonly known as ``gamma correction''.
+The transfer function is applied to a sample only when the sample's
+*++KHR_DF_SAMPLE_DATATYPE_LINEAR++* bit is 0; if this bit is 1, the
+sample is represented linearly irrespective of the *_transferFunction_*.
 
 When a color model contains more than one channel in a sample and
 the transfer function should be applied only to a subset of those
 channels, the convention of that model should be used when applying
-the transfer function. For example, ASTC stores both alpha and RGB
+the transfer function. For example, ASTC stores both alpha and _RGB_
 data but is represented by a single sample; in ASTC, any sRGB transfer
 function is not applied to the alpha channel of the ASTC texture.
-In this case, the *KHR_DF_SAMPLE_DATATYPE_LINEAR* bit being zero means that
+In this case, the *++KHR_DF_SAMPLE_DATATYPE_LINEAR++* bit being zero means that
 the transfer function is ``applied'' to the ASTC sample in a way that only
-affects the RGB channels. This is not a concern for most color models,
+affects the _RGB_ channels. This is not a concern for most color models,
 which explicitly store different channels in each sample.
 
-If all the samples are linear, *KHR_DF_TRANSFER_LINEAR* should be used.
-In this case, no sample should have the *KHR_DF_SAMPLE_DATATYPE_LINEAR*
+If all the samples are linear, *++KHR_DF_TRANSFER_LINEAR++* should be used.
+In this case, no sample should have the *++KHR_DF_SAMPLE_DATATYPE_LINEAR++*
 bit set.
 
 The enumerant value for each of the following transfer functions is
 shown in parentheses alongside the title.
 
-==== KHR_DF_TRANSFER_UNSPECIFIED (= 0) ====
+==== *++KHR_DF_TRANSFER_UNSPECIFIED++* (= 0) ====
 
 This value should be used when the transfer function is unknown,
 or specified only in an extension block, precluding conversion of
 color spaces and correct filtering of the data values using only
 the information in the basic descriptor block.
 
-==== KHR_DF_TRANSFER_LINEAR (= 1) ====
+==== *++KHR_DF_TRANSFER_LINEAR++* (= 1) ====
 
 This value represents a linear transfer function: for color data,
 there is a linear relationship between numerical pixel values and
@@ -1262,19 +1277,19 @@ the intensity of additive colors. This transfer function allows for
 blending and filtering operations to be applied directly to the data
 values.
 
-==== KHR_DF_TRANSFER_SRGB (= 2) ====
+==== *++KHR_DF_TRANSFER_SRGB++* (= 2) ====
 
 This value represents the non-linear transfer function defined in
 the <<srgb,sRGB specification>> for mapping between numerical pixel values
 and intensity. This is described in <<TRANSFER_SRGB>>.
 
-==== KHR_DF_TRANSFER_ITU (= 3) ====
+==== *++KHR_DF_TRANSFER_ITU++* (= 3) ====
 
 This value represents the non-linear transfer function defined by
 the ITU and used in the BT.601, BT.709 and BT.2020 specifications.
 This is described in <<TRANSFER_ITU>>.
 
-==== KHR_DF_TRANSFER_NTSC (= 4) ====
+==== *++KHR_DF_TRANSFER_NTSC++* (= 4) ====
 
 This value represents the non-linear transfer function defined by
 the original NTSC television broadcast specification.
@@ -1283,111 +1298,112 @@ This is described in <<TRANSFER_LEGACY_NTSC>>.
 NOTE: More recent formulations of this transfer functions, such as that
 defined in SMPTE 170M-2004, use it ITU formulation described above.
 
-==== KHR_DF_TRANSFER_SLOG (= 5) ====
+==== *++KHR_DF_TRANSFER_SLOG++* (= 5) ====
 
 This value represents a nonlinear Transfer Function used by some
 Sony video cameras to represent an increased dynamic range,
 and is described in <<TRANSFER_SLOG>>.
 
-==== KHR_DF_TRANSFER_SLOG2 (= 6) ====
+==== *++KHR_DF_TRANSFER_SLOG2++* (= 6) ====
 
 This value represents a nonlinear Transfer Function used by some
 Sony video cameras to represent a further increased dynamic range,
 and is described in <<TRANSFER_SLOG2>>.
 
-==== KHR_DF_TRANSFER_BT1886 (= 7) ====
+==== *++KHR_DF_TRANSFER_BT1886++* (= 7) ====
 
 This value represents the nonlinear OETF defined in <<bt1886,BT.1886>>
 and described in <<TRANSFER_BT1886>>.
 
-==== KHR_DF_TRANSFER_HLG_OETF (= 8) ====
+==== *++KHR_DF_TRANSFER_HLG_OETF++* (= 8) ====
 
 This value represents the Hybrid Log Gamma OETF
 defined by the ITU in BT.2100 for high dynamic range television,
 and described in <<TRANSFER_HLG>>.
 
-==== KHR_DF_TRANSFER_HLG_EOTF (= 9) ====
+==== *++KHR_DF_TRANSFER_HLG_EOTF++* (= 9) ====
 
 This value represents the Hybrid Log Gamma OETF
 defined by the ITU in BT.2100 for high dynamic range television,
 and described in <<TRANSFER_HLG>>.
 
-==== KHR_DF_TRANSFER_PQ_EOTF (= 10) ====
+==== *++KHR_DF_TRANSFER_PQ_EOTF++* (= 10) ====
 
 This value represents the Perceptual Quantization EOTF
 defined by the ITU in BT.2100 for high dynamic range television,
 and described in <<TRANSFER_PQ>>.
 
-==== KHR_DF_TRANSFER_PQ_OETF (= 11) ====
+==== *++KHR_DF_TRANSFER_PQ_OETF++* (= 11) ====
 
 This value represents the Perceptual Quantization EOTF
 defined by the ITU in BT.2100 for high dynamic range television,
 and described in <<TRANSFER_PQ>>.
 
-==== KHR_DF_TRANSFER_DCIP3 (= 12) ====
+==== *++KHR_DF_TRANSFER_DCIP3++* (= 12) ====
 
 This value represents the transfer function defined in DCI P3
 and described in <<TRANSFER_DCIP3>>.
 
-==== KHR_DF_TRANSFER_PAL_OETF (= 13) ====
+==== *++KHR_DF_TRANSFER_PAL_OETF++* (= 13) ====
 
 This value represents the OETF for legacy PAL systems described
 in <<TRANSFER_LEGACY_PAL_OETF>>.
 
-==== KHR_DF_TRANSFER_PAL625_EOTF (= 14) ====
+==== *++KHR_DF_TRANSFER_PAL625_EOTF++* (= 14) ====
 
 This value represents the EOTF for legacy 625-line PAL systems
 described in <<TRANSFER_LEGACY_PAL_EOTF>>.
 
-==== KHR_DF_TRANSFER_ST240 (= 15) ====
+==== *++KHR_DF_TRANSFER_ST240++* (= 15) ====
 
 This value represents the transfer function associated with the
 legacy ST-240 (SMPTE240M) standard, described in <<TRANSFER_ST240>>.
 
-==== KHR_DF_TRANSFER_ACESCC (= 16) ====
+==== *++KHR_DF_TRANSFER_ACESCC++* (= 16) ====
 
 This value represents the nonlinear Transfer Function used in
 the ACEScc Academy Color Encoding System logarithmic encoding system
 for use within Color Grading Systems, S-2014-003, defined in
 <<aces>>. This is described in <<TRANSFER_ACESCC>>.
 
-==== KHR_DF_TRANSFER_ACESCCT (= 17) ====
+==== *++KHR_DF_TRANSFER_ACESCCT++* (= 17) ====
 
 This value represents the nonlinear Transfer Function used in
 the ACEScc Academy Color Encoding System quasi-logarithmic encoding
 system for use within Color Grading Systems, S-2016-001, defined in
 <<aces>>. This is described in <<TRANSFER_ACESCCT>>.
 
-==== KHR_DF_TRANSFER_ADOBERGB (= 18) ====
+==== *++KHR_DF_TRANSFER_ADOBERGB++* (= 18) ====
 
 This value represents the transfer function defined in the
 Adobe RGB (1998) specification and described in <<TRANSFER_ADOBERGB>>.
 
-<<<
-=== flags ===
+=== *_flags_* ===
 
 The format supports some configuration options in the form of
-boolean flags; these are described in the *khr_df_flags_e*
-enumeration and represented in an unsigned 8-bit integer value.
+boolean flags; these are described in the enumeration
+*++khr_df_flags_e++* and represented in an unsigned 8-bit integer value.
 
-==== KHR_DF_FLAG_ALPHA_PREMULTIPLIED (= 1) ====
+==== *++KHR_DF_FLAG_ALPHA_PREMULTIPLIED++* (= 1) ====
 
-If the *KHR_DF_FLAG_ALPHA_PREMULTIPLIED* bit is set, any color
+If the *++KHR_DF_FLAG_ALPHA_PREMULTIPLIED++* bit is set, any color
 information in the data should be interpreted as having been
 previously scaled by the alpha channel when performing blending
 operations.
 
-The value *KHR_DF_FLAG_ALPHA_STRAIGHT* (= 0) is provided
+The value *++KHR_DF_FLAG_ALPHA_STRAIGHT++* (= 0) is provided
 to represent this flag not being set, which indicates that the color
 values in the data should be interpreted as needing to be scaled
 by the alpha channel when performing blending operations. This flag
 has no effect if there is no alpha channel in the format.
 
-=== texel_block_dimensions_[0..3] ===
+<<<
 
-The *texel_block_dimensions* define the number of coordinates
-covered by the repeating block described by the samples. Four
-separate values, represented as unsigned 8-bit integers, are
+=== *_texelBlockDimension[0..3]_* ===
+
+The *_texelBlockDimension_* fields define an integer bound on the range
+of coordinates covered by the repeating block described by the samples.
+Four separate values, represented as unsigned 8-bit integers, are
 supported, corresponding to successive dimensions. The
 Basic Data Format Descriptor Block supports up to four
 dimensions of encoding within a texel block, supporting, for
@@ -1405,60 +1421,60 @@ should have a size of 1 in each dimension that it lacks,
 and therefore the corresponding fields in the representation
 should be 0.
 
-For example, a Y'C~B~C~R~ 4:2:0 representation may use a Texel Block
+For example, a _Y&prime;C~B~C~R~_ 4:2:0 representation may use a Texel Block
 of 2×2 pixels in the nominal coordinate space, corresponding to
-the four Y' samples, as shown in <<YUV420Basic>>.
+the four _Y&prime;_ samples, as shown in <<YUV420Basic>>.
 The texel block dimensions in this case
 would be 2×2×1×1 (in the X, Y, Z and T dimensions, if the fourth
-dimension is interpreted as T). The *texel_block_dimensions_[0..3]*
+dimension is interpreted as T). The *_texelBlockDimension[0..3]_*
 values would therefore be:
 
 [[YUV420Basic]]
-.Example Basic Data Format *texel_block_dimensions* for Y'C~B~C~R~ 4:2:0
+.Example Basic Data Format *_texelBlockDimension_* values for _Y&prime;C~B~C~R~_ 4:2:0
 [width="40%",cols="5,1"]
 |================================
-| texel_block_dimensions_0 | 1
-| texel_block_dimensions_1 | 1
-| texel_block_dimensions_2 | 0
-| texel_block_dimensions_3 | 0
+^| *_texelBlockDimension0_* ^| 1
+^| *_texelBlockDimension1_* ^| 1
+^| *_texelBlockDimension2_* ^| 0
+^| *_texelBlockDimension3_* ^| 0
 |================================
 
 <<<
-=== bytes_plane_[0..7] ===
+=== *_bytesPlane[0..7]_* ===
 
 The Basic Data Format Descriptor divides the image into a number of
 planes, each consisting of an integer number of consecutive bytes.
 The requirement that planes consist of consecutive data means that
-formats with distinct subsampled channels -- such as Y'C~B~C~R~ 4:2:0 --
+formats with distinct subsampled channels -- such as _Y&prime;C~B~C~R~_ 4:2:0 --
 may require multiple planes to describe a channel. A typical
-Y'C~B~C~R~ 4:2:0 image has _two_ planes for the Y' channel in this
+_Y&prime;C~B~C~R~_ 4:2:0 image has _two_ planes for the _Y&prime;_ channel in this
 representation, offset by one line vertically.
 
 The use of byte granularity to define planes is a choice to
 allow large texels (of up to 255 bytes). A consequence of this is
 that formats which are not byte-aligned on each addressable unit,
 such as 1-bit-per-pixel formats, need to represent a texel block
-of multiple samples, contained within a.
+of multiple samples, covering multiple texels.
 
 A maximum of eight independent planes is supported in the Basic Data
 Format Descriptor. Formats which require more than eight planes --
 which are rare -- require an extension.
 
-The *bytes_plane_[0..7]* fields each contain an unsigned 8-bit integer
+The *_bytesPlane[0..7]_* fields each contain an unsigned 8-bit integer
 which represents the number of bytes which that plane contributes
 to the format. The first field which contains the value 0 indicates
 that only a subset of the 8 possible planes are present; that is,
-planes which are not present should be given the *bytes_plane* value
-of 0, and any *bytes_plane* values after the first 0 are ignored. If
-no *bytes_plane* value is zero, 8 planes are considered to exist.
+planes which are not present should be given the *_bytesPlane_* value
+of 0, and any *_bytesPlane_* values after the first 0 are ignored. If
+no *_bytesPlane_* value is zero, 8 planes are considered to exist.
 
-As an exception, if *bytes_plane_0* has the value 0, the first plane
+As an exception, if *_bytesPlane0_* has the value 0, the first plane
 is considered to hold indices into a color palette, which is described
 by one or more additional planes and samples in the normal way. The
 first sample in this case should describe a 1×1×1×1 texel holding an
 unsigned integer value. The number of bits used by the index should be
 encoded in this sample, with a maximum value of the largest palette
-entry held in *sample_upper*. Subsequent samples describe the entries in
+entry held in *_sampleUpper_*. Subsequent samples describe the entries in
 the palette, starting at an offset of bit 0. Note that the texel block in
 the index plane is not required to be byte-aligned in this case, and will
 not be for paletted formats which have small palettes. The channel type
@@ -1466,12 +1482,12 @@ for the index is irrelevant.
 
 For example, consider a 5-color paletted texture which describes each of
 these colors using 8 bits of red, green, blue and alpha. The color model
-would be RGBSDA, and the format would be described with two planes.
-bytes_plane_0 would be 0, indicating the special case of a palette, and
-bytes_plane_1 would be 4, representing the size of the palette entry.
+would be _RGBSDA_, and the format would be described with two planes.
+*_bytesPlane0_* would be 0, indicating the special case of a palette, and
+*_bytesPlane1_* would be 4, representing the size of the palette entry.
 The first sample would then have a number of bits corresponding to the
 number of bits for the palette -- in this case, three bits, corresponding
-the requirements of a 5-color palette. The *sample_upper* value for this
+to the requirements of a 5-color palette. The *_sampleUpper_* value for this
 sample is 4, indicating only 5 palette entries. Four subsequent samples
 represent the red, green, blue and alpha channels, starting from bit 0
 as though the index value were not present, and describe the contents of
@@ -1503,7 +1519,7 @@ Note that some native big-endian formats may need to be supported
 with multiple samples in a channel, since the constituent bits may
 not be consecutive in a little-endian interpretation. There is an
 example, <<bigendian>>, in the list of format descriptors provided.
-In this case, the *sample_lower* and *sample_upper* fields for the
+In this case, the *_sampleLower_* and *_sampleUpper_* fields for the
 combined sample are taken from the first sample to belong uniquely
 to this channel/position pair.
 
@@ -1513,93 +1529,94 @@ bit stream. Ties should be broken by increasing channel type id,
 as shown in <<intensity>>.
 
 The number of samples present in the format is determined by the
-*descriptor_block_size* field. There is no limit on the number of
-samples which may be present, other than the maximum size of the
-Data Format Descriptor Block. There is no requirement that samples
-should access unique parts of the bit-stream: formats such as
-combined intensity and alpha, or shared exponent formats, require
-that bits be reused. Nor is there a requirement that all the bits
-in a plane be used (a format may contain padding).
+*_descriptorBlockSize_* field.
+There is no limit on the number of samples which may be present,
+other than the maximum size of the Data Format Descriptor Block.
+There is no requirement that samples should access unique parts of
+the bit-stream: formats such as combined intensity and alpha, or
+shared exponent formats, require that bits be reused.
+Nor is there a requirement that all the bits in a plane be used
+(a format may contain padding).
 
 [[SampleOverview]]
 .Basic Data Format Descriptor Sample Information
 [options="header"]
 |================================
-| Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
-2+| bit_offset | bit_length | channel_type
-| sample_position_0 | sample_position_1 | sample_position_2 | sample_position_3
-4+| sample_lower
-4+| sample_upper
+| &nbsp; Byte 0 (LSB) | &nbsp; Byte 1 | &nbsp; Byte 2 | &nbsp; Byte 3 (MSB)
+2+| &nbsp; *_bitOffset_* | &nbsp; *_bitLength_* | &nbsp; *_channelType_*
+| &nbsp; *_samplePosition0_* | &nbsp; *_samplePosition1_* | &nbsp; *_samplePosition2_* | &nbsp; *_samplePosition3_*
+4+| &nbsp; *_sampleLower_*
+4+| &nbsp; *_sampleUpper_*
 |================================
 
-==== bit_offset ====
+==== *_bitOffset_* ====
 
-The *bit_offset* field describes the offset of the least significant
+The *_bitOffset_* field describes the offset of the least significant
 bit of this sample from the least significant bit of the least
 significant byte of the concatenated bit stream for the format.
-Typically the *bit_offset* of the first sample is therefore 0; a sample
+Typically the *_bitOffset_* of the first sample is therefore 0; a sample
 which begins at an offset of one byte relative to the data format
-would have a Bit Offset of 8. The Bit Offset is an unsigned 16-bit
+would have a *_bitOffset_* of 8. The *_bitOffset_* is an unsigned 16-bit
 integer quantity.
 
-==== bit_length ====
+==== *_bitLength_* ====
 
-The *bit_length* field describes the number of consecutive bits from
+The *_bitLength_* field describes the number of consecutive bits from
 the concatenated bit stream that contribute to the sample. This field
 is an unsigned 8-bit integer quantity, and stores the number of bits
-contributed minus 1; thus a single-byte channel should have a *bit_length*
-field value of 7. If a *bit_length* of more than 256 is required, further
+contributed minus 1; thus a single-byte channel should have a *_bitLength_*
+field value of 7. If a *_bitLength_* of more than 256 is required, further
 samples should be added; the value for the sample is composed in
 increasing order from least to most significant bit as subsequent
 samples are processed.
 
 <<<
-==== channel_type ====
+==== *_channelType_* ====
 
-The *channel_type* field is an unsigned 8-bit quantity.
+The *_channelType_* field is an unsigned 8-bit quantity.
 
-The bottom four bits of the *channel_type* indicates which channel is being
+The bottom four bits of the *_channelType_* indicates which channel is being
 described by this sample. The list of available channels is determined by
-the *color_model* field of the Basic Data Format Descriptor Block, and the
-*channel_type* field contains the number of the required channel within this
-list -- see the *color_model* field for the list of channels for each model.
+the *_colorModel_* field of the Basic Data Format Descriptor Block, and the
+*_channelType_* field contains the number of the required channel within this
+list -- see the *_colorModel_* field for the list of channels for each model.
 
-The top four bits of the *channel_type* are described by the
-*khr_df_sample_datatype_qualifiers_e* enumeration:
+The top four bits of the *_channelType_* are described by the
+*++khr_df_sample_datatype_qualifiers_e++* enumeration:
 
-If the *KHR_DF_SAMPLE_DATATYPE_LINEAR* bit is not set, the sample value is
-modified by the transfer function defined in the format's *transfer_function*
+If the *++KHR_DF_SAMPLE_DATATYPE_LINEAR++* bit is not set, the sample value is
+modified by the transfer function defined in the format's *_transferFunction_*
 field; if this bit is set, the sample is considered to contain a
-linearly-encoded value irrespective of the format's *transfer_function*.
+linearly-encoded value irrespective of the format's *_transferFunction_*.
 
-If the *KHR_DF_SAMPLE_DATATYPE_EXPONENT* bit is set, this sample holds an
+If the *++KHR_DF_SAMPLE_DATATYPE_EXPONENT++* bit is set, this sample holds an
 exponent (in integer form) for this channel. For example, this would be
 used to describe the shared exponent location in shared exponent formats
 (with the exponent bits listed separately under each channel). An exponent
 is applied to any integer sample of the same type. If this bit is not set,
 the sample is considered to contain mantissa information. If the
-*KHR_DF_SAMPLE_DATATYPE_SIGNED* bit is also set, the exponent is considered
+*++KHR_DF_SAMPLE_DATATYPE_SIGNED++* bit is also set, the exponent is considered
 to be two's complement -- otherwise it is treated as unsigned. The bias of
-the exponent can be determined by the exponent's *sample_lower* value. The
+the exponent can be determined by the exponent's *_sampleLower_* value. The
 presence or absence of an implicit leading digit in the mantissa of a format
-with an exponent can be determined by the *sample_upper* value of the
+with an exponent can be determined by the *_sampleUpper_* value of the
 mantissa.
 
-If the *KHR_DF_SAMPLE_DATATYPE_SIGNED* bit is set, the sample holds a signed
+If the *++KHR_DF_SAMPLE_DATATYPE_SIGNED++* bit is set, the sample holds a signed
 value in two's complement form. If this bit is not set, the sample holds
 an unsigned value. It is possible to represent a sign/magnitude integer
 value by having a sample of unsigned integer type with the same channel
 and sample location as a 1-bit signed sample.
 
-If the *KHR_DF_SAMPLE_DATATYPE_FLOAT* bit is set, the sample holds floating
+If the *++KHR_DF_SAMPLE_DATATYPE_FLOAT++* bit is set, the sample holds floating
 point data in a conventional format of 10, 11 or 16 bits, as described in
 <<fpformats>>, or of 32, or 64 bits as described in <<IEEE 754>>. Unless
-a genuine unsigned format is intended, *KHR_DF_SAMPLE_DATATYPE_SIGNED* should
+a genuine unsigned format is intended, *++KHR_DF_SAMPLE_DATATYPE_SIGNED++* should
 be set. Less common floating point representations can be generated with
 multiple samples and a combination of signed integer, unsigned integer and
 exponent fields, as described above and in <<customfp>>.
 
-==== sample_position_[0..3] ====
+==== *_samplePosition[0..3]_* ====
 
 The sample has an associated location within the 4-dimensional space of
 the texel block. Each sample has an offset relative to the 0,0 position
@@ -1612,8 +1629,8 @@ used by the API. There is no limit on the dimensionality of the data, but
 if more than four dimensions need to be contained within a single texel
 block, an extension will be required.
 
-Each *sample_position* is an 8-bit unsigned integer quantity.
-*sample_position_0* is the X offset of the sample, *sample_position_1*
+Each *_samplePosition_* is an 8-bit unsigned integer quantity.
+*_samplePosition0_* is the X offset of the sample, *_samplePosition1_*
 is the Y offset of the sample, etc. Formats which use an offset
 larger than 127.5 in any dimension require an extension.
 
@@ -1621,89 +1638,89 @@ It is legal, but unusual, to use the same bits to represent multiple
 samples at different coordinate locations.
 
 <<<
-==== sample_lower ====
+==== *_sampleLower_* ====
 
-*Sample_lower*, combined with *sample_upper*, is used to represent the
+*_sampleLower_*, combined with *_sampleUpper_*, is used to represent the
 mapping between the numerical value stored in the format and the
-conceptual numerical interpretation. For unsigned formats, *sample_lower*
+conceptual numerical interpretation. For unsigned formats, *_sampleLower_*
 typically represents the value which should be interpreted as zero
-(the black point). For signed formats, *sample_lower* typically
-represents ``-1''. For color difference models such as Y'C~B~C~R~,
-*sample_lower* represents the lower extent of the color difference
+(the black point). For signed formats, *_sampleLower_* typically
+represents ``-1''. For color difference models such as _Y&prime;C~B~C~R~_,
+*_sampleLower_* represents the lower extent of the color difference
 range (which corresponds to an encoding of -0.5 in numerical terms).
 
-If the channel encoding is an integer format, the *sample_lower* value
+If the channel encoding is an integer format, the *_sampleLower_* value
 is represented as a 32-bit integer -- signed or unsigned according to
 whether the channel encoding is signed. Signed negative values should
-be sign-extended if the channel has fewer than 32-bit, such that the
-value encoded in *sample_lower* is itself negative, If the channel
-encoding is a floating point value, the *sample_lower* value is also
+be sign-extended if the channel has fewer than 32 bits, such that the
+value encoded in *_sampleLower_* is itself negative. If the channel
+encoding is a floating point value, the *_sampleLower_* value is also
 floating point. If the number of bits in the sample is greater than 32,
-the lowest representable value for *sample_lower* is interpreted as
+the lowest representable value for *_sampleLower_* is interpreted as
 the smallest value representable in the channel format.
 
 If the channel consists of multiple co-sited integer samples, for example
 because the channel bits are non-contiguous, there are two possible
 behaviors. If the total number of bits in the channel is less than
-or equal to 32, the *sample_lower* values in the samples corresponding
+or equal to 32, the *_sampleLower_* values in the samples corresponding
 to the least-significant bits of the sample are ignored, and only the
-*sample_lower* from the most-significant sample is considered. If the
-number of bits in the channel exceeds 32, the *sample_lower* values
+*_sampleLower_* from the most-significant sample is considered. If the
+number of bits in the channel exceeds 32, the *_sampleLower_* values
 from the sample corresponding to the most-significant bits within any
 32-bit subset of the total number are concatenated to generate the
-final *sample_lower* value. For example, a 48-bit signed integer may
+final *_sampleLower_* value. For example, a 48-bit signed integer may
 be encoded in three 16-bit samples. The first sample, corresponding
-to the least-significant 16 bits, will have its *sample_lower* value
+to the least-significant 16 bits, will have its *_sampleLower_* value
 ignored. The next sample of 16 bits takes the total to 32, and so the
-*sample_lower* value of this sample should represent the lowest
-32 bits of the desired 48-bit virtual *sample_lower* value. Finally,
+*_sampleLower_* value of this sample should represent the lowest
+32 bits of the desired 48-bit virtual *_sampleLower_* value. Finally,
 the third sample indicates the top 16 bits of the 48-bit channel,
-and its *sample_lower* contains the top 16 bits of the 48-bit virtual
-*sample_lower* value.
+and its *_sampleLower_* contains the top 16 bits of the 48-bit virtual
+*_sampleLower_* value.
 
-The *sample_lower* value for an exponent should represent the exponent
+The *_sampleLower_* value for an exponent should represent the exponent
 bias -- the value that should be subtracted from the encoded exponent
-to indicate that the mantissa's *sample_upper* value will represent 1.0.
+to indicate that the mantissa's *_sampleUpper_* value will represent 1.0.
 See <<customfp>> for more detail on this.
 
 For example, the BT.709 television broadcast standard dictates that
-the Y' value stored in an 8-bit encoding should fall between the range
-16 and 235. In this case, *sample_lower* should contain the value 16.
+the _Y&prime;_ value stored in an 8-bit encoding should fall between the range
+16 and 235. In this case, *_sampleLower_* should contain the value 16.
 
 In OpenGL terminology, a ``normalized'' channel contains an integer value
 which is mapped to the range 0..1.0. A channel which is not normalized
 contains an integer value which is mapped to a floating point equivalent
 of the integer value. Similarly an ``snorm'' channel is a signed normalized
-value mapping from -1.0 to 1.0. Setting *sample_lower* to the minimum
+value mapping from -1.0 to 1.0. Setting *_sampleLower_* to the minimum
 signed integer value representable in the channel is equivalent to
 defining an ``snorm'' texture.
 
 <<<
-==== sample_upper ====
+==== *_sampleUpper_* ====
 
-*Sample_upper*, combined with *sample_lower*, is used to represent the
+*_sampleUpper_*, combined with *_sampleLower_*, is used to represent the
 mapping between the numerical value stored in the format and the
-conceptual numerical interpretation. *Sample_upper* typically represents
+conceptual numerical interpretation. *_sampleUpper_* typically represents
 the value which should be interpreted as ``1.0'' (the ``white point'').
-For color difference models such as Y'C~B~C~R~, *sample_upper* represents
-the lower extent of the color difference range (which corresponds to an
-encoding of 0.5 in numerical terms).
+For color difference models such as _Y&prime;C~B~C~R~_, *_sampleUpper_*
+represents the upper extent of the color difference range (which
+corresponds to an encoding of 0.5 in numerical terms).
 
-If the channel encoding is an integer format, the *sample_upper* value
+If the channel encoding is an integer format, the *_sampleUpper_* value
 is represented as a 32-bit integer -- signed or unsigned according to
 whether the channel encoding is signed. If the channel encoding is a
-floating point value, the *sample_upper* value is also floating point.
+floating point value, the *_sampleUpper_* value is also floating point.
 If the number of bits in the sample is greater than 32, the highest
-representable value for *sample_upper* is interpreted as the largest
+representable value for *_sampleUpper_* is interpreted as the largest
 value representable in the channel format. If the channel encoding
 is the mantissa of a custom floating point format (that is, the
 encoding is integer but the same sample location and channel is shared
 by a sample that encodes an exponent), the presence of an implicit
-"1" digit can be represented by setting the *sample_upper* value to
+``1'' digit can be represented by setting the *_sampleUpper_* value to
 a value one larger than can be encoded in the available bits for the
 mantissa, as described in <<customfp>>.
 
-The *sample_upper* value for an exponent should represent the largest
+The *_sampleUpper_* value for an exponent should represent the largest
 conventional legal exponent value. If the encoded exponent exceeds
 this value, the encoded floating point value encodes either an infinity
 or a _NaN_ value, depending on the mantissa. See <<customfp>> for more
@@ -1712,45 +1729,45 @@ detail on this.
 If the channel consists of multiple co-sited integer samples, for example
 because the channel bits are non-contiguous, there are two possible
 behaviors. If the total number of bits in the channel is less than
-or equal to 32, the *sample_upper* values in the samples corresponding
+or equal to 32, the *_sampleUpper_* values in the samples corresponding
 to the least-significant bits of the sample are ignored, and only the
-*sample_upper* from the most-significant sample is considered. If the
-number of bits in the channel exceeds 32, the *sample_upper* values
+*_sampleUpper_* from the most-significant sample is considered. If the
+number of bits in the channel exceeds 32, the *_sampleUpper_* values
 from the sample corresponding to the most-significant bits within any
 32-bit subset of the total number are concatenated to generate the
-final *sample_upper* value. For example, a 48-bit signed integer may
+final *_sampleUpper_* value. For example, a 48-bit signed integer may
 be encoded in three 16-bit samples. The first sample, corresponding
-to the least-significant 16 bits, will have its *sample_upper* value
+to the least-significant 16 bits, will have its *_sampleUpper_* value
 ignored. The next sample of 16 bits takes the total to 32, and so the
-*sample_upper* value of this sample should represent the lowest
-32 bits of the desired 48-bit virtual *sample_upper* value. Finally,
+*_sampleUpper_* value of this sample should represent the lowest
+32 bits of the desired 48-bit virtual *_sampleUpper_* value. Finally,
 the third sample indicates the top 16 bits of the 48-bit channel,
-and its *sample_upper* contains the top 16 bits of the 48-bit virtual
-*sample_upper* value.
+and its *_sampleUpper_* contains the top 16 bits of the 48-bit virtual
+*_sampleUpper_* value.
 
 For example, the BT.709 television broadcast standard dictates that
-the Y' value stored in an 8-bit encoding should fall between the range
-16 and 235. In this case, *sample_upper* should contain the value 235.
+the _Y&prime;_ value stored in an 8-bit encoding should fall between the range
+16 and 235. In this case, *_sampleUpper_* should contain the value 235.
 
 In OpenGL terminology, a ``normalized'' channel contains an integer value
 which is mapped to the range 0..1.0. A channel which is not normalized
 contains an integer value which is mapped to a floating point equivalent
 of the integer value. Similarly an ``snorm'' channel is a signed normalized
-value mapping from -1.0 to 1.0. Setting *sample_upper* to the maximum
+value mapping from -1.0 to 1.0. Setting *_sampleUpper_* to the maximum
 signed integer value representable in the channel for a signed channel type
-is equivalent to defining an ``snorm'' texture. Setting *sample_upper* to the
+is equivalent to defining an ``snorm'' texture. Setting *_sampleUpper_* to the
 maximum unsigned value representable in the channel for an unsigned channel
-type is equivalent to defining a ``normalized'' texture. Setting *sample_upper*
+type is equivalent to defining a ``normalized'' texture. Setting *_sampleUpper_*
 to ``1'' is equivalent to defining an ``unnormalized'' texture.
 
 Sensor data from a camera typically does not cover the full range of
-the bit depth used to represent it. *Sample_upper* can be used to specify
+the bit depth used to represent it. *_sampleUpper_* can be used to specify
 an upper limit on sensor brightness -- or to specify the value which should
 map to white on the display, which may be less than the full dynamic range
 of the captured image.
 
 There is no guarantee or expectation that image data be guaranteed to
-fall between *sample_lower* and *sample_upper* unless the users of a format
+fall between *_sampleLower_* and *_sampleUpper_* unless the users of a format
 agree that convention.
 
 == Extension for more complex formats ==
@@ -1764,7 +1781,7 @@ space required for the descriptor, and is not expected to be needed for
 most common uses. A vendor may also use an extension block to associate
 metadata with the descriptor -- for example, information required as part
 of hardware rendering. So long as software which uses the data format descriptor
-always uses the *total_size* field to determine the size of the descriptor,
+always uses the *_totalSize_* field to determine the size of the descriptor,
 this should be transparent to user code.
 
 The extension mechanism is the preferred way to support even simple extensions
@@ -1773,7 +1790,7 @@ an additional enumeration. This approach improves compatibility with code
 which is unaware of the additional values. Simple extensions of this form
 that have cross-vendor support have a good chance of being incorporated more
 directly into future revisions of the specification, allowing application code
-to distinguish them by the *version_id* field.
+to distinguish them by the *_versionId_* field.
 
 As an example, consider a single-channel 32-bit depth buffer, as shown
 in <<DepthExtensionExample>>. A tiled renderer
@@ -1792,35 +1809,48 @@ In this example (which should not be taken as an implementation suggestion),
 the data descriptor would first contain a descriptor block describing the
 depth buffer format as conventionally described, followed by a second descriptor
 block that contains only the enumeration. The descriptor itself has a
-*total_size* that includes both of these descriptor blocks.
+*_totalSize_* that includes both of these descriptor blocks.
 
 [[DepthExtensionExample]]
 .Example of a depth buffer with an extension to indicate a virtual allocation
 [width="100%",cols="1a"]
 |=============
-|56 (total_size: total size of the two blocks plus one 32-bit value)
-[width="100%",cols="4"]
+|&nbsp;56 (*_totalSize_*: total size of the two blocks plus one 32-bit value)
+[width="99%",cols="4"]
 !=============
-4+! _Basic descriptor block_
-2+! 0 (vendor_id) 2+! 0 (descriptor_type)
-2+! 0 (version_number) 2+! 40 (descriptor_block_size)
-! RGBSDA (color_model) ! UNSPECIFIED (color_primaries) ! UNSPECIFIED (transfer_function) ! 0 (flags)
-! 0 (texel_block_dimension_0) ! 0 (texel_block_dimension_1) ! 0 (texel_block_dimension_2) ! 0 (texel_block_dimension_3)
-! 4 (bytes_plane_0) ! 0 (bytes_plane_1) ! 0 (bytes_plane_2) ! 0 (bytes_plane_3)
-! 0 (bytes_plane_4) ! 0 (bytes_plane_5) ! 0 (bytes_plane_6) ! 0 (bytes_plane_7)
-4+!Sample information for the depth value
-2+! 0 (bit_offset) ! 32 (bit_length) ! SIGNED \| FLOAT \| DEPTH
-! 0 (sample_position_0) ! 0 (sample_position_1) ! 0 (sample_position_2) ! 0 (sample_position_3)
-4+! 0xbf800000 (sample_lower: -1.0f)
-4+! 0x3f800000U (sample_upper: 1.0f)
-4+! _Extension descriptor block_
-2+! 0xFFFF (vendor_id) 2+! 0 (descriptor_type)
-2+! 0 (version_number) 2+! 12 (descriptor_block_size)
-4+! _Data specific to the extension follows_
-4+! 1 (buffer is ``virtual'')
+4+^! &nbsp; ~Basic descriptor block~
+2+! &nbsp; 0 (*_vendorId_*) 2+! &nbsp; 0 (*_descriptorType_*)
+2+! &nbsp; 1 (*_versionNumber_*) 2+! &nbsp; 40 (*_descriptorBlockSize_*)
+! &nbsp; *++RGBSDA++* (*_colorModel_*) ! &nbsp; *++UNSPECIFIED++*
+
+&nbsp; (*_colorPrimaries_*) ! &nbsp; *++UNSPECIFIED++*
+
+&nbsp; (*_transferFunction_*) ! &nbsp; 0 (*_flags_*)
+! &nbsp; 0
+
+&nbsp; (*_texelBlockDimension0_*) ! &nbsp; 0
+
+&nbsp; (*_texelBlockDimension1_*) ! &nbsp; 0
+
+&nbsp; (*_texelBlockDimension2_*) ! &nbsp; 0
+
+&nbsp; (*_texelBlockDimension3_*)
+! &nbsp; 4 (*_bytesPlane0_*) ! &nbsp; 0 (*_bytesPlane1_*) ! &nbsp; 0 (*_bytesPlane2_*) ! &nbsp; 0 (*_bytesPlane3_*)
+! &nbsp; 0 (*_bytesPlane4_*) ! &nbsp; 0 (*_bytesPlane5_*) ! &nbsp; 0 (*_bytesPlane6_*) ! &nbsp; 0 (*_bytesPlane7_*)
+4+^! &nbsp; ~Sample information for the depth value~
+2+! &nbsp; 0 (*_bitOffset_*) ! &nbsp; 31 (= ``32'') (*_bitLength_*) ! &nbsp; *++SIGNED++* \| *++FLOAT++* \|
+
+&nbsp; *++DEPTH++*
+! &nbsp; 0 (*_samplePosition0_*) ! &nbsp; 0 (*_samplePosition1_*) ! &nbsp; 0 (*_samplePosition2_*) ! &nbsp; 0 (*_samplePosition3_*)
+4+! &nbsp; 0xbf800000 (*_sampleLower_*: -1.0f)
+4+! &nbsp; 0x3f800000U (*_sampleUpper_*: 1.0f)
+4+^! ~Extension descriptor block~
+2+! &nbsp; 0xFFFF (*_vendorId_*) 2+! &nbsp; 0 (*_descriptorType_*)
+2+! &nbsp; 0 (*_versionNumber_*) 2+! &nbsp; 12 (*_descriptorBlockSize_*)
+4+^! ~Data specific to the extension follows~
+4+! &nbsp; 1 (buffer is ``virtual'')
 !=============
 |=============
-
 
 It is possible for a vendor to use the extension block to store peripheral
 information required to access the image -- plane base addresses, stride, etc.
@@ -1884,7 +1914,7 @@ users of data -- particularly pixel-like data -- to have additional
 requirements. Capturing these requirements portably reduces the need
 for additional metadata to be associated with a proprietary descriptor.
 It is also common for additional functionality to be added retrospectively
-to existing libraries -- for example, Y'C~B~C~R~ support is often an
+to existing libraries -- for example, _Y&prime;C~B~C~R~_ support is often an
 afterthought in rendering APIs.
 Having a consistent and flexible representation in place from the start
 can reduce the pain of retrofitting this functionality.
@@ -1915,8 +1945,6 @@ comment sections. However, since many multilingual text representations
 do not have a fixed character size, this use is not seen as an obvious match
 for this standard.
 
-include::compformats.txt[]
-
 :frame: all
 :grid: all
 :halign: center
@@ -1932,9 +1960,9 @@ section.
 [[16bitfp]]
 === 16-bit floating-point numbers
 
-A 16-bit floating-point number has a 1-bit sign (latexmath:[$S$]), a 5-bit
-exponent (latexmath:[$E$]), and a 10-bit mantissa (latexmath:[$M$]). The
-value latexmath:[$V$] of a 16-bit floating-point number is determined by the
+A 16-bit floating-point number has a 1-bit sign (_S_), a 5-bit
+exponent (_E_), and a 10-bit mantissa (_M_).
+The value _V_ of a 16-bit floating-point number is determined by the
 following:
 
 [latexmath]
@@ -1947,14 +1975,14 @@ V =
                                             & E = 0,  M \neq 0 \\
     (-1)^S \times 2^{E-15} \times { \left( 1 + { M \over 2^{10} } \right) },
                                             & 0 < E < 31       \\
-    (-1)^S \times Inf,             & E = 31, M = 0             \\
-    NaN,                           & E = 31, M \neq 0
+    (-1)^S \times \mathit{Inf},             & E = 31, M = 0             \\
+    \mathit{NaN},                           & E = 31, M \neq 0
   \end{cases}
 \]
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 If the floating-point number is interpreted as an unsigned 16-bit integer
-latexmath:[$N$], then
+_N_, then
 
 [latexmath]
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1967,8 +1995,8 @@ latexmath:[$N$], then
 === Unsigned 11-bit floating-point numbers
 
 An unsigned 11-bit floating-point number has no sign bit, a 5-bit exponent
-(latexmath:[$E$]), and a 6-bit mantissa (latexmath:[$M$]). The value
-latexmath:[$V$] of an unsigned 11-bit floating-point number is determined by
+(_E_), and a 6-bit mantissa (_M_).
+The value _V_ of an unsigned 11-bit floating-point number is determined by
 the following:
 
 [latexmath]
@@ -1980,14 +2008,14 @@ V =
     2^{-14} \times { M \over 64 },          & E = 0, M \neq 0 \\
     2^{E-15} \times { \left( 1 + { M \over 64 } \right) },
                                             & 0 < E < 31      \\
-    Inf,                           & E = 31, M = 0            \\
-    NaN,                           & E = 31, M \neq 0
+    \mathit{Inf},                           & E = 31, M = 0            \\
+    \mathit{NaN},                           & E = 31, M \neq 0
   \end{cases}
 \]
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 If the floating-point number is interpreted as an unsigned 11-bit integer
-latexmath:[$N$], then
+_N_, then
 
 [latexmath]
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1999,8 +2027,8 @@ latexmath:[$N$], then
 === Unsigned 10-bit floating-point numbers
 
 An unsigned 10-bit floating-point number has no sign bit, a 5-bit
-exponent (latexmath:[$E$]), and a 5-bit mantissa (latexmath:[$M$]). The
-value latexmath:[$V$] of an unsigned 10-bit floating-point number is
+exponent (_E_), and a 5-bit mantissa (_M_).
+The value _V_ of an unsigned 10-bit floating-point number is
 determined by the following:
 
 [latexmath]
@@ -2012,14 +2040,14 @@ V =
     2^{-14} \times { M \over 32 },          & E = 0, M \neq 0 \\
     2^{E-15} \times { \left( 1 + { M \over 32 } \right) },
                                             & 0 < E < 31      \\
-    Inf,                           & E = 31, M = 0   \\
-    NaN,                           & E = 31, M \neq 0
+    \mathit{Inf},                           & E = 31, M = 0   \\
+    \mathit{NaN},                           & E = 31, M \neq 0
   \end{cases}
 \]
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 If the floating-point number is interpreted as an unsigned 10-bit integer
-latexmath:[$N$], then
+_N_, then
 
 [latexmath]
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -2034,7 +2062,7 @@ Rather than attempting to enumerate every possible floating-point
 format variation in this specification, the data format descriptor
 can be used to describe the components of arbitrary floating-point
 data, as follows. Note that non-standard floating point formats do
-not use the *KHR_DF_SAMPLE_DATATYPE_FLOAT* bit.
+not use the *++KHR_DF_SAMPLE_DATATYPE_FLOAT++* bit.
 
 An example of use of the 16-bit floating point format described in
 <<16bitfp>> but described in terms of a custom floating point format
@@ -2046,17 +2074,17 @@ using the standard 16-bit floating point format as documented in
 ==== The mantissa
 
 The mantissa of a custom floating point format should be represented
-as an integer *channel_type*. If the mantissa represents a signed
-quantity encoded in two's complement, the *KHR_DF_SAMPLE_DATATYPE_SIGNED*
+as an integer *_channelType_*. If the mantissa represents a signed
+quantity encoded in two's complement, the *++KHR_DF_SAMPLE_DATATYPE_SIGNED++*
 bit should be set. To encode a signed mantissa represented in
 sign-magnitude format, the main part of the mantissa should be
 represented as an unsigned integer quantity (with
-*KHR_DF_SAMPLE_DATATYPE_SIGNED* not set), and an additional one-bit
-sample _with_ *KHR_DF_SAMPLE_DATATYPE_SIGNED* set should be used
+*++KHR_DF_SAMPLE_DATATYPE_SIGNED++* not set), and an additional one-bit
+sample _with_ *++KHR_DF_SAMPLE_DATATYPE_SIGNED++* set should be used
 to identify the sign bit. By convention, a sign bit should be encoded
 in a later sample than the corresponding mantissa.
 
-The *sample_upper* and *sample_lower* values for the mantissa should be
+The *_sampleUpper_* and *_sampleLower_* values for the mantissa should be
 set to indicate the representation of 1.0 and 0.0 (for unsigned formats)
 or -1.0 (for signed formats) respectively when the exponent is in a
 0 position after any bias has been corrected. If there is an implicit
@@ -2064,31 +2092,31 @@ or -1.0 (for signed formats) respectively when the exponent is in a
 represented in the number of available mantissa bits.
 
 For example, the shared exponent formats shown in <<r9g9b9e5>> does not
-have an implicit ``1'' bit, and therefore the *sample_upper* values for
+have an implicit ``1'' bit, and therefore the *_sampleUpper_* values for
 the 9-bit mantissas are 256 -- this being the mantissa value for 1.0
 when the exponent is set to 0.
 
 For the 16-bit signed floating point format described in <<16bitfp>>,
-*sample_upper* should be set to 1024, indicating the implicit ``1'' bit
-which is above the 10 bits representable in the mantissa. *sample_lower*
+*_sampleUpper_* should be set to 1024, indicating the implicit ``1'' bit
+which is above the 10 bits representable in the mantissa. *_sampleLower_*
 should be 0 in this case, since the mantissa uses a sign-magnitude
 representation.
 
-By convention, the *sample_upper* and *sample_lower* values for a sign
+By convention, the *_sampleUpper_* and *_sampleLower_* values for a sign
 bit are 0 and -1 respectively.
 
 === The exponent
 
-The *KHR_DF_SAMPLE_DATATYPE_EXPONENT* bit should be set in a sample
+The *++KHR_DF_SAMPLE_DATATYPE_EXPONENT++* bit should be set in a sample
 which contains the exponent of a custom floating point format.
 
-The *sample_lower* for the exponent should indicate the exponent bias.
+The *_sampleLower_* for the exponent should indicate the exponent bias.
 That is, the mantissa should be scaled by two raised to the power of
-the stored exponent minus this *sample_lower* value.
+the stored exponent minus this *_sampleLower_* value.
 
-The *sample_upper* for the exponent indicates the maximum legal
+The *_sampleUpper_* for the exponent indicates the maximum legal
 exponent value. Values above this are used to encode infinities and
-not-a-number (_NaN_) values. *Sample_upper* can therefore be used to
+not-a-number (_NaN_) values. *_sampleUpper_* can therefore be used to
 indicate whether or not the format supports these encodings.
 
 === Special values
@@ -2104,13 +2132,13 @@ the exponent is 0, the ``1'' bit becomes explicit and the exponent
 is considered to be the negative sample bias minus one.
 
 Floating point values encoded with an exponent larger than the
-exponent's *sample_upper* value and with a mantissa of 0 are
+exponent's *_sampleUpper_* value and with a mantissa of 0 are
 interpreted as representing +/- infinity, depending on the value
 of an explicit sign bit. Note that in some formats, no exponent
-above *sample_upper* is possible -- for example, <<r9g9b9e5>>.
+above *_sampleUpper_* is possible -- for example, <<r9g9b9e5>>.
 
 Floating point values encoded with an exponent larger than the
-exponent's *sample_upper* value and with a mantissa of non-0
+exponent's *_sampleUpper_* value and with a mantissa of non-0
 are interpreted as representing not-a-number (_NaN_).
 
 Note that these interpretations are compatible with the
@@ -2128,16 +2156,16 @@ be converted from its representation to a real value as follows:
 V =
   \begin{cases}
     (-1)^S \times 0.0,             & E = 0, M = 0    \\
-    (-1)^S \times 2^{-(E_{sample\_lower}-1)} \times { M \over M_{sample\_upper} },  & E = 0, M \neq 0 \\
-    (-1)^S \times 2^{E-E_{sample\_lower}} \times { \left( 1 + { M \over M_{sample\_upper} } \right) },
-                                   & 0 < E \leq E_{sample\_upper}   \\
-    (-1)^S \times Inf,             & E > E_{sample\_upper}, M = 0   \\
-    NaN,                           & E > E_{sample\_upper}, M \neq 0.
+    (-1)^S \times 2^{-(E_\mathit{sampleLower}-1)} \times { M \over M_\mathit{sampleUpper} },  & E = 0, M \neq 0 \\
+    (-1)^S \times 2^{E-E_\mathit{sampleLower}} \times { \left( 1 + { M \over M_\mathit{sampleUpper} } \right) },
+                                   & 0 < E \leq E_\mathit{sampleUpper}   \\
+    (-1)^S \times \mathit{Inf},    & E > E_\mathit{sampleUpper}, M = 0   \\
+    \mathit{NaN},                  & E > E_\mathit{sampleUpper}, M \neq 0.
   \end{cases}
 \]
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-If there is no implicit ``1'' bit (that is, the *sample_upper* value
+If there is no implicit ``1'' bit (that is, the *_sampleUpper_* value
 of the mantissa is representable in the number of bits assigned to the
 mantissa), the value can be converted to a real value as follows:
 
@@ -2146,10 +2174,10 @@ mantissa), the value can be converted to a real value as follows:
 \[
 V =
   \begin{cases}
-    (-1)^S \times 2^{E-E_{sample\_lower}} \times { \left( { M \over M_{sample\_upper} } \right) },
-                                   & 0 < E \leq E_{sample\_upper}   \\
-    (-1)^S \times Inf,             & E > E_{sample\_upper}, M = 0   \\
-    NaN,                           & E > E_{sample\_upper}, M \neq 0.
+    (-1)^S \times 2^{E-E_{\mathit{sampleUower}}} \times { \left( { M \over M_\mathit{sampleUpper} } \right) },
+                                   & 0 < E \leq E_\mathit{sampleUpper}   \\
+    (-1)^S \times \mathit{Inf},    & E > E_\mathit{sampleUpper}, M = 0   \\
+    \mathit{NaN},                  & E > E_\mathit{sampleUpper}, M \neq 0.
   \end{cases}
 \]
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -2162,9 +2190,9 @@ equations simplify to:
 
 [latexmath]
 +++++++++++++++++++
-    $$red   = red_{shared}\times 2^{(exp_{shared}-B-N)}$$
-    $$green = green_{shared}\times 2^{(exp_{shared}-B-N)}$$
-    $$blue  = blue_{shared}\times 2^{(exp_{shared}-B-N)}$$
+    $$red   = \mathit{red}_\mathrm{shared}\times 2^{(\mathit{exp}_\mathrm{shared}-B-N)}$$
+    $$green = \mathit{green}_\mathrm{shared}\times 2^{(\mathit{exp}_\mathrm{shared}-B-N)}$$
+    $$blue  = \mathit{blue}_\mathrm{shared}\times 2^{(\mathit{exp}_\mathrm{shared}-B-N)}$$
 +++++++++++++++++++
 
 Where:
@@ -2180,147 +2208,180 @@ may require rounding, truncation and special value management rules which
 are beyond the scope of a data format specification and may be documented
 in APIs which generate these formats.
 
-include::conversions.txt[]
-
-include::references.txt[]
-
 == Example format descriptors ==
 
 .Four co-sited 8-bit sRGB channels, assuming premultiplied alpha
 [options="header"]
 |================================
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
-4+| 92 (total_size)
-2+| 0 (vendor_id) 2+| 0 (descriptor_type)
-2+| 0 (version number) 2+| 88 (descriptor_block_size)
-| RGBSDA (color_model) | BT709 (color_primaries) | SRGB (transfer_function) | PREMULTIPLIED (flags)
-| 0 (texel_block_dimension_0) | 0 (texel_block_dimension_1) | 0 (texel_block_dimension_2) | 0 (texel_block_dimension_3)
-| 4 (bytes_plane_0) | 0 (bytes_plane_1) | 0 (bytes_plane_2) | 0 (bytes_plane_3)
-| 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
-4+|*Sample information for first sample*
-2+| 0 (bit_offset) | 8 (bit_length) | 0 (channel_type) (red)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 255 (sample_upper)
-4+|*Sample information for second sample*
-2+| 8 (bit_offset) | 8 (bit_length) | 1 (channel_type) (green)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 255 (sample_upper)
-4+|*Sample information for third sample*
-2+| 16 (bit_offset) | 8 (bit_length) | 2 (channel_type) (blue)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 255 (sample_upper)
-4+|*Sample information for fourth sample*
-2+| 24 (bit_offset) | 8 (bit_length) | 31 (channel_type) (alpha+linear)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 255 (sample_upper)
+4+| 92 (*_totalSize_*)
+2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
+2+| 1 (*_versionNumber_*) 2+| 88 (*_descriptorBlockSize_*)
+| *++RGBSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++SRGB++* (*_transferFunction_*) | *++PREMULTIPLIED++* (*_flags_*)
+| 0 (*_texelBlockDimension0_*) | 0 (*_texelBlockDimension1_*) | 0 (*_texelBlockDimension2_*) | 0 (*_texelBlockDimension3_*)
+| 4 (*_bytesPlane0_*) | 0 (*_bytesPlane1_*) | 0 (*_bytesPlane2_*) | 0 (*_bytesPlane3_*)
+| 0 (*_bytesPlane4_*) | 0 (*_bytesPlane5_*) | 0 (*_bytesPlane6_*) | 0 (*_bytesPlane7_*)
+4+^|~Sample information for the first sample~
+2+| 0 (*_bitOffset_*) | 7 (= ``8'') (*_bitLength_*) | 0 (*_channelType_*) (*++RED++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 255 (*_sampleUpper_*)
+4+^|~Sample information for the second sample~
+2+| 8 (*_bitOffset_*) | 7 (= ``8'') (*_bitLength_*) | 1 (*_channelType_*) (*++GREEN++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 255 (*_sampleUpper_*)
+4+^|~Sample information for the third sample~
+2+| 16 (*_bitOffset_*) | 7 (= ``8'') (*_bitLength_*) | 2 (*_channelType_*) (*++BLUE++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 255 (*_sampleUpper_*)
+4+^|~Sample information for the fourth sample~
+2+| 24 (*_bitOffset_*) | 7 (= ``8'') (*_bitLength_*) | 31 (*_channelType_*)
+
+(*++ALPHA++* \| *++LINEAR++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 255 (*_sampleUpper_*)
+|================================
+
+[[565DFD]]
+.565 _RGB_ packed 16-bit format as written to memory by a little-endian architecture
+[options="header"]
+|================================
+| Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
+4+| 76 (*_totalSize_*)
+2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
+2+| 1 (*_versionNumber_*) 2+| 72 (*_descriptorBlockSize_*)
+| *++RGBSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++LINEAR++* (*_transferFunction_*) | *++ALPHA_STRAIGHT++* (*_flags_*)
+| 0 (*_texelBlockDimension0_*) | 0 (*_texelBlockDimension1_*) | 0 (*_texelBlockDimension2_*) | 0 (*_texelBlockDimension3_*)
+| 2 (*_bytesPlane0_*) | 0 (*_bytesPlane1_*) | 0 (*_bytesPlane2_*) | 0 (*_bytesPlane3_*)
+| 0 (*_bytesPlane4_*) | 0 (*_bytesPlane5_*) | 0 (*_bytesPlane6_*) | 0 (*_bytesPlane7_*)
+4+^|~Sample information for the first sample: 5 bits of blue~
+2+| 0 (*_bitOffset_*) | 4 (= ``5'') (*_bitLength_*) | 2 (*_channelType_*) (*++BLUE++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 31 (*_sampleUpper_*)
+4+^|~Sample information for the second sample: 6 bits of green~
+2+| 5 (*_bitOffset_*) | 5 (= ``6'') (*_bitLength_*) | 1 (*_channelType_*) (*++GREEN++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 63 (*_sampleUpper_*)
+4+^|~Sample information for the third sample: 5 bits of red~
+2+| 11 (*_bitOffset_*) | 4 (= ``5'') (*_bitLength_*) | 0 (*_channelType_*) (*++RED++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 31 (*_sampleUpper_*)
 |================================
 
 .A single 8-bit monochrome channel
 [options="header"]
 |================================
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
-4+| 44 (total_size)
-2+| 0 (vendor_id) 2+| 0 (descriptor_type)
-2+| 0 (version number) 2+| 40 (descriptor_block_size)
-| YUVSDA (color_model) | BT709 (color_primaries) | ITU (transfer_function) | ALPHA_STRAIGHT (flags)
-| 0 (texel_block_dimension_0) | 0 (texel_block_dimension_1) | 0 (texel_block_dimension_2) | 0 (texel_block_dimension_3)
-| 4 (bytes_plane_0) | 0 (bytes_plane_1) | 0 (bytes_plane_2) | 0 (bytes_plane_3)
-| 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
-4+|*Sample information for first sample*
-2+| 0 (bit_offset) | 8 (bit_length) | 0 (channel_type) (Y)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 255 (sample_upper)
+4+| 44 (*_totalSize_*)
+2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
+2+| 1 (*_versionNumber_*) 2+| 40 (*_descriptorBlockSize_*)
+| *++YUVSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++ITU++* (*_transferFunction_*) | *++ALPHA_STRAIGHT++* (*_flags_*)
+| 0 (*_texelBlockDimension0_*) | 0 (*_texelBlockDimension1_*) | 0 (*_texelBlockDimension2_*) | 0 (*_texelBlockDimension3_*)
+| 4 (*_bytesPlane0_*) | 0 (*_bytesPlane1_*) | 0 (*_bytesPlane2_*) | 0 (*_bytesPlane3_*)
+| 0 (*_bytesPlane4_*) | 0 (*_bytesPlane5_*) | 0 (*_bytesPlane6_*) | 0 (*_bytesPlane7_*)
+4+^|~Sample information for the first sample~
+2+| 0 (*_bitOffset_*) | 7 (= ``8'') (*_bitLength_*) | 0 (*_channelType_*) (*++Y++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 255 (*_sampleUpper_*)
 |================================
 
-.A single 1-bit monochrome channel, as an 8×1 texel block to allow byte-alignment
+.A single 1-bit monochrome channel, as an 8×1 texel block to allow byte-alignment, part 1 of 2
 [options="header"]
 |================================
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
-4+| 156 (total_size)
-2+| 0 (vendor_id) 2+| 0 (descriptor_type)
-2+| 0 (version number) 2+| 152 (descriptor_block_size)
-| YUVSDA (color_model) | BT709 (color_primaries) | ITU (transfer_function) | ALPHA_STRAIGHT (flags)
-| 7 (texel_block_dimension_0) | 0 (texel_block_dimension_1) | 0 (texel_block_dimension_2) | 0 (texel_block_dimension_3)
-| 1 (bytes_plane_0) | 0 (bytes_plane_1) | 0 (bytes_plane_2) | 0 (bytes_plane_3)
-| 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
-4+|*Sample information for first sample*
-2+| 0 (bit_offset) | 1 (bit_length) | 0 (channel_type) (Y)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 1 (sample_upper)
-4+|*Sample information for second sample*
-2+| 1 (bit_offset) | 1 (bit_length) | 0 (channel_type) (Y)
-| 2 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 1 (sample_upper)
-4+|*Sample information for third sample*
-2+| 2 (bit_offset) | 1 (bit_length) | 0 (channel_type) (Y)
-| 4 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 1 (sample_upper)
-4+|*Sample information for fourth sample*
-2+| 3 (bit_offset) | 1 (bit_length) | 0 (channel_type) (Y)
-| 6 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 1 (sample_upper)
-4+|*Sample information for fifth sample*
-2+| 4 (bit_offset) | 1 (bit_length) | 0 (channel_type) (Y)
-| 8 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 1 (sample_upper)
-4+|*Sample information for sixth sample*
-2+| 5 (bit_offset) | 1 (bit_length) | 0 (channel_type) (Y)
-| 10 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 1 (sample_upper)
-4+|*Sample information for seventh sample*
-2+| 6 (bit_offset) | 1 (bit_length) | 0 (channel_type) (Y)
-| 12 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 1 (sample_upper)
-4+|*Sample information for eighth sample*
-2+| 7 (bit_offset) | 1 (bit_length) | 0 (channel_type) (Y)
-| 14 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 1 (sample_upper)
+4+| 156 (*_totalSize_*)
+2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
+2+| 1 (*_versionNumber_*) 2+| 152 (*_descriptorBlockSize_*)
+| *++YUVSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++LINEAR++* (*_transferFunction_*) | *++ALPHA_STRAIGHT++* (*_flags_*)
+| 7 (*_texelBlockDimension0_*) | 0 (*_texelBlockDimension1_*) | 0 (*_texelBlockDimension2_*) | 0 (*_texelBlockDimension3_*)
+| 1 (*_bytesPlane0_*) | 0 (*_bytesPlane1_*) | 0 (*_bytesPlane2_*) | 0 (*_bytesPlane3_*)
+| 0 (*_bytesPlane4_*) | 0 (*_bytesPlane5_*) | 0 (*_bytesPlane6_*) | 0 (*_bytesPlane7_*)
+4+^|~Sample information for the first sample~
+2+| 0 (*_bitOffset_*) | 0 (= ``1'') (*_bitLength_*) | 0 (*_channelType_*) (*++Y++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 1 (*_sampleUpper_*)
+4+^|~Sample information for the second sample~
+2+| 1 (*_bitOffset_*) | 0 (= ``1'') (*_bitLength_*) | 0 (*_channelType_*) (*++Y++*)
+| 2 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 1 (*_sampleUpper_*)
+4+^|~Sample information for the third sample~
+2+| 2 (*_bitOffset_*) | 0 (= ``1'') (*_bitLength_*) | 0 (*_channelType_*) (*++Y++*)
+| 4 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 1 (*_sampleUpper_*)
 |================================
 
-.2×2 Bayer pattern: four 8-bit distributed sRGB channels, spread across two lines (so two planes)
+.A single 1-bit monochrome channel, as an 8×1 texel block to allow byte-alignment, part 2 of 2
 [options="header"]
 |================================
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
-4+| 92 (total_size)
-2+| 0 (vendor_id) 2+| 0 (descriptor_type)
-2+| 0 (version number) 2+| 88 (descriptor_block_size)
-| RGBSDA (color_model) | BT709 (color_primaries) | SRGB (transfer_function) | PREMULTIPLIED (flags)
-| 1 (texel_block_dimension_0) | 1 (texel_block_dimension_1) | 0 (texel_block_dimension_2) | 0 (texel_block_dimension_3)
-| 2 (bytes_plane_0) | 2 (bytes_plane_1) | 0 (bytes_plane_2) | 0 (bytes_plane_3)
-| 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
-4+|*Sample information for first sample*
-2+| 0 (bit_offset) | 8 (bit_length) | 0 (channel_type) (red)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 255 (sample_upper)
-4+|*Sample information for second sample*
-2+| 8 (bit_offset) | 8 (bit_length) | 1 (channel_type) (green)
-| 2 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 255 (sample_upper)
-4+|*Sample information for third sample*
-2+| 16 (bit_offset) | 8 (bit_length) | 1 (channel_type) (green)
-| 0 (sample_position_0) | 2 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 255 (sample_upper)
-4+|*Sample information for fourth sample*
-2+| 24 (bit_offset) | 8 (bit_length) | 2 (channel_type) (blue)
-| 2 (sample_position_0) | 2 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 255 (sample_upper)
+4+^|~Sample information for the fourth sample~
+2+| 3 (*_bitOffset_*) | 0 (= ``1'') (*_bitLength_*) | 0 (*_channelType_*) (*++Y++*)
+| 6 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 1 (*_sampleUpper_*)
+4+^|~Sample information for the fifth sample~
+2+| 4 (*_bitOffset_*) | 0 (= ``1'') (*_bitLength_*) | 0 (*_channelType_*) (*++Y++*)
+| 8 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 1 (*_sampleUpper_*)
+4+^|~Sample information for the sixth sample~
+2+| 5 (*_bitOffset_*) | 0 (= ``1'') (*_bitLength_*) | 0 (*_channelType_*) (*++Y++*)
+| 10 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 1 (*_sampleUpper_*)
+4+^|~Sample information for the seventh sample~
+2+| 6 (*_bitOffset_*) | 0 (= ``1'') (*_bitLength_*) | 0 (*_channelType_*) (*++Y++*)
+| 12 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 1 (*_sampleUpper_*)
+4+^|~Sample information for the eighth sample~
+2+| 7 (*_bitOffset_*) | 0 (= ``1'') (*_bitLength_*) | 0 (*_channelType_*) (*++Y++*)
+| 14 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 1 (*_sampleUpper_*)
+|================================
+
+.2×2 Bayer pattern: four 8-bit distributed sRGB channels, spread across two lines (as two planes)
+[options="header"]
+|================================
+| Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
+4+| 92 (*_totalSize_*)
+2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
+2+| 1 (*_versionNumber_*) 2+| 88 (*_descriptorBlockSize_*)
+| *++RGBSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++SRGB++* (*_transferFunction_*) | *++ALPHA_STRAIGHT++* (*_flags_*)
+| 1 (*_texelBlockDimension0_*) | 1 (*_texelBlockDimension1_*) | 0 (*_texelBlockDimension2_*) | 0 (*_texelBlockDimension3_*)
+| 2 (*_bytesPlane0_*) | 2 (*_bytesPlane1_*) | 0 (*_bytesPlane2_*) | 0 (*_bytesPlane3_*)
+| 0 (*_bytesPlane4_*) | 0 (*_bytesPlane5_*) | 0 (*_bytesPlane6_*) | 0 (*_bytesPlane7_*)
+4+^|~Sample information for the first sample~
+2+| 0 (*_bitOffset_*) | 7 (= ``8'') (*_bitLength_*) | 0 (*_channelType_*) (*++RED++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 255 (*_sampleUpper_*)
+4+^|~Sample information for the second sample~
+2+| 8 (*_bitOffset_*) | 7 (= ``8'') (*_bitLength_*) | 1 (*_channelType_*) (*++GREEN++*)
+| 2 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 255 (*_sampleUpper_*)
+4+^|~Sample information for the third sample~
+2+| 16 (*_bitOffset_*) | 7 (= ``8'') (*_bitLength_*) | 1 (*_channelType_*) (*++GREEN++*)
+| 0 (*_samplePosition0_*) | 2 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 255 (*_sampleUpper_*)
+4+^|~Sample information for the fourth sample~
+2+| 24 (*_bitOffset_*) | 7 (= ``8'') (*_bitLength_*) | 2 (*_channelType_*) (*++BLUE++*)
+| 2 (*_samplePosition0_*) | 2 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 255 (*_sampleUpper_*)
 |================================
 
 [[palette]]
@@ -2328,115 +2389,117 @@ include::references.txt[]
 [options="header"]
 |================================
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
-4+| 108 (total_size)
-2+| 0 (vendor_id) 2+| 0 (descriptor_type)
-2+| 0 (version number) 2+| 104 (descriptor_block_size)
-| RGBSDA (color_model) | BT709 (color_primaries) | SRGB (transfer_function) | PREMULTIPLIED (flags)
-| 0 (texel_block_dimension_0) | 0 (texel_block_dimension_1) | 0 (texel_block_dimension_2) | 0 (texel_block_dimension_3)
-| 0 (bytes_plane_0) | 4 (bytes_plane_1) | 0 (bytes_plane_2) | 0 (bytes_plane_3)
-| 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
-4+|*Sample information for the palette index*
-2+| 0 (bit_offset) | 3 (bit_length) | 0 (channel_type) (irrelevant)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 4 (sample_upper) -- this specifies that there are 5 palette entries
-4+|*Sample information for first sample*
-2+| 0 (bit_offset) | 8 (bit_length) | 0 (channel_type) (red)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 255 (sample_upper)
-4+|*Sample information for second sample*
-2+| 8 (bit_offset) | 8 (bit_length) | 1 (channel_type) (green)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 255 (sample_upper)
-4+|*Sample information for third sample*
-2+| 16 (bit_offset) | 8 (bit_length) | 2 (channel_type) (blue)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 255 (sample_upper)
-4+|*Sample information for fourth sample*
-2+| 24 (bit_offset) | 8 (bit_length) | 31 (channel_type) (alpha+linear)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 255 (sample_upper)
+4+| 108 (*_totalSize_*)
+2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
+2+| 1 (*_versionNumber_*) 2+| 104 (*_descriptorBlockSize_*)
+| *++RGBSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++SRGB++* (*_transferFunction_*) | *++PREMULTIPLIED++* (*_flags_*)
+| 0 (*_texelBlockDimension0_*) | 0 (*_texelBlockDimension1_*) | 0 (*_texelBlockDimension2_*) | 0 (*_texelBlockDimension3_*)
+| 0 (*_bytesPlane0_*) | 4 (*_bytesPlane1_*) | 0 (*_bytesPlane2_*) | 0 (*_bytesPlane3_*)
+| 0 (*_bytesPlane4_*) | 0 (*_bytesPlane5_*) | 0 (*_bytesPlane6_*) | 0 (*_bytesPlane7_*)
+4+^|~Sample information for the palette index~
+2+| 0 (*_bitOffset_*) | 2 (= ``3'') (*_bitLength_*) | 0 (*_channelType_*) (irrelevant)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 4 (*_sampleUpper_*) -- this specifies that there are 5 palette entries
+4+^|~Sample information for the first sample~
+2+| 0 (*_bitOffset_*) | 7 (= ``8'') (*_bitLength_*) | 0 (*_channelType_*) (*++RED++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 255 (*_sampleUpper_*)
+4+^|~Sample information for the second sample~
+2+| 8 (*_bitOffset_*) | 7 (= ``8'') (*_bitLength_*) | 1 (*_channelType_*) (*++GREEN++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 255 (*_sampleUpper_*)
+4+^|~Sample information for the third sample~
+2+| 16 (*_bitOffset_*) | 7 (= ``8'') (*_bitLength_*) | 2 (*_channelType_*) (*++BLUE++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 255 (*_sampleUpper_*)
+4+^|~Sample information for the fourth sample~
+2+| 24 (*_bitOffset_*) | 7 (= ``8'') (*_bitLength_*) | 31 (*_channelType_*)
+
+(*++ALPHA++* \| *++LINEAR++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 255 (*_sampleUpper_*)
 |================================
 
-.Y'C~B~C~R~ 4:2:0: BT.709 reduced-range data, with C~B~ and C~R~ aligned to the midpoint of the Y samples.
+._Y&prime;C~B~C~R~_ 4:2:0: BT.709 reduced-range data, with _C~B~_ and _C~R~_ aligned to the midpoint of the _Y_ samples
 [options="header"]
 |================================
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
-4+| 124 (total_size)
-2+| 0 (vendor_id) 2+| 0 (descriptor_type)
-2+| 0 (version number) 2+| 120 (descriptor_block_size)
-| YUVSDA (color_model) | BT709 (color_primaries) | ITU (transfer_function) | PREMULTIPLIED (flags)
-| 1 (texel_block_dimension_0) | 1 (texel_block_dimension_1) | 0 (texel_block_dimension_2) | 0 (texel_block_dimension_3)
-| 2 (bytes_plane_0) | 2 (bytes_plane_1) | 1 (bytes_plane_2) | 1 (bytes_plane_3)
-| 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
-4+|*Sample information for first Y sample*
-2+| 0 (bit_offset) | 8 (bit_length) | 0 (channel_type) (Y)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 16 (sample_lower)
-4+| 235 (sample_upper)
-4+|*Sample information for second Y sample*
-2+| 8 (bit_offset) | 8 (bit_length) | 0 (channel_type) (Y)
-| 2 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 16 (sample_lower)
-4+| 235 (sample_upper)
-4+|*Sample information for third Y sample*
-2+| 16 (bit_offset) | 8 (bit_length) | 0 (channel_type) (Y)
-| 0 (sample_position_0) | 2 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 16 (sample_lower)
-4+| 235 (sample_upper)
-4+|*Sample information for fourth Y sample*
-2+| 24 (bit_offset) | 8 (bit_length) | 0 (channel_type) (Y)
-| 2 (sample_position_0) | 2 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 16 (sample_lower)
-4+| 235 (sample_upper)
-4+|*Sample information for U sample*
-2+| 32 (bit_offset) | 8 (bit_length) | 1 (channel_type) (U)
-| 1 (sample_position_0) | 1 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 16 (sample_lower)
-4+| 240 (sample_upper)
-4+|*Sample information for V sample*
-2+| 36 (bit_offset) | 8 (bit_length) | 2 (channel_type) (V)
-| 1 (sample_position_0) | 1 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 16 (sample_lower)
-4+| 240 (sample_upper)
+4+| 124 (*_totalSize_*)
+2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
+2+| 1 (*_versionNumber_*) 2+| 120 (*_descriptorBlockSize_*)
+| *++YUVSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++ITU++* (*_transferFunction_*) | *++ALPHA_STRAIGHT++* (*_flags_*)
+| 1 (*_texelBlockDimension0_*) | 1 (*_texelBlockDimension1_*) | 0 (*_texelBlockDimension2_*) | 0 (*_texelBlockDimension3_*)
+| 2 (*_bytesPlane0_*) | 2 (*_bytesPlane1_*) | 1 (*_bytesPlane2_*) | 1 (*_bytesPlane3_*)
+| 0 (*_bytesPlane4_*) | 0 (*_bytesPlane5_*) | 0 (*_bytesPlane6_*) | 0 (*_bytesPlane7_*)
+4+^|~Sample information for the first _Y_ sample~
+2+| 0 (*_bitOffset_*) | 7 (= ``8'') (*_bitLength_*) | 0 (*_channelType_*) (*++Y++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 16 (*_sampleLower_*)
+4+| 235 (*_sampleUpper_*)
+4+^|~Sample information for the second _Y_ sample~
+2+| 8 (*_bitOffset_*) | 7 (= ``8'') (*_bitLength_*) | 0 (*_channelType_*) (*++Y++*)
+| 2 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 16 (*_sampleLower_*)
+4+| 235 (*_sampleUpper_*)
+4+^|~Sample information for the third _Y_ sample~
+2+| 16 (*_bitOffset_*) | 7 (= ``8'') (*_bitLength_*) | 0 (*_channelType_*) (*++Y++*)
+| 0 (*_samplePosition0_*) | 2 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 16 (*_sampleLower_*)
+4+| 235 (*_sampleUpper_*)
+4+^|~Sample information for the fourth _Y_ sample~
+2+| 24 (*_bitOffset_*) | 7 (= ``8'') (*_bitLength_*) | 0 (*_channelType_*) (*++Y++*)
+| 2 (*_samplePosition0_*) | 2 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 16 (*_sampleLower_*)
+4+| 235 (*_sampleUpper_*)
+4+^|~Sample information for the _U_ sample~
+2+| 32 (*_bitOffset_*) | 7 (= ``8'') (*_bitLength_*) | 1 (*_channelType_*) (*++U++*)
+| 1 (*_samplePosition0_*) | 1 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 16 (*_sampleLower_*)
+4+| 240 (*_sampleUpper_*)
+4+^|~Sample information for the _V_ sample~
+2+| 36 (*_bitOffset_*) | 7 (= ``8'') (*_bitLength_*) | 2 (*_channelType_*) (*++V++*)
+| 1 (*_samplePosition0_*) | 1 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 16 (*_sampleLower_*)
+4+| 240 (*_sampleUpper_*)
 |================================
 
 [[bigendian]]
-.565 RGB format as represented on a big-endian architecture
+.565 _RGB_ packed 16-bit format as written to memory by a big-endian architecture
 [options="header"]
 |================================
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
-4+| 92 (total_size)
-2+| 0 (vendor_id) 2+| 0 (descriptor_type)
-2+| 0 (version number) 2+| 88 (descriptor_block_size)
-| RGBSDA (color_model) | BT709 (color_primaries) | SRGB (transfer_function) | PREMULTIPLIED (flags)
-| 0 (texel_block_dimension_0) | 0 (texel_block_dimension_1) | 0 (texel_block_dimension_2) | 0 (texel_block_dimension_3)
-| 2 (bytes_plane_0) | 0 (bytes_plane_1) | 0 (bytes_plane_2) | 0 (bytes_plane_3)
-| 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
-4+|*Sample information for first sample: bit 0 belongs to green, bits 0..2 of channel in 13..15*
-2+| 13 (bit_offset) | 3 (bit_length) | 1 (channel_type) (green)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 63 (sample_upper)
-4+|*Sample information for second sample: bits 3..5 of green in 0..2*
-2+| 0 (bit_offset) | 3 (bit_length) | 1 (channel_type) (green)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower) -- ignored, taken from first sample
-4+| 0 (sample_upper) -- ignored, taken from first sample
-4+|*Sample information for third sample*
-2+| 3 (bit_offset) | 5 (bit_length) | 2 (channel_type) (blue)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 31 (sample_upper)
-4+|*Sample information for fourth sample*
-2+| 8 (bit_offset) | 5 (bit_length) | 1 (channel_type) (red)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 31 (sample_upper)
+4+| 92 (*_totalSize_*)
+2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
+2+| 1 (*_versionNumber_*) 2+| 88 (*_descriptorBlockSize_*)
+| *++RGBSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++SRGB++* (*_transferFunction_*) | *++ALPHA_STRAIGHT++* (*_flags_*)
+| 0 (*_texelBlockDimension0_*) | 0 (*_texelBlockDimension1_*) | 0 (*_texelBlockDimension2_*) | 0 (*_texelBlockDimension3_*)
+| 2 (*_bytesPlane0_*) | 0 (*_bytesPlane1_*) | 0 (*_bytesPlane2_*) | 0 (*_bytesPlane3_*)
+| 0 (*_bytesPlane4_*) | 0 (*_bytesPlane5_*) | 0 (*_bytesPlane6_*) | 0 (*_bytesPlane7_*)
+4+^|~Sample information for the first sample: bit 0 belongs to green, bits 0..2 of channel in 13..15~
+2+| 13 (*_bitOffset_*) | 2 (= ``3'') (*_bitLength_*) | 1 (*_channelType_*) (*++GREEN++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 63 (*_sampleUpper_*)
+4+^|~Sample information for the second sample: bits 3..5 of green in 0..2~
+2+| 0 (*_bitOffset_*) | 2 (= ``3'') (*_bitLength_*) | 1 (*_channelType_*) (*++GREEN++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*) -- ignored, taken from first sample
+4+| 0 (*_sampleUpper_*) -- ignored, taken from first sample
+4+^|~Sample information for the third sample~
+2+| 3 (*_bitOffset_*) | 4 (= ``5'') (*_bitLength_*) | 2 (*_channelType_*) (*++BLUE++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 31 (*_sampleUpper_*)
+4+^|~Sample information for the fourth sample~
+2+| 8 (*_bitOffset_*) | 4 (= ``5'') (*_bitLength_*) | 1 (*_channelType_*) (*++RED++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 31 (*_sampleUpper_*)
 |================================
 
 [[r9g9b9e5]]
@@ -2444,147 +2507,166 @@ include::references.txt[]
 [options="header"]
 |================================
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
-4+| 124 (total_size)
-2+| 0 (vendor_id) 2+| 0 (descriptor_type)
-2+| 0 (version number) 2+| 120 (descriptor_block_size)
-| RGBSDA (color_model) | BT709 (color_primaries) | ITU (transfer_function) | PREMULTIPLIED (flags)
-| 0 (texel_block_dimension_0) | 0 (texel_block_dimension_1) | 0 (texel_block_dimension_2) | 0 (texel_block_dimension_3)
-| 4 (bytes_plane_0) | 0 (bytes_plane_1) | 0 (bytes_plane_2) | 0 (bytes_plane_3)
-| 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
-4+|*Sample information for R mantissa*
-2+| 0 (bit_offset) | 9 (bit_length) | 0 (channel_type) (red)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 256 (sample_upper) - mantissa at 1.0 (no implicit ``1'')
-4+|*Sample information for R exponent*
-2+| 27 (bit_offset) | 5 (bit_length) | 32 (channel_type) (R+exponent)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 15 (sample_lower) - exponent bias
-4+| 31 (sample_upper) - no infinity/NaN support
-4+|*Sample information for G mantissa*
-2+| 16 (bit_offset) | 8 (bit_length) | 1 (channel_type) (green)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 256 (sample_upper) - mantissa at 1.0 (no implicit ``1'')
-4+|*Sample information for G exponent*
-2+| 27 (bit_offset) | 5 (bit_length) | 33 (channel_type) (G+exponent)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 15 (sample_lower) - exponent bias
-4+| 31 (sample_upper) - no infinity/NaN support
-4+|*Sample information for B mantissa*
-2+| 32 (bit_offset) | 8 (bit_length) | 2 (channel_type) (blue)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 256 (sample_upper) - mantissa at 1.0 (no implicit ``1'')
-4+|*Sample information for B exponent*
-2+| 27 (bit_offset) | 5 (bit_length) | 34 (channel_type) (B+exponent)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 15 (sample_lower) - exponent bias
-4+| 31 (sample_upper) - no infinity/NaN support
+4+| 124 (*_totalSize_*)
+2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
+2+| 1 (*_versionNumber_*) 2+| 120 (*_descriptorBlockSize_*)
+| *++RGBSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++LINEAR++* (*_transferFunction_*) | *++ALPHA_STRAIGHT++* (*_flags_*)
+| 0 (*_texelBlockDimension0_*) | 0 (*_texelBlockDimension1_*) | 0 (*_texelBlockDimension2_*) | 0 (*_texelBlockDimension3_*)
+| 4 (*_bytesPlane0_*) | 0 (*_bytesPlane1_*) | 0 (*_bytesPlane2_*) | 0 (*_bytesPlane3_*)
+| 0 (*_bytesPlane4_*) | 0 (*_bytesPlane5_*) | 0 (*_bytesPlane6_*) | 0 (*_bytesPlane7_*)
+4+^|~Sample information for the _R_ mantissa~
+2+| 0 (*_bitOffset_*) | 8 (= ``9'') (*_bitLength_*) | 0 (*_channelType_*) (*++RED++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 256 (*_sampleUpper_*) -- mantissa at 1.0
+4+^|~Sample information for the _R_ exponent~
+2+| 27 (*_bitOffset_*) | 4 (= ``5'') (*_bitLength_*) | 32 (*_channelType_*)
+
+(*++RED++* \| *++EXPONENT++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 15 (*_sampleUpper_*) -- exponent bias
+4+^|~Sample information for the _G_ mantissa~
+2+| 9 (*_bitOffset_*) | 8 (= ``9'') (*_bitLength_*) | 1 (*_channelType_*) (*++GREEN++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 256 (*_sampleUpper_*) -- mantissa at 1.0
+4+^|~Sample information for the _G_ exponent~
+2+| 27 (*_bitOffset_*) | 4 (= ``5'') (*_bitLength_*) | 33 (*_channelType_*)
+
+(*++GREEN++* \| *++EXPONENT++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 15 (*_sampleUpper_*) -- exponent bias
+4+^|~Sample information for the _B_ mantissa~
+2+| 18 (*_bitOffset_*) | 8 (= ``9'') (*_bitLength_*) | 2 (*_channelType_*) (*++BLUE++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 256 (*_sampleUpper_*) -- mantissa at 1.0
+4+^|~Sample information for the _B_ exponent~
+2+| 27 (*_bitOffset_*) | 4 (= ``5'') (*_bitLength_*) | 34 (*_channelType_*)
+
+(*++BLUE++* \| *++EXPONENT++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 15 (*_sampleUpper_*) -- exponent bias
 |================================
 
-.Acorn 256-color format (2 bits each independent RGB, 2 bits shared ``tint'')
+.Acorn 256-color format (2 bits each independent _RGB_, 2 bits shared ``tint'')
 [options="header"]
 |================================
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
-4+| 124 (total_size)
-2+| 0 (vendor_id) 2+| 0 (descriptor_type)
-2+| 0 (version number) 2+| 120 (descriptor_block_size)
-| RGBSDA (color_model) | BT709 (color_primaries) | ITU (transfer_function) | PREMULTIPLIED (flags)
-| 0 (texel_block_dimension_0) | 0 (texel_block_dimension_1) | 0 (texel_block_dimension_2) | 0 (texel_block_dimension_3)
-| 1 (bytes_plane_0) | 0 (bytes_plane_1) | 0 (bytes_plane_2) | 0 (bytes_plane_3)
-| 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
-4+|*Sample information for R tint (shared low bits)*
-2+| 0 (bit_offset) | 2 (bit_length) | 0 (channel_type) (red)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 0 (sample_upper) - ignored, not unique
-4+|*Sample information for R unique (high) bits*
-2+| 2 (bit_offset) | 2 (bit_length) | 0 (channel_type) (red)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 15 (sample_upper) - unique R upper value
-4+|*Sample information for G tint (shared low bits)*
-2+| 0 (bit_offset) | 2 (bit_length) | 1 (channel_type) (green)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 0 (sample_upper) - ignored, not unique
-4+|*Sample information for G unique (high) bits*
-2+| 4 (bit_offset) | 2 (bit_length) | 1 (channel_type) (green)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 15 (sample_upper) - unique G upper value
-4+|*Sample information for B tint (shared low bits)*
-2+| 0 (bit_offset) | 2 (bit_length) | 2 (channel_type) (blue)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 0 (sample_upper) - ignored, not unique
-4+|*Sample information for B unique (high) bits*
-2+| 6 (bit_offset) | 2 (bit_length) | 2 (channel_type) (blue)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 15 (sample_upper) - unique B upper value
+4+| 108 (*_totalSize_*)
+2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
+2+| 1 (*_versionNumber_*) 2+| 120 (*_descriptorBlockSize_*)
+| *++RGBSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++LINEAR++* (*_transferFunction_*) | *++ALPHA_STRAIGHT++* (*_flags_*)
+| 0 (*_texelBlockDimension0_*) | 0 (*_texelBlockDimension1_*) | 0 (*_texelBlockDimension2_*) | 0 (*_texelBlockDimension3_*)
+| 1 (*_bytesPlane0_*) | 0 (*_bytesPlane1_*) | 0 (*_bytesPlane2_*) | 0 (*_bytesPlane3_*)
+| 0 (*_bytesPlane4_*) | 0 (*_bytesPlane5_*) | 0 (*_bytesPlane6_*) | 0 (*_bytesPlane7_*)
+4+^|~Sample information for the _R_ value and tint (shared low bits)~
+2+| 0 (*_bitOffset_*) | 3 (= ``4'') (*_bitLength_*) | 0 (*_channelType_*) (*++RED++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 15 (*_sampleUpper_*) -- unique _R_ upper value
+4+^|~Sample information for the _G_ tint (shared low bits)~
+2+| 0 (*_bitOffset_*) | 1 (= ``2'') (*_bitLength_*) | 1 (*_channelType_*) (*++GREEN++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 0 (*_sampleUpper_*) -- ignored, not unique
+4+^|~Sample information for the _G_ unique (high) bits~
+2+| 4 (*_bitOffset_*) | 1 (= ``2'') (*_bitLength_*) | 1 (*_channelType_*) (*++GREEN++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 15 (*_sampleUpper_*) -- unique _G_ upper value
+4+^|~Sample information for the _B_ tint (shared low bits)~
+2+| 0 (*_bitOffset_*) | 1 (= ``2'') (*_bitLength_*) | 2 (*_channelType_*) (*++BLUE++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 0 (*_sampleUpper_*) -- ignored, not unique
+4+^|~Sample information for the _B_ unique (high) bits~
+2+| 6 (*_bitOffset_*) | 1 (= ``2'') (*_bitLength_*) | 2 (*_channelType_*) (*++BLUE++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 15 (*_sampleUpper_*) -- unique _B_ upper value
 |================================
 
-.V210 format (full-range Y'C~B~C~R~)
+.V210 format (full-range _Y&prime;C~B~C~R~_) part 1 of 2
 [options="header"]
 |================================
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
-4+| 220 (total_size)
-2+| 0 (vendor_id) 2+| 0 (descriptor_type)
-2+| 0 (version number) 2+| 216 (descriptor_block_size) -- 12 samples
-| YUVSDA (color_model) | BT709 (color_primaries) | ITU (transfer_function) | PREMULTIPLIED (flags)
-| 5 (dimension_0) | 0 (dimension_1) | 0 (dimension_2) | 0 (dimension_3)
-| 16 (bytes_plane_0) | 0 (bytes_plane_1) | 0 (bytes_plane_2) | 0 (bytes_plane_3)
-| 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
-2+|0 (bit_offset)     | 10 (bit_length) | 1 (channel_type) (U0+1)
+4+| 220 (*_totalSize_*)
+2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
+2+| 1 (*_versionNumber_*) 2+| 216 (*_descriptorBlockSize_*) -- 12 samples
+| *++YUVSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++ITU++* (*_transferFunction_*) | *++ALPHA_STRAIGHT++* (*_flags_*)
+| 5 (*_dimension0_*) | 0 (*_dimension1_*) | 0 (*_dimension2_*) | 0 (*_dimension3_*)
+| 16 (*_bytesPlane0_*) | 0 (*_bytesPlane1_*) | 0 (*_bytesPlane2_*) | 0 (*_bytesPlane3_*)
+| 0 (*_bytesPlane4_*) | 0 (*_bytesPlane5_*) | 0 (*_bytesPlane6_*) | 0 (*_bytesPlane7_*)
+4+^|~Sample information for the shared _U0_/_U1_ value~
+2+|0 (*_bitOffset_*)     | 9 (= ``10'') (*_bitLength_*) | 1 (*_channelType_*) (*++U++*)
 |1 (assume mid-sited)      |  0       | 0       | 0
-4+|0 (sample_lower)
-4+|1023 (sample_upper)
-2+|10 (bit offset)    | 10 (bit_length) | 0 (channel_type) (Y0)
+4+|0 (*_sampleLower_*)
+4+|1023 (*_sampleUpper_*)
+4+^|~Sample information for the _Y&prime;0_ value~
+2+|10 (*_bitOffset_*)    | 9 (= ``10'') (*_bitLength_*) | 0 (*_channelType_*) (*++Y++*)
 |0       |  0       | 0       | 0
-4+|0 (sample_lower)
-4+|1023 (sample_upper)
-2+|20 (bit_offset)    | 10 (bit_length) | 2 (channel_type) (V0+1)
+4+|0 (*_sampleLower_*)
+4+|1023 (*_sampleUpper_*)
+4+^|~Sample information for the shared _V0_/_V1_ value~
+2+|20 (*_bitOffset_*)    | 9 (= ``10'') (*_bitLength_*) | 2 (*_channelType_*) (*++V++*)
 |1 (assume mid-sited)      |  0       | 0       | 0
-4+|0 (sample_lower)
-4+|1023 (sample_upper)
-2+|32 (bit offset)    | 10 (bit_length) | 0 (channel_type) (Y1)
+4+|0 (*_sampleLower_*)
+4+|1023 (*_sampleUpper_*)
+4+^|~Sample information for the _Y&prime;1_ value~
+2+|32 (*_bitOffset_*)    | 9 (= ``10'') (*_bitLength_*) | 0 (*_channelType_*) (*++Y++*)
 |2       |  0       | 0       | 0
-4+|0 (sample_lower)
-4+|1023 (sample_upper)
-2+|42 (bit_offset)    | 10 (bit_length) | 1 (channel_type) (U2+3)
+4+|0 (*_sampleLower_*)
+4+|1023 (*_sampleUpper_*)
+4+^|~Sample information for the shared _U2_/_U3_ value~
+2+|42 (*_bitOffset_*)    | 9 (= ``10'') (*_bitLength_*) | 1 (*_channelType_*) (*++U++*)
 |5 (assume mid-sited)      |  0       | 0       | 0
-4+|0 (sample_lower)
-4+|1023 (sample_upper)
-2+|52 (bit offset)    | 10 (bit_length) | 0 (channel_type) (Y2)
+4+|0 (*_sampleLower_*)
+4+|1023 (*_sampleUpper_*)
+4+^|~Sample information for the _Y&prime;2_ value~
+2+|52 (*_bitOffset_*)    | 9 (= ``10'') (*_bitLength_*) | 0 (*_channelType_*) (*++Y++*)
 |4       |  0       | 0       | 0
-4+|0 (sample_lower)
-4+|1023 (sample_upper)
-2+|64 (bit_offset)    | 10 (bit_length) | 2 (channel_type) (V2+3)
+4+|0 (*_sampleLower_*)
+4+|1023 (*_sampleUpper_*)
+|================================
+
+.V210 format (full-range _Y&prime;C~B~C~R~_) part 2 of 2
+[options="header"]
+|================================
+| Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
+4+^|~Sample information for the shared _V2_/_V3_ value~
+2+|64 (*_bitOffset_*)    | 9 (= ``10'') (*_bitLength_*) | 2 (*_channelType_*) (*++V++*)
 |5 (assume mid-sited)      |  0       | 0       | 0
-4+|0 (sample_lower)
-4+|1023 (sample_upper)
-2+|74 (bit offset)    | 10 (bit_length) | 0 (channel_type) (Y3)
+4+|0 (*_sampleLower_*)
+4+|1023 (*_sampleUpper_*)
+4+^|~Sample information for the _Y&prime;3_ value~
+2+|74 (*_bitOffset_*)    | 9 (= ``10'') (*_bitLength_*) | 0 (*_channelType_*) (*++Y++*)
 |6       |  0       | 0       | 0
-4+|0 (sample_lower)
-4+|1023 (sample_upper)
-2+|84 (bit_offset)    | 10 (bit_length) | 1 (channel_type) (U4+5)
+4+|0 (*_sampleLower_*)
+4+|1023 (*_sampleUpper_*)
+4+^|~Sample information for the shared _U4_/_U5_ value~
+2+|84 (*_bitOffset_*)    | 9 (= ``10'') (*_bitLength_*) | 1 (*_channelType_*) (*++U++*)
 |9 (assume mid-sited)      |  0       | 0       | 0
-4+|0 (sample_lower)
-4+|1023 (sample_upper)
-2+|96 (bit offset)    | 10 (bit_length) | 0 (channel_type) (Y4)
+4+|0 (*_sampleLower_*)
+4+|1023 (*_sampleUpper_*)
+4+^|~Sample information for the _Y&prime;4_ value~
+2+|96 (*_bitOffset_*)    | 9 (= ``10'') (*_bitLength_*) | 0 (*_channelType_*) (*++Y++*)
 |8       |  0       | 0       | 0
-4+|0 (sample_lower)
-4+|1023 (sample_upper)
-2+|106 (bit_offset)   | 10 (bit_length) | 2 (channel_type) (V4+5)
+4+|0 (*_sampleLower_*)
+4+|1023 (*_sampleUpper_*)
+4+^|~Sample information for the shared _V4_/_V5_ value~
+2+|106 (*_bitOffset_*)   | 9 (= ``10'') (*_bitLength_*) | 2 (*_channelType_*) (*++V++*)
 |9 (assume mid-sited)      |  0       | 0       | 0
-4+|0 (sample_lower)
-4+|1023 (sample_upper)
-2+|116 (bit offset)   | 10 (bit_length) | 0 (channel_type) (Y5)
+4+|0 (*_sampleLower_*)
+4+|1023 (*_sampleUpper_*)
+4+^|~Sample information for the _Y&prime;4_ value~
+2+|116 (*_bitOffset_*)   | 9 (= ``10'') (*_bitLength_*) | 0 (*_channelType_*) (*++Y++*)
 |10      |  0       | 0       | 0
-4+|0 (sample_lower)
-4+|1023 (sample_upper)
+4+|0 (*_sampleLower_*)
+4+|1023 (*_sampleUpper_*)
 |================================
 
 [[intensity]]
@@ -2592,62 +2674,70 @@ include::references.txt[]
 [options="header"]
 |================================
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
-4+| 92 (total_size)
-2+| 0 (vendor_id) 2+| 0 (descriptor_type)
-2+| 0 (version number) 2+| 88 (descriptor_block_size)
-| RGBSDA (color_model) | BT709 (color_primaries) | LINEAR (transfer_function) | PREMULTIPLIED (flags)
-| 0 (texel_block_dimension_0) | 0 (texel_block_dimension_1) | 0 (texel_block_dimension_2) | 0 (texel_block_dimension_3)
-| 1 (bytes_plane_0) | 0 (bytes_plane_1) | 0 (bytes_plane_2) | 0 (bytes_plane_3)
-| 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
-4+|*Sample information for first sample*
-2+| 0 (bit_offset) | 8 (bit_length) | 0 (channel_type) (red)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 255 (sample_upper)
-4+|*Sample information for second sample*
-2+| 0 (bit_offset) | 8 (bit_length) | 1 (channel_type) (green)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 255 (sample_upper)
-4+|*Sample information for third sample*
-2+| 0 (bit_offset) | 8 (bit_length) | 2 (channel_type) (blue)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 255 (sample_upper)
-4+|*Sample information for fourth sample*
-2+| 0 (bit_offset) | 8 (bit_length) | 31 (channel_type) (alpha+linear)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 255 (sample_upper)
+4+| 92 (*_totalSize_*)
+2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
+2+| 1 (*_versionNumber_*) 2+| 88 (*_descriptorBlockSize_*)
+| *++RGBSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++LINEAR++* (*_transferFunction_*) | *++PREMULTIPLIED++* (*_flags_*)
+| 0 (*_texelBlockDimension0_*) | 0 (*_texelBlockDimension1_*) | 0 (*_texelBlockDimension2_*) | 0 (*_texelBlockDimension3_*)
+| 1 (*_bytesPlane0_*) | 0 (*_bytesPlane1_*) | 0 (*_bytesPlane2_*) | 0 (*_bytesPlane3_*)
+| 0 (*_bytesPlane4_*) | 0 (*_bytesPlane5_*) | 0 (*_bytesPlane6_*) | 0 (*_bytesPlane7_*)
+4+|~Sample information for the first sample~
+2+| 0 (*_bitOffset_*) | 7 (= ``8'') (*_bitLength_*) | 0 (*_channelType_*) (*++RED++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 255 (*_sampleUpper_*)
+4+|~Sample information for the second sample~
+2+| 0 (*_bitOffset_*) | 7 (= ``8'') (*_bitLength_*) | 1 (*_channelType_*) (*++GREEN++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 255 (*_sampleUpper_*)
+4+|~Sample information for the third sample~
+2+| 0 (*_bitOffset_*) | 7 (= ``8'') (*_bitLength_*) | 2 (*_channelType_*) (*++BLUE++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 255 (*_sampleUpper_*)
+4+|~Sample information for the fourth sample~
+2+| 0 (*_bitOffset_*) | 7 (= ``8'') (*_bitLength_*) | 31 (*_channelType_*)
+
+(*++ALPHA++* \| *++LINEAR++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 255 (*_sampleUpper_*)
 |================================
 
 [[48bit]]
-.Three co-sited 16-bit samples with the high word first, comprising a single 48-bit signed red channel
+.A 48-bit signed middle-endian red channel: three co-sited 16-bit little-endian words, high word first
 [options="header"]
 |================================
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
-4+| 76 (total_size)
-2+| 0 (vendor_id) 2+| 0 (descriptor_type)
-2+| 0 (version number) 2+| 72 (descriptor_block_size)
-| RGBSDA (color_model) | BT709 (color_primaries) | LINEAR (transfer_function) | PREMULTIPLIED (flags)
-| 0 (texel_block_dimension_0) | 0 (texel_block_dimension_1) | 0 (texel_block_dimension_2) | 0 (texel_block_dimension_3)
-| 6 (bytes_plane_0) | 0 (bytes_plane_1) | 0 (bytes_plane_2) | 0 (bytes_plane_3)
-| 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
-4+|*Sample information for first sample*
-2+| 32 (bit_offset) | 16 (bit_length) | 64 (channel_type) (red \| signed)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower) - ignored, overridden by second sample
-4+| 0 (sample_upper) - ignored, overridden by second sample
-4+|*Sample information for second sample*
-2+| 16 (bit_offset) | 16 (bit_length) | 64 (channel_type) (red \| signed)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0xFFFFFFFF (sample_lower) - bottom 32 bits of sample_lower
-4+| 0xFFFFFFFF (sample_upper) - bottom 32 bits of sample_upper
-4+|*Sample information for third sample*
-2+| 0 (bit_offset) | 16 (bit_length) | 64 (channel_type) (red \| signed)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0xFFFFFFFF (sample_lower) - top 16 bits of sample_lower, sign-extended
-4+| 0x7FFF (sample_upper) - top 16 bits of sample_upper
+4+| 76 (*_totalSize_*)
+2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
+2+| 1 (*_versionNumber_*) 2+| 72 (*_descriptorBlockSize_*)
+| *++RGBSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++LINEAR++* (*_transferFunction_*) | *++ALPHA_STRAIGHT++* (*_flags_*)
+| 0 (*_texelBlockDimension0_*) | 0 (*_texelBlockDimension1_*) | 0 (*_texelBlockDimension2_*) | 0 (*_texelBlockDimension3_*)
+| 6 (*_bytesPlane0_*) | 0 (*_bytesPlane1_*) | 0 (*_bytesPlane2_*) | 0 (*_bytesPlane3_*)
+| 0 (*_bytesPlane4_*) | 0 (*_bytesPlane5_*) | 0 (*_bytesPlane6_*) | 0 (*_bytesPlane7_*)
+4+|~Sample information for the first sample~
+2+| 32 (*_bitOffset_*) | 15 (= ``16'') (*_bitLength_*) | 64 (*_channelType_*)
+
+(*++RED++* \| *++SIGNED++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*) -- ignored, overridden by second sample
+4+| 0 (*_sampleUpper_*) -- ignored, overridden by second sample
+4+|~Sample information for the second sample~
+2+| 16 (*_bitOffset_*) | 15 (= ``16'') (*_bitLength_*) | 64 (*_channelType_*)
+
+(*++RED++* \| *++SIGNED++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0x00000000 (*_sampleLower_*) -- bottom 32 bits of *_sampleLower_*
+4+| 0xFFFFFFFF (*_sampleUpper_*) -- bottom 32 bits of *_sampleUpper_*
+4+|~Sample information for the third sample~
+2+| 0 (*_bitOffset_*) | 15 (= ``16'') (*_bitLength_*) | 64 (*_channelType_*)
+
+(*++RED++* \| *++SIGNED++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0xFFFF8000 (*_sampleLower_*) -- top 16 bits of *_sampleLower_*, sign-extended
+4+| 0x7FFF (*_sampleUpper_*) -- top 16 bits of *_sampleUpper_*
 |================================
 
 [[float16explicit]]
@@ -2655,28 +2745,32 @@ include::references.txt[]
 [options="header"]
 |================================
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
-4+| 76 (total_size)
-2+| 0 (vendor_id) 2+| 0 (descriptor_type)
-2+| 0 (version number) 2+| 72 (descriptor_block_size)
-| RGBSDA (color_model) | BT709 (color_primaries) | LINEAR (transfer_function) | PREMULTIPLIED (flags)
-| 0 (texel_block_dimension_0) | 0 (texel_block_dimension_1) | 0 (texel_block_dimension_2) | 0 (texel_block_dimension_3)
-| 2 (bytes_plane_0) | 0 (bytes_plane_1) | 0 (bytes_plane_2) | 0 (bytes_plane_3)
-| 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
-4+|*Sample information for first sample (mantissa)*
-2+| 0 (bit_offset) | 10 (bit_length) | 0 (channel_type) (red)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0 (sample_lower)
-4+| 2048 (sample_upper) - implicit 1
-4+|*Sample information for second sample (sign bit)*
-2+| 15 (bit_offset) | 1 (bit_length) | 64 (channel_type) (red \| signed)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0xFFFFFFFF (sample_lower)
-4+| 0x0 (sample_upper)
-4+|*Sample information for third sample (exponent)*
-2+| 10 (bit_offset) | 5 (bit_length) | 32 (channel_type) (red \| exponent)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 15 (sample_lower) - bias
-4+| 30 (sample_upper) - support for infinities (because 31 can be encoded)
+4+| 76 (*_totalSize_*)
+2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
+2+| 1 (*_versionNumber_*) 2+| 72 (*_descriptorBlockSize_*)
+| *++RGBSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++LINEAR++* (*_transferFunction_*) | *++ALPHA_STRAIGHT++* (*_flags_*)
+| 0 (*_texelBlockDimension0_*) | 0 (*_texelBlockDimension1_*) | 0 (*_texelBlockDimension2_*) | 0 (*_texelBlockDimension3_*)
+| 2 (*_bytesPlane0_*) | 0 (*_bytesPlane1_*) | 0 (*_bytesPlane2_*) | 0 (*_bytesPlane3_*)
+| 0 (*_bytesPlane4_*) | 0 (*_bytesPlane5_*) | 0 (*_bytesPlane6_*) | 0 (*_bytesPlane7_*)
+4+|~Sample information for the first sample (mantissa)~
+2+| 0 (*_bitOffset_*) | 9 (= ``10'') (*_bitLength_*) | 0 (*_channelType_*) (*++RED++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0 (*_sampleLower_*)
+4+| 1024 (*_sampleUpper_*) -- implicit 1
+4+|~Sample information for the second sample (sign bit)~
+2+| 15 (*_bitOffset_*) | 0 (= ``1'') (*_bitLength_*) | 64 (*_channelType_*)
+
+(*++RED++* \| *++SIGNED++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0xFFFFFFFF (*_sampleLower_*)
+4+| 0x0 (*_sampleUpper_*)
+4+|~Sample information for the third sample (exponent)~
+2+| 10 (*_bitOffset_*) | 4 (= ``5'') (*_bitLength_*) | 32 (*_channelType_*)
+
+(*++RED++* \| *++EXPONENT++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 15 (*_sampleLower_*) -- bias
+4+| 30 (*_sampleUpper_*) -- support for infinities (because 31 can be encoded)
 |================================
 
 [[float16implicit]]
@@ -2684,35 +2778,53 @@ include::references.txt[]
 [options="header"]
 |================================
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
-4+| 44 (total_size)
-2+| 0 (vendor_id) 2+| 0 (descriptor_type)
-2+| 0 (version number) 2+| 40 (descriptor_block_size)
-| RGBSDA (color_model) | BT709 (color_primaries) | LINEAR (transfer_function) | PREMULTIPLIED (flags)
-| 0 (texel_block_dimension_0) | 0 (texel_block_dimension_1) | 0 (texel_block_dimension_2) | 0 (texel_block_dimension_3)
-| 2 (bytes_plane_0) | 0 (bytes_plane_1) | 0 (bytes_plane_2) | 0 (bytes_plane_3)
-| 0 (bytes_plane_4) | 0 (bytes_plane_5) | 0 (bytes_plane_6) | 0 (bytes_plane_7)
-4+|*Sample information*
-2+| 0 (bit_offset) | 10 (bit_length) | 0 (channel_type) (red)
-| 0 (sample_position_0) | 0 (sample_position_1) | 0 (sample_position_2) | 0 (sample_position_3)
-4+| 0xbf80000 (sample_lower) = -1.0
-4+| 0x3f80000 (sample_upper) = 1.0
+4+| 44 (*_totalSize_*)
+2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
+2+| 1 (*_versionNumber_*) 2+| 40 (*_descriptorBlockSize_*)
+| *++RGBSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++LINEAR++* (*_transferFunction_*) | *++ALPHA_STRAIGHT++* (*_flags_*)
+| 0 (*_texelBlockDimension0_*) | 0 (*_texelBlockDimension1_*) | 0 (*_texelBlockDimension2_*) | 0 (*_texelBlockDimension3_*)
+| 2 (*_bytesPlane0_*) | 0 (*_bytesPlane1_*) | 0 (*_bytesPlane2_*) | 0 (*_bytesPlane3_*)
+| 0 (*_bytesPlane4_*) | 0 (*_bytesPlane5_*) | 0 (*_bytesPlane6_*) | 0 (*_bytesPlane7_*)
+4+|~Sample information~
+2+| 0 (*_bitOffset_*) | 15 (= ``16'') (*_bitLength_*) | 192 (*_channelType_*)
+
+(*++RED++* \| *++SIGNED++* \| *++FLOAT++*)
+| 0 (*_samplePosition0_*) | 0 (*_samplePosition1_*) | 0 (*_samplePosition2_*) | 0 (*_samplePosition3_*)
+4+| 0xbf80000 (*_sampleLower_*) = -1.0
+4+| 0x3f80000 (*_sampleUpper_*) = 1.0
 |================================
 
-ifdef::a2xhtml[]
+include::conversions.txt[]
+
+include::compformats.txt[]
+
+include::references.txt[]
 
 == Contributors ==
 
 Frank Brill
 
+Mark Callow
+
 Sean Ellis
 
+Jan-Harald Fredriksen
+
 Andrew Garrard (editor)
+
+Courtney Goeltzenleuchter
 
 Jonas Gustavsson
 
 Chris Hebert
 
+Tobias Hector
+
+Alexey Knyazev
+
 Daniel Koch
+
+Jon Leech
 
 Thierry Lepley
 
@@ -2722,22 +2834,26 @@ Kathleen Mattson
 
 Hans-Peter Nilsson
 
+XianQuan Ooi
+
 Alon Or-bach
+
+Jan Outters
 
 Erik Rainey
 
 Daniel Rakos
 
+Donald Scorgie
+
 Graham Sellers
 
 David Sena
 
-Mark Callow
+Stuart Smith
 
-Jon Leech
+Alex Walters
 
-Jan Outters
+Eric Werness
 
-Courtney Goeltzenleuchter
-
-endif::[]
+David Wilkinson
