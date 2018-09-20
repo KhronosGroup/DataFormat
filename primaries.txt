@@ -5,23 +5,23 @@
 == Color primaries
 
 *Color primaries* define the interpretation of each color channel of the
-color model, particularly with respect to the RGB color model. In the context
+color model, particularly with respect to the _RGB_ color model. In the context
 of a typical display, *color primaries* describe the color of the red, green
 and blue phosphors or filters.
 
-Primaries are typically defined using the <<ciexyz,CIE 1931 XYZ color space>>,
+Primaries are typically defined using the <<ciexyz,CIE 1931 _XYZ_ color space>>,
 which is a color space which preserves the linearity of light intensity.
-Consequently, the transform from linear-intensity latexmath:[$(R, G, B)$]
-to latexmath:[$(X, Y, Z)$] is a simple matrix multiplication. Conversion
-between two sets of latexmath:[$(R, G, B)$] color primaries can be performed
-by converting to the latexmath:[$(X, Y, Z)$] space and back.
+Consequently, the transform from linear-intensity (_R_, _G_, _B_)
+to (_X_, _Y_, _Z_) is a simple matrix multiplication. Conversion
+between two sets of (_R_, _G_, _B_) color primaries can be performed
+by converting to the (_X_, _Y_, _Z_) space and back.
 
-The latexmath:[$(X, Y, Z)$] space describes absolute intensity. Since most
-standards do not make a requirement about the absolute intensity of the
-display, color primaries are typically defined using the latexmath:[$x$]
-and latexmath:[$y$] components of the latexmath:[$xyY$] color space, in
-which the latexmath:[$Y$] channel represents linear luminance.
-latexmath:[$xyY$] is related to latexmath:[$XYZ$] via the following formulae:
+The (_X_, _Y_, _Z_) space describes absolute intensity.
+Since most standards do not make a requirement about the absolute intensity
+of the display, color primaries are typically defined using the _x_ and _y_
+components of the _xyY_ color space, in which the _Y_ channel represents
+linear luminance.
+_xyY_ is related to _XYZ_ via the following formulae:
 
 [latexmath]
 ++++++
@@ -33,10 +33,10 @@ x & = {X\over{X + Y + Z}} &&&y & = {Y\over{X + Y + Z}} &&&z & = {Z\over{X + Y + 
 
 This is relevant because, although the brightness of the display in a color
 space definition is typically undefined, the *white point* is known:
-the latexmath:[$x$] and latexmath:[$y$] coordinates in latexmath:[$xyY$]
-color space which corresponds to equal amounts of latexmath:[$R$],
-latexmath:[$G$] and latexmath:[$B$]. This makes it possible to determine the
-relative intensities of these color primaries.
+the _x_ and _y_ coordinates in _xyY_ color space which corresponds to equal
+amounts of _R_, _G_ and _B_.
+This makes it possible to determine the relative intensities of these color
+primaries.
 
 NOTE: Many color standards use the CIE D65 standard illuminant as a white
 point. D65 is intended to represent average daylight, and has a color
@@ -52,11 +52,9 @@ temperature do not agree with the D65 standard.
 The actual color temperature of D65 is nearer to
 latexmath:[$6500\times {1.4388\over 1.438} \approx 6503.6\textrm{K}$].
 
-Assuming an arbitrary white luminance (latexmath:[$Y$] value) of 1.0,
-it is possible to express the following identity for the latexmath:[$X$],
-latexmath:[$Y$] and latexmath:[$Z$] coordinates of each color channel
-latexmath:[$R$], latexmath:[$G$] and latexmath:[$B$], and of the white
-point latexmath:[$W$]:
+Assuming an arbitrary white luminance (_Y_ value) of 1.0, it is possible
+to express the following identity for the _X_, _Y_ and _Z_ coordinates
+of each color channel _R_, _G_ and _B_, and of the white point _W_:
 
 [latexmath]
 ++++++
@@ -67,7 +65,7 @@ W_X &= R_X + G_X + B_X &W_Y &= R_Y + G_Y + B_Y = 1.0 &W_Z &= R_Z + G_Z + B_Z
 
 The identities latexmath:[$X = Y{x\over{y}}$] and
 latexmath:[$Z = Y{{(1-x-y)}\over{y}}$] can be used to
-re-express the above terms in the latexmath:[$xyY$] space:
+re-express the above terms in the _xyY_ space:
 
 [latexmath]
 ++++++
@@ -86,7 +84,7 @@ B_Y\left({1-B_x-B_y\over{B_y}}\right) &
 \end{align*}
 ++++++
 
-This equation for latexmath:[$W_Z$] can be simplified to:
+This equation for _W~Z~_ can be simplified to:
 
 [latexmath]
 ++++++
@@ -112,8 +110,8 @@ B_Y\left({1-B_x\over{B_y}}\right) &
 \end{align*}
 ++++++
 
-The latexmath:[$R_Y+G_Y+B_Y$] term for latexmath:[$W_Y$] can be multiplied by
-latexmath:[$R_x\over{R_y}$] and subtracted from the equation for latexmath:[$W_X$]:
+The latexmath:[$R_Y+G_Y+B_Y$] term for _W~Y~_ can be multiplied by
+latexmath:[$R_x\over{R_y}$] and subtracted from the equation for _W~X~_:
 
 [latexmath]
 ++++++
@@ -124,7 +122,7 @@ $$ G_Y\left({G_x\over{G_y}}-{R_x\over{R_y}}\right) +
 
 Similarly, the latexmath:[$R_Y+G_Y+B_Y$] term can be multiplied by
 latexmath:[$1-R_x\over{R_y}$] and subtracted from the simplified
-latexmath:[$W_Z$] line:
+_W~Z~_ line:
 
 [latexmath]
 ++++++
@@ -133,7 +131,7 @@ $$ G_Y\left({1-G_x\over{G_y}}-{1-R_x\over{R_y}}\right) +
    {1-W_x\over{W_y}}-{1-R_x\over{R_y}}$$
 ++++++
 
-Finally, the latexmath:[$G_Y$] term can be eliminated by multiplying the former of these
+Finally, the _G~Y~_ term can be eliminated by multiplying the former of these
 two equations by latexmath:[${1-G_x\over{G_y}}-{1-R_x\over{R_y}}$] and subtracting it
 from the latter multiplied by latexmath:[${G_x\over{G_y}}-{R_x\over{R_y}}$], giving:
 
@@ -163,7 +161,7 @@ $$ B_Y = {{\left({1-W_x\over{W_y}}-{1-R_x\over{R_y}}\right)
    \left({1-G_x\over{G_y}}-{1-R_x\over{R_y}}\right)}}$$
 ++++++
 
-This allows latexmath:[$G_Y$] to be calculated by rearranging an earlier equation:
+This allows _G~Y~_ to be calculated by rearranging an earlier equation:
 
 [latexmath]
 ++++++
@@ -180,14 +178,13 @@ $$ R_Y = 1 - G_Y - B_Y $$
 ++++++
 
 These relative magnitudes allow the definition of vectors representing
-the color primaries in the latexmath:[$XYZ$] space, which in turn
+the color primaries in the _XYZ_ space, which in turn
 provides a transformation between colors specified in terms of the color
-primaries and the latexmath:[$XYZ$] space. Without an absolute magnitude
-the transformation to latexmath:[$XYZ$] is incomplete, but sufficient to
-allow transformation to another set of color primaries.
+primaries and the _XYZ_ space.
+Without an absolute magnitude the transformation to _XYZ_ is incomplete,
+but sufficient to allow transformation to another set of color primaries.
 
-The transform from the defined color primaries to latexmath:[$XYZ$]
-space is:
+The transform from the defined color primaries to _XYZ_ space is:
 
 [latexmath]
 ++++++
@@ -208,8 +205,7 @@ G\\
 B\end{array}\right)$$
 ++++++
 
-The transform from latexmath:[$XYZ$] space to the defined
-color primaries is therefore:
+The transform from _XYZ_ space to the defined color primaries is therefore:
 
 [latexmath]
 ++++++
@@ -253,7 +249,7 @@ W_x &= 0.3127 & W_y &= 0.3290\ (\textrm{D}65)
 These chromaticity coordinates are also shared by <<srgb,sRGB>> and <<scrgb,scRGB>>.
 
 Therefore to convert from linear color values defined in terms of BT.709 color
-primaries to latexmath:[$XYZ$] space the formulae in <<PRIMARY_CONVERSION>> result
+primaries to _XYZ_ space the formulae in <<PRIMARY_CONVERSION>> result
 in the following matrix:
 [latexmath]
 ++++++
@@ -269,7 +265,7 @@ G_{709} \\
 B_{709}\end{array}\right)$$
 ++++++
 
-The inverse transformation, from the latexmath:[$XYZ$] space to a color defined
+The inverse transformation, from the _XYZ_ space to a color defined
 in terms of BT.709 color primaries, is:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
@@ -329,7 +325,7 @@ NOTE: <<bt470,BT.470-6>>, which also describes these constants in a legacy
 context, approximates D65 as latexmath:[$x = 0.313,\ y = 0.329$].
 
 Therefore to convert from linear color values defined in terms of BT.601 color
-primaries for 625-line systems to latexmath:[$XYZ$] space the formulae in
+primaries for 625-line systems to _XYZ_ space the formulae in
 <<PRIMARY_CONVERSION>> result in the following matrix:
 [latexmath]
 ++++++
@@ -345,7 +341,7 @@ G_{601\textrm{EBU}} \\
 B_{601\textrm{EBU}}\end{array}\right)$$
 ++++++
 
-The inverse transformation, from the latexmath:[$XYZ$] space to a color defined
+The inverse transformation, from the _XYZ_ space to a color defined
 in terms of BT.601 ``EBU'' 625-line color primaries, is:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
@@ -400,7 +396,7 @@ W_x &= 0.3127 & W_y &= 0.3290
 ++++++
 
 Therefore to convert from linear color values defined in terms of BT.601 color
-primaries for 525-line systems to latexmath:[$XYZ$] space the formulae in
+primaries for 525-line systems to _XYZ_ space the formulae in
 <<PRIMARY_CONVERSION>> result in the following matrix:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
@@ -433,7 +429,7 @@ B_{601\textrm{SMPTE}}\end{array}\right)$$
 ++++++
 endif::[]
 
-The inverse transformation, from the latexmath:[$XYZ$] space to a color defined
+The inverse transformation, from the _XYZ_ space to a color defined
 in terms of BT.601 525-line color primaries, is:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
@@ -489,7 +485,7 @@ W_x &= 0.3127 & W_y &= 0.3290
 The same primaries are used for <<bt2100,BT.2100>> for HDR TV.
 
 Therefore to convert from linear color values defined in terms of BT.2020 color
-primaries to latexmath:[$XYZ$] space the formulae in <<PRIMARY_CONVERSION>> result
+primaries to _XYZ_ space the formulae in <<PRIMARY_CONVERSION>> result
 in the following matrix:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
@@ -522,7 +518,7 @@ B_{2020}\end{array}\right)$$
 ++++++
 endif::[]
 
-The inverse transformation, from the latexmath:[$XYZ$] space to a color
+The inverse transformation, from the _XYZ_ space to a color
 defined in terms of BT.2020 color primaries, is:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
@@ -580,14 +576,14 @@ brightness over saturation, use the color primaries as described in
 <<PRIMARIES_BT601_SMPTE>>.
 The white point used in the original NTSC 1953 specification is CIE
 Standard Illuminant C, 6774K, as distinct from the CIE Illuminant D65
-white point used by most modern standards.
+used by most modern standards.
 BT.470-6 notes that SECAM systems may use these NTSC primaries and
 white point.
 Japanese legacy NTSC systems used the same primaries but with the white
 point set to D-white at 9300K.
 
 Therefore to convert from linear color values defined in terms of NTSC 1953 color
-primaries to latexmath:[$XYZ$] space the formulae in <<PRIMARY_CONVERSION>> result
+primaries to _XYZ_ space the formulae in <<PRIMARY_CONVERSION>> result
 in the following matrix:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
@@ -620,7 +616,7 @@ B_{\textrm{NTSC}}\end{array}\right)$$
 ++++++
 endif::[]
 
-The inverse transformation, from the latexmath:[$XYZ$] space to a color
+The inverse transformation, from the _XYZ_ space to a color
 defined in terms of NTSC 1953 color primaries, is:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
@@ -676,7 +672,7 @@ Illuminant C, 6774K, as distinct from the CIE Illuminant D65 white point used by
 most modern standards.
 
 Therefore to convert from linear color values defined in terms of PAL 525-line color
-primaries to latexmath:[$XYZ$] space the formulae in <<PRIMARY_CONVERSION>> result
+primaries to _XYZ_ space the formulae in <<PRIMARY_CONVERSION>> result
 in the following matrix:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
@@ -709,7 +705,7 @@ B_{\textrm{PAL525}}\end{array}\right)$$
 ++++++
 endif::[]
 
-The inverse transformation, from the latexmath:[$XYZ$] space to a color
+The inverse transformation, from the _XYZ_ space to a color
 defined in terms of PAL 525-line 1953 color primaries, is:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
@@ -759,7 +755,7 @@ W_x &= 0.32168  & W_y &= 0.33767
 ++++++
 
 Therefore to convert from linear color values defined in terms of ACES color
-primaries to latexmath:[$XYZ$] space the formulae in <<PRIMARY_CONVERSION>> result
+primaries to _XYZ_ space the formulae in <<PRIMARY_CONVERSION>> result
 in the following matrix:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
@@ -791,7 +787,7 @@ G_{\textrm{ACES}} \\
 B_{\textrm{ACES}}\end{array}\right)$$
 ++++++
 endif::[]
-The inverse transformation, from the latexmath:[$XYZ$] space to a color
+The inverse transformation, from the _XYZ_ space to a color
 defined in terms of ACES color primaries, is:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
@@ -842,7 +838,7 @@ W_x &= 0.32168 & W_y &= 0.33767
 ++++++
 
 Therefore to convert from linear color values defined in terms of ACEScc/ACEScct
-color primaries to latexmath:[$XYZ$] space the formulae in <<PRIMARY_CONVERSION>>
+color primaries to _XYZ_ space the formulae in <<PRIMARY_CONVERSION>>
 result in the following matrix:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
@@ -874,7 +870,7 @@ G_{\textrm{ACEScct}} \\
 B_{\textrm{ACEScct}}\end{array}\right)$$
 ++++++
 endif::[]
-The inverse transformation, from the latexmath:[$XYZ$] space to a color
+The inverse transformation, from the _XYZ_ space to a color
 defined in terms of ACEScc/ACEScct color primaries, is:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
@@ -926,12 +922,12 @@ W_x &= 0.3127  & W_y &= 0.3290
 
 NOTE: The DCI P3 color space defines the bounds of its gamut using
 these primaries, but actual color data in DCI P3 is encoded using
-CIE XYZ coordinates.
+CIE _XYZ_ coordinates.
 Display P3, on the other hand, uses these values as primaries in an
-RGB color space, with a D65 white point.
+_RGB_ color space, with a D65 white point.
 
 Therefore to convert from linear color values defined in terms of Display P3
-color primaries to latexmath:[$XYZ$] space the formulae in <<PRIMARY_CONVERSION>>
+color primaries to _XYZ_ space the formulae in <<PRIMARY_CONVERSION>>
 result in the following matrix:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
@@ -963,7 +959,7 @@ G_{\textrm{DisplayP3}} \\
 B_{\textrm{DisplayP3}}\end{array}\right)$$
 ++++++
 endif::[]
-The inverse transformation, from the latexmath:[$XYZ$] space to a color
+The inverse transformation, from the _XYZ_ space to a color
 defined in terms of DisplayP3 color primaries, is:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
@@ -1019,7 +1015,7 @@ W_x &= 0.3127  & W_y &= 0.3290
 ++++++
 
 Therefore to convert from linear color values defined in terms of Adobe RGB
-(1998) color primaries to latexmath:[$XYZ$] space the formulae in
+(1998) color primaries to _XYZ_ space the formulae in
 <<PRIMARY_CONVERSION>> result in the following matrix:
 [latexmath]
 ++++++
@@ -1034,7 +1030,7 @@ Z\end{array}\right) \approx
 G_{\textrm{AdobeRGB}} \\
 B_{\textrm{AdobeRGB}}\end{array}\right)$$
 ++++++
-The inverse transformation, from the latexmath:[$XYZ$] space to a color
+The inverse transformation, from the _XYZ_ space to a color
 defined in terms of Adobe RGB (1998) color primaries, is:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]

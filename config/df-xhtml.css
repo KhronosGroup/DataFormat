@@ -28,10 +28,15 @@ div.normative { color: purple; }
 p.normative { color: purple; }
 span.normative { color: purple; }
 
-/* Use a sans-serif font. This needs to be in a smaller point size. */
+/* If we don't go sans-serif, matching the math font is vastly easier. */
 body {
-  font-family: Arial,sans-serif;
 }
+
+table.table { margin-left: auto; margin-right: auto; }
+div.table-contents { margin-left: auto; margin-right: auto; }
+table-contents { margin-left: auto; margin-right: auto; }
+div.informaltable { margin-left: auto; margin-right: auto; }
+table.informaltable { margin-left: auto; margin-right: auto; }
 
 /* End data format modifications and additions */
 
@@ -50,13 +55,41 @@ body blockquote {
 }
 
 html body {
-  margin: 125px 5% 1em 5%;
+  margin: 125px auto 1em auto;
+  max-width: 1000px;
   line-height: 1.2;
   background-image: url("../images/Khronos_Dec14.svg");
   background-size: 525px 125px;
   background-repeat: no-repeat;
   background-position: center 0px;
 }
+
+@media screen and (min-width:1500px) {
+    div.toc {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 25em;
+        padding: 0.5em;
+        padding-bottom: 1.5em;
+        margin: 0;
+        overflow: auto;
+        border-right: 3px solid #f8f8f8;
+        background-color: white;
+    }
+    html body {
+        margin: 125px auto 1em auto;
+        padding-left: 25em;
+        max-width: 1000px;
+        line-height: 1.2;
+        background-image: url("../images/Khronos_Dec14.svg");
+        background-size: 525px 125px;
+        background-repeat: no-repeat;
+        background-position: center 0px;
+    }
+}
+
 
 body div {
   margin: 0;
@@ -269,20 +302,10 @@ div.indexdiv dl, div.indexdiv dt
   margin-bottom: 0;
 }
 
-/*
-  Table styling does not work because of overriding attributes in
-  generated HTML.
-*/
-div.table table,
 div.informaltable table
 {
-    margin-left: 0;
-    margin-right: 5%;
-    margin-bottom: 0.8em;
-}
-div.informaltable table
-{
-    margin-top: 0.4em
+    margin-top: 0.2em;
+    margin-bottom: 0.2em;
 }
 div.table thead,
 div.table tfoot,
@@ -365,3 +388,5 @@ span.small { font-size: 0.6em; }
 span.underline { text-decoration: underline; }
 span.overline { text-decoration: overline; }
 span.line-through { text-decoration: line-through; }
+
+p.title { text-align: center; }

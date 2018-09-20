@@ -24,4 +24,6 @@
   <xsl:text>\line(1,0){444}&#10; </xsl:text>
   <xsl:text>\end{center}&#10; </xsl:text>
 </xsl:template>
+
+<xsl:param name="doc.collab.show" select="0"/>
 </xsl:stylesheet>
