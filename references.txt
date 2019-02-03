@@ -1,0 +1,47 @@
+// Copyright (c) 2019 The Khronos Group Inc.
+// Copyright notice at https://www.khronos.org/registry/speccopyright.html
+
+== External references ==
+
+*[[IEEE 754]]IEEE754-2008 - IEEE standard for floating-point arithmetic*
+
+IEEE Std 754-2008
+http://dx.doi.org/10.1109/IEEESTD.2008.4610935,
+August, 2008. +
+
+*[[bt601]]ITU-R BT.601 Studio encoding parameters of digital television for standard 4:3 and wide-screen 16:9 aspect ratios*
+
+link:http://www.itu.int/rec/R-REC-BT.601/en[http://www.itu.int/rec/R-REC-BT.601/en] +
+
+*[[bt709]]ITU-R BT.709 Parameter values for the HDTV standards for production and international programme exchange*
+
+link:https://www.itu.int/rec/R-REC-BT.709/en[https://www.itu.int/rec/R-REC-BT.709/en] +
+
+*[[bt2020]]ITU-R BT.2020 Parameter values for ultra-high definition television systems for production and international programme exchange*
+
+link:http://www.itu.int/rec/R-REC-BT.2020/en[http://www.itu.int/rec/R-REC-BT.2020/en] +
+
+*[[aces]]Academy Color Encoding System*
+
+link:http://www.oscars.org/science-technology/aces/aces-documentation[
+http://www.oscars.org/science-technology/sci-tech-projects/aces/aces-documentation]
+
+The international standard for ACES, link:https://www.smpte.org/store[SMPTE ST 2065-1:2012
+- Academy Color Encoding Specification (ACES)], is available from the SMPTE, and also
+from link:http://ieeexplore.ieee.org/document/7289895[the IEEE].
+
+link:http://j.mp/TB-2014-004[TB-2014-004: Informative Notes on SMPTE ST 2065-1 –
+Academy Color Encoding Specification (ACES)] is freely available and contains
+a draft of the international standard.
+
+link:http://j.mp/S-2014-003[ACEScc — A Logarithmic Encoding of ACES Data for use
+within Color Grading Systems]
+
+link:http://j.mp/S-2016-001_[ACEScct — A Quasi-Logarithmic Encoding of ACES Data
+for use within Color Grading Systems] +
+
+*[[srgb]]IEC/4WD 61966-2-1: Colour measurement and management in multimedia systems and equipment - part 2-1: default RGB colour space - sRGB*
+
+link:https://webstore.iec.ch/publication/6169[https://webstore.iec.ch/publication/6169 (specification)]
+
+link:http://www.w3.org/Graphics/Color/srgb[http://www.w3.org/Graphics/Color/srgb] +

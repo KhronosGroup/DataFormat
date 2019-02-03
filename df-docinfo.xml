@@ -1,5 +1,5 @@
 <!--
-Copyright (c) 2014-2017 The Khronos Group Inc.
+Copyright (c) 2014-2019 The Khronos Group Inc.
 Copyright notice at https://www.khronos.org/registry/speccopyright.html
  -->
 
@@ -20,36 +20,15 @@ Copyright notice at https://www.khronos.org/registry/speccopyright.html
 </xsl:stylesheet>
 
 <authorgroup>
-<author><firstname>Andrew</firstname><surname>Garrard</surname></author>
+<author><firstname>&nbsp;Andrew</firstname><surname>Garrard&nbsp;</surname></author>
 </authorgroup>
-<contrib>
-<othercredit><firstname>Frank</firstname><surname>Brill</surname></othercredit>
-<othercredit><firstname>Sean</firstname><surname>Ellis</surname></othercredit>
-<othercredit><firstname>Jonas</firstname><surname>Gustavsson</surname></othercredit>
-<othercredit><firstname>Chris</firstname><surname>Hebert</surname></othercredit>
-<othercredit><firstname>Daniel</firstname><surname>Koch</surname></othercredit>
-<othercredit><firstname>Thierry</firstname><surname>Lepley</surname></othercredit>
-<othercredit><firstname>Tommaso</firstname><surname>Maestri</surname></othercredit>
-<othercredit><firstname>Kathleen</firstname><surname>Mattson</surname></othercredit>
-<othercredit><firstname>Hans-Peter</firstname><surname>Nilsson</surname></othercredit>
-<othercredit><firstname>Alon</firstname><surname>Or-bach</surname></othercredit>
-<othercredit><firstname>Erik</firstname><surname>Rainey</surname></othercredit>
-<othercredit><firstname>Daniel</firstname><surname>Rakos</surname></othercredit>
-<othercredit><firstname>Graham</firstname><surname>Sellers</surname></othercredit>
-<othercredit><firstname>David</firstname><surname>Sena</surname></othercredit>
-<othercredit><firstname>Mark</firstname><surname>Callow</surname></othercredit>
-<othercredit><firstname>Jon</firstname><surname>Leech</surname></othercredit>
-</contrib>
 
-<!--
-<copyright>
-<year>2017</year>
-<holder>The Khronos Group Inc.</holder>
-</copyright>
--->
 <legalnotice>
+<title>
+Khronos Data Format Specification License Information
+</title>
 <simpara>
-Copyright (C) 2014-2017  The Khronos Group Inc. All Rights Reserved.
+Copyright (C) 2014-2019  The Khronos Group Inc. All Rights Reserved.
 </simpara>
 <simpara>
 This specification is protected by copyright laws and contains material proprietary to the Khronos Group, Inc. It or any components may not be reproduced, republished, distributed, transmitted, displayed, broadcast, or otherwise exploited in any manner without the express prior written permission of Khronos Group. You may use this specification for implementing the functionality therein, without altering or removing any trademark, copyright or other notice from the specification, but the receipt or possession of this specification does not convey any rights to reproduce, disclose, or distribute its contents, or to manufacture, use, or sell anything that it may describe, in whole or in part.
@@ -72,138 +51,154 @@ Khronos, SYCL, SPIR, WebGL, EGL, COLLADA, StreamInput, OpenVX, OpenKCam, glTF, O
 <revhistory>
 <revision>
 <revnumber>0.1</revnumber>
-<date>Jan 2015</date>
+<date>&nbsp;Jan 2015&nbsp;</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-Initial sharing
+&nbsp;Initial sharing&nbsp;
 </revremark>
 </revision>
 <revision>
 <revnumber>0.2</revnumber>
-<date>Feb 2015</date>
+<date>&nbsp;Feb 2015&nbsp;</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-Added clarification, tables, examples
+&nbsp;Added clarification, tables, examples&nbsp;
 </revremark>
 </revision>
 <revision>
 <revnumber>0.3</revnumber>
-<date>Feb 2015</date>
+<date>&nbsp;Feb 2015&nbsp;</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-Further cleanup
+&nbsp;Further cleanup&nbsp;
 </revremark>
 </revision>
 <revision>
 <revnumber>0.4</revnumber>
-<date>Apr 2015</date>
+<date>&nbsp;Apr 2015&nbsp;</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-Channel ordering standardised
+&nbsp;Channel ordering standardized&nbsp;
 </revremark>
 </revision>
 <revision>
 <revnumber>0.5</revnumber>
-<date>Apr 2015</date>
+<date>&nbsp;Apr 2015&nbsp;</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-Typos and clarification
+&nbsp;Typos and clarification&nbsp;
 </revremark>
 </revision>
 <revision>
 <revnumber>1.0</revnumber>
-<date>May 2015</date>
+<date>&nbsp;May 2015&nbsp;</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-Submission for 1.0 release
+&nbsp;Submission for 1.0 release&nbsp;
 </revremark>
 </revision>
 <revision>
 <revnumber>1.0 rev 2</revnumber>
-<date>June 2015</date>
+<date>&nbsp;Jun 2015&nbsp;</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-Clarifications for 1.0 release
+&nbsp;Clarifications for 1.0 release&nbsp;
 </revremark>
 </revision>
 <revision>
 <revnumber>1.0 rev 3</revnumber>
-<date>July 2015</date>
+<date>&nbsp;Jul 2015&nbsp;</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-Added KHR_DF_SAMPLE_DATATYPE_LINEAR
+&nbsp;Added KHR_DF_SAMPLE_DATATYPE_LINEAR&nbsp;
 </revremark>
 </revision>
 <revision>
 <revnumber>1.0 rev 4</revnumber>
-<date>July 2015</date>
+<date>&nbsp;Jul 2015&nbsp;</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-Clarified KHR_DF_SAMPLE_DATATYPE_LINEAR
+&nbsp;Clarified KHR_DF_SAMPLE_DATATYPE_LINEAR&nbsp;
+</revremark>
+</revision>
+<revision>
+<revnumber>1.0 rev 5</revnumber>
+<date>&nbsp;Mar 2019&nbsp;</date>
+<authorinitials>AG</authorinitials>
+<revremark>
+&nbsp;Clarification and typography&nbsp;
 </revremark>
 </revision>
 <revision>
 <revnumber>1.1</revnumber>
-<date>November 2015</date>
+<date>&nbsp;Nov 2015&nbsp;</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-Added definitions of compressed texture formats
+&nbsp;Added definitions of compressed texture formats&nbsp;
 </revremark>
 </revision>
 <revision>
 <revnumber>1.1 rev 2</revnumber>
-<date>January 2016</date>
+<date>&nbsp;Jan 2016&nbsp;</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-Added definitions of floating point formats
+&nbsp;Added definitions of floating point formats&nbsp;
 </revremark>
 </revision>
 <revision>
 <revnumber>1.1 rev 3</revnumber>
-<date>February 2016</date>
+<date>&nbsp;Feb 2016&nbsp;</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-Fixed typo in sRGB conversion (thank you, Tom Grim!)
+&nbsp;Fixed typo in sRGB conversion (thank you, Tom Grim!)&nbsp;
 </revremark>
 </revision>
 <revision>
 <revnumber>1.1 rev 4</revnumber>
-<date>March 2016</date>
+<date>&nbsp;Mar 2016&nbsp;</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-Fixed typo/clarified sRGB in ASTC, typographical improvements
+&nbsp;Fixed typo/clarified sRGB in ASTC, typographical improvements&nbsp;
 </revremark>
 </revision>
 <revision>
 <revnumber>1.1 rev 5</revnumber>
-<date>March 2016</date>
+<date>&nbsp;Mar 2016&nbsp;</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-Switch to official Khronos logo, removed scripts, restored title
+&nbsp;Switch to official Khronos logo, removed scripts, restored title&nbsp;
 </revremark>
 </revision>
 <revision>
 <revnumber>1.1 rev 6</revnumber>
-<date>June 2016</date>
+<date>&nbsp;Jun 2016&nbsp;</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-ASTC "block footprint" note, fixed credits/changelog/contents
+&nbsp;ASTC "block footprint" note, fixed credits/changelog/contents&nbsp;
 </revremark>
 </revision>
 <revision>
 <revnumber>1.1 rev 7</revnumber>
-<date>September 2016</date>
+<date>&nbsp;Sep 2016&nbsp;</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-ASTC multi-point "part" and quint decode typo fixes
+&nbsp;ASTC multi-point "part" and quint decode typo fixes&nbsp;
 </revremark>
 </revision>
 <revision>
 <revnumber>1.1 rev 8</revnumber>
-<date>June 2017</date>
+<date>&nbsp;Jun 2017&nbsp;</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-ETC2 legibility and table typo fix
+&nbsp;ETC2 legibility and table typo fix&nbsp;
+</revremark>
+</revision>
+<revision>
+<revnumber>1.1 rev 9</revnumber>
+<date>&nbsp;Mar 2019&nbsp;</date>
+<authorinitials>AG</authorinitials>
+<revremark>
+&nbsp;Typo fixes and much reformatting&nbsp;
 </revremark>
 </revision>
 </revhistory>

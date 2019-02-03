@@ -1,20 +1,25 @@
-// Copyright (c) 2014-2016 The Khronos Group Inc.
+// Copyright (c) 2014-2019 The Khronos Group Inc.
 // Copyright notice at https://www.khronos.org/registry/speccopyright.html
 [[BPTC]]
 == BPTC Compressed Texture Image Formats
 
 _This description is derived from the ``BPTC Compressed Texture Image Formats''
 section of the OpenGL 4.5 specification._
+More information on
+link:https://docs.microsoft.com/en-us/windows/desktop/direct3d11/bc7-format[BC7],
+link:https://docs.microsoft.com/en-us/windows/desktop/direct3d11/bc7-format-mode-reference[BC7 modes]
+and link:https://docs.microsoft.com/en-us/windows/desktop/direct3d11/bc6h-format[BC6h]
+can be found in Microsoft's online documentation.
 
 Compressed texture images stored using the BPTC compressed image formats are
-represented as a collection of latexmath:[$4 \times 4$] texel blocks, where each block
-contains 128 bits of texel data. The image is encoded as a normal 2D raster
-image in which each latexmath:[$4 \times 4$] block is treated as a single pixel. If a
-BPTC image has a width or height that is not a multiple of four, the data
-corresponding to texels outside the image are irrelevant and undefined.
-
-When a BPTC image with a width of _w_, height of _h_, and block size
-of _blocksize_ (16 bytes) is decoded, the corresponding image size (in
+represented as a collection of 4{times}4 texel blocks, each of which
+contains 128 bits of texel data stored in little-endian order.
+The image is encoded as a normal 2D raster image in which each 4{times}4 block
+is treated as a single pixel.
+If a BPTC image has a width or height that is not a multiple of four, the
+data corresponding to texels outside the image are irrelevant and undefined.
+When a BPTC image with width _w_, height _h_, and block size
+_blocksize_ (16 bytes) is decoded, the corresponding image size (in
 bytes) is:
 
 [latexmath]
@@ -26,7 +31,7 @@ blocksize
 \end{align*}
 ++++++++++++++++
 
-When decoding a BPTC image, the block containing the texel at offset latexmath:[$(x,y)$]
+When decoding a BPTC image, the block containing the texel at offset (_x_, _y_)
 begins at an offset (in bytes) relative to the base of the image of:
 
 [latexmath]
@@ -39,8 +44,8 @@ blocksize \times
 \end{align*}
 ++++++++++++++
 
-The data corresponding to a specific texel latexmath:[$(x,y)$] are extracted from a
-latexmath:[$4 \times 4$] texel block using a relative latexmath:[$(x,y)$] value of:
+The data corresponding to a specific texel (_x_, _y_) are extracted from a
+4{times}4 texel block using a relative (_x_, _y_) value of:
 
 [latexmath]
 ++++++++++++++
@@ -51,340 +56,984 @@ latexmath:[$4 \times 4$] texel block using a relative latexmath:[$(x,y)$] value 
 
 There are two distinct BPTC image formats each of which has two variants.
 BC7 with or without an sRGB transform function used in the encoding of the
-RGB channels compresses 8-bit unsigned, normalized fixed-point data.
+_RGB_ channels compresses 8-bit unsigned, normalized fixed-point data.
 BC6H in signed or unsigned form compresses high dynamic range
 floating-point values. The formats are similar, so the description of the
 BC6H format will reference significant sections of the BC7 description.
 
 === BC7
 
-Each latexmath:[$4 \times 4$] block of texels consists of 128 bits of RGBA
-image data, of which the RGB components may be encoded linearly or with the
-sRGB transfer function.
+Each 4{times}4 block of texels consists of 128 bits of _RGBA_
+image data, of which the _RGB_ channels may be encoded linearly or with the
+<<srgbgamma,sRGB transfer function>>.
 
-Each block contains enough information to select and decode a pair of colors
-called endpoints, interpolate between those endpoints in a variety of ways,
-then remap the result into the final output.
+Each block contains enough information to select and decode a number of
+colors called endpoints, pairs of which forms subsets, then to
+interpolate between those endpoints in a variety of ways, and finally to
+remap the result into the final output by indexing into these interpolated
+values according to a partition layout which maps each relative coordinate
+to a subset.
 
 Each block can contain data in one of eight modes. The mode is identified by
 the lowest bits of the lowest byte. It is encoded as zero or more zeros
-followed by a one. For example, using x to indicate a bit not included in
+followed by a one. For example, using `x' to indicate a bit not included in
 the mode number, mode 0 is encoded as xxxxxxx1 in the low byte in binary,
 mode 5 is xx100000, and mode 7 is 10000000. Encoding the low byte as zero is
-reserved and should not be used when encoding a BPTC texture.
+reserved and should not be used when encoding a BPTC texture; hardware
+decoders processing a texel block with a low byte of 0 should return 0 for
+all channels of all texels.
 
 All further decoding is driven by the values derived from the mode listed in
-<<table-bptcmodes>> and <<table-bptcmodedescriptions>>. The fields in the
-block are always in the same
-order for all modes. Starting at the lowest bit after the mode and going up,
-these fields are: partition number, rotation, index selection, color, alpha,
+<<table-bptcmodes>> and <<table-bptcmodedescriptions>>.
+The fields in the block are always in the same order for all modes.
+In increasing bit order after the mode, these fields are:
+partition pattern selection, rotation, index selection, color, alpha,
 per-endpoint P-bit, shared P-bit, primary indices, and secondary indices.
-The number of bits to be read in each field is determined directly from the
-table.
+The number of bits to be read in each field is determined directly from
+these tables, as shown in <<table-bptcmodebits>>.
+[NOTE]
+====
+Per texel block, _CB_ = 3(each of _R_, _G_,
+_B_){times}2(endpoints){times}NS(#subsets){times}CB(bits/channel/endpoint).
 
-Each block can be divided into between 1 and 3 groups of pixels with
-independent compression parameters called subsets. A texel in a block with
-one subset is always considered to be in subset zero. Otherwise, a number
-determined by the number of partition bits is used to look up in
-<<bptcP2subset>> or <<bptcP3subset>> for 2 and
-3 subsets respectively. This partitioning is indexed by the X and Y within
-the block to generate the subset index.
-
-Each block has two colors for each subset, stored first by endpoint, then by
-subset, then by color. For example, a format with two subsets and five color
-bits would have five bits of red for endpoint 0 of the first subset, then
-five bits of red for endpoint 1, then the two ends of the second subset,
-then green and blue stored similarly. If a block has non-zero alpha bits,
-the alpha data follows the color data with the same organization. If not,
-alpha is overridden to 1.0. These bits are treated as the high bits of a
-fixed-point value in a byte. If the format has a shared P-bit, there are two
-bits for endpoints 0 and 1 from low to high. If the format has a per-endpoint
-P-bits, then there are latexmath:[$2 \times subsets$] P-bits stored in the same
-order as color and alpha. Both kinds of P-bits are added as a bit below the
-color data stored in the byte. So, for a format with 5 red bits, the P-bit
-ends up in bit 2. For final scaling, the top bits of the value are
-replicated into any remaining bits in the byte. For the preceding example,
-bits 6 and 7 would be written to bits 0 and 1.
-
-The endpoint colors are interpolated using index values stored in the block.
-The index bits are stored in x-major order. Each index has the number of
-bits indicated by the mode except for one special index per subset called
-the anchor index. Since the ordering of the endpoints is unimportant, we can
-save one bit on one index per subset by ordering the endpoints such that the
-highest bit is guaranteed to be zero. In partition zero, the anchor index is
-always index zero. In other partitions, the anchor index is specified by
-<<bptcA2index>>, <<bptcA32index>>, and <<bptcA33index>>. If secondary index
-bits are present, they are read in the same manner. The anchor index information
-is only used to determine the number of bits each index has when it's read from
-the block data.
-
-The endpoint color and alpha values used for final interpolation are the
-decoded values corresponding to the applicable subset as selected above. The
-index value for interpolating color comes from the secondary index for the
-texel if the format has an index selection bit and its value is one and from
-the primary index otherwise. The alpha index comes from the secondary index
-if the block has a secondary index and the block either doesn't have an
-index selection bit or that bit is zero and the primary index otherwise.
-
-Interpolation is always performed using a 6-bit interpolation factor. The
-effective interpolation factors for 2-, 3-, and 4-bit indices are given
-in <<BPTCInterpolation>>.
-
-[[BPTCInterpolation]]
-.BPTC interpolation factors
-[cols="h,16*",width="80%"]
-|==========
-^| 2 4+^| 0 4+^| 21 4+^| 43 4+^| 64
-^| 3 2+^| 0 2+^| 9 2+^| 18 2+^|27 2+^| 37 2+^| 46 2+^| 55 2+^| 64
-^| 4 ^| 0 ^| 4 ^| 9 ^| 13 ^| 17 ^| 21 ^| 26 ^| 30 ^| 34 ^| 38 ^| 43 ^| 47 ^| 51 ^| 55 ^| 60 ^| 64
-|==========
-
-The interpolation results in an RGBA color. If rotation bits are present,
-this color is remapped according to <<BPTCRotation>>.
-
-[[BPTCRotation]]
-.BPTC Rotation bits
-[cols="h,3",width="25%"]
-|============
-^| 0 | no change
-^| 1 | swap(a,r)
-^| 2 | swap(a,g)
-^| 3 | swap(a,b)
-|============
-
-These 8-bit values should be interpreted as RGBA 8-bit normalized
-channels, either linearly encoded or with the sRGB transfer function.
-
+_AB_ = 2(endpoints){times}NS(#subsets){times}AB(bits/endpoint).
+{_IB_,_IB~2~_} = 16(texels){times}{IB,IB~2~}(#index bits/texel)
+- NS(1bit/subset).
+====
 [[table-bptcmodes]]
-.Mode-dependent BPTC parameters.
-[options="header",width="80%"]
+.Mode-dependent BPTC parameters
+[width="97%",cols="7%,4%,4%,4%,4%,9%,9%,11%,9%,5%,4%,1%,3%,4%,4%,5%,5%,4%,4%"]
 |============
-^| Mode ^| NS ^| PB ^| RB ^| ISB ^| CB ^| AB ^| EPB ^| SPB ^| IB ^| IB2
-^| 0    ^| 3  ^| 4  ^| 0  ^| 0   ^| 4  ^| 0  ^| 1   ^| 0   ^| 3  ^| 0
-^| 1    ^| 2  ^| 6  ^| 0  ^| 0   ^| 6  ^| 0  ^| 0   ^| 1   ^| 3  ^| 0
-^| 2    ^| 3  ^| 6  ^| 0  ^| 0   ^| 5  ^| 0  ^| 0   ^| 0   ^| 2  ^| 0
-^| 3    ^| 2  ^| 6  ^| 0  ^| 0   ^| 7  ^| 0  ^| 1   ^| 0   ^| 2  ^| 0
-^| 4    ^| 1  ^| 0  ^| 2  ^| 1   ^| 5  ^| 6  ^| 0   ^| 0   ^| 2  ^| 3
-^| 5    ^| 1  ^| 0  ^| 2  ^| 0   ^| 7  ^| 8  ^| 0   ^| 0   ^| 2  ^| 2
-^| 6    ^| 1  ^| 0  ^| 0  ^| 0   ^| 7  ^| 7  ^| 1   ^| 0   ^| 4  ^| 0
-^| 7    ^| 2  ^| 6  ^| 0  ^| 0   ^| 5  ^| 5  ^| 1   ^| 0   ^| 2  ^| 0
+^| *Mode* ^| *NS* ^| *PB* ^| *RB* ^| *ISB* ^| *CB* ^| *AB* ^| *EPB* ^| *SPB* ^| *IB* ^| *IB~2~* 1.10+^| ^| *M* ^| *_CB_* ^| *_AB_* ^| *_EPB_* ^| *_SPB_* ^| *_IB_* ^| *_IB~2~_*
+2+^| *Bits per...* 3+^| ...texel block 2+^| ...channel/endpoint ^| ...endpoint ^| ...subset 2+^| ...texel 7+^| Bits per texel block (total)
+^| *0* ^| 3 ^| 4 ^| 0 ^| 0 ^| 4 ^| 0 ^| 1 ^| 0 ^| 3 ^| 0 ^| 1 ^| 72 ^| 0  ^| 6 ^| 0 ^| 45 ^| 0
+^| *1* ^| 2 ^| 6 ^| 0 ^| 0 ^| 6 ^| 0 ^| 0 ^| 1 ^| 3 ^| 0 ^| 2 ^| 72 ^| 0  ^| 0 ^| 2 ^| 46 ^| 0
+^| *2* ^| 3 ^| 6 ^| 0 ^| 0 ^| 5 ^| 0 ^| 0 ^| 0 ^| 2 ^| 0 ^| 3 ^| 90 ^| 0  ^| 0 ^| 0 ^| 29 ^| 0
+^| *3* ^| 2 ^| 6 ^| 0 ^| 0 ^| 7 ^| 0 ^| 1 ^| 0 ^| 2 ^| 0 ^| 4 ^| 84 ^| 0  ^| 4 ^| 0 ^| 30 ^| 0
+^| *4* ^| 1 ^| 0 ^| 2 ^| 1 ^| 5 ^| 6 ^| 0 ^| 0 ^| 2 ^| 3 ^| 5 ^| 30 ^| 12 ^| 0 ^| 0 ^| 31 ^| 47
+^| *5* ^| 1 ^| 0 ^| 2 ^| 0 ^| 7 ^| 8 ^| 0 ^| 0 ^| 2 ^| 2 ^| 6 ^| 42 ^| 16 ^| 0 ^| 0 ^| 31 ^| 31
+^| *6* ^| 1 ^| 0 ^| 0 ^| 0 ^| 7 ^| 7 ^| 1 ^| 0 ^| 4 ^| 0 ^| 7 ^| 42 ^| 14 ^| 2 ^| 0 ^| 63 ^| 0
+^| *7* ^| 2 ^| 6 ^| 0 ^| 0 ^| 5 ^| 5 ^| 1 ^| 0 ^| 2 ^| 0 ^| 8 ^| 60 ^| 20 ^| 4 ^| 0 ^| 30 ^| 0
 |============
 
 [[table-bptcmodedescriptions]]
-.The full descriptions of the BPTC mode columns are as follows
-[options="header",cols="1,7",width="45%"]
+.Full descriptions of the BPTC mode columns
+[cols="1,6",width="40%"]
 |============
-^| Mode | As described previously
-^| NS | Number of subsets in each partition
-^| PB | Partition bits
-^| RB | Rotation bits
-^| ISB | Index selection bits
-^| CB | Color bits
-^| AB | Alpha bits
-^| EPB | Endpoint P-bits
-^| SPB | Shared P-bits
-^| IB | Index bits per element
-^| IB2 | Secondary index bits per element}
+^| *M* | &nbsp; Mode identifier bits
+^| *NS* | &nbsp; Number of subsets
+^| *PB* | &nbsp; Partition selection bits
+^| *RB* | &nbsp; Rotation bits
+^| *ISB* | &nbsp; Index selection bit
+^| *CB* | &nbsp; Color bits
+^| *AB* | &nbsp; Alpha bits
+^| *EPB* | &nbsp; Endpoint P-bits (all channels)
+^| *SPB* | &nbsp; Shared P-bits
+^| *IB* | &nbsp; Index bits
+^| *IB~2~* | &nbsp; Secondary index bits
+|============
+Each block can be divided into between 1 and 3 groups of pixels called _subsets_,
+which have different endpoints.
+There are two endpoint colors per subset, grouped first by endpoint,
+then by subset, then by channel.
+For example, mode 1, with two subsets and six color bits, would have six
+bits of red for endpoint 0 of the first subset, then six bits of red for
+endpoint 1, then the two ends of the second subset, then green and blue stored
+similarly.
+If a block has any alpha bits, the alpha data follows the color data with
+the same organization.
+If not, alpha is overridden to 255.
+These bits are treated as the high bits of a fixed-point value in a byte
+for each color channel of the endpoints: {_E_~_R_~^7..0^, _E_~_G_~^7..0^, _E_~_B_~^7..0^,
+_E_~_A_~^7..0^} per endpoint.
+If the mode has shared P-bits, there are two endpoint bits, the lower of
+which applies to both endpoints of subset 0 and the upper of which applies
+to both endpoints of subset 1.
+If the mode has per-endpoint P-bits, then there are 2 {times} _subsets_
+P-bits stored in the same order as color and alpha.
+Both kinds of P-bits are added as a bit below the color data stored in the
+byte.
+So, for mode 1 with six red bits, the P-bit ends up in bit 1.
+For final scaling, the top bits of the value are replicated into any
+remaining bits in the byte.
+For the example of mode 1, bit 7 (which originated as bit 5 of the 6-bit
+encoded channel) would be replicated to bit 0.
+<<table-bptcsourcebits>> and <<table-bptcsourcebits2>> show the origin of
+each endpoint color bit for each mode.
+
+[[table-bptcmodebits]]
+.Bit layout for BC7 modes (LSB..MSB)
+[cols="7*1"]
+|============
+1.6+^.^| Mode
+
+{nbsp}0 2+^| ~_0:_~ *M^0^ = 1* 4+^| ~_1..4:_~ PB^0..3^
+^| ~_5..8:_~ _R_~0~^0..3^ ^| ~_9..12:_~ _R_~1~^0..3^ ^| ~_13..16:_~ _R_~2~^0..3^ ^| ~_17..20:_~ _R_~3~^0..3^ ^| ~_21..24:_~ _R_~4~^0..3^ ^| ~_25..28:_~ _R_~5~^0..3^
+^| ~_29..32:_~ _G_~0~^0..3^ ^| ~_33..36:_~ _G_~1~^0..3^ ^| ~_37..40:_~ _G_~2~^0..3^ ^| ~_41..44:_~ _G_~3~^0..3^ ^| ~_45..48:_~ _G_~4~^0..3^ ^| ~_49..52:_~ _G_~5~^0..3^
+^| ~_53..56:_~ _B_~0~^0..3^ ^| ~_57..60:_~ _B_~1~^0..3^ ^| ~_61..64:_~ _B_~2~^0..3^ ^| ~_65..68:_~ _B_~3~^0..3^ ^| ~_69..72:_~ _B_~4~^0..3^ ^| ~_73..76:_~ _B_~5~^0..3^
+^| ~_77:_~ EPB~0~^0^ ^| ~_78:_~ EPB~1~^0^ ^| ~_79:_~ EPB~2~^0^ ^| ~_80:_~ EPB~3~^0^ ^| ~_81:_~ EPB~4~^0^ ^| ~_82:_~ EPB~5~^0^
+6+^| ~_83..127:_~ IB^0..44^
+1.5+^.^| Mode
+
+{nbsp}1 2+^| ~_0..1:_~ *M^0..1^ = 01* 4+^| ~_2..7:_~ PB^0..5^
+^| ~_8..13:_~ _R_~0~^0..5^ ^| ~_14..19:_~ _R_~1~^0..5^ ^| ~_20..25:_~ _R_~2~^0..5^ ^| ~_26..31:_~ _R_~3~^0..5^ 2.3+^|
+^| ~_32..37:_~ _G_~0~^0..5^ ^| ~_38..43:_~ _G_~1~^0..5^ ^| ~_44..49:_~ _G_~2~^0..5^ ^| ~_50..55:_~ _G_~3~^0..5^
+^| ~_56..61:_~ _B_~0~^0..5^ ^| ~_62..67:_~ _B_~1~^0..5^ ^| ~_68..73:_~ _B_~2~^0..5^ ^| ~_74..79:_~ _B_~3~^0..5^
+^| ~_80:_~ SPB~0~^0^ ^| ~_81:_~ SPB~1~^0^ 4+^| ~_82..127:_~ IB^0..45^
+1.5+^.^| Mode
+
+{nbsp}2 2+^| ~_0..2:_~ *M^0..2^ = 001* 4+^| ~_3..8:_~ PB^0..5^
+^| ~_9..13:_~ _R_~0~^0..4^ ^| ~_14..18:_~ _R_~1~^0..4^ ^| ~_19..23:_~ _R_~2~^0..4^ ^| ~_24..28:_~ _R_~4~^0..4^ ^| ~_29..33:_~ _R_~4~^0..4^ ^| ~_34..38:_~ _R_~5~^0..4^
+^| ~_39..43:_~ _G_~0~^0..4^ ^| ~_44..48:_~ _G_~1~^0..4^ ^| ~_49..53:_~ _G_~2~^0..4^ ^| ~_54..58:_~ _G_~4~^0..4^ ^| ~_59..63:_~ _G_~4~^0..4^ ^| ~_64..68:_~ _G_~5~^0..4^
+^| ~_69..73:_~ _B_~0~^0..4^ ^| ~_74..78:_~ _B_~1~^0..4^ ^| ~_79..83:_~ _B_~2~^0..4^ ^| ~_84..88:_~ _B_~4~^0..4^ ^| ~_89..93:_~ _B_~4~^0..4^ ^| ~_94..98:_~ _B_~5~^0..4^
+6+^| ~_99..127:_~ IB^0..28^
+1.5+^.^| Mode
+
+{nbsp}3 2+^| ~_0..3:_~ *M^0..3^ = 0001* 4+^| ~_4..9:_~ PB^0..5^
+^| ~_10..16:_~ _R_~0~^0..6^ ^| ~_17..23:_~ _R_~1~^0..6^ ^| ~_24..30:_~ _R_~2~^0..6^ ^| ~_31..37:_~ _R_~3~^0..6^ 2.3+^|
+^| ~_38..44:_~ _G_~0~^0..6^ ^| ~_45..51:_~ _G_~1~^0..6^ ^| ~_52..58:_~ _G_~2~^0..6^ ^| ~_59..65:_~ _G_~3~^0..6^
+^| ~_66..72:_~ _B_~0~^0..6^ ^| ~_73..79:_~ _B_~1~^0..6^ ^| ~_80..86:_~ _B_~2~^0..6^ ^| ~_87..93:_~ _B_~3~^0..6^
+^| ~_94:_~ EPB~0~^0^ ^| ~_95:_~ EPB~1~^0^ ^| ~_96:_~ EPB~2~^0^ ^| ~_97:_~ EPB~3~^0^ 2+^| ~_98..127:_~ IB^0..29^
+1.3+^.^| Mode
+
+{nbsp}4 2+^| ~_0..4:_~ *M^0..4^ = 00001* 2+^| ~_5..6:_~ RB^0..1^ 2+^| ~_7:_~ ISB^0^
+^| ~_8..12:_~ _R_~0~^0..4^ ^| ~_13..17:_~ _R_~1~^0..4^ ^| ~_18..22:_~ _G_~0~^0..4^ ^| ~_23..27:_~ _G_~1~^0..4^ ^| ~_28..32:_~ _B_~0~^0..4^ ^| ~_33..37:_~ _B_~1~^0..4^
+^| ~_38..43:_~ _A_~0~^0..5^ ^| ~_44..49:_~ _A_~1~^0..5^ 2+^| ~_50..80:_~ IB^0..30^ 2+^| ~_81..127:_~ IB~2~^0..46^
+1.3+^.^| Mode
+
+{nbsp}5 2+^| ~_0..5:_~ *M^0..5^ = 000001* 4+^| ~_6..7:_~ RB^0..1^
+^| ~_8..14:_~ _R_~0~^0..6^ ^| ~_15..21:_~ _R_~1~^0..6^ ^| ~_22..28:_~ _G_~0~^0..6^ ^| ~_29..34:_~ _G_~1~^0..6^ ^| ~_35..41:_~ _B_~0~^0..6^ ^| ~_42..49:_~ _B_~1~^0..6^
+^| ~_50..57:_~ _A_~0~^0..7^ ^| ~_58..65:_~ _A_~1~^0..7^ 2+^| ~_66..96:_~ IB^0..30^ 2+^| ~_97..127:_~ IB~2~^0..30^
+1.3+^.^| Mode
+
+{nbsp}6 2+^| ~_0..6:_~ *M^0..6^ = 0000001* 4+^|
+^| ~_7..13:_~ _R_~0~^0..6^ ^| ~_14..20:_~ _R_~1~^0..6^ ^| ~_21..27:_~ _G_~0~^0..6^ ^| ~_28..34:_~ _G_~1~^0..6^ ^| ~_35..41:_~ _B_~0~^0..6^ ^| ~_42..48:_~ _B_~1~^0..6^
+^| ~_49..55:_~ _A_~0~^0..6^ ^| ~_56..62:_~ _A_~1~^0..6^ ^| ~_63:_~ EPB~0~^0^ ^| ~_64:_~ EPB~1~^0^ 2+^| ~_65..127:_~ IB^0..62^
+1.6+^.^| Mode
+
+{nbsp}7 2+^| ~_0..7:_~ *M^0..7^ = 00000001* 4+^| ~_8..13:_~ PB^0..5^
+^| ~_14..18:_~ _R_~0~^0..4^ ^| ~_19..23:_~ _R_~1~^0..4^ ^| ~_24..28:_~ _R_~2~^0..4^ ^| ~_29..33:_~ _R_~3~^0..4^ 2.4+^|
+^| ~_34..38:_~ _G_~0~^0..4^ ^| ~_39..43:_~ _G_~1~^0..4^ ^| ~_44..48:_~ _G_~2~^0..4^ ^| ~_49..53:_~ _G_~3~^0..4^
+^| ~_54..58:_~ _B_~0~^0..4^ ^| ~_59..63:_~ _B_~1~^0..4^ ^| ~_64..68:_~ _B_~2~^0..4^ ^| ~_69..73:_~ _B_~3~^0..4^
+^| ~_74..78:_~ _A_~0~^0..4^ ^| ~_79..83:_~ _A_~1~^0..4^ ^| ~_84..88:_~ _A_~2~^0..4^ ^| ~_89..93:_~ _A_~3~^0..4^
+^| ~_94:_~ EPB~0~^0^ ^| ~_95:_~ EPB~1~^0^ ^| ~_96:_~ EPB~2~^0^ ^| ~_97:_~ EPB~3~^0^ 2+^| ~_98..127:_~ IB^0..29^
 |============
 
-[[bptcP2subset]]
-.Partition table for BPTC 2 subset, with the 4×4 block of values for each partition index value
-|==================
-4+^| 0 4+^| 1 4+^| 2 4+^| 3 4+^| 4 4+^| 5 4+^| 6 4+^| 7
-| 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 1 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0
-| 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 1 | 1 | 1 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 1 | 1 | 1 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1
-| 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 1 | 1 | 1 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 1 | 1 | 1 | 0 | 1 | 1 | 1 | 0 | 0 | 1 | 1
-| 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 1 | 1 | 1 | 0 | 1 | 1 | 1 | 0 | 0 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 1 | 1 | 1
+ifndef::a2xhtml[]
+&nbsp;
+endif::[]
 
-4+^| 8 4+^| 9 4+^| 10 4+^| 11 4+^| 12 4+^| 13 4+^| 14 4+^| 15
-| 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
-| 0 | 0 | 0 | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 1 | 1 | 1 | 0 | 0 | 0 | 0
-| 0 | 0 | 0 | 1 | 1 | 1 | 1 | 1 | 0 | 1 | 1 | 1 | 0 | 0 | 0 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 0 | 0
-| 0 | 0 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1
+[[table-bptcsourcebits]]
+.Bit sources for BC7 endpoints (modes 0..2, MSB..LSB per channel)
+[cols="32*1",width="97%"]
+|============
+32+^| *Mode 0*
+8+^| _E_~_R0_~^7..0^ 8+^| _E_~_G0_~^7..0^ 8+^| _E_~_B0_~^7..0^ 8+^| _E_~_A0_~^7..0^
+^| 8 ^| 7 ^| 6 ^| 5 ^| 77 ^| 8 ^| 7 ^| 6
+^| 32 ^| 31 ^| 30 ^| 29 ^| 77 ^| 32 ^| 31 ^| 30
+^| 56 ^| 55 ^| 54 ^| 53 ^| 77 ^| 56 ^| 55 ^| 54
+8+^| _255_
+8+^| _E_~_R1_~^7..0^ 8+^| _E_~_G1_~^7..0^ 8+^| _E_~_B1_~^7..0^ 8+^| _E_~_A1_~^7..0^
+^| 12 ^| 11 ^| 10 ^| 9 ^| 78 ^| 12 ^| 11 ^| 10
+^| 36 ^| 35 ^| 34 ^| 33 ^| 78 ^| 36 ^| 35 ^| 34
+^| 60 ^| 59 ^| 58 ^| 57 ^| 78 ^| 60 ^| 59 ^| 58
+8+^| _255_
+8+^| _E_~_R2_~^7..0^ 8+^| _E_~_G2_~^7..0^ 8+^| _E_~_B2_~^7..0^ 8+^| _E_~_A2_~^7..0^
+^| 16 ^| 15 ^| 14 ^| 13 ^| 79 ^| 16 ^| 15 ^| 14
+^| 40 ^| 39 ^| 38 ^| 37 ^| 79 ^| 40 ^| 39 ^| 38
+^| 64 ^| 63 ^| 62 ^| 61 ^| 79 ^| 64 ^| 63 ^| 62
+8+^| _255_
+8+^| _E_~_R3_~^7..0^ 8+^| _E_~_G3_~^7..0^ 8+^| _E_~_B3_~^7..0^ 8+^| _E_~_A3_~^7..0^
+^| 20 ^| 19 ^| 18 ^| 17 ^| 80 ^| 20 ^| 19 ^| 18
+^| 44 ^| 43 ^| 42 ^| 41 ^| 80 ^| 44 ^| 43 ^| 42
+^| 68 ^| 67 ^| 66 ^| 65 ^| 80 ^| 68 ^| 67 ^| 66
+8+^| _255_
+8+^| _E_~_R4_~^7..0^ 8+^| _E_~_G4_~^7..0^ 8+^| _E_~_B4_~^7..0^ 8+^| _E_~_A4_~^7..0^
+^| 24 ^| 23 ^| 22 ^| 21 ^| 81 ^| 24 ^| 23 ^| 22
+^| 48 ^| 47 ^| 46 ^| 45 ^| 81 ^| 48 ^| 47 ^| 46
+^| 72 ^| 71 ^| 70 ^| 69 ^| 81 ^| 72 ^| 71 ^| 70
+8+^| _255_
+8+^| _E_~_R5_~^7..0^ 8+^| _E_~_G5_~^7..0^ 8+^| _E_~_B5_~^7..0^ 8+^| _E_~_A5_~^7..0^
+^| 28 ^| 27 ^| 26 ^| 25 ^| 82 ^| 28 ^| 27 ^| 26
+^| 52 ^| 51 ^| 50 ^| 49 ^| 82 ^| 52 ^| 51 ^| 50
+^| 76 ^| 75 ^| 74 ^| 73 ^| 82 ^| 76 ^| 75 ^| 74
+8+^| _255_
+32+^| *Mode 1*
+8+^| _E_~_R0_~^7..0^ 8+^| _E_~_G0_~^7..0^ 8+^| _E_~_B0_~^7..0^ 8+^| _E_~_A0_~^7..0^
+^| 13 ^| 12 ^| 11 ^| 10 ^| 9 ^| 8 ^| 80 ^| 13
+^| 37 ^| 36 ^| 35 ^| 34 ^| 33 ^| 32 ^| 80 ^| 37
+^| 61 ^| 60 ^| 59 ^| 58 ^| 57 ^| 56 ^| 80 ^| 61
+8+^| _255_
+8+^| _E_~_R1_~^7..0^ 8+^| _E_~_G1_~^7..0^ 8+^| _E_~_B1_~^7..0^ 8+^| _E_~_A1_~^7..0^
+^| 19 ^| 18 ^| 17 ^| 16 ^| 15 ^| 14 ^| 80 ^| 19
+^| 43 ^| 42 ^| 41 ^| 40 ^| 39 ^| 38 ^| 80 ^| 43
+^| 67 ^| 66 ^| 65 ^| 64 ^| 63 ^| 62 ^| 80 ^| 67
+8+^| _255_
+8+^| _E_~_R2_~^7..0^ 8+^| _E_~_G2_~^7..0^ 8+^| _E_~_B2_~^7..0^ 8+^| _E_~_A2_~^7..0^
+^| 25 ^| 24 ^| 23 ^| 22 ^| 21 ^| 20 ^| 81 ^| 25
+^| 49 ^| 48 ^| 47 ^| 46 ^| 45 ^| 44 ^| 81 ^| 49
+^| 73 ^| 72 ^| 71 ^| 70 ^| 69 ^| 68 ^| 81 ^| 73
+8+^| _255_
+8+^| _E_~_R3_~^7..0^ 8+^| _E_~_G3_~^7..0^ 8+^| _E_~_B3_~^7..0^ 8+^| _E_~_A3_~^7..0^
+^| 31 ^| 30 ^| 29 ^| 28 ^| 27 ^| 26 ^| 81 ^| 31
+^| 55 ^| 54 ^| 53 ^| 52 ^| 51 ^| 50 ^| 81 ^| 55
+^| 79 ^| 78 ^| 77 ^| 76 ^| 75 ^| 74 ^| 81 ^| 79
+8+^| _255_
+32+^| *Mode 2*
+8+^| _E_~_R0_~^7..0^ 8+^| _E_~_G0_~^7..0^ 8+^| _E_~_B0_~^7..0^ 8+^| _E_~_A0_~^7..0^
+^| 13 ^| 12 ^| 11 ^| 10 ^| 9 ^| 13 ^| 12 ^| 11
+^| 43 ^| 42 ^| 41 ^| 40 ^| 39 ^| 43 ^| 42 ^| 41
+^| 73 ^| 72 ^| 71 ^| 70 ^| 69 ^| 73 ^| 72 ^| 71
+8+^| _255_
+8+^| _E_~_R1_~^7..0^ 8+^| _E_~_G1_~^7..0^ 8+^| _E_~_B1_~^7..0^ 8+^| _E_~_A1_~^7..0^
+^| 18 ^| 17 ^| 16 ^| 15 ^| 14 ^| 18 ^| 17 ^| 16
+^| 48 ^| 47 ^| 46 ^| 45 ^| 44 ^| 48 ^| 47 ^| 46
+^| 78 ^| 77 ^| 76 ^| 75 ^| 74 ^| 78 ^| 77 ^| 76
+8+^| _255_
+8+^| _E_~_R2_~^7..0^ 8+^| _E_~_G2_~^7..0^ 8+^| _E_~_B2_~^7..0^ 8+^| _E_~_A2_~^7..0^
+^| 23 ^| 22 ^| 21 ^| 20 ^| 19 ^| 23 ^| 22 ^| 21
+^| 53 ^| 52 ^| 51 ^| 50 ^| 49 ^| 53 ^| 52 ^| 51
+^| 83 ^| 82 ^| 81 ^| 80 ^| 79 ^| 83 ^| 82 ^| 81
+8+^| _255_
+8+^| _E_~_R3_~^7..0^ 8+^| _E_~_G3_~^7..0^ 8+^| _E_~_B3_~^7..0^ 8+^| _E_~_A3_~^7..0^
+^| 28 ^| 27 ^| 26 ^| 25 ^| 24 ^| 28 ^| 27 ^| 26
+^| 58 ^| 57 ^| 56 ^| 55 ^| 54 ^| 58 ^| 57 ^| 56
+^| 88 ^| 87 ^| 86 ^| 85 ^| 84 ^| 88 ^| 87 ^| 86
+8+^| _255_
+8+^| _E_~_R4_~^7..0^ 8+^| _E_~_G4_~^7..0^ 8+^| _E_~_B4_~^7..0^ 8+^| _E_~_A4_~^7..0^
+^| 33 ^| 32 ^| 31 ^| 30 ^| 29 ^| 33 ^| 32 ^| 31
+^| 63 ^| 62 ^| 61 ^| 60 ^| 59 ^| 63 ^| 62 ^| 61
+^| 93 ^| 92 ^| 91 ^| 90 ^| 89 ^| 93 ^| 92 ^| 91
+8+^| _255_
+8+^| _E_~_R5_~^7..0^ 8+^| _E_~_G5_~^7..0^ 8+^| _E_~_B5_~^7..0^ 8+^| _E_~_A5_~^7..0^
+^| 38 ^| 37 ^| 36 ^| 35 ^| 34 ^| 38 ^| 37 ^| 36
+^| 68 ^| 67 ^| 66 ^| 65 ^| 64 ^| 68 ^| 67 ^| 66
+^| 98 ^| 97 ^| 96 ^| 95 ^| 94 ^| 98 ^| 97 ^| 96
+8+^| _255_
+|============
 
-4+^| 16 4+^| 17 4+^| 18 4+^| 19 4+^| 20 4+^| 21 4+^| 22 4+^| 23
-| 0 | 0 | 0 | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 1
-| 1 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1
-| 1 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 1
-| 1 | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 1 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1
+ifndef::a2xhtml[]
+&nbsp;
+endif::[]
 
-4+^| 24 4+^| 25 4+^| 26 4+^| 27 4+^| 28 4+^| 29 4+^| 30 4+^| 31
-| 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 1 | 1
-| 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 1
-| 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 1 | 0 | 1 | 1 | 1 | 0 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 1
-| 0 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 1 | 0 | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 1 | 0 | 1 | 1 | 0 | 0
+[[table-bptcsourcebits2]]
+.Bit sources for BC7 endpoints (modes 3..7, MSB..LSB per channel)
+[cols="32*1",width="97%"]
+|============
+32+^| *Mode 3*
+8+^| _E_~_R0_~^7..0^ 8+^| _E_~_G0_~^7..0^ 8+^| _E_~_B0_~^7..0^ 8+^| _E_~_A0_~^7..0^
+^| 16 ^| 15 ^| 14 ^| 13 ^| 12 ^| 11 ^| 10 ^| 94
+^| 44 ^| 43 ^| 42 ^| 41 ^| 40 ^| 39 ^| 38 ^| 94
+^| 72 ^| 71 ^| 70 ^| 69 ^| 68 ^| 67 ^| 66 ^| 94
+8+^| _255_
+8+^| _E_~_R1_~^7..0^ 8+^| _E_~_G1_~^7..0^ 8+^| _E_~_B1_~^7..0^ 8+^| _E_~_A1_~^7..0^
+^| 23 ^| 22 ^| 21 ^| 20 ^| 19 ^| 18 ^| 17 ^| 95
+^| 51 ^| 50 ^| 49 ^| 48 ^| 47 ^| 46 ^| 45 ^| 95
+^| 79 ^| 78 ^| 77 ^| 76 ^| 75 ^| 74 ^| 73 ^| 95
+8+^| _255_
+8+^| _E_~_R2_~^7..0^ 8+^| _E_~_G2_~^7..0^ 8+^| _E_~_B2_~^7..0^ 8+^| _E_~_A2_~^7..0^
+^| 30 ^| 29 ^| 28 ^| 27 ^| 26 ^| 25 ^| 24 ^| 96
+^| 58 ^| 57 ^| 56 ^| 55 ^| 54 ^| 53 ^| 52 ^| 96
+^| 86 ^| 85 ^| 84 ^| 83 ^| 82 ^| 81 ^| 80 ^| 96
+8+^| _255_
+8+^| _E_~_R3_~^7..0^ 8+^| _E_~_G3_~^7..0^ 8+^| _E_~_B3_~^7..0^ 8+^| _E_~_A3_~^7..0^
+^| 37 ^| 36 ^| 35 ^| 34 ^| 33 ^| 32 ^| 31 ^| 97
+^| 65 ^| 64 ^| 63 ^| 62 ^| 61 ^| 60 ^| 59 ^| 97
+^| 93 ^| 92 ^| 91 ^| 90 ^| 89 ^| 88 ^| 87 ^| 97
+8+^| _255_
+32+^| *Mode 4*
+8+^| _E_~_R0_~^7..0^ 8+^| _E_~_G0_~^7..0^ 8+^| _E_~_B0_~^7..0^ 8+^| _E_~_A0_~^7..0^
+^| 12 ^| 11 ^| 10 ^| 9 ^| 8 ^| 12 ^| 11 ^| 10
+^| 22 ^| 21 ^| 20 ^| 19 ^| 18 ^| 22 ^| 21 ^| 20
+^| 32 ^| 31 ^| 30 ^| 29 ^| 28 ^| 32 ^| 31 ^| 30
+^| 43 ^| 42 ^| 41 ^| 40 ^| 39 ^| 38 ^| 43 ^| 42
+8+^| _E_~_R1_~^7..0^ 8+^| _E_~_G1_~^7..0^ 8+^| _E_~_B1_~^7..0^ 8+^| _E_~_A1_~^7..0^
+^| 17 ^| 16 ^| 15 ^| 14 ^| 13 ^| 17 ^| 16 ^| 15
+^| 27 ^| 26 ^| 25 ^| 24 ^| 23 ^| 27 ^| 26 ^| 25
+^| 37 ^| 36 ^| 35 ^| 34 ^| 33 ^| 37 ^| 36 ^| 35
+^| 49 ^| 48 ^| 47 ^| 46 ^| 45 ^| 44 ^| 49 ^| 48
+32+^| *Mode 5*
+8+^| _E_~_R0_~^7..0^ 8+^| _E_~_G0_~^7..0^ 8+^| _E_~_B0_~^7..0^ 8+^| _E_~_A0_~^7..0^
+^| 14 ^| 13 ^| 12 ^| 11 ^| 10 ^| 9 ^| 8 ^| 14
+^| 28 ^| 27 ^| 26 ^| 25 ^| 24 ^| 23 ^| 22 ^| 28
+^| 42 ^| 41 ^| 40 ^| 39 ^| 38 ^| 37 ^| 36 ^| 42
+^| 57 ^| 56 ^| 55 ^| 54 ^| 53 ^| 52 ^| 51 ^| 50
+8+^| _E_~_R1_~^7..0^ 8+^| _E_~_G1_~^7..0^ 8+^| _E_~_B1_~^7..0^ 8+^| _E_~_A1_~^7..0^
+^| 21 ^| 20 ^| 19 ^| 18 ^| 17 ^| 16 ^| 15 ^| 21
+^| 35 ^| 34 ^| 33 ^| 32 ^| 31 ^| 30 ^| 29 ^| 35
+^| 49 ^| 48 ^| 47 ^| 46 ^| 45 ^| 44 ^| 43 ^| 49
+^| 65 ^| 64 ^| 63 ^| 62 ^| 61 ^| 60 ^| 59 ^| 58
+32+^| *Mode 6*
+8+^| _E_~_R0_~^7..0^ 8+^| _E_~_G0_~^7..0^ 8+^| _E_~_B0_~^7..0^ 8+^| _E_~_A0_~^7..0^
+^| 13 ^| 12 ^| 11 ^| 10 ^| 9 ^| 8 ^| 7 ^| 63
+^| 27 ^| 26 ^| 25 ^| 24 ^| 23 ^| 22 ^| 21 ^| 63
+^| 41 ^| 40 ^| 39 ^| 38 ^| 37 ^| 36 ^| 35 ^| 63
+^| 55 ^| 54 ^| 53 ^| 52 ^| 51 ^| 50 ^| 49 ^| 63
+8+^| _E_~_R1_~^7..0^ 8+^| _E_~_G1_~^7..0^ 8+^| _E_~_B1_~^7..0^ 8+^| _E_~_A1_~^7..0^
+^| 20 ^| 19 ^| 18 ^| 17 ^| 16 ^| 15 ^| 14 ^| 64
+^| 34 ^| 33 ^| 32 ^| 31 ^| 30 ^| 29 ^| 28 ^| 64
+^| 48 ^| 47 ^| 46 ^| 45 ^| 44 ^| 43 ^| 42 ^| 64
+^| 62 ^| 61 ^| 60 ^| 59 ^| 58 ^| 57 ^| 56 ^| 64
+32+^| *Mode 7*
+8+^| _E_~_R0_~^7..0^ 8+^| _E_~_G0_~^7..0^ 8+^| _E_~_B0_~^7..0^ 8+^| _E_~_A0_~^7..0^
+^| 18 ^| 17 ^| 16 ^| 15 ^| 14 ^| 94 ^| 18 ^| 17
+^| 38 ^| 37 ^| 36 ^| 35 ^| 34 ^| 94 ^| 38 ^| 37
+^| 58 ^| 57 ^| 56 ^| 55 ^| 54 ^| 94 ^| 58 ^| 57
+^| 78 ^| 77 ^| 76 ^| 75 ^| 74 ^| 94 ^| 78 ^| 77
+8+^| _E_~_R1_~^7..0^ 8+^| _E_~_G1_~^7..0^ 8+^| _E_~_B1_~^7..0^ 8+^| _E_~_A1_~^7..0^
+^| 23 ^| 22 ^| 21 ^| 20 ^| 19 ^| 95 ^| 23 ^| 22
+^| 43 ^| 42 ^| 41 ^| 40 ^| 39 ^| 95 ^| 43 ^| 42
+^| 63 ^| 62 ^| 61 ^| 60 ^| 59 ^| 95 ^| 63 ^| 62
+^| 83 ^| 82 ^| 81 ^| 80 ^| 79 ^| 95 ^| 83 ^| 82
+8+^| _E_~_R2_~^7..0^ 8+^| _E_~_G2_~^7..0^ 8+^| _E_~_B2_~^7..0^ 8+^| _E_~_A2_~^7..0^
+^| 28 ^| 27 ^| 26 ^| 25 ^| 24 ^| 96 ^| 28 ^| 27
+^| 48 ^| 47 ^| 46 ^| 45 ^| 44 ^| 96 ^| 48 ^| 47
+^| 68 ^| 67 ^| 66 ^| 65 ^| 64 ^| 96 ^| 68 ^| 67
+^| 88 ^| 87 ^| 86 ^| 85 ^| 84 ^| 96 ^| 88 ^| 87
+8+^| _E_~_R3_~^7..0^ 8+^| _E_~_G3_~^7..0^ 8+^| _E_~_B3_~^7..0^ 8+^| _E_~_A3_~^7..0^
+^| 33 ^| 32 ^| 31 ^| 30 ^| 29 ^| 97 ^| 33 ^| 32
+^| 53 ^| 52 ^| 51 ^| 50 ^| 49 ^| 97 ^| 53 ^| 52
+^| 73 ^| 72 ^| 71 ^| 70 ^| 69 ^| 97 ^| 73 ^| 72
+^| 93 ^| 92 ^| 91 ^| 90 ^| 89 ^| 97 ^| 93 ^| 92
+|============
 
-4+^| 32 4+^| 33 4+^| 34 4+^| 35 4+^| 36 4+^| 37 4+^| 38 4+^| 39
-| 0 | 1 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 1 | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 1 | 0 | 1 | 0 | 1 | 0 | 1 | 1 | 0 | 0 | 1 | 0 | 1
-| 0 | 1 | 0 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 1 | 0 | 0 | 0 | 1 | 1 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 1 | 1 | 0 | 0 | 1 | 1 | 0 | 1 | 0
-| 0 | 1 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 1 | 1 | 0 | 1 | 0 | 0 | 1 | 1 | 0 | 1 | 0 | 1 | 0
-| 0 | 1 | 0 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 1 | 0 | 1 | 1 | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 0 | 1 | 0 | 1 | 0 | 0 | 1 | 0 | 1 | 0 | 1
-
-4+^| 40 4+^| 41 4+^| 42 4+^| 43 4+^| 44 4+^| 45 4+^| 46 4+^| 47
-| 0 | 1 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 1 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 1 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0
-| 0 | 0 | 1 | 1 | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 0 | 1 | 0 | 1 | 1 | 1 | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 1 | 0
-| 1 | 1 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 1 | 1 | 0 | 1 | 1 | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 1 | 0 | 1 | 1 | 0
-| 1 | 1 | 1 | 0 | 1 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0
-
-4+^| 48 4+^| 49 4+^| 50 4+^| 51 4+^| 52 4+^| 53 4+^| 54 4+^| 55
-| 0 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 1 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 1
-| 1 | 1 | 1 | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 1 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 1
-| 0 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 1 | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 1 | 1 | 1 | 0 | 0
-| 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 0 | 1 | 1 | 0
-
-4+^| 56 4+^| 57 4+^| 58 4+^| 59 4+^| 60 4+^| 61 4+^| 62 4+^| 63
-| 0 | 1 | 1 | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 1 | 0 | 0
-| 1 | 1 | 0 | 0 | 0 | 0 | 1 | 1 | 1 | 1 | 1 | 0 | 1 | 0 | 0 | 0 | 1 | 1 | 1 | 1 | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 1 | 0 | 0
-| 1 | 1 | 0 | 0 | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 0 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 1 | 1 | 1
-| 1 | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 1 | 0 | 1 | 1 | 1 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 1 | 1 | 1
-|==================
-
-[[bptcP3subset]]
-.Partition table for BPTC 3 subset, with the 4×4 block of values for each partition index value
-|===============
-4+^| 0 4+^| 1 4+^| 2 4+^| 3 4+^| 4 4+^| 5 4+^| 6 4+^| 7
-| 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 2 | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 2 | 2 | 0 | 0 | 1 | 1
-| 0 | 0 | 1 | 1 | 0 | 0 | 1 | 1 | 2 | 0 | 0 | 1 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 2 | 2 | 0 | 0 | 1 | 1
-| 0 | 2 | 2 | 1 | 2 | 2 | 1 | 1 | 2 | 2 | 1 | 1 | 0 | 0 | 1 | 1 | 1 | 1 | 2 | 2 | 0 | 0 | 2 | 2 | 1 | 1 | 1 | 1 | 2 | 2 | 1 | 1
-| 2 | 2 | 2 | 2 | 2 | 2 | 2 | 1 | 2 | 2 | 1 | 1 | 0 | 1 | 1 | 1 | 1 | 1 | 2 | 2 | 0 | 0 | 2 | 2 | 1 | 1 | 1 | 1 | 2 | 2 | 1 | 1
-
-4+^| 8 4+^| 9 4+^| 10 4+^| 11 4+^| 12 4+^| 13 4+^| 14 4+^| 15
-| 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 2 | 0 | 1 | 1 | 2 | 0 | 1 | 2 | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 1
-| 0 | 0 | 0 | 0 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 1 | 2 | 0 | 1 | 1 | 2 | 0 | 1 | 2 | 2 | 0 | 1 | 1 | 2 | 2 | 0 | 0 | 1
-| 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 2 | 2 | 2 | 2 | 0 | 0 | 1 | 2 | 0 | 1 | 1 | 2 | 0 | 1 | 2 | 2 | 1 | 1 | 2 | 2 | 2 | 2 | 0 | 0
-| 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 0 | 0 | 1 | 2 | 0 | 1 | 1 | 2 | 0 | 1 | 2 | 2 | 1 | 2 | 2 | 2 | 2 | 2 | 2 | 0
-
-4+^| 16 4+^| 17 4+^| 18 4+^| 19 4+^| 20 4+^| 21 4+^| 22 4+^| 23
-| 0 | 0 | 0 | 1 | 0 | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 2 | 2 | 0 | 1 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
-| 0 | 0 | 1 | 1 | 0 | 0 | 1 | 1 | 1 | 1 | 2 | 2 | 0 | 0 | 2 | 2 | 0 | 1 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 1 | 1 | 1 | 1 | 0 | 0
-| 0 | 1 | 1 | 2 | 2 | 0 | 0 | 1 | 1 | 1 | 2 | 2 | 0 | 0 | 2 | 2 | 0 | 2 | 2 | 2 | 2 | 2 | 2 | 1 | 0 | 1 | 2 | 2 | 2 | 2 | 1 | 0
-| 1 | 1 | 2 | 2 | 2 | 2 | 0 | 0 | 1 | 1 | 2 | 2 | 1 | 1 | 1 | 1 | 0 | 2 | 2 | 2 | 2 | 2 | 2 | 1 | 0 | 1 | 2 | 2 | 2 | 2 | 1 | 0
-
-4+^| 24 4+^| 25 4+^| 26 4+^| 27 4+^| 28 4+^| 29 4+^| 30 4+^| 31
-| 0 | 1 | 2 | 2 | 0 | 0 | 1 | 2 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2 | 2 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0
-| 0 | 1 | 2 | 2 | 0 | 0 | 1 | 2 | 1 | 2 | 2 | 1 | 0 | 1 | 1 | 0 | 1 | 1 | 0 | 2 | 0 | 1 | 1 | 0 | 0 | 1 | 2 | 2 | 2 | 0 | 0 | 0
-| 0 | 0 | 1 | 1 | 1 | 1 | 2 | 2 | 1 | 2 | 2 | 1 | 1 | 2 | 2 | 1 | 1 | 1 | 0 | 2 | 2 | 0 | 0 | 2 | 0 | 1 | 2 | 2 | 2 | 2 | 1 | 1
-| 0 | 0 | 0 | 0 | 2 | 2 | 2 | 2 | 0 | 1 | 1 | 0 | 1 | 2 | 2 | 1 | 0 | 0 | 2 | 2 | 2 | 2 | 2 | 2 | 0 | 0 | 1 | 1 | 2 | 2 | 2 | 1
-
-4+^| 32 4+^| 33 4+^| 34 4+^| 35 4+^| 36 4+^| 37 4+^| 38 4+^| 39
-| 0 | 0 | 0 | 0 | 0 | 2 | 2 | 2 | 0 | 0 | 1 | 1 | 0 | 1 | 2 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 2 | 0 | 0 | 1 | 2 | 0 | 0 | 0 | 1 | 1
-| 0 | 0 | 0 | 2 | 0 | 0 | 2 | 2 | 0 | 0 | 1 | 2 | 0 | 1 | 2 | 0 | 1 | 1 | 1 | 1 | 1 | 2 | 0 | 1 | 2 | 0 | 1 | 2 | 2 | 2 | 0 | 0
-| 1 | 1 | 2 | 2 | 0 | 0 | 1 | 2 | 0 | 0 | 2 | 2 | 0 | 1 | 2 | 0 | 2 | 2 | 2 | 2 | 2 | 0 | 1 | 2 | 1 | 2 | 0 | 1 | 1 | 1 | 2 | 2
-| 1 | 2 | 2 | 2 | 0 | 0 | 1 | 1 | 0 | 2 | 2 | 2 | 0 | 1 | 2 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 2 | 0 | 0 | 1 | 2 | 0 | 0 | 0 | 1 | 1
-
-4+^| 40 4+^| 41 4+^| 42 4+^| 43 4+^| 44 4+^| 45 4+^| 46 4+^| 47
-| 0 | 0 | 1 | 1 | 0 | 1 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 2 | 2 | 0 | 0 | 2 | 2 | 0 | 2 | 2 | 0 | 0 | 1 | 0 | 1 | 0 | 0 | 0 | 0
-| 1 | 1 | 2 | 2 | 0 | 1 | 0 | 1 | 0 | 0 | 0 | 0 | 1 | 1 | 2 | 2 | 0 | 0 | 1 | 1 | 1 | 2 | 2 | 1 | 2 | 2 | 2 | 2 | 2 | 1 | 2 | 1
-| 2 | 2 | 0 | 0 | 2 | 2 | 2 | 2 | 2 | 1 | 2 | 1 | 0 | 0 | 2 | 2 | 0 | 0 | 2 | 2 | 0 | 2 | 2 | 0 | 2 | 2 | 2 | 2 | 2 | 1 | 2 | 1
-| 0 | 0 | 1 | 1 | 2 | 2 | 2 | 2 | 2 | 1 | 2 | 1 | 1 | 1 | 2 | 2 | 0 | 0 | 1 | 1 | 1 | 2 | 2 | 1 | 0 | 1 | 0 | 1 | 2 | 1 | 2 | 1
-
-4+^| 48 4+^| 49 4+^| 50 4+^| 51 4+^| 52 4+^| 53 4+^| 54 4+^| 55
-| 0 | 1 | 0 | 1 | 0 | 2 | 2 | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 2 | 2 | 2 | 0 | 0 | 0 | 2 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0
-| 0 | 1 | 0 | 1 | 0 | 1 | 1 | 1 | 1 | 1 | 1 | 2 | 2 | 1 | 1 | 2 | 0 | 1 | 1 | 1 | 1 | 1 | 1 | 2 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0
-| 0 | 1 | 0 | 1 | 0 | 2 | 2 | 2 | 0 | 0 | 0 | 2 | 2 | 1 | 1 | 2 | 0 | 1 | 1 | 1 | 1 | 1 | 1 | 2 | 0 | 1 | 1 | 0 | 2 | 1 | 1 | 2
-| 2 | 2 | 2 | 2 | 0 | 1 | 1 | 1 | 1 | 1 | 1 | 2 | 2 | 1 | 1 | 2 | 0 | 2 | 2 | 2 | 0 | 0 | 0 | 2 | 2 | 2 | 2 | 2 | 2 | 1 | 1 | 2
-
-4+^| 56 4+^| 57 4+^| 58 4+^| 59 4+^| 60 4+^| 61 4+^| 62 4+^| 63
-| 0 | 1 | 1 | 0 | 0 | 0 | 2 | 2 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2 | 0 | 2 | 2 | 2 | 0 | 1 | 0 | 1 | 0 | 1 | 1 | 1
-| 0 | 1 | 1 | 0 | 0 | 0 | 1 | 1 | 1 | 1 | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 0 | 1 | 1
-| 2 | 2 | 2 | 2 | 0 | 0 | 1 | 1 | 1 | 1 | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2 | 0 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 0 | 1
-| 2 | 2 | 2 | 2 | 0 | 0 | 2 | 2 | 0 | 0 | 2 | 2 | 2 | 1 | 1 | 2 | 0 | 0 | 0 | 1 | 1 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 0
-|==========
-
-[[bptcA2index]]
-.BPTC anchor index values for the second subset of two-subset partitioning. Values run right, then down.
-[width="40%"]
-|==============
->| 15 >| 15 >| 15 >| 15 >| 15 >| 15 >| 15 >| 15
->| 15 >| 15 >| 15 >| 15 >| 15 >| 15 >| 15 >| 15
->| 15 >|  2 >|  8 >|  2 >|  2 >|  8 >|  8 >| 15
->|  2 >|  8 >|  2 >|  2 >|  8 >|  8 >|  2 >|  2
->| 15 >| 15 >|  6 >|  8 >|  2 >|  8 >| 15 >| 15
->|  2 >|  8 >|  2 >|  2 >|  2 >| 15 >| 15 >|  6
->|  6 >|  2 >|  6 >|  8 >| 15 >| 15 >|  2 >|  2
->| 15 >| 15 >| 15 >| 15 >| 15 >|  2 >|  2 >| 15
-|==============
-
-[[bptcA32index]]
-.BPTC anchor index values for the second subset of three-subset partitioning. Values run right, then down.
-[width="40%"]
-|================
->|  3 >|  3 >| 15 >| 15 >|  8 >|  3 >| 15 >| 15
->|  8 >|  8 >|  6 >|  6 >|  6 >|  5 >|  3 >|  3
->|  3 >|  3 >|  8 >| 15 >|  3 >|  3 >|  6 >| 10
->|  5 >|  8 >|  8 >|  6 >|  8 >|  5 >| 15 >| 15
->|  8 >| 15 >|  3 >|  5 >|  6 >| 10 >|  8 >| 15
->| 15 >|  3 >| 15 >|  5 >| 15 >| 15 >| 15 >| 15
->|  3 >| 15 >|  5 >|  5 >|  5 >|  8 >|  5 >| 10
->|  5 >| 10 >|  8 >| 13 >| 15 >| 12 >|  3 >|  3
-|================
-
-[[bptcA33index]]
-.BPTC anchor index values for the third subset of three-subset partitioning. Values run right, then down.
-[width="40%"]
-|===============
->| 15 >|  8 >|  8 >|  3 >| 15 >| 15 >|  3 >|  8
->| 15 >| 15 >| 15 >| 15 >| 15 >| 15 >| 15 >|  8
->| 15 >|  8 >| 15 >|  3 >| 15 >|  8 >| 15 >|  8
->|  3 >| 15 >|  6 >| 10 >| 15 >| 15 >| 10 >|  8
->| 15 >|  3 >| 15 >| 10 >| 10 >|  8 >|  9 >| 10
->|  6 >| 15 >|  8 >| 15 >|  3 >|  6 >|  6 >|  8
->| 15 >|  3 >| 15 >| 15 >| 15 >| 15 >| 15 >| 15
->| 15 >| 15 >| 15 >| 15 >|  3 >| 15 >| 15 >|  8
-|===============
-
-=== BC6H
-
-Each latexmath:[$4 \times 4$] block of texels consists of 128 bits of RGB data. These
-formats are very similar and will be described together. In the description
-and pseudocode below, _signed_ will be used as a condition which is true
-for the signed version of the format and false for the unsigned version of the format.
-Both formats only contain RGB data, so the returned alpha value is 1.0. If a
-block uses a reserved or invalid encoding, the return value is latexmath:[$(0,0,0,1)$].
-
-Each block can contain data in one of 14 modes. The mode number is encoded
-in either the low two bits or the low five bits. If the low two bits are
-less than two, that is the mode number, otherwise the low five bits the mode
-number. Mode numbers not listed in <<table-bptcblockmodes>> are reserved
-(19, 23, 27, and 31).
-
-The data for the compressed blocks is stored in a different format for each
-mode. The formats are specified in <<table-bptcblockformat>>. The format
-strings are intended to be read from left to right with the LSB on the left.
-Each element is of the form latexmath:[$v[a \colon b\]$]. If latexmath:[$a \ge b$], this indicates
-extracting latexmath:[$b-a+1$] bits from the block at that location and put them in the
-corresponding bits of the variable _v_. If _a_ < _b_, then the bits are
-reversed. latexmath:[$v[a\]$] is used as a shorthand for the one bit latexmath:[$v[a \colon a\]$]. As an
-example, latexmath:[$m[1 \colon0 \],g2[4\]$] would move the low two bits from the block into the
-low two bits of m then the next bit of the block into bit 4 of latexmath:[$g2$]. The
-variable names given in the table will be referred to in the language below.
-
-Subsets and indices work in much the same way as described for the
-fixed-point formats above. If a float block has no partition bits, then it
-is a single-subset block. If it has partition bits, then it is a 2 subset
-block. The partition index references the first half of
-<<bptcP2subset>>. Indices are read in the same way as the
-fixed-point formats including obeying the anchor values for index 0 and as
-needed by <<bptcA2index>>.
-
-In a single-subset blocks, the two endpoints are contained in latexmath:[$r_0,g_0,b_0$]
-(hence latexmath:[$e_0$]) and latexmath:[$r_1,g_1,b_1$] (hence latexmath:[$e_1$]). In a two-subset block, the
-endpoints for the second subset are in latexmath:[$r_2,g_2,b_2$] and latexmath:[$r_3,g_3,b_3$]. The
-value in latexmath:[$e_0$] is sign-extended if the format of the texture is signed. The
-values in latexmath:[$e_1$] (and latexmath:[$e_2$] and latexmath:[$e_3$] if the block is two-subset) are
-sign-extended if the format of the texture is signed or if the block mode
-has transformed endpoints. If the mode has transformed endpoints, the values
-from latexmath:[$e_0$] are used as a base to offset all other endpoints, wrapped at the
-number of endpoint bits. For example, latexmath:[$r_1 = (r_0+r_1)$] & latexmath:[$((1 \ll EPB)-1)$].
+ifndef::a2xhtml[]
 
 <<<
 
+&nbsp;
+
+<<<
+
+&nbsp;
+
+<<<
+
+endif::[]
+
+A texel in a block with one subset is always considered to be in subset zero.
+Otherwise, a number encoded in the partition bits is used to look up a
+partition pattern in <<bptcP2subset>> or <<bptcP3subset>> for 2 subsets and
+3 subsets respectively.
+This partition pattern is accessed by the relative _x_ and _y_ offsets within
+the block to determine the subset which defines the pixel at these coordinates.
+
+The endpoint colors are interpolated using index values stored in the block.
+The index bits are stored in y-major order. That is, the bits for the index
+value corresponding to a relative (_x_, _y_) position of (0, 0) are stored
+in increasing order in the lowest index bits of the block (but see the next
+paragraph about anchor indices), the next bits of the block in increasing
+order store the index bits of (1, 0), followed by (2, 0) and (3, 0), then
+(0, 1) etc.
+
+Each index has the number of bits indicated by the mode except for one
+special index per subset called the anchor index.
+Since the interpolation scheme between endpoints is symmetrical, we can
+save one bit on one index per subset by ordering the endpoints such that
+the highest bit for that index is guaranteed to be zero -- and not storing
+that bit.
+
+Each anchor index corresponds to an index in the corresponding partition
+number in <<bptcP2subset>> or <<bptcP3subset>>, and are indicated in bold
+italics in those tables.
+In partition zero, the anchor index is always index zero -- that is, at
+a relative position of (0,0) (as can be seen in <<bptcP2subset>> and
+<<bptcP3subset>>, index 0 always corresponds to partition zero).
+In other partitions, the anchor index is specified by <<bptcA2index>>,
+<<bptcA32index>>, and <<bptcA33index>>.
+
+[NOTE]
+====
+In summary, the bit offset for index data with relative _x,y_ coordinates within the texel
+block is:
+
+[latexmath]
+++++++++++++++
+\begin{align*}
+\textrm{index offset}_{x,y} &= \begin{cases}
+      0, & x = y = 0 \\
+      \textrm{IB} \times (x + 4\times y) - 1, & \textrm{NS} = 1,\ 0 < x + 4\times y \\
+      \textrm{IB} \times (x + 4\times y) - 1, & \textrm{NS} = 2,\ 0 < x + 4\times y \leq \textrm{anchor}_2[\mathit{part}] \\
+      \textrm{IB} \times (x + 4\times y) - 2, & \textrm{NS} = 2,\ \textrm{anchor}_2[\mathit{part}] < x + 4\times y \\
+      \textrm{IB} \times (x + 4\times y) - 1, & \textrm{NS} = 3,\ 0 < x + 4\times y \leq \textrm{anchor}_{3,2}[\mathit{part}],\ x + 4\times y \leq \textrm{anchor}_{3,2}[\mathit{part}]\\
+      \textrm{IB} \times (x + 4\times y) - 3, & \textrm{NS} = 3,\ x + 4\times y > \textrm{anchor}_{3,2}[\mathit{part}],\ x + 4\times y > \textrm{anchor}_{3,3}[\mathit{part}] \\
+      \textrm{IB} \times (x + 4\times y) - 2, & \textrm{NS} = 3,\ \textrm{otherwise} \\
+  \end{cases} \\
+\end{align*}
+++++++++++++++
+
+where anchor~2~ is <<bptcA2index>>, anchor~3,2~ is <<bptcA32index>>,
+anchor~3,3~ is <<bptcA33index>>, and _part_ is encoded in the partition
+selection bits PB.
+====
+
+If secondary index bits are present, they follow the primary index bits and
+are read in the same manner.
+The anchor index information is only used to determine the number of bits each
+index has when read from the block data.
+
+The endpoint color and alpha values used for final interpolation are the
+decoded values corresponding to the applicable subset as selected above.
+The index value for interpolating color comes from the secondary index bits
+for the texel if the mode has an index selection bit and its value is one,
+and from the primary index bits otherwise.
+The alpha index comes from the secondary index bits if the block has a
+secondary index and the block either doesn't have an index selection bit or
+that bit is zero, and from the primary index bits otherwise.
+
+[NOTE]
+====
+As an example of the texel decode process, consider a block encoded with
+mode 2 -- that is, M^0^ = 0, M^1^ = 0, M^2^ = 1.
+This mode has three subsets, so <<bptcP3subset>> is used to determine which
+subset applies to each texel.
+Let us assume that this block has partition pattern 6 encoded in the
+partition selection bits, and that we wish to decode the texel at relative
+(_x_, _y_) offset (1, 2) -- that is, index 9 in y-major order.
+We can see from <<bptcP3subset>> that this texel is partitioned into
+subset 1 (the second of three), and therefore by endpoints 2 and 3.
+Mode 2 stores two index bits per texel, except for index 0 (which is
+the anchor index for subset 0), index 15 (for subset 1, as indicated
+in <<bptcA32index>>) and index 3 (for subset 2, as indicated in
+<<bptcA33index>>).
+Index 9 is therefore stored in two bits starting at index bits offset
+14 (for indices 1..2 and 4..8) plus 2 (for indices 0 and 3) -- a total
+of 16 bit offset into the index bits or, as seen in
+<<table-bptcmodebits>>, bits 115 and 116 of the block.
+These two bits are used to interpolate between endpoints 2 and 3
+using <<BPTCinterpolation>> with weights from the two-bit index row of
+<<BPTCInterpolation>>, as described below.
+====
+
+[[bptcP2subset]]
+.Partition table for 2-subset BPTC, with the 4×4 block of values for each partition number
+[cols="5,5,5,5,1,5,5,5,5,1,5,5,5,5,1,5,5,5,5,1,5,5,5,5,1,5,5,5,5,1,5,5,5,5,1,5,5,5,5",width="97%"]
+|==================
+4+^| ~0~ 1.40+| 4+^| ~1~ 1.40+| 4+^| ~2~ 1.40+| 4+^| ~3~ 1.40+| 4+^| ~4~ 1.40+| 4+^| ~5~ 1.40+| 4+^| ~6~ 1.40+| 4+^| ~7~
+^| *_0_* ^| 0 ^| 1 ^| 1 ^| *_0_* ^| 0 ^| 0 ^| 1 ^| *_0_* ^| 1 ^| 1 ^| 1 ^| *_0_* ^| 0 ^| 0 ^| 1 ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 0 ^| 1 ^| 1 ^| *_0_* ^| 0 ^| 0 ^| 1 ^| *_0_* ^| 0 ^| 0 ^| 0
+^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 1 ^| 0 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 1 ^| 0 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 1
+^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 1 ^| 0 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 1 ^| 0 ^| 1 ^| 1 ^| 1 ^| 0 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0 ^| 1 ^| 1
+^| 0 ^| 0 ^| 1 ^| *_1_* ^| 0 ^| 0 ^| 0 ^| *_1_* ^| 0 ^| 1 ^| 1 ^| *_1_* ^| 0 ^| 1 ^| 1 ^| *_1_* ^| 0 ^| 0 ^| 1 ^| *_1_* ^| 1 ^| 1 ^| 1 ^| *_1_* ^| 1 ^| 1 ^| 1 ^| *_1_* ^| 0 ^| 1 ^| 1 ^| *_1_*
+
+4+^| ~8~ 4+^| ~9~ 4+^| ~10~ 4+^| ~11~ 4+^| ~12~ 4+^| ~13~ 4+^| ~14~ 4+^| ~15~
+^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 0 ^| 1 ^| 1 ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 0 ^| 0 ^| 1 ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 0 ^| 0 ^| 0
+^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 1 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 0
+^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 0 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 0
+^| 0 ^| 0 ^| 1 ^| *_1_* ^| 1 ^| 1 ^| 1 ^| *_1_* ^| 1 ^| 1 ^| 1 ^| *_1_* ^| 0 ^| 1 ^| 1 ^| *_1_* ^| 1 ^| 1 ^| 1 ^| *_1_* ^| 1 ^| 1 ^| 1 ^| *_1_* ^| 1 ^| 1 ^| 1 ^| *_1_* ^| 1 ^| 1 ^| 1 ^| *_1_*
+
+4+^| ~16~ 4+^| ~17~ 4+^| ~18~ 4+^| ~19~ 4+^| ~20~ 4+^| ~21~ 4+^| ~22~ 4+^| ~23~
+^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 1 ^| *_1_* ^| 1 ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 1 ^| *_1_* ^| 1 ^| *_0_* ^| 0 ^| *_1_* ^| 1 ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 1 ^| *_1_* ^| 1
+^| 1 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1
+^| 1 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| *_1_* ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 0 ^| 0 ^| 0 ^| 0 ^| *_1_* ^| 1 ^| 0 ^| 0 ^| *_1_* ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1
+^| 1 ^| 1 ^| 1 ^| *_1_* ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 1 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| *_1_*
+
+4+^| ~24~ 4+^| ~25~ 4+^| ~26~ 4+^| ~27~ 4+^| ~28~ 4+^| ~29~ 4+^| ~30~ 4+^| ~31~
+^| *_0_* ^| 0 ^| *_1_* ^| 1 ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 1 ^| *_1_* ^| 0 ^| *_0_* ^| 0 ^| *_1_* ^| 1 ^| *_0_* ^| 0 ^| 0 ^| 1 ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 1 ^| *_1_* ^| 1 ^| *_0_* ^| 0 ^| *_1_* ^| 1
+^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 1
+^| 0 ^| 0 ^| 0 ^| 1 ^| *_1_* ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| *_1_* ^| 1 ^| 1 ^| 0 ^| *_1_* ^| 1 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 1 ^| 0 ^| 0 ^| 1
+^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 1 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 1 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0
+
+4+^| ~32~ 4+^| ~33~ 4+^| ~34~ 4+^| ~35~ 4+^| ~36~ 4+^| ~37~ 4+^| ~38~ 4+^| ~39~
+^| *_0_* ^| 1 ^| 0 ^| 1 ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 1 ^| 0 ^| 1 ^| *_0_* ^| 0 ^| *_1_* ^| 1 ^| *_0_* ^| 0 ^| *_1_* ^| 1 ^| *_0_* ^| 1 ^| 0 ^| 1 ^| *_0_* ^| 1 ^| 1 ^| 0 ^| *_0_* ^| 1 ^| 0 ^| 1
+^| 0 ^| 1 ^| 0 ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 0 ^| *_1_* ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 1 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 1 ^| 0
+^| 0 ^| 1 ^| 0 ^| 1 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 0 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| *_1_* ^| 0 ^| 1 ^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 1 ^| 0 ^| 1 ^| 0
+^| 0 ^| 1 ^| 0 ^| *_1_* ^| 1 ^| 1 ^| 1 ^| *_1_* ^| 1 ^| 0 ^| 1 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 1 ^| 0 ^| 1 ^| 0 ^| 1 ^| 0 ^| 0 ^| *_1_* ^| 0 ^| 1 ^| 0 ^| *_1_*
+
+4+^| ~40~ 4+^| ~41~ 4+^| ~42~ 4+^| ~43~ 4+^| ~44~ 4+^| ~45~ 4+^| ~46~ 4+^| ~47~
+^| *_0_* ^| 1 ^| *_1_* ^| 1 ^| *_0_* ^| 0 ^| 0 ^| 1 ^| *_0_* ^| 0 ^| *_1_* ^| 1 ^| *_0_* ^| 0 ^| *_1_* ^| 1 ^| *_0_* ^| 1 ^| *_1_* ^| 0 ^| *_0_* ^| 0 ^| 1 ^| 1 ^| *_0_* ^| 1 ^| 1 ^| 0 ^| *_0_* ^| 0 ^| 0 ^| 0
+^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 1 ^| 0 ^| 1 ^| 0 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 1 ^| *_1_* ^| 0
+^| 1 ^| 1 ^| 0 ^| 0 ^| *_1_* ^| 1 ^| 0 ^| 0 ^| 0 ^| 1 ^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0 ^| 1 ^| 0 ^| 0 ^| 1 ^| 0 ^| 1 ^| 1 ^| 0
+^| 1 ^| 1 ^| 1 ^| 0 ^| 1 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 1 ^| *_1_* ^| 1 ^| 0 ^| 0 ^| *_1_* ^| 0 ^| 0 ^| 0 ^| 0
+
+4+^| ~48~ 4+^| ~49~ 4+^| ~50~ 4+^| ~51~ 4+^| ~52~ 4+^| ~53~ 4+^| ~54~ 4+^| ~55~
+^| *_0_* ^| 1 ^| 0 ^| 0 ^| *_0_* ^| 0 ^| *_1_* ^| 0 ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 1 ^| 1 ^| 0 ^| *_0_* ^| 0 ^| 1 ^| 1 ^| *_0_* ^| 1 ^| *_1_* ^| 0 ^| *_0_* ^| 0 ^| *_1_* ^| 1
+^| 1 ^| 1 ^| *_1_* ^| 0 ^| 0 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0 ^| *_1_* ^| 0 ^| 0 ^| 1 ^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0 ^| 1
+^| 0 ^| 1 ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 0 ^| 0 ^| 1 ^| 1 ^| 1 ^| *_1_* ^| 1 ^| 1 ^| 0 ^| 1 ^| 0 ^| 0 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0 ^| 1 ^| 0 ^| 0 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0
+^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 0 ^| 0 ^| 1 ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| *_1_* ^| 1 ^| 0 ^| 0 ^| *_1_* ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 0
+
+4+^| ~56~ 4+^| ~57~ 4+^| ~58~ 4+^| ~59~ 4+^| ~60~ 4+^| ~61~ 4+^| ~62~ 4+^| ~63~
+^| *_0_* ^| 1 ^| 1 ^| 0 ^| *_0_* ^| 1 ^| 1 ^| 0 ^| *_0_* ^| 1 ^| 1 ^| 1 ^| *_0_* ^| 0 ^| 0 ^| 1 ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 0 ^| *_1_* ^| 1 ^| *_0_* ^| 0 ^| *_1_* ^| 0 ^| *_0_* ^| 1 ^| 0 ^| 0
+^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 0 ^| 1 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 1 ^| 0 ^| 0 ^| 1 ^| 0 ^| 0
+^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0 ^| 1 ^| 1 ^| 1
+^| 1 ^| 0 ^| 0 ^| *_1_* ^| 1 ^| 0 ^| 0 ^| *_1_* ^| 0 ^| 0 ^| 0 ^| *_1_* ^| 0 ^| 1 ^| 1 ^| *_1_* ^| 0 ^| 0 ^| 1 ^| *_1_* ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0 ^| 1 ^| 1 ^| *_1_*
+|==================
+
+[[bptcP3subset]]
+.Partition table for 3-subset BPTC, with the 4×4 block of values for each partition number
+[cols="5,5,5,5,1,5,5,5,5,1,5,5,5,5,1,5,5,5,5,1,5,5,5,5,1,5,5,5,5,1,5,5,5,5,1,5,5,5,5",width="97%"]
+|===============
+4+^| ~0~ 1.40+| 4+^| ~1~ 1.40+| 4+^| ~2~ 1.40+| 4+^| ~3~ 1.40+| 4+^| ~4~ 1.40+| 4+^| ~5~ 1.40+| 4+^| ~6~ 1.40+| 4+^| ~7~
+^| *_0_* ^| 0 ^| 1 ^| *_1_* ^| *_0_* ^| 0 ^| 0 ^| *_1_* ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 2 ^| 2 ^| *_2_* ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 0 ^| 1 ^| *_1_* ^| *_0_* ^| 0 ^| 2 ^| *_2_* ^| *_0_* ^| 0 ^| 1 ^| 1
+^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 1 ^| 1 ^| 2 ^| 0 ^| 0 ^| 1 ^| 0 ^| 0 ^| 2 ^| 2 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 2 ^| 2 ^| 0 ^| 0 ^| 1 ^| 1
+^| 0 ^| 2 ^| 2 ^| 1 ^| *_2_* ^| 2 ^| 1 ^| 1 ^| *_2_* ^| 2 ^| 1 ^| 1 ^| 0 ^| 0 ^| 1 ^| 1 ^| *_1_* ^| 1 ^| 2 ^| 2 ^| 0 ^| 0 ^| 2 ^| 2 ^| 1 ^| 1 ^| 1 ^| 1 ^| *_2_* ^| 2 ^| 1 ^| 1
+^| 2 ^| 2 ^| 2 ^| *_2_* ^| 2 ^| 2 ^| 2 ^| *_1_* ^| 2 ^| 2 ^| 1 ^| *_1_* ^| 0 ^| 1 ^| 1 ^| *_1_* ^| 1 ^| 1 ^| 2 ^| *_2_* ^| 0 ^| 0 ^| 2 ^| *_2_* ^| 1 ^| 1 ^| 1 ^| *_1_* ^| 2 ^| 2 ^| 1 ^| *_1_*
+
+4+^| ~8~ 4+^| ~9~ 4+^| ~10~ 4+^| ~11~ 4+^| ~12~ 4+^| ~13~ 4+^| ~14~ 4+^| ~15~
+^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 0 ^| 1 ^| 2 ^| *_0_* ^| 1 ^| 1 ^| 2 ^| *_0_* ^| 1 ^| 2 ^| 2 ^| *_0_* ^| 0 ^| 1 ^| *_1_* ^| *_0_* ^| 0 ^| 1 ^| *_1_*
+^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| *_1_* ^| 1 ^| 0 ^| 0 ^| *_1_* ^| 2 ^| 0 ^| 1 ^| *_1_* ^| 2 ^| 0 ^| *_1_* ^| 2 ^| 2 ^| 0 ^| 1 ^| 1 ^| 2 ^| 2 ^| 0 ^| 0 ^| 1
+^| *_1_* ^| 1 ^| 1 ^| 1 ^| *_1_* ^| 1 ^| 1 ^| 1 ^| 2 ^| 2 ^| 2 ^| 2 ^| 0 ^| 0 ^| 1 ^| 2 ^| 0 ^| 1 ^| 1 ^| 2 ^| 0 ^| 1 ^| 2 ^| 2 ^| 1 ^| 1 ^| 2 ^| 2 ^| *_2_* ^| 2 ^| 0 ^| 0
+^| 2 ^| 2 ^| 2 ^| *_2_* ^| 2 ^| 2 ^| 2 ^| *_2_* ^| 2 ^| 2 ^| 2 ^| *_2_* ^| 0 ^| 0 ^| 1 ^| *_2_* ^| 0 ^| 1 ^| 1 ^| *_2_* ^| 0 ^| 1 ^| 2 ^| *_2_* ^| 1 ^| 2 ^| 2 ^| *_2_* ^| 2 ^| 2 ^| 2 ^| 0
+
+4+^| ~16~ 4+^| ~17~ 4+^| ~18~ 4+^| ~19~ 4+^| ~20~ 4+^| ~21~ 4+^| ~22~ 4+^| ~23~
+^| *_0_* ^| 0 ^| 0 ^| *_1_* ^| *_0_* ^| 1 ^| 1 ^| *_1_* ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 0 ^| 2 ^| *_2_* ^| *_0_* ^| 1 ^| 1 ^| *_1_* ^| *_0_* ^| 0 ^| 0 ^| *_1_* ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 0 ^| 0 ^| 0
+^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 1 ^| 1 ^| 1 ^| 1 ^| 2 ^| 2 ^| 0 ^| 0 ^| 2 ^| 2 ^| 0 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 1 ^| 0 ^| 0 ^| *_1_* ^| 1 ^| 1 ^| 1 ^| 0 ^| 0
+^| 0 ^| 1 ^| 1 ^| 2 ^| *_2_* ^| 0 ^| 0 ^| 1 ^| *_1_* ^| 1 ^| 2 ^| 2 ^| 0 ^| 0 ^| 2 ^| 2 ^| 0 ^| 2 ^| 2 ^| 2 ^| *_2_* ^| 2 ^| 2 ^| 1 ^| 0 ^| 1 ^| 2 ^| 2 ^| *_2_* ^| 2 ^| *_1_* ^| 0
+^| 1 ^| 1 ^| 2 ^| *_2_* ^| 2 ^| 2 ^| 0 ^| 0 ^| 1 ^| 1 ^| 2 ^| *_2_* ^| 1 ^| 1 ^| 1 ^| *_1_* ^| 0 ^| 2 ^| 2 ^| *_2_* ^| 2 ^| 2 ^| 2 ^| 1 ^| 0 ^| 1 ^| 2 ^| *_2_* ^| 2 ^| 2 ^| 1 ^| 0
+
+4+^| ~24~ 4+^| ~25~ 4+^| ~26~ 4+^| ~27~ 4+^| ~28~ 4+^| ~29~ 4+^| ~30~ 4+^| ~31~
+^| *_0_* ^| 1 ^| 2 ^| *_2_* ^| *_0_* ^| 0 ^| 1 ^| 2 ^| *_0_* ^| 1 ^| 1 ^| 0 ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 0 ^| 2 ^| 2 ^| *_0_* ^| 1 ^| 1 ^| 0 ^| *_0_* ^| 0 ^| 1 ^| 1 ^| *_0_* ^| 0 ^| 0 ^| 0
+^| 0 ^| *_1_* ^| 2 ^| 2 ^| 0 ^| 0 ^| 1 ^| 2 ^| 1 ^| 2 ^| *_2_* ^| 1 ^| 0 ^| 1 ^| *_1_* ^| 0 ^| 1 ^| 1 ^| 0 ^| 2 ^| 0 ^| *_1_* ^| 1 ^| 0 ^| 0 ^| 1 ^| 2 ^| 2 ^| 2 ^| 0 ^| 0 ^| 0
+^| 0 ^| 0 ^| 1 ^| 1 ^| *_1_* ^| 1 ^| 2 ^| 2 ^| *_1_* ^| 2 ^| 2 ^| 1 ^| 1 ^| 2 ^| *_2_* ^| 1 ^| *_1_* ^| 1 ^| 0 ^| 2 ^| 2 ^| 0 ^| 0 ^| 2 ^| 0 ^| 1 ^| *_2_* ^| 2 ^| *_2_* ^| 2 ^| 1 ^| 1
+^| 0 ^| 0 ^| 0 ^| 0 ^| 2 ^| 2 ^| 2 ^| *_2_* ^| 0 ^| 1 ^| 1 ^| 0 ^| 1 ^| 2 ^| 2 ^| 1 ^| 0 ^| 0 ^| 2 ^| *_2_* ^| 2 ^| 2 ^| 2 ^| *_2_* ^| 0 ^| 0 ^| 1 ^| *_1_* ^| 2 ^| 2 ^| 2 ^| *_1_*
+
+4+^| ~32~ 4+^| ~33~ 4+^| ~34~ 4+^| ~35~ 4+^| ~36~ 4+^| ~37~ 4+^| ~38~ 4+^| ~39~
+^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 2 ^| 2 ^| *_2_* ^| *_0_* ^| 0 ^| 1 ^| *_1_* ^| *_0_* ^| 1 ^| 2 ^| 0 ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 1 ^| 2 ^| 0 ^| *_0_* ^| 1 ^| 2 ^| 0 ^| *_0_* ^| 0 ^| 1 ^| 1
+^| 0 ^| 0 ^| 0 ^| 2 ^| 0 ^| 0 ^| 2 ^| 2 ^| 0 ^| 0 ^| 1 ^| 2 ^| 0 ^| *_1_* ^| 2 ^| 0 ^| 1 ^| 1 ^| *_1_* ^| 1 ^| 1 ^| 2 ^| 0 ^| 1 ^| 2 ^| 0 ^| 1 ^| 2 ^| 2 ^| 2 ^| 0 ^| 0
+^| *_1_* ^| 1 ^| 2 ^| 2 ^| 0 ^| 0 ^| 1 ^| 2 ^| 0 ^| 0 ^| 2 ^| 2 ^| 0 ^| 1 ^| *_2_* ^| 0 ^| 2 ^| 2 ^| *_2_* ^| 2 ^| *_2_* ^| 0 ^| *_1_* ^| 2 ^| *_1_* ^| *_2_* ^| 0 ^| 1 ^| 1 ^| 1 ^| *_2_* ^| 2
+^| 1 ^| 2 ^| 2 ^| *_2_* ^| 0 ^| 0 ^| 1 ^| *_1_* ^| 0 ^| 2 ^| 2 ^| *_2_* ^| 0 ^| 1 ^| 2 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 2 ^| 0 ^| 0 ^| 1 ^| 2 ^| 0 ^| 0 ^| 0 ^| 1 ^| *_1_*
+
+4+^| ~40~ 4+^| ~41~ 4+^| ~42~ 4+^| ~43~ 4+^| ~44~ 4+^| ~45~ 4+^| ~46~ 4+^| ~47~
+^| *_0_* ^| 0 ^| 1 ^| 1 ^| *_0_* ^| 1 ^| 0 ^| *_1_* ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 0 ^| 2 ^| 2 ^| *_0_* ^| 0 ^| 2 ^| *_2_* ^| *_0_* ^| 2 ^| 2 ^| 0 ^| *_0_* ^| 1 ^| 0 ^| 1 ^| *_0_* ^| 0 ^| 0 ^| 0
+^| 1 ^| 1 ^| *_2_* ^| 2 ^| 0 ^| 1 ^| 0 ^| 1 ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| *_1_* ^| 2 ^| 2 ^| 0 ^| 0 ^| 1 ^| 1 ^| 1 ^| 2 ^| *_2_* ^| 1 ^| 2 ^| 2 ^| *_2_* ^| 2 ^| 2 ^| 1 ^| 2 ^| 1
+^| 2 ^| 2 ^| 0 ^| 0 ^| 2 ^| 2 ^| 2 ^| 2 ^| *_2_* ^| 1 ^| 2 ^| 1 ^| 0 ^| 0 ^| 2 ^| 2 ^| 0 ^| 0 ^| 2 ^| 2 ^| 0 ^| 2 ^| 2 ^| 0 ^| 2 ^| 2 ^| 2 ^| 2 ^| *_2_* ^| 1 ^| 2 ^| 1
+^| 0 ^| 0 ^| 1 ^| *_1_* ^| 2 ^| 2 ^| 2 ^| *_2_* ^| 2 ^| 1 ^| 2 ^| *_1_* ^| 1 ^| 1 ^| 2 ^| *_2_* ^| 0 ^| 0 ^| 1 ^| *_1_* ^| 1 ^| 2 ^| 2 ^| *_1_* ^| 0 ^| 1 ^| 0 ^| *_1_* ^| 2 ^| 1 ^| 2 ^| *_1_*
+
+4+^| ~48~ 4+^| ~49~ 4+^| ~50~ 4+^| ~51~ 4+^| ~52~ 4+^| ~53~ 4+^| ~54~ 4+^| ~55~
+^| *_0_* ^| 1 ^| 0 ^| *_1_* ^| *_0_* ^| 2 ^| 2 ^| *_2_* ^| *_0_* ^| 0 ^| 0 ^| 2 ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 2 ^| 2 ^| 2 ^| *_0_* ^| 0 ^| 0 ^| 2 ^| *_0_* ^| 1 ^| 1 ^| 0 ^| *_0_* ^| 0 ^| 0 ^| 0
+^| 0 ^| 1 ^| 0 ^| 1 ^| 0 ^| 1 ^| 1 ^| 1 ^| 1 ^| *_1_* ^| 1 ^| 2 ^| 2 ^| *_1_* ^| 1 ^| 2 ^| 0 ^| *_1_* ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 2 ^| 0 ^| *_1_* ^| 1 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0
+^| 0 ^| 1 ^| 0 ^| 1 ^| 0 ^| 2 ^| 2 ^| 2 ^| 0 ^| 0 ^| 0 ^| 2 ^| 2 ^| 1 ^| 1 ^| 2 ^| 0 ^| 1 ^| 1 ^| 1 ^| *_1_* ^| 1 ^| 1 ^| 2 ^| 0 ^| 1 ^| 1 ^| 0 ^| 2 ^| 1 ^| *_1_* ^| 2
+^| 2 ^| 2 ^| 2 ^| *_2_* ^| 0 ^| 1 ^| 1 ^| *_1_* ^| 1 ^| 1 ^| 1 ^| *_2_* ^| 2 ^| 1 ^| 1 ^| *_2_* ^| 0 ^| 2 ^| 2 ^| *_2_* ^| 0 ^| 0 ^| 0 ^| *_2_* ^| 2 ^| 2 ^| 2 ^| *_2_* ^| 2 ^| 1 ^| 1 ^| *_2_*
+
+4+^| ~56~ 4+^| ~57~ 4+^| ~58~ 4+^| ~59~ 4+^| ~60~ 4+^| ~61~ 4+^| ~62~ 4+^| ~63~
+^| *_0_* ^| 1 ^| 1 ^| 0 ^| *_0_* ^| 0 ^| 2 ^| 2 ^| *_0_* ^| 0 ^| 2 ^| 2 ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 0 ^| 0 ^| *_2_* ^| *_0_* ^| 2 ^| 2 ^| 2 ^| *_0_* ^| 1 ^| 0 ^| *_1_* ^| *_0_* ^| 1 ^| 1 ^| *_1_*
+^| 0 ^| *_1_* ^| 1 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 1 ^| 1 ^| 2 ^| 2 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 2 ^| 2 ^| 2 ^| 2 ^| 2 ^| 2 ^| 2 ^| 2 ^| 0 ^| 1 ^| 1
+^| 2 ^| 2 ^| 2 ^| 2 ^| 0 ^| 0 ^| *_1_* ^| 1 ^| *_1_* ^| 1 ^| 2 ^| 2 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 2 ^| 0 ^| 2 ^| 2 ^| 2 ^| 2 ^| 2 ^| 2 ^| 2 ^| *_2_* ^| 2 ^| 0 ^| 1
+^| 2 ^| 2 ^| 2 ^| *_2_* ^| 0 ^| 0 ^| 2 ^| *_2_* ^| 0 ^| 0 ^| 2 ^| *_2_* ^| 2 ^| *_1_* ^| 1 ^| *_2_* ^| 0 ^| 0 ^| 0 ^| *_1_* ^| *_1_* ^| 2 ^| 2 ^| *_2_* ^| 2 ^| 2 ^| 2 ^| *_2_* ^| 2 ^| 2 ^| 2 ^| 0
+|==========
+
+[[bptcA2index]]
+.BPTC anchor index values for the second subset of two-subset partitioning, by partition number
+[width="40%"]
+|==============
+^| ~0~ ^| ~1~ ^| ~2~ ^| ~3~ ^| ~4~ ^| ~5~ ^| ~6~ ^| ~7~
+^| 15 ^| 15 ^| 15 ^| 15 ^| 15 ^| 15 ^| 15 ^| 15
+^| ~8~ ^| ~9~ ^| ~10~ ^| ~11~ ^| ~12~ ^| ~13~ ^| ~14~ ^| ~15~
+^| 15 ^| 15 ^| 15 ^| 15 ^| 15 ^| 15 ^| 15 ^| 15
+^| ~16~ ^| ~17~ ^| ~18~ ^| ~19~ ^| ~20~ ^| ~21~ ^| ~22~ ^| ~23~
+^| 15 ^|  2 ^|  8 ^|  2 ^|  2 ^|  8 ^|  8 ^| 15
+^| ~24~ ^| ~25~ ^| ~26~ ^| ~27~ ^| ~28~ ^| ~29~ ^| ~30~ ^| ~31~
+^|  2 ^|  8 ^|  2 ^|  2 ^|  8 ^|  8 ^|  2 ^|  2
+^| ~32~ ^| ~33~ ^| ~34~ ^| ~35~ ^| ~36~ ^| ~37~ ^| ~38~ ^| ~39~
+^| 15 ^| 15 ^|  6 ^|  8 ^|  2 ^|  8 ^| 15 ^| 15
+^| ~40~ ^| ~41~ ^| ~42~ ^| ~43~ ^| ~44~ ^| ~45~ ^| ~46~ ^| ~47~
+^|  2 ^|  8 ^|  2 ^|  2 ^|  2 ^| 15 ^| 15 ^|  6
+^| ~48~ ^| ~49~ ^| ~50~ ^| ~51~ ^| ~52~ ^| ~53~ ^| ~54~ ^| ~55~
+^|  6 ^|  2 ^|  6 ^|  8 ^| 15 ^| 15 ^|  2 ^|  2
+^| ~56~ ^| ~57~ ^| ~58~ ^| ~59~ ^| ~60~ ^| ~61~ ^| ~62~ ^| ~63~
+^| 15 ^| 15 ^| 15 ^| 15 ^| 15 ^|  2 ^|  2 ^| 15
+|==============
+
+ifndef::a2xhtml[]
+<<<
+
+&nbsp;
+
+<<<
+endif::[]
+
+[[bptcA32index]]
+.BPTC anchor index values for the second subset of three-subset partitioning, by partition number
+[width="40%"]
+|================
+^| ~0~ ^| ~1~ ^| ~2~ ^| ~3~ ^| ~4~ ^| ~5~ ^| ~6~ ^| ~7~
+^|  3 ^|  3 ^| 15 ^| 15 ^|  8 ^|  3 ^| 15 ^| 15
+^| ~8~ ^| ~9~ ^| ~10~ ^| ~11~ ^| ~12~ ^| ~13~ ^| ~14~ ^| ~15~
+^|  8 ^|  8 ^|  6 ^|  6 ^|  6 ^|  5 ^|  3 ^|  3
+^| ~16~ ^| ~17~ ^| ~18~ ^| ~19~ ^| ~20~ ^| ~21~ ^| ~22~ ^| ~23~
+^|  3 ^|  3 ^|  8 ^| 15 ^|  3 ^|  3 ^|  6 ^| 10
+^| ~24~ ^| ~25~ ^| ~26~ ^| ~27~ ^| ~28~ ^| ~29~ ^| ~30~ ^| ~31~
+^|  5 ^|  8 ^|  8 ^|  6 ^|  8 ^|  5 ^| 15 ^| 15
+^| ~32~ ^| ~33~ ^| ~34~ ^| ~35~ ^| ~36~ ^| ~37~ ^| ~38~ ^| ~39~
+^|  8 ^| 15 ^|  3 ^|  5 ^|  6 ^| 10 ^|  8 ^| 15
+^| ~40~ ^| ~41~ ^| ~42~ ^| ~43~ ^| ~44~ ^| ~45~ ^| ~46~ ^| ~47~
+^| 15 ^|  3 ^| 15 ^|  5 ^| 15 ^| 15 ^| 15 ^| 15
+^| ~48~ ^| ~49~ ^| ~50~ ^| ~51~ ^| ~52~ ^| ~53~ ^| ~54~ ^| ~55~
+^|  3 ^| 15 ^|  5 ^|  5 ^|  5 ^|  8 ^|  5 ^| 10
+^| ~56~ ^| ~57~ ^| ~58~ ^| ~59~ ^| ~60~ ^| ~61~ ^| ~62~ ^| ~63~
+^|  5 ^| 10 ^|  8 ^| 13 ^| 15 ^| 12 ^|  3 ^|  3
+|================
+
+[[bptcA33index]]
+.BPTC anchor index values for the third subset of three-subset partitioning, by partition number
+[width="40%"]
+|===============
+^| ~0~ ^| ~1~ ^| ~2~ ^| ~3~ ^| ~4~ ^| ~5~ ^| ~6~ ^| ~7~
+^| 15 ^|  8 ^|  8 ^|  3 ^| 15 ^| 15 ^|  3 ^|  8
+^| ~8~ ^| ~9~ ^| ~10~ ^| ~11~ ^| ~12~ ^| ~13~ ^| ~14~ ^| ~15~
+^| 15 ^| 15 ^| 15 ^| 15 ^| 15 ^| 15 ^| 15 ^|  8
+^| ~16~ ^| ~17~ ^| ~18~ ^| ~19~ ^| ~20~ ^| ~21~ ^| ~22~ ^| ~23~
+^| 15 ^|  8 ^| 15 ^|  3 ^| 15 ^|  8 ^| 15 ^|  8
+^| ~24~ ^| ~25~ ^| ~26~ ^| ~27~ ^| ~28~ ^| ~29~ ^| ~30~ ^| ~31~
+^|  3 ^| 15 ^|  6 ^| 10 ^| 15 ^| 15 ^| 10 ^|  8
+^| ~32~ ^| ~33~ ^| ~34~ ^| ~35~ ^| ~36~ ^| ~37~ ^| ~38~ ^| ~39~
+^| 15 ^|  3 ^| 15 ^| 10 ^| 10 ^|  8 ^|  9 ^| 10
+^| ~40~ ^| ~41~ ^| ~42~ ^| ~43~ ^| ~44~ ^| ~45~ ^| ~46~ ^| ~47~
+^|  6 ^| 15 ^|  8 ^| 15 ^|  3 ^|  6 ^|  6 ^|  8
+^| ~48~ ^| ~49~ ^| ~50~ ^| ~51~ ^| ~52~ ^| ~53~ ^| ~54~ ^| ~55~
+^| 15 ^|  3 ^| 15 ^| 15 ^| 15 ^| 15 ^| 15 ^| 15
+^| ~56~ ^| ~57~ ^| ~58~ ^| ~59~ ^| ~60~ ^| ~61~ ^| ~62~ ^| ~63~
+^| 15 ^| 15 ^| 15 ^| 15 ^|  3 ^| 15 ^| 15 ^|  8
+|===============
+
+<<<
+
+Interpolation is always performed using a 6-bit interpolation factor.
+The effective interpolation factors for 2-, 3-, and 4-bit indices are
+given in <<BPTCInterpolation>>.
+
+[[BPTCInterpolation]]
+.BPTC interpolation factors
+[cols="h,18*",width="85%"]
+|==========
+.2+^.^| 2 2+^| Index 4+^| ~0~ 4+^| ~1~ 4+^| ~2~ 4+^| ~3~
+2+^| _Weight_ 4+^| 0 4+^| 21 4+^| 43 4+^| 64
+.2+^.^| 3 2+^| Index 2+^| ~0~ 2+^| ~1~ 2+^| ~2~ 2+^| ~3~ 2+^| ~4~ 2+^| ~5~ 2+^| ~6~ 2+^| ~7~
+2+^| _Weight_ 2+^| 0 2+^| 9 2+^| 18 2+^| 27 2+^| 37 2+^| 46 2+^| 55 2+^| 64
+.2+^.^| 4 2+^| Index ^| ~0~ ^| ~1~ ^| ~2~ ^| ~3~ ^| ~4~ ^| ~5~ ^| ~6~ ^| ~7~ ^| ~8~ ^| ~9~ ^| ~10~ ^| ~11~ ^| ~12~ ^| ~13~ ^| ~14~ ^| ~15~
+2+^| _Weight_ ^| 0 ^| 4 ^| 9 ^| 13 ^| 17 ^| 21 ^| 26 ^| 30 ^| 34 ^| 38 ^| 43 ^| 47 ^| 51 ^| 55 ^| 60 ^| 64
+|==========
+
+// Note: The interpolation formula is not explicitly present in the OpenGL Specification.
+// Since bit-exact interpolation is mandated by some implementations, the following formula is
+// provided, as described in https://docs.microsoft.com/en-us/windows/desktop/direct3d11/bc7-format
+
+Given _E_~0~ and _E_~1~, unsigned integer endpoints [0 .. 255] for each channel and _weight_
+as an unsigned integer interpolation factor from <<BPTCInterpolation>>:
+
+[[BPTCinterpolation]]
+.BPTC endpoint interpolation formula
+[latexmath]
+++++++++++++++
+\begin{align*}
+\mathit{interpolated\ value} & = ((64 - \mathit{weight}) \times \textit{E}_0 + \mathit{weight} \times \textit{E}_1 + 32) \gg 6
+\end{align*}
+++++++++++++++
+
+where latexmath:[$\gg$] performs a (truncating) bitwise right-shift, and
+_interpolated value_ is an (unsigned) integer in the range [0..255].
+
+The interpolation results in an _RGBA_ color. If rotation bits are present,
+this interpolated color is remapped according to <<BPTCRotation>>.
+
+[[BPTCRotation]]
+.BPTC Rotation bits
+[cols="h,3",width="20%"]
+|============
+^| 0 ^| no change
+^| 1 ^| _swap_(_A_, _R_)
+^| 2 ^| _swap_(_A_, _G_)
+^| 3 ^| _swap_(_A_, _B_)
+|============
+
+These 8-bit values should be interpreted as _RGBA_ 8-bit normalized channels,
+either linearly encoded (by multiplying by latexmath:[$1\over 255$]) or
+with the <<srgbgamma,sRGB transfer function>>.
+
+<<<
+
+=== BC6H
+
+Each 4{times}4 block of texels consists of 128 bits of _RGB_ data. The
+signed and unsigned formats are very similar and will be described together.
+In the description and pseudocode below, _signed_ will be used as a condition which is true
+for the signed version of the format and false for the unsigned version of the format.
+Both formats only contain _RGB_ data, so the returned alpha value is 1.0. If a
+block uses a reserved or invalid encoding, the return value is
+(0.0,&nbsp;0.0,&nbsp;0.0,&nbsp;1.0).
+
+[NOTE]
+====
+Where BC7 encodes a fixed-point 8-bit value, BC6H encodes a 16-bit integer
+which will be interpreted as a 16-bit half float.
+Interpolation in BC6H is therefore nonlinear, but monotonic.
+====
+
+Each block can contain data in one of 14 modes. The mode number is encoded
+in either the low two bits or the low five bits. If the low two bits are
+less than two, that is the mode number, otherwise the low five bits is the mode
+number. Mode numbers not listed in <<table-bptcblockmodes>>
+(19,&nbsp;23,&nbsp;27,&nbsp;and&nbsp;31) are reserved.
+
+[[table-bptcblockmodes]]
+.Endpoint and partition parameters for BPTC block modes
+[width="97%",cols="10%,15%,20%,20%,10%,1%,7%,10%,7%"]
+|==============
+.2+^.^| *Mode number* .2+^.^| *Transformed endpoints* ^.^| *Partition bits (PB)* ^.^| *Endpoint bits (EPB)* ^.^| *Delta bits* 1.16+| ^.^| *Mode* ^.^| *Endpoint* ^.^| *Delta*
+^| Bits per texel block 2+^| {_R_,_G_,_B_} bits per endpoint 3+^| Bits per texel block (total)
+^| *0*  ^| {check} ^| 5 ^| {10, 10, 10} ^| {5, 5, 5} ^| 2 ^| 30 ^| 45
+^| *1*  ^| {check} ^| 5 ^| {7, 7, 7}  ^| {6, 6, 6} ^| 2 ^| 21 ^| 54
+^| *2*  ^| {check} ^| 5 ^| {11, 11, 11} ^| {5, 4, 4} ^| 5 ^| 33 ^| 39
+^| *6*  ^| {check} ^| 5 ^| {11, 11, 11} ^| {4, 5, 4} ^| 5 ^| 33 ^| 39
+^| *10* ^| {check} ^| 5 ^| {11, 11, 11} ^| {4, 4, 5} ^| 5 ^| 33 ^| 39
+^| *14* ^| {check} ^| 5 ^| {9, 9, 9}  ^| {5, 5, 5} ^| 5 ^| 27 ^| 45
+^| *18* ^| {check} ^| 5 ^| {8, 8, 8}  ^| {6, 5, 5} ^| 5 ^| 24 ^| 48
+^| *22* ^| {check} ^| 5 ^| {8, 8, 8}  ^| {5, 6, 5} ^| 5 ^| 24 ^| 48
+^| *26* ^| {check} ^| 5 ^| {8, 8, 8}  ^| {5, 5, 6} ^| 5 ^| 24 ^| 48
+^| *30* ^|         ^| 5 ^| {6, 6, 6}  ^| -         ^| 5 ^| 72 ^| 0
+^| *3*  ^|         ^| 0 ^| {10, 10, 10} ^| -         ^| 5 ^| 60 ^| 0
+^| *7*  ^| {check} ^| 0 ^| {11, 11, 11} ^| {9, 9, 9} ^| 5 ^| 33 ^| 27
+^| *11* ^| {check} ^| 0 ^| {12, 12, 12} ^| {8, 8, 8} ^| 5 ^| 36 ^| 24
+^| *15* ^| {check} ^| 0 ^| {16, 16, 16} ^| {4, 4, 4} ^| 5 ^| 48 ^| 12
+|==============
+
+The data for the compressed blocks is stored in a different manner for each
+mode.
+The interpretation of bits for each mode are specified in <<table-bptcblockformat>>.
+The descriptions are intended to be read from left to right with the LSB on the left.
+Each element is of the form _v_^_a_.._b_^. If _a_ {geq} _b_, this indicates
+extracting _b_ - _a_ {plus} 1 bits from the block at that location and put them in
+the corresponding bits of the variable _v_.
+If _a_ < _b_, then the bits are reversed.
+_v_^_a_^ is used as a shorthand for the one bit _v_^_a_.._a_^.
+As an example, M^1..0^, _G_~2~^4^ would move the low two bits from the block into the
+low two bits of mode number M, then the next bit of the block into bit 4 of _G_~2~.
+The resultant bit interpretations are shown explicitly in <<table-bptcbc6hbits>>
+and <<table-bptcbc6hbits2>>.
+The variable names given in the table will be referred to in the language below.
+
+Subsets and indices work in much the same way as described for the
+BC7 formats above.
+If a float block has no partition bits, then it is a single-subset block.
+If it has partition bits, then it is a two-subset block.
+The partition number references the first half of <<bptcP2subset>>.
+
+<<<
+
+[[table-bptcblockformat]]
+.Block descriptions for BC6H block modes (LSB..MSB)
+[options="header",cols="3,13",width="85%"]
+|===========================
+^| Mode Number  ^| Block description
+^.^|  0     ^.^| M^1..0^, _G_~2~^4^, _B_~2~^4^, _B_~3~^4^, _R_~0~^9..0^, _G_~0~^9..0^, _B_~0~^9..0^, _R_~1~^4..0^,
+         _G_~3~^4^, _G_~2~^3..0^, _G_~1~^4..0^, _B_~3~^0^, _G_~3~^3..0^, _B_~1~^4..0^, _B_~3~^1^, _B_~2~^3..0^,
+         _R_~2~^4..0^, _B_~3~^2^, _R_~3~^4..0^, _B_~3~^3^, PB^4..0^
+^.^|  1     ^.^| M^1..0^, _G_~2~^5^, _G_~3~^4^, _G_~3~^5^, _R_~0~^6..0^, _B_~3~^0^, _B_~3~^1^, _B_~2~^4^,
+         _G_~0~^6..0^, _B_~2~^5^, _B_~3~^2^, _G_~2~^4^, _B_~0~^6..0^, _B_~3~^3^, _B_~3~^5^, _B_~3~^4^,
+         _R_~1~^5..0^, _G_~2~^3..0^, _G_~1~^5..0^, _G_~3~^3..0^, _B_~1~^5..0^, _B_~2~^3..0^, _R_~2~^5..0^,
+         _R_~3~^5..0^, PB^4..0^
+^.^|  2     ^.^| M^4..0^, _R_~0~^9..0^, _G_~0~^9..0^, _B_~0~^9..0^, _R_~1~^4..0^, _R_~0~^10^, _G_~2~^3..0^,
+         _G_~1~^3..0^, _G_~0~^10^, _B_~3~^0^, _G_~3~^3..0^, _B_~1~^3..0^, _B_~0~^10^, _B_~3~^1^, _B_~2~^3..0^,
+         _R_~2~^4..0^, _B_~3~^2^, _R_~3~^4..0^, _B_~3~^3^, PB^4..0^
+^.^|  6     ^.^| M^4..0^, _R_~0~^9..0^, _G_~0~^9..0^, _B_~0~^9..0^, _R_~1~^3..0^, _R_~0~^10^, _G_~3~^4^,
+         _G_~2~^3..0^, _G_~1~^4..0^, _G_~0~^10^, _G_~3~^3..0^, _B_~1~^3..0^, _B_~0~^10^, _B_~3~^1^,
+         _B_~2~^3..0^, _R_~2~^3..0^, _B_~3~^0^, _B_~3~^2^, _R_~3~^3..0^, _G_~2~^4^, _B_~3~^3^, PB^4..0^
+^.^| 10     ^.^| M^4..0^, _R_~0~^9..0^, _G_~0~^9..0^, _B_~0~^9..0^, _R_~1~^3..0^, _R_~0~^10^, _B_~2~^4^,
+         _G_~2~^3..0^, _G_~1~^3..0^, _G_~0~^10^, _B_~3~^0^, _G_~3~^3..0^, _B_~1~^4..0^, _B_~0~^10^,
+         _B_~2~^3..0^, _R_~2~^3..0^, _B_~3~^1^, _B_~3~^2^, _R_~3~^3..0^, _B_~3~^4^, _B_~3~^3^, PB^4..0^
+^.^| 14     ^.^| M^4..0^, _R_~0~^8..0^, _B_~2~^4^, _G_~0~^8..0^, _G_~2~^4^, _B_~0~^8..0^, _B_~3~^4^, _R_~1~^4..0^,
+         _G_~3~^4^, _G_~2~^3..0^, _G_~1~^4..0^, _B_~3~^0^, _G_~3~^3..0^, _B_~1~^4..0^, _B_~3~^1^, _B_~2~^3..0^,
+         _R_~2~^4..0^, _B_~3~^2^, _R_~3~^4..0^, _B_~3~^3^, PB^4..0^
+^.^| 18     ^.^| M^4..0^, _R_~0~^7..0^, _G_~3~^4^, _B_~2~^4^, _G_~0~^7..0^, _B_~3~^2^, _G_~2~^4^, _B_~0~^7..0^,
+         _B_~3~^3^, _B_~3~^4^, _R_~1~^5..0^, _G_~2~^3..0^, _G_~1~^4..0^, _B_~3~^0^, _G_~3~^3..0^, _B_~1~^4..0^,
+         _B_~3~^1^, _B_~2~^3..0^, _R_~2~^5..0^, _R_~3~^5..0^, PB^4..0^
+^.^| 22     ^.^| M^4..0^, _R_~0~^7..0^, _B_~3~^0^, _B_~2~^4^, _G_~0~^7..0^, _G_~2~^5^, _G_~2~^4^, _B_~0~^7..0^,
+         _G_~3~^5^, _B_~3~^4^, _R_~1~^4..0^, _G_~3~^4^, _G_~2~^3..0^, _G_~1~^5..0^, _G_~3~^3..0^, _B_~1~^4..0^,
+         _B_~3~^1^, _B_~2~^3..0^, _R_~2~^4..0^, _B_~3~^2^, _R_~3~^4..0^, _B_~3~^3^, PB^4..0^
+^.^| 26     ^.^| M^4..0^, _R_~0~^7..0^, _B_~3~^1^, _B_~2~^4^, _G_~0~^7..0^, _B_~2~^5^, _G_~2~^4^, _B_~0~^7..0^,
+         _B_~3~^5^, _B_~3~^4^, _R_~1~^4..0^, _G_~3~^4^, _G_~2~^3..0^, _G_~1~^4..0^, _B_~3~^0^, _G_~3~^3..0^,
+         _B_~1~^5..0^, _B_~2~^3..0^, _R_~2~^4..0^, _B_~3~^2^, _R_~3~^4..0^, _B_~3~^3^, PB^4..0^
+^.^| 30     ^.^| M^4..0^, _R_~0~^5..0^, _G_~3~^4^, _B_~3~^0^, _B_~3~^1^, _B_~2~^4^, _G_~0~^5..0^, _G_~2~^5^,
+         _B_~2~^5^, _B_~3~^2^, _G_~2~^4^, _B_~0~^5..0^, _G_~3~^5^, _B_~3~^3^, _B_~3~^5^, _B_~3~^4^,
+         _R_~1~^5..0^, _G_~2~^3..0^, _G_~1~^5..0^, _G_~3~^3..0^, _B_~1~^5..0^, _B_~2~^3..0^, _R_~2~^5..0^,
+         _R_~3~^5..0^, PB^4..0^
+^.^|  3     ^.^| M^4..0^, _R_~0~^9..0^, _G_~0~^9..0^, _B_~0~^9..0^, _R_~1~^9..0^, _G_~1~^9..0^, _B_~1~^9..0^
+^.^|  7     ^.^| M^4..0^, _R_~0~^9..0^, _G_~0~^9..0^, _B_~0~^9..0^, _R_~1~^8..0^, _R_~0~^10^, _G_~1~^8..0^,
+         _G_~0~^10^, _B_~1~^8..0^, _B_~0~^10^
+^.^| 11     ^.^| M^4..0^, _R_~0~^9..0^, _G_~0~^9..0^, _B_~0~^9..0^, _R_~1~^7..0^, _R_~0~^10..11^, _G_~1~^7..0^,
+         _G_~0~^10..11^, _B_~1~^7..0^, _B_~0~^10..11^
+^.^| 15     ^.^| M^4..0^, _R_~0~^9..0^, _G_~0~^9..0^, _B_~0~^9..0^, _R_~1~^3..0^, _R_~0~^10..15^, _G_~1~^3..0^,
+         _G_~0~^10..15^, _B_~1~^3..0^, _B_~0~^10..15^
+|==========================
+
+Indices are read in the same way as the BC7 formats including obeying the
+anchor values for index 0 and as needed by <<bptcA2index>>.
+That is, for modes with only one partition, the mode and endpoint data are followed
+by 63 bits of index data (four index bits IB~_x,y_~^0..3^ per texel, with one implicit
+bit for IB~_x,y_~^3^) starting at bit 65 with IB~0,0~^0^.
+For modes with two partitions, the mode, endpoint and partition data are followed by
+46 bits of index data (three per texel IB~_x,y_~^0..2^, with two implicit bits, one for
+partition 0 at IB~0,0~^2^ and one IB~_x,y_~^2^ bit for partition 1 at an offset
+determined by the partition pattern selected) starting at bit 82 with IB~0,0~^0^.
+In both cases, index bits are stored in y-major offset order by increasing
+little-endian bit number, with the bits for each index stored consecutively:
+
+[latexmath]
+++++++++++++++
+\begin{align*}
+{\textrm{Bit offset of IB}_{x,y}}^0 &= \begin{cases}
+      65, & 1\ \textrm{subset},\ x = y = 0 \\
+      65 + 4 \times (x + 4\times y) - 1, & 1\ \textrm{subset},\ 0 < x + 4\times y \\
+      82, & 2\ \textrm{subsets},\ x = y = 0 \\
+      82 + 3 \times (x + 4\times y) - 1, & 2\ \textrm{subsets},\ 0 < x + 4\times y \leq \textrm{anchor}_2[\mathit{part}] \\
+      82 + 3 \times (x + 4\times y) - 2, & 2\ \textrm{subsets},\ \textrm{anchor}_2[\mathit{part}] < x + 4\times y \\
+  \end{cases} \\
+\end{align*}
+++++++++++++++
+
+[[table-bptcbc6hbits]]
+.Interpretation of lower bits for BC6H block modes
+[width="85%", cols=">1,14*^1"]
+|================
+>| 14+^| *Mode*
+^| *Bit* | *0* | *1* | *2* | *6* | *10* | *14* | *18* | *22* | *26* | *30* | *3* | *7* | *11* | *15*
+>|  *0* &nbsp; | M^0^: *0* | M^0^: *1* | M^0^: *0* | M^0^: *0* | M^0^: *0* | M^0^: *0* | M^0^: *0* | M^0^: *0* | M^0^: *0* | M^0^: *0* | M^0^: *1* | M^0^: *1* | M^0^: *1* | M^0^: *1*
+>|  *1* &nbsp; | M^1^: *0* | M^1^: *0* | M^1^: *1* | M^1^: *1* | M^1^: *1* | M^1^: *1* | M^1^: *1* | M^1^: *1* | M^1^: *1* | M^1^: *1* | M^1^: *1* | M^1^: *1* | M^1^: *1* | M^1^: *1*
+>|  *2* &nbsp; | _G_~2~^4^ | _G_~2~^5^ | M^2^: *0* | M^2^: *1* | M^2^: *0* | M^2^: *1* | M^2^: *0* | M^2^: *1* | M^2^: *0* | M^2^: *1* | M^2^: *0* | M^2^: *1* | M^2^: *0* | M^2^: *1*
+>|  *3* &nbsp; | _B_~2~^4^ | _G_~3~^4^ | M^3^: *0* | M^3^: *0* | M^3^: *1* | M^3^: *1* | M^3^: *0* | M^3^: *0* | M^3^: *1* | M^3^: *1* | M^3^: *0* | M^3^: *0* | M^3^: *1* | M^3^: *1*
+>|  *4* &nbsp; | _B_~3~^4^ | _G_~3~^4^ | M^4^: *0* | M^4^: *0* | M^4^: *0* | M^4^: *0* | M^4^: *1* | M^4^: *1* | M^4^: *1* | M^4^: *1* | M^4^: *0* | M^4^: *0* | M^4^: *0* | M^4^: *0*
+>|  *5* &nbsp; | _R_~0~^0^ | _R_~0~^0^ | _R_~0~^0^ | _R_~0~^0^ | _R_~0~^0^ | _R_~0~^0^ | _R_~0~^0^ | _R_~0~^0^ | _R_~0~^0^ | _R_~0~^0^ | _R_~0~^0^ | _R_~0~^0^ | _R_~0~^0^ | _R_~0~^0^
+>|  *6* &nbsp; | _R_~0~^1^ | _R_~0~^1^ | _R_~0~^1^ | _R_~0~^1^ | _R_~0~^1^ | _R_~0~^1^ | _R_~0~^1^ | _R_~0~^1^ | _R_~0~^1^ | _R_~0~^1^ | _R_~0~^1^ | _R_~0~^1^ | _R_~0~^1^ | _R_~0~^1^
+>|  *7* &nbsp; | _R_~0~^2^ | _R_~0~^2^ | _R_~0~^2^ | _R_~0~^2^ | _R_~0~^2^ | _R_~0~^2^ | _R_~0~^2^ | _R_~0~^2^ | _R_~0~^2^ | _R_~0~^2^ | _R_~0~^2^ | _R_~0~^2^ | _R_~0~^2^ | _R_~0~^2^
+>|  *8* &nbsp; | _R_~0~^3^ | _R_~0~^3^ | _R_~0~^3^ | _R_~0~^3^ | _R_~0~^3^ | _R_~0~^3^ | _R_~0~^3^ | _R_~0~^3^ | _R_~0~^3^ | _R_~0~^3^ | _R_~0~^3^ | _R_~0~^3^ | _R_~0~^3^ | _R_~0~^3^
+>|  *9* &nbsp; | _R_~0~^4^ | _R_~0~^4^ | _R_~0~^4^ | _R_~0~^4^ | _R_~0~^4^ | _R_~0~^4^ | _R_~0~^4^ | _R_~0~^4^ | _R_~0~^4^ | _R_~0~^4^ | _R_~0~^4^ | _R_~0~^4^ | _R_~0~^4^ | _R_~0~^4^
+>| *10* &nbsp; | _R_~0~^5^ | _R_~0~^5^ | _R_~0~^5^ | _R_~0~^5^ | _R_~0~^5^ | _R_~0~^5^ | _R_~0~^5^ | _R_~0~^5^ | _R_~0~^5^ | _R_~0~^5^ | _R_~0~^5^ | _R_~0~^5^ | _R_~0~^5^ | _R_~0~^5^
+>| *11* &nbsp; | _R_~0~^6^ | _R_~0~^6^ | _R_~0~^6^ | _R_~0~^6^ | _R_~0~^6^ | _R_~0~^6^ | _R_~0~^6^ | _R_~0~^6^ | _R_~0~^6^ | _G_~3~^4^ | _R_~0~^6^ | _R_~0~^6^ | _R_~0~^6^ | _R_~0~^6^
+>| *12* &nbsp; | _R_~0~^7^ | _B_~3~^0^ | _R_~0~^7^ | _R_~0~^7^ | _R_~0~^7^ | _R_~0~^7^ | _R_~0~^7^ | _R_~0~^7^ | _R_~0~^7^ | _R_~3~^0^ | _R_~0~^7^ | _R_~0~^7^ | _R_~0~^7^ | _R_~0~^7^
+>| *13* &nbsp; | _R_~0~^8^ | _B_~3~^1^ | _R_~0~^8^ | _R_~0~^8^ | _R_~0~^8^ | _R_~0~^8^ | _G_~3~^4^ | _B_~3~^0^ | _B_~3~^1^ | _B_~3~^1^ | _R_~0~^8^ | _R_~0~^8^ | _R_~0~^8^ | _R_~0~^8^
+>| *14* &nbsp; | _R_~0~^9^ | _B_~2~^4^ | _R_~0~^9^ | _R_~0~^9^ | _R_~0~^9^ | _B_~2~^4^ | _B_~2~^4^ | _B_~2~^4^ | _B_~2~^4^ | _B_~2~^4^ | _R_~0~^9^ | _R_~0~^9^ | _R_~0~^9^ | _R_~0~^9^
+>| *15* &nbsp; | _G_~0~^0^ | _G_~0~^0^ | _G_~0~^0^ | _G_~0~^0^ | _G_~0~^0^ | _G_~0~^0^ | _G_~0~^0^ | _G_~0~^0^ | _G_~0~^0^ | _G_~0~^0^ | _G_~0~^0^ | _G_~0~^0^ | _G_~0~^0^ | _G_~0~^0^
+>| *16* &nbsp; | _G_~0~^1^ | _G_~0~^1^ | _G_~0~^1^ | _G_~0~^1^ | _G_~0~^1^ | _G_~0~^1^ | _G_~0~^1^ | _G_~0~^1^ | _G_~0~^1^ | _G_~0~^1^ | _G_~0~^1^ | _G_~0~^1^ | _G_~0~^1^ | _G_~0~^1^
+>| *17* &nbsp; | _G_~0~^2^ | _G_~0~^2^ | _G_~0~^2^ | _G_~0~^2^ | _G_~0~^2^ | _G_~0~^2^ | _G_~0~^2^ | _G_~0~^2^ | _G_~0~^2^ | _G_~0~^2^ | _G_~0~^2^ | _G_~0~^2^ | _G_~0~^2^ | _G_~0~^2^
+>| *18* &nbsp; | _G_~0~^3^ | _G_~0~^3^ | _G_~0~^3^ | _G_~0~^3^ | _G_~0~^3^ | _G_~0~^3^ | _G_~0~^3^ | _G_~0~^3^ | _G_~0~^3^ | _G_~0~^3^ | _G_~0~^3^ | _G_~0~^3^ | _G_~0~^3^ | _G_~0~^3^
+>| *19* &nbsp; | _G_~0~^4^ | _G_~0~^4^ | _G_~0~^4^ | _G_~0~^4^ | _G_~0~^4^ | _G_~0~^4^ | _G_~0~^4^ | _G_~0~^4^ | _G_~0~^4^ | _G_~0~^4^ | _G_~0~^4^ | _G_~0~^4^ | _G_~0~^4^ | _G_~0~^4^
+>| *20* &nbsp; | _G_~0~^5^ | _G_~0~^5^ | _G_~0~^5^ | _G_~0~^5^ | _G_~0~^5^ | _G_~0~^5^ | _G_~0~^5^ | _G_~0~^5^ | _G_~0~^5^ | _G_~0~^5^ | _G_~0~^5^ | _G_~0~^5^ | _G_~0~^5^ | _G_~0~^5^
+>| *21* &nbsp; | _G_~0~^6^ | _G_~0~^6^ | _G_~0~^6^ | _G_~0~^6^ | _G_~0~^6^ | _G_~0~^6^ | _G_~0~^6^ | _G_~0~^6^ | _G_~0~^6^ | _G_~2~^5^ | _G_~0~^6^ | _G_~0~^6^ | _G_~0~^6^ | _G_~0~^6^
+>| *22* &nbsp; | _G_~0~^7^ | _B_~2~^5^ | _G_~0~^7^ | _G_~0~^7^ | _G_~0~^7^ | _G_~0~^7^ | _G_~0~^7^ | _G_~0~^7^ | _G_~0~^7^ | _B_~2~^5^ | _G_~0~^7^ | _G_~0~^7^ | _G_~0~^7^ | _G_~0~^7^
+>| *23* &nbsp; | _G_~0~^8^ | _B_~3~^2^ | _G_~0~^8^ | _G_~0~^8^ | _G_~0~^8^ | _G_~0~^8^ | _G_~3~^2^ | _B_~2~^5^ | _B_~2~^5^ | _B_~3~^2^ | _G_~0~^8^ | _G_~0~^8^ | _G_~0~^8^ | _G_~0~^8^
+>| *24* &nbsp; | _G_~0~^9^ | _G_~2~^4^ | _G_~0~^9^ | _G_~0~^9^ | _G_~0~^9^ | _G_~2~^4^ | _G_~2~^4^ | _G_~2~^4^ | _G_~2~^4^ | _G_~2~^4^ | _G_~0~^9^ | _G_~0~^9^ | _G_~0~^9^ | _G_~0~^9^
+>| *25* &nbsp; | _B_~0~^0^ | _B_~0~^0^ | _B_~0~^0^ | _B_~0~^0^ | _B_~0~^0^ | _B_~0~^0^ | _B_~0~^0^ | _B_~0~^0^ | _B_~0~^0^ | _B_~0~^0^ | _B_~0~^0^ | _B_~0~^0^ | _B_~0~^0^ | _B_~0~^0^
+>| *26* &nbsp; | _B_~0~^1^ | _B_~0~^1^ | _B_~0~^1^ | _B_~0~^1^ | _B_~0~^1^ | _B_~0~^1^ | _B_~0~^1^ | _B_~0~^1^ | _B_~0~^1^ | _B_~0~^1^ | _B_~0~^1^ | _B_~0~^1^ | _B_~0~^1^ | _B_~0~^1^
+>| *27* &nbsp; | _B_~0~^2^ | _B_~0~^2^ | _B_~0~^2^ | _B_~0~^2^ | _B_~0~^2^ | _B_~0~^2^ | _B_~0~^2^ | _B_~0~^2^ | _B_~0~^2^ | _B_~0~^2^ | _B_~0~^2^ | _B_~0~^2^ | _B_~0~^2^ | _B_~0~^2^
+>| *28* &nbsp; | _B_~0~^3^ | _B_~0~^3^ | _B_~0~^3^ | _B_~0~^3^ | _B_~0~^3^ | _B_~0~^3^ | _B_~0~^3^ | _B_~0~^3^ | _B_~0~^3^ | _B_~0~^3^ | _B_~0~^3^ | _B_~0~^3^ | _B_~0~^3^ | _B_~0~^3^
+>| *29* &nbsp; | _B_~0~^4^ | _B_~0~^4^ | _B_~0~^4^ | _B_~0~^4^ | _B_~0~^4^ | _B_~0~^4^ | _B_~0~^4^ | _B_~0~^4^ | _B_~0~^4^ | _B_~0~^4^ | _B_~0~^4^ | _B_~0~^4^ | _B_~0~^4^ | _B_~0~^4^
+>| *30* &nbsp; | _B_~0~^5^ | _B_~0~^5^ | _B_~0~^5^ | _B_~0~^5^ | _B_~0~^5^ | _B_~0~^5^ | _B_~0~^5^ | _B_~0~^5^ | _B_~0~^5^ | _B_~0~^5^ | _B_~0~^5^ | _B_~0~^5^ | _B_~0~^5^ | _B_~0~^5^
+>| *31* &nbsp; | _B_~0~^6^ | _B_~0~^6^ | _B_~0~^6^ | _B_~0~^6^ | _B_~0~^6^ | _B_~0~^6^ | _B_~0~^6^ | _B_~0~^6^ | _B_~0~^6^ | _G_~3~^5^ | _B_~0~^6^ | _B_~0~^6^ | _B_~0~^6^ | _B_~0~^6^
+>| *32* &nbsp; | _B_~0~^7^ | _B_~2~^5^ | _B_~0~^7^ | _B_~0~^7^ | _B_~0~^7^ | _B_~0~^7^ | _B_~0~^7^ | _B_~0~^7^ | _B_~0~^7^ | _B_~3~^3^ | _B_~0~^7^ | _B_~0~^7^ | _B_~0~^7^ | _B_~0~^7^
+>| *33* &nbsp; | _B_~0~^8^ | _B_~3~^2^ | _B_~0~^8^ | _B_~0~^8^ | _B_~0~^8^ | _B_~0~^8^ | _B_~3~^3^ | _G_~3~^5^ | _B_~3~^5^ | _B_~3~^5^ | _B_~0~^8^ | _B_~0~^8^ | _B_~0~^8^ | _B_~0~^8^
+>| *34* &nbsp; | _B_~0~^9^ | _G_~2~^4^ | _B_~0~^9^ | _B_~0~^9^ | _B_~0~^9^ | _B_~3~^4^ | _B_~3~^4^ | _B_~3~^4^ | _B_~3~^4^ | _B_~3~^4^ | _B_~0~^9^ | _B_~0~^9^ | _B_~0~^9^ | _B_~0~^9^
+>| *35* &nbsp; | _R_~1~^0^ | _R_~1~^0^ | _R_~1~^0^ | _R_~1~^0^ | _R_~1~^0^ | _R_~1~^0^ | _R_~1~^0^ | _R_~1~^0^ | _R_~1~^0^ | _R_~1~^0^ | _R_~1~^0^ | _R_~1~^0^ | _R_~1~^0^ | _R_~1~^0^
+>| *36* &nbsp; | _R_~1~^1^ | _R_~1~^1^ | _R_~1~^1^ | _R_~1~^1^ | _R_~1~^1^ | _R_~1~^1^ | _R_~1~^1^ | _R_~1~^1^ | _R_~1~^1^ | _R_~1~^1^ | _R_~1~^1^ | _R_~1~^1^ | _R_~1~^1^ | _R_~1~^1^
+>| *37* &nbsp; | _R_~1~^2^ | _R_~1~^2^ | _R_~1~^2^ | _R_~1~^2^ | _R_~1~^2^ | _R_~1~^2^ | _R_~1~^2^ | _R_~1~^2^ | _R_~1~^2^ | _R_~1~^2^ | _R_~1~^2^ | _R_~1~^2^ | _R_~1~^2^ | _R_~1~^2^
+>| *38* &nbsp; | _R_~1~^3^ | _R_~1~^3^ | _R_~1~^3^ | _R_~1~^3^ | _R_~1~^3^ | _R_~1~^3^ | _R_~1~^3^ | _R_~1~^3^ | _R_~1~^3^ | _R_~1~^3^ | _R_~1~^3^ | _R_~1~^3^ | _R_~1~^3^ | _R_~1~^3^
+>| *39* &nbsp; | _R_~1~^4^ | _R_~1~^4^ | _R_~1~^4^ | _R_~0~^10^ | _R_~0~^10^ | _R_~1~^4^ | _R_~1~^4^ | _R_~1~^4^ | _R_~1~^4^ | _R_~1~^4^ | _R_~1~^4^ | _R_~1~^4^ | _R_~1~^4^ | _R_~0~^15^
+>| *40* &nbsp; | _G_~3~^4^ | _R_~1~^5^ | _R_~0~^10^ | _G_~3~^4^ | _B_~2~^4^ | _G_~3~^4^ | _R_~1~^5^ | _G_~3~^4^ | _G_~3~^4^ | _R_~1~^5^ | _R_~1~^5^ | _R_~1~^5^ | _R_~1~^5^ | _R_~0~^14^
+|================
+
+[[table-bptcbc6hbits2]]
+.Interpretation of upper bits for BC6H block modes
+[width="80%", cols=">1,14*^1"]
+|================
+>| 14+^| *Mode*
+^| *Bit* | *0* | *1* | *2* | *6* | *10* | *14* | *18* | *22* | *26* | *30* | *3* | *7* | *11* | *15*
+>| *41* &nbsp; | _G_~2~^0^ | _G_~2~^0^ | _G_~2~^0^ | _G_~2~^0^ | _G_~2~^0^ | _G_~2~^0^ | _G_~2~^0^ | _G_~2~^0^ | _G_~2~^0^ | _G_~2~^0^ | _R_~1~^6^ | _R_~1~^6^ | _R_~1~^6^ | _R_~0~^13^
+>| *42* &nbsp; | _G_~2~^1^ | _G_~2~^1^ | _G_~2~^1^ | _G_~2~^1^ | _G_~2~^1^ | _G_~2~^1^ | _G_~2~^1^ | _G_~2~^1^ | _G_~2~^1^ | _G_~2~^1^ | _R_~1~^7^ | _R_~1~^7^ | _R_~1~^7^ | _R_~0~^12^
+>| *43* &nbsp; | _G_~2~^2^ | _G_~2~^2^ | _G_~2~^2^ | _G_~2~^2^ | _G_~2~^2^ | _G_~2~^2^ | _G_~2~^2^ | _G_~2~^2^ | _G_~2~^2^ | _G_~2~^2^ | _R_~1~^8^ | _R_~1~^8^ | _R_~0~^11^ | _R_~0~^11^
+>| *44* &nbsp; | _G_~2~^3^ | _G_~2~^3^ | _G_~2~^3^ | _G_~2~^3^ | _G_~2~^3^ | _G_~2~^3^ | _G_~2~^3^ | _G_~2~^3^ | _G_~2~^3^ | _G_~2~^3^ | _R_~1~^9^ | _R_~0~^10^ | _R_~0~^10^ | _R_~0~^10^
+>| *45* &nbsp; | _G_~1~^0^ | _G_~1~^0^ | _G_~1~^0^ | _G_~1~^0^ | _G_~1~^0^ | _G_~1~^0^ | _G_~1~^0^ | _G_~1~^0^ | _G_~1~^0^ | _G_~1~^0^ | _G_~1~^0^ | _G_~1~^0^ | _G_~1~^0^ | _G_~1~^0^
+>| *46* &nbsp; | _G_~1~^1^ | _G_~1~^1^ | _G_~1~^1^ | _G_~1~^1^ | _G_~1~^1^ | _G_~1~^1^ | _G_~1~^1^ | _G_~1~^1^ | _G_~1~^1^ | _G_~1~^1^ | _G_~1~^1^ | _G_~1~^1^ | _G_~1~^1^ | _G_~1~^1^
+>| *47* &nbsp; | _G_~1~^2^ | _G_~1~^2^ | _G_~1~^2^ | _G_~1~^2^ | _G_~1~^2^ | _G_~1~^2^ | _G_~1~^2^ | _G_~1~^2^ | _G_~1~^2^ | _G_~1~^2^ | _G_~1~^2^ | _G_~1~^2^ | _G_~1~^2^ | _G_~1~^2^
+>| *48* &nbsp; | _G_~1~^3^ | _G_~1~^3^ | _G_~1~^3^ | _G_~1~^3^ | _G_~1~^3^ | _G_~1~^3^ | _G_~1~^3^ | _G_~1~^3^ | _G_~1~^3^ | _G_~1~^3^ | _G_~1~^3^ | _G_~1~^3^ | _G_~1~^3^ | _G_~1~^3^
+>| *49* &nbsp; | _G_~1~^4^ | _G_~1~^4^ | _G_~0~^10^ | _G_~1~^4^ | _G_~0~^10^ | _G_~1~^4^ | _G_~1~^4^ | _G_~1~^4^ | _G_~1~^4^ | _G_~1~^4^ | _G_~1~^4^ | _G_~1~^4^ | _G_~1~^4^ | _G_~0~^15^
+>| *50* &nbsp; | _B_~3~^0^ | _G_~1~^5^ | _B_~3~^0^ | _B_~3~^0^ | _B_~3~^0^ | _G_~1~^5^ | _B_~3~^0^ | _G_~1~^5^ | _G_~1~^5^ | _G_~1~^5^ | _G_~1~^5^ | _G_~1~^5^ | _G_~1~^5^ | _G_~0~^14^
+>| *51* &nbsp; | _G_~3~^0^ | _G_~3~^0^ | _G_~3~^0^ | _G_~3~^0^ | _G_~3~^0^ | _G_~3~^0^ | _G_~3~^0^ | _G_~3~^0^ | _G_~3~^0^ | _G_~3~^0^ | _G_~1~^6^ | _G_~1~^6^ | _G_~1~^6^ | _G_~0~^13^
+>| *52* &nbsp; | _G_~3~^1^ | _G_~3~^1^ | _G_~3~^1^ | _G_~3~^1^ | _G_~3~^1^ | _G_~3~^1^ | _G_~3~^1^ | _G_~3~^1^ | _G_~3~^1^ | _G_~3~^1^ | _G_~1~^7^ | _G_~1~^7^ | _G_~1~^7^ | _G_~0~^12^
+>| *53* &nbsp; | _G_~3~^2^ | _G_~3~^2^ | _G_~3~^2^ | _G_~3~^2^ | _G_~3~^2^ | _G_~3~^2^ | _G_~3~^2^ | _G_~3~^2^ | _G_~3~^2^ | _G_~3~^2^ | _G_~1~^8^ | _G_~1~^8^ | _G_~0~^11^ | _G_~0~^11^
+>| *54* &nbsp; | _G_~3~^3^ | _G_~3~^3^ | _G_~3~^3^ | _G_~3~^3^ | _G_~3~^3^ | _G_~3~^3^ | _G_~3~^3^ | _G_~3~^3^ | _G_~3~^3^ | _G_~3~^3^ | _G_~1~^9^ | _G_~0~^10^ | _G_~0~^10^ | _G_~0~^10^
+>| *55* &nbsp; | _B_~1~^0^ | _B_~1~^0^ | _B_~1~^0^ | _B_~1~^0^ | _B_~1~^0^ | _B_~1~^0^ | _B_~1~^0^ | _B_~1~^0^ | _B_~1~^0^ | _B_~1~^0^ | _B_~1~^0^ | _B_~1~^0^ | _B_~1~^0^ | _B_~1~^0^
+>| *56* &nbsp; | _B_~1~^1^ | _B_~1~^1^ | _B_~1~^1^ | _B_~1~^1^ | _B_~1~^1^ | _B_~1~^1^ | _B_~1~^1^ | _B_~1~^1^ | _B_~1~^1^ | _B_~1~^1^ | _B_~1~^1^ | _B_~1~^1^ | _B_~1~^1^ | _B_~1~^1^
+>| *57* &nbsp; | _B_~1~^2^ | _B_~1~^2^ | _B_~1~^2^ | _B_~1~^2^ | _B_~1~^2^ | _B_~1~^2^ | _B_~1~^2^ | _B_~1~^2^ | _B_~1~^2^ | _B_~1~^2^ | _B_~1~^2^ | _B_~1~^2^ | _B_~1~^2^ | _B_~1~^2^
+>| *58* &nbsp; | _B_~1~^3^ | _B_~1~^3^ | _B_~1~^3^ | _B_~1~^3^ | _B_~1~^3^ | _B_~1~^3^ | _B_~1~^3^ | _B_~1~^3^ | _B_~1~^3^ | _B_~1~^3^ | _B_~1~^3^ | _B_~1~^3^ | _B_~1~^3^ | _B_~1~^3^
+>| *59* &nbsp; | _B_~1~^4^ | _B_~1~^4^ | _B_~0~^10^ | _B_~1~^4^ | _B_~1~^4^ | _B_~1~^4^ | _B_~1~^4^ | _B_~1~^4^ | _B_~1~^4^ | _B_~1~^4^ | _B_~1~^4^ | _B_~1~^4^ | _B_~1~^4^ | _B_~0~^15^
+>| *60* &nbsp; | _B_~3~^1^ | _B_~1~^5^ | _B_~3~^1^ | _B_~3~^1^ | _B_~0~^10^ | _B_~3~^1^ | _B_~3~^1^ | _B_~3~^1^ | _B_~1~^5^ | _B_~1~^5^ | _B_~1~^5^ | _B_~1~^5^ | _B_~1~^5^ | _B_~0~^14^
+>| *61* &nbsp; | _B_~2~^0^ | _B_~2~^0^ | _B_~2~^0^ | _B_~2~^0^ | _B_~2~^0^ | _B_~2~^0^ | _B_~2~^0^ | _B_~2~^0^ | _B_~2~^0^ | _B_~2~^0^ | _B_~1~^6^ | _B_~1~^6^ | _B_~1~^6^ | _B_~0~^13^
+>| *62* &nbsp; | _B_~2~^1^ | _B_~2~^1^ | _B_~2~^1^ | _B_~2~^1^ | _B_~2~^1^ | _B_~2~^1^ | _B_~2~^1^ | _B_~2~^1^ | _B_~2~^1^ | _B_~2~^1^ | _B_~1~^7^ | _B_~1~^7^ | _B_~1~^7^ | _B_~0~^12^
+>| *63* &nbsp; | _B_~2~^2^ | _B_~2~^2^ | _B_~2~^2^ | _B_~2~^2^ | _B_~2~^2^ | _B_~2~^2^ | _B_~2~^2^ | _B_~2~^2^ | _B_~2~^2^ | _B_~2~^2^ | _B_~1~^8^ | _B_~1~^8^ | _B_~0~^11^ | _B_~0~^11^
+>| *64* &nbsp; | _B_~2~^3^ | _B_~2~^3^ | _B_~2~^3^ | _B_~2~^3^ | _B_~2~^3^ | _B_~2~^3^ | _B_~2~^3^ | _B_~2~^3^ | _B_~2~^3^ | _B_~2~^3^ | _B_~1~^9^ | _B_~0~^10^ | _B_~0~^10^ | _B_~0~^10^
+>| *65* &nbsp; | _R_~2~^0^ | _R_~2~^0^ | _R_~2~^0^ | _R_~2~^0^ | _R_~2~^0^ | _R_~2~^0^ | _R_~2~^0^ | _R_~2~^0^ | _R_~2~^0^ | _R_~2~^0^ | IB~0,0~^0^ | IB~0,0~^0^ | IB~0,0~^0^ | IB~0,0~^0^
+>| *66* &nbsp; | _R_~2~^1^ | _R_~2~^1^ | _R_~2~^1^ | _R_~2~^1^ | _R_~2~^1^ | _R_~2~^1^ | _R_~2~^1^ | _R_~2~^1^ | _R_~2~^1^ | _R_~2~^1^ | IB~0,0~^1^ | IB~0,0~^1^ | IB~0,0~^1^ | IB~0,0~^1^
+>| *67* &nbsp; | _R_~2~^2^ | _R_~2~^2^ | _R_~2~^2^ | _R_~2~^2^ | _R_~2~^2^ | _R_~2~^2^ | _R_~2~^2^ | _R_~2~^2^ | _R_~2~^2^ | _R_~2~^2^ | IB~0,0~^2^ | IB~0,0~^2^ | IB~0,0~^2^ | IB~0,0~^2^
+>| *68* &nbsp; | _R_~2~^3^ | _R_~2~^3^ | _R_~2~^3^ | _R_~2~^3^ | _R_~2~^3^ | _R_~2~^3^ | _R_~2~^3^ | _R_~2~^3^ | _R_~2~^3^ | _R_~2~^3^ | IB~1,0~^0^ | IB~1,0~^0^ | IB~1,0~^0^ | IB~1,0~^0^
+>| *69* &nbsp; | _R_~2~^4^ | _R_~2~^4^ | _R_~2~^4^ | _B_~3~^0^ | _B_~3~^1^ | _R_~2~^4^ | _R_~2~^4^ | _R_~2~^4^ | _R_~2~^4^ | _R_~2~^4^ | IB~1,0~^1^ | IB~1,0~^1^ | IB~1,0~^1^ | IB~1,0~^1^
+>| *70* &nbsp; | _B_~3~^2^ | _R_~2~^5^ | _B_~3~^2^ | _B_~3~^2^ | _B_~3~^2^ | _B_~3~^2^ | _R_~2~^5^ | _B_~3~^2^ | _B_~3~^2^ | _R_~2~^5^ | IB~1,0~^2^ | IB~1,0~^2^ | IB~1,0~^2^ | IB~1,0~^2^
+>| *71* &nbsp; | _R_~3~^0^ | _R_~3~^0^ | _R_~3~^0^ | _R_~3~^0^ | _R_~3~^0^ | _R_~3~^0^ | _R_~3~^0^ | _R_~3~^0^ | _R_~3~^0^ | _R_~3~^0^ | IB~1,0~^3^ | IB~1,0~^3^ | IB~1,0~^3^ | IB~1,0~^3^
+>| *72* &nbsp; | _R_~3~^1^ | _R_~3~^1^ | _R_~3~^1^ | _R_~3~^1^ | _R_~3~^1^ | _R_~3~^1^ | _R_~3~^1^ | _R_~3~^1^ | _R_~3~^1^ | _R_~3~^1^ | IB~2,0~^0^ | IB~2,0~^0^ | IB~2,0~^0^ | IB~2,0~^0^
+>| *73* &nbsp; | _R_~3~^2^ | _R_~3~^2^ | _R_~3~^2^ | _R_~3~^2^ | _R_~3~^2^ | _R_~3~^2^ | _R_~3~^2^ | _R_~3~^2^ | _R_~3~^2^ | _R_~3~^2^ | IB~2,0~^1^ | IB~2,0~^1^ | IB~2,0~^1^ | IB~2,0~^1^
+>| *74* &nbsp; | _R_~3~^3^ | _R_~3~^3^ | _R_~3~^3^ | _R_~3~^3^ | _R_~3~^3^ | _R_~3~^3^ | _R_~3~^3^ | _R_~3~^3^ | _R_~3~^3^ | _R_~3~^3^ | IB~2,0~^2^ | IB~2,0~^2^ | IB~2,0~^2^ | IB~2,0~^2^
+>| *75* &nbsp; | _R_~3~^4^ | _R_~3~^4^ | _R_~3~^4^ | _G_~2~^4^ | _B_~3~^4^ | _R_~3~^4^ | _R_~3~^4^ | _R_~3~^4^ | _R_~3~^4^ | _R_~3~^4^ | IB~2,0~^3^ | IB~2,0~^3^ | IB~2,0~^3^ | IB~2,0~^3^
+>| *76* &nbsp; | _B_~3~^3^ | _R_~3~^5^ | _B_~3~^3^ | _B_~3~^3^ | _B_~3~^3^ | _B_~3~^3^ | _R_~3~^5^ | _B_~3~^3^ | _B_~3~^3^ | _R_~3~^5^ | IB~3,0~^0^ | IB~3,0~^0^ | IB~3,0~^0^ | IB~3,0~^0^
+>| *77* &nbsp; | PB^0^ | PB^0^ | PB^0^ | PB^0^ | PB^0^ | PB^0^ | PB^0^ | PB^0^ | PB^0^ | PB^0^ | IB~3,0~^1^ | IB~3,0~^1^ | IB~3,0~^1^ | IB~3,0~^1^
+>| *78* &nbsp; | PB^1^ | PB^1^ | PB^1^ | PB^1^ | PB^1^ | PB^1^ | PB^1^ | PB^1^ | PB^1^ | PB^1^ | IB~3,0~^2^ | IB~3,0~^2^ | IB~3,0~^2^ | IB~3,0~^2^
+>| *79* &nbsp; | PB^2^ | PB^2^ | PB^2^ | PB^2^ | PB^2^ | PB^2^ | PB^2^ | PB^2^ | PB^2^ | PB^2^ | IB~3,0~^3^ | IB~3,0~^3^ | IB~3,0~^3^ | IB~3,0~^3^
+>| *80* &nbsp; | PB^3^ | PB^3^ | PB^3^ | PB^3^ | PB^3^ | PB^3^ | PB^3^ | PB^3^ | PB^3^ | PB^3^ | IB~0,1~^0^ | IB~0,1~^0^ | IB~0,1~^0^ | IB~0,1~^0^
+>| *81* &nbsp; | PB^4^ | PB^4^ | PB^4^ | PB^4^ | PB^4^ | PB^4^ | PB^4^ | PB^4^ | PB^4^ | PB^4^ | IB~0,1~^1^ | IB~0,1~^1^ | IB~0,1~^1^ | IB~0,1~^1^
+|================
+
+[NOTE]
+====
+<<table-bptcbc6hbits>> and <<table-bptcbc6hbits2>> show bits 0..81 for each mode.
+Since modes 3, 7, 11 and 15 each have only one partition, only the first
+index is an anchor index, and there is a fixed mapping between texels and
+index bits.
+These modes also have four index bits IB~_x,y_~^0..3^ per texel (except for the
+anchor index), and these pixel indices start at bit 65 with IB~0,0~^0^.
+The interpretation of bits 82 and later is not tabulated.
+For modes with two partitions, the mapping from index bits IB~_x,y_~ to
+coordinates depends on the choice of anchor index for the secondary
+partition (determined by the pattern selected by the partition bits
+PB^4..0^), and is therefore not uniquely defined by the mode -- and not
+useful to tabulate in this form.
+====
+
+<<<
+
+In a single-subset blocks, the two endpoints are contained in _R_~0~, _G_~0~, _B_~0~
+(collectively referred to as _E_~0~) and _R_~1~, _G_~1~, _B_~1~ (collectively _E_~1~).
+In a two-subset block, the endpoints for the second subset are in _R_~2~, _G_~2~,
+_B_~2~ and _R_~3~, _G_~3~, _B_~3~ (collectively _E_~2~ and _E_~3~ respectively).
+The values in _E_~0~ are sign-extended to the implementation's internal integer
+representation if the format of the texture is signed.
+The values in _E_~1~ (and _E_~2~ and _E_~3~ if the block has two subsets) are
+sign-extended if the format of the texture is signed or if the block mode
+has transformed endpoints.
+If the mode has transformed endpoints, the values from _E_~0~ are used as a
+base to offset all other endpoints, wrapped at the number of endpoint bits.
+For example, _R_~1~ = (_R_~0~ {plus} _R_~1~) & latexmath:[$((1 \ll \mathrm{EPB})-1)$].
+
+[NOTE]
+====
+In BC7, all modes represent endpoint values independently.
+This means it is always possible to represent the endpoints nearest to the
+anchor indices by choosing the endpoint order appropriately.
+Since in BC6H transformed endpoints are represented as two's complement
+offsets relative to the first endpoint, there is an asymmetry: it is
+possible to represent larger negative values in two's complement than
+positive values, so _E_~1~, _E_~2~ and _E_~3~ can be more distant from _E_~0~ in
+a negative direction than positive in modes with transformed endpoints.
+This means that endpoints cannot necessarily be chosen independently
+of the anchor index in BC6H, since the order of endpoints cannot
+necessarily be reversed.
+In addition, _E_~2~ and _E_~3~ always depends on _E_~0~, so swapping _E_~0~ and
+_E_~1~ to suit the anchor bit for the first subset may make make the
+relative offsets of _E_~2~ and _E_~3~ unrepresentable in a given mode if
+they fall out of range.
+====
+
 Next, the endpoints are unquantized to maximize the usage of the bits and
 to ensure that the negative ranges are oriented properly to interpolate as
-a two's complement value. The following pseudocode assumes the computation
-is being done using sufficiently large intermediate values to avoid
-overflow. For the unsigned float format, we unquantize a value latexmath:[$x$] to
-latexmath:[$unq$] by:
+a two's complement value.
+The following pseudocode assumes the computation uses sufficiently large
+intermediate values to avoid overflow.
+For the unsigned float format, we unquantize a value _x_ to _unq_ by:
 
 -----
 if (EPB >= 15)
@@ -423,78 +1072,49 @@ if (EPB >= 16) {
 -----
 
 After the endpoints are unquantized, interpolation proceeds as in the
-fixed-point formats above including the interpolation weight table.
+fixed-point formats above using <<BPTCinterpolation>>, including the interpolation
+weight table, <<BPTCInterpolation>>.
 
-The interpolated values are passed through a final unquantization step. For
-the unsigned format, this step simply multiplies by latexmath:[$31 \over 64$]. The
-signed format negates negative components, multiplies by latexmath:[$31 \over 32$], then
-ORs in the sign bit if the original value was negative.
+<<<
 
-The resultant value should be a legal 16-bit half float.
+The interpolated values are passed through a final unquantization step.
+For the unsigned format, this limits the range of the integer representation
+to those bit sequences which, when interpreted as a 16-bit half float,
+represent [0.0..65504.0], where 65504.0 is the largest finite value
+representable in a half float.
+The bit pattern that represents 65504.0 is integer 0x7BFF, so the integer
+input range 0..0xFFFF can be mapped to this range by scaling the
+interpolated integer i by latexmath:[$31\over 64$]:
 
-[[table-bptcblockmodes]]
-.Endpoint and partition parameters for BPTC block modes
-[options="header", width="70%"]
-|==============
-^| Mode Number  ^| Transformed Endpoints ^| Partition Bits (PB) ^| Endpoint Bits (EPB)  ^| Delta Bits
-^| 0      ^| 1            ^| 5         ^| 10         ^| {5, 5, 5}
-^| 1      ^| 1            ^| 5         ^| 7          ^| {6, 6, 6}
-^| 2      ^| 1            ^| 5         ^| 11         ^| {5, 4, 4}
-^| 6      ^| 1            ^| 5         ^| 11         ^| {4, 5, 4}
-^| 10     ^| 1            ^| 5         ^| 11         ^| {4, 4, 5}
-^| 14     ^| 1            ^| 5         ^| 9          ^| {5, 5, 5}
-^| 18     ^| 1            ^| 5         ^| 8          ^| {6, 5, 5}
-^| 22     ^| 1            ^| 5         ^| 8          ^| {5, 6, 5}
-^| 26     ^| 1            ^| 5         ^| 8          ^| {5, 5, 6}
-^| 30     ^| 0            ^| 5         ^| 6          ^| {6, 6, 6}
-^| 3      ^| 0            ^| 0         ^| 10         ^| {10, 10, 10}
-^| 7      ^| 1            ^| 0         ^| 11         ^| {9, 9, 9}
-^| 11     ^| 1            ^| 0         ^| 12         ^| {8, 8, 8}
-^| 15     ^| 1            ^| 0         ^| 16         ^| {4, 4, 4}
-|==============
+-----
+out = (i * 31) >> 6;
+-----
 
-[[table-bptcblockformat]]
-.Block formats for BC6H block modes
-[options="header",cols="2,10",width="75%"]
-|===========================
-^| Mode Number  | Block Format
-^|  0     | m[1:0], g2[4], b2[4], b3[4], r0[9(:0], g0[9:0], b0[9:0], r1[4:0],
-         g3[4], g2[3:0], g1[4:0], b3[0], g3[3:0], b1[4:0], b3[1], b2[3:0],
-         r2[4:0], b3[2], r3[4:0],
-^|  1     | m[1:0], g2[5], g3[4], g3[5], r0[6:0], b3[0], b3[1], b2[4],
-         g0[6:0], b2[5], b3[2], g2[4], b0[6:0], b3[3], b3[5], b3[4],
-         r1[5:0], g2[3:0], g1[5:0], g3[3:0], b1[5:0], b2[3:0], r2[5:0],
-         r3[5:0]
-^|  2     | m[4:0], r0[9:0], g0[9:0], b0[9:0], r1[4:0], r0[10], g2[3:0],
-         g1[3:0], g0[10], b3[0], g3[3:0], b1[3:0], b0[10], b3[1], b2[3:0],
-         r2[4:0], b3[2], r3[4:0],
-^|  6     | m[4:0], r0[9:0], g0[9:0], b0[9:0], r1[3:0], r0[10], g3[4],
-         g2[3:0], g1[4:0], g0[10], g3[3:0], b1[3:0], b0[10], b3[1],
-         b2[3:0], r2[3:0], b3[0], b3[2], r3[3:0], g2[4], b3[3]
-^| 10     | m[4:0], r0[9:0], g0[9:0], b0[9:0], r1[3:0], r0[10], b2[4],
-         g2[3:0], g1[3:0], g0[10], b3[0], g3[3:0], b1[4:0], b0[10],
-         b2[3:0], r2[3:0], b3[1], b3[2], r3[3:0], b3[4], b3[3]
-^| 14     | m[4:0], r0[8:0], b2[4], g0[8:0], g2[4], b0[8:0], b3[4], r1[4:0],
-         g3[4], g2[3:0], g1[4:0], b3[0], g3[3:0], b1[4:0], b3[1], b2[3:0],
-         r2[4:0], b3[2], r3[4:0], b3[3]
-^| 18     | m[4:0], r0[7:0], g3[4], b2[4], g0[7:0], b3[2], g2[4], b0[7:0],
-         b3[3], b3[4], r1[5:0], g2[3:0], g1[4:0], b3[0], g3[3:0], b1[4:0],
-         b3[1], b2[3:0], r2[5:0], r3[5:0]
-^| 22     | m[4:0], r0[7:0], b3[0], b2[4], g0[7:0], g2[5], g2[4], b0[7:0],
-         g3[5], b3[4], r1[4:0], g3[4], g2[3:0], g1[5:0], g3[3:0], b1[4:0],
-         b3[1], b2[3:0], r2[4:0], b3[2], r3[4:0], b3[3]
-^| 26     | m[4:0], r0[7:0], b3[1], b2[4], g0[7:0], b2[5], g2[4], b0[7:0],
-         b3[5], b3[4], r1[4:0], g3[4], g2[3:0], g1[4:0], b3[0], g3[3:0],
-         b1[5:0], b2[3:0], r2[4:0], b3[2], r3[4:0], b3[3]
-^| 30     | m[4:0], r0[5:0], g3[4], b3[0], b3[1], b2[4], g0[5:0], g2[5],
-         b2[5], b3[2], g2[4], b0[5:0], g3[5], b3[3], b3[5], b3[4],
-         r1[5:0], g2[3:0], g1[5:0], g3[3:0], b1[5:0], b2[3:0], r2[5:0],
-         r3[5:0]
-^|  3     | m[4:0], r0[9:0], g0[9:0], b0[9:0], r1[9:0], g1[9:0], b1[9:0]
-^|  7     | m[4:0], r0[9:0], g0[9:0], b0[9:0], r1[8:0], r0[10], g1[8:0],
-         g0[10], b1[8:0], b0[10]
-^| 11     | m[4:0], r0[9:0], g0[9:0], b0[9:0], r1[7:0], r0[10:11], g1[7:0],
-         g0[10:11], b1[7:0], b0[10:11]
-^| 15     | m[4:0], r0[9:0], g0[9:0], b0[9:0], r1[3:0], r0[10:15], g1[3:0],
-         g0[10:15], b1[3:0], b0[10:15]
-|==========================
+For the signed format, the final unquantization step limits the range of
+the integer representation to the bit sequences which, when interpreted as
+a 16-bit half float, represent the range [latexmath:[$-\infty$]..65504.0],
+where latexmath:[$-\infty$] is represented in half float as the bit
+pattern 0xFC00.
+The signed 16-bit integer range [-0x8000..0x7FFF] is remapped to this
+float representation by taking the absolute value of the interpolated
+value i, scaling it by latexmath:[$31\over 32$], and restoring the sign bit:
+
+-----
+out = i < 0 ? (((-i) * 31) >> 5) | 0x8000 : (i * 31) >> 5;
+-----
+
+The resultant bit pattern should be interpreted as a 16-bit half float.
+
+[NOTE]
+====
+The ability to support latexmath:[$-\infty$] is considered ``accidental''
+due to the asymmetry of two's complement representation: in order to
+map integer 0x7FFF to 65504.0 and 0x0000 to 0.0, -0x7FFF maps to the
+largest finite negative value, -65504.0, represented as 0xFBFF.
+A two's complement signed integer can also represent -0x8000; it
+happens that the same unquantization formula maps 0x8000 to 0xFC00,
+which is the half float bit pattern for latexmath:[$-\infty$].
+Although decoders for BC6H should be bit-exact, encoders for this format
+are encouraged to map latexmath:[$-\infty$] to -65504.0 (and to map
+latexmath:[$\infty$] to 65504.0 and NaN values to 0.0) prior to encoding.
+====
