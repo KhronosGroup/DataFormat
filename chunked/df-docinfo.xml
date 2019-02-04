@@ -1,5 +1,5 @@
 <!--
-Copyright (c) 2014-2015 The Khronos Group Inc.
+Copyright (c) 2014-2019 The Khronos Group Inc.
 Copyright notice at https://www.khronos.org/registry/speccopyright.html
 -->
 
@@ -13,7 +13,7 @@ Copyright notice at https://www.khronos.org/registry/speccopyright.html
 
 <legalnotice>
 <simpara>
-Copyright (C) 2015  The Khronos Group Inc. All Rights Reserved.
+Copyright (C) 2015-2019  The Khronos Group Inc. All Rights Reserved.
 </simpara>
 <simpara>
 This specification is protected by copyright laws and contains material proprietary to the Khronos Group, Inc. It or any components may not be reproduced, republished, distributed, transmitted, displayed, broadcast, or otherwise exploited in any manner without the express prior written permission of Khronos Group. You may use this specification for implementing the functionality therein, without altering or removing any trademark, copyright or other notice from the specification, but the receipt or possession of this specification does not convey any rights to reproduce, disclose, or distribute its contents, or to manufacture, use, or sell anything that it may describe, in whole or in part.
@@ -51,7 +51,7 @@ David Sena</literallayout>
 <date>Jan 2015</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-Initial sharing.
+Initial sharing
 </revremark>
 </revision>
 <revision>
@@ -59,7 +59,7 @@ Initial sharing.
 <date>Feb 2015</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-Added clarification, tables, examples.
+Added clarification, tables, examples
 </revremark>
 </revision>
 <revision>
@@ -67,7 +67,7 @@ Added clarification, tables, examples.
 <date>Feb 2015</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-Further cleanup.
+Further cleanup
 </revremark>
 </revision>
 <revision>
@@ -75,7 +75,7 @@ Further cleanup.
 <date>Apr 2015</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-Channel ordering standardised.
+Channel ordering standardized
 </revremark>
 </revision>
 <revision>
@@ -83,7 +83,7 @@ Channel ordering standardised.
 <date>Apr 2015</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-Typos and clarification.
+Typos and clarification
 </revremark>
 </revision>
 <revision>
@@ -96,7 +96,7 @@ Submission for 1.0 release
 </revision>
 <revision>
 <revnumber>1.0 rev 2</revnumber>
-<date>June 2015</date>
+<date>Jun 2015</date>
 <authorinitials>AG</authorinitials>
 <revremark>
 Clarifications for 1.0 release
@@ -104,7 +104,7 @@ Clarifications for 1.0 release
 </revision>
 <revision>
 <revnumber>1.0 rev 3</revnumber>
-<date>July 2015</date>
+<date>Jul 2015</date>
 <authorinitials>AG</authorinitials>
 <revremark>
 Added KHR_DF_SAMPLE_DATATYPE_LINEAR
@@ -112,10 +112,18 @@ Added KHR_DF_SAMPLE_DATATYPE_LINEAR
 </revision>
 <revision>
 <revnumber>1.0 rev 4</revnumber>
-<date>July 2015</date>
+<date>Jul 2015</date>
 <authorinitials>AG</authorinitials>
 <revremark>
 Clarified KHR_DF_SAMPLE_DATATYPE_LINEAR
+</revremark>
+</revision>
+<revision>
+<revnumber>1.0 rev 5</revnumber>
+<date>Mar 2019</date>
+<authorinitials>AG</authorinitials>
+<revremark>
+Clarification and typography
 </revremark>
 </revision>
 </revhistory>
