@@ -113,6 +113,14 @@ typedef enum _khr_df_mask_e {
     (((BDB)[KHR_DF_WORD_ ## X] >> (KHR_DF_SHIFT_ ## X)) \
      & (KHR_DF_MASK_ ## X))
 
+/* Helper macro:
+   Set field X of basic descriptor block BDB */
+#define KHR_DFDSETVAL(BDB, X, val) \
+    ((BDB)[KHR_DF_WORD_ ## X] = \
+     ((BDB)[KHR_DF_WORD_ ## X] & \
+      ~((KHR_DF_MASK_ ## X) << (KHR_DF_SHIFT_ ## X))) | \
+     (((val) & (KHR_DF_MASK_ ## X)) << (KHR_DF_SHIFT_ ## X)))
+
 /* Offsets relative to the start of a sample */
 typedef enum _khr_df_sampleword_e {
     KHR_DF_SAMPLEWORD_BITOFFSET = 0U,
@@ -161,15 +169,28 @@ typedef enum _khr_df_samplemask_e {
 /* Helper macro:
    Extract field X of sample S from basic descriptor block BDB */
 #define KHR_DFDSVAL(BDB, S, X) \
-    (((BDB)[KHR_DF_WORD_SAMPLESTART +       \
-          ((S) * KHR_DF_WORD_SAMPLEWORDS) + \
-          KHR_DF_SAMPLEWORD_ ## X] >> (KHR_DF_SAMPLESHIFT_ ## X)) \
+    (((BDB)[KHR_DF_WORD_SAMPLESTART + \
+            ((S) * KHR_DF_WORD_SAMPLEWORDS) + \
+            KHR_DF_SAMPLEWORD_ ## X] >> (KHR_DF_SAMPLESHIFT_ ## X)) \
      & (KHR_DF_SAMPLEMASK_ ## X))
+
+/* Helper macro:
+   Set field X of sample S of basic descriptor block BDB */
+#define KHR_DFDSETSVAL(BDB, S, X, val) \
+    ((BDB)[KHR_DF_WORD_SAMPLESTART + \
+           ((S) * KHR_DF_WORD_SAMPLEWORDS) + \
+           KHR_DF_SAMPLEWORD_ ## X] = \
+     ((BDB)[KHR_DF_WORD_SAMPLESTART + \
+            ((S) * KHR_DF_WORD_SAMPLEWORDS) + \
+            KHR_DF_SAMPLEWORD_ ## X] & \
+      ~((KHR_DF_MASK_ ## X) << (KHR_DF_SHIFT_ ## X))) | \
+     (((val) & (KHR_DF_MASK_ ## X)) << (KHR_DF_SHIFT_ ## X)))
 
 /* Helper macro:
    Number of samples in basic descriptor block BDB */
 #define KHR_DFDSAMPLECOUNT(BDB) \
-    (((KHR_DFDVAL(BDB, DESCRIPTORBLOCKSIZE) >> 2) - KHR_DF_WORD_SAMPLESTART) \
+    (((KHR_DFDVAL(BDB, DESCRIPTORBLOCKSIZE) >> 2) - \
+      KHR_DF_WORD_SAMPLESTART) \
      / KHR_DF_WORD_SAMPLEWORDS)
 
 /* Vendor ids */

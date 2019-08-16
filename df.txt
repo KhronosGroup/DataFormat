@@ -1127,11 +1127,18 @@ The order of samples should be defined by the following rules:
    a virtual sample, that virtual sample should be described first;
    this does not require that the first sample directly describes
    bit 0, as in the green channel of <<exampledescriptor_bigendian>>.
-** If virtual bit stream bits are shared between samples, the
-   virtual sample containing the first undescribed bit stream bit
-   is described first, as seen in <<exampledescriptor_AcornTint>>.
-* Virtual samples that completely share bits are ordered by channel
-  number, as shown in <<exampledescriptor_intensity>>.
+* If the same bit in the virtual bit stream in increasing bit
+  order is the first to be associated with more than one virtual
+  sample, virtual samples are listed in channel number order.
+** For example, an alpha channel may be encoded in bits 0..7 of
+   the virtual bits stream, followed by red, green and blue
+   channels sharing bits 8..15. The sample describing alpha should
+   be listed first, since it uniquely describes bit 0 of the virtual
+   bits stream. Bit 8 of the virtual bit stream is the first bit of
+   the red, green and blue, and since red, green and blue are channel
+   numbers 0, 1 and 2, the corresponding samples are described in
+   this order. See, for example, <<exampledescriptor_AcornTint>>
+   and <<exampledescriptor_intensity>>.
 * Virtual samples that share bits and channel number but not location
   would be extremely unusual, but would appear in increasing raster
   order of the location (that is, sorted first by coordinate three,
@@ -2837,7 +2844,7 @@ The enumerant names for this channel id are listed in <<etc1s_channel>>.
 |================================
 
 <<<
-==== KHR_DF_MODEL_PVRTC (= 164) ====
+==== *++KHR_DF_MODEL_PVRTC++* (= 164) ====
 
 This model represents the first generation of PowerVR Texture Compression
 as a single channel in a texel block of 8 bytes. 4-bit-per-pixel mode
@@ -2903,7 +2910,7 @@ The enumerant names for this channel id are listed in <<pvrtc_channel>>.
 |================================
 
 <<<
-==== KHR_DF_MODEL_PVRTC2 (= 165) ====
+==== *++KHR_DF_MODEL_PVRTC2++* (= 165) ====
 
 This model represents the second generation of PowerVR Texture Compression
 as a single channel in a texel block of 8 bytes. 4-bit-per-pixel mode
@@ -3111,10 +3118,10 @@ channels, the convention of that model should be used when applying
 the transfer function. For example, ASTC stores both alpha and _RGB_
 data but is represented by a single sample; in ASTC, any sRGB transfer
 function is not applied to the alpha channel of the ASTC texture.
-In this case, the *++KHR_DF_SAMPLE_DATATYPE_LINEAR++* bit being zero means that
-the transfer function is ``applied'' to the ASTC sample in a way that only
-affects the _RGB_ channels. This is not a concern for most color models,
-which explicitly store different channels in each sample.
+In this case, the *++KHR_DF_SAMPLE_DATATYPE_LINEAR++* bit being zero means
+that the transfer function is ``applied'' to the ASTC sample in a way that
+only affects the _RGB_ channels. This is not a concern for most color
+models, which explicitly store different channels in each sample.
 
 If all the samples are linear, *++KHR_DF_TRANSFER_LINEAR++* should be used.
 In this case, no sample should have the *++KHR_DF_SAMPLE_DATATYPE_LINEAR++*
@@ -3134,7 +3141,6 @@ intermediate values to which the transfer function should apply.
 
 *++khr_df_transfer_e++* *_transferFunction_* = *++KHR_DF_MASK_TRANSFER++* & +
 (++bdb++[*++KHR_DF_WORD_TRANSFER++*] >> *++KHR_DF_SHIFT_TRANSFER++*);
-
 
 The enumerant value for each of the following transfer functions is
 shown in parentheses alongside the title.
@@ -3157,104 +3163,221 @@ values.
 ==== *++KHR_DF_TRANSFER_SRGB++* (= 2) ====
 
 This value represents the non-linear transfer function defined in
-the <<srgb,sRGB specification>> for mapping between numerical pixel values
-and intensity. This is described in <<TRANSFER_SRGB>>.
+the <<srgb,sRGB specification>> for mapping between numerical pixel
+values and displayed light intensity, as described in <<TRANSFER_SRGB>>.
+
+[width="60%",cols="^8,^2,^3"]
+|==========
+| Mapping from linear intensity to encoding | EOTF^&nbsp;-1^ | <<TRANSFER_SRGB_INVEOTF>>
+| Mapping from encoding to linear intensity | EOTF | <<TRANSFER_SRGB_EOTF>>
+|==========
+
+Encoded values outside the range 0..1 use the extended formulae
+for EOTF and EOTF^-1^ described in <<TRANSFER_SCRGB_EOTF>>.
 
 ==== *++KHR_DF_TRANSFER_ITU++* (= 3) ====
 
 This value represents the non-linear transfer function defined by
-the ITU and used in the BT.601, BT.709 and BT.2020 specifications.
-This is described in <<TRANSFER_ITU>>.
+the ITU and used in the BT.601, BT.709 and BT.2020 specifications
+for mapping between represented scene light intensity and numerical
+pixel values, as described in <<TRANSFER_ITU>>.
+
+[width="60%",cols="^8,^2,^3"]
+|==========
+| Mapping from linear intensity to encoding | OETF | <<TRANSFER_ITU_OETF>>
+| Mapping from encoding to linear intensity | OETF^&nbsp;-1^ | <<TRANSFER_ITU_INVOETF>>
+|==========
 
 ==== *++KHR_DF_TRANSFER_NTSC++* (= 4) ====
 
 This value represents the non-linear transfer function defined by
-the original NTSC television broadcast specification.
-This is described in <<TRANSFER_LEGACY_NTSC>>.
+the original NTSC television broadcast specification for mapping
+between represented scene light intensity or display light intensity
+and numerical pixel values, as described in <<TRANSFER_LEGACY_NTSC>>.
+
+[width="60%",cols="^8,^4"]
+|==========
+| Mapping from linear intensity to encoding | EOTF^&nbsp;-1^ / OETF
+| Mapping from encoding to linear intensity | EOTF / OETF^&nbsp;-1^
+|==========
 
 NOTE: More recent formulations of this transfer functions, such as that
-defined in SMPTE 170M-2004, use it ITU formulation described above.
+defined in SMPTE 170M-2004, use the ``ITU'' formulation described above.
 
 ==== *++KHR_DF_TRANSFER_SLOG++* (= 5) ====
 
-This value represents a nonlinear Transfer Function used by some
+This value represents a nonlinear Transfer Function between linear
+scene light intensity and nonlinear pixel values, used by some
 Sony video cameras to represent an increased dynamic range,
 and is described in <<TRANSFER_SLOG>>.
 
+[width="60%",cols="^8,^2"]
+|==========
+| Mapping from linear intensity to encoding | OETF
+| Mapping from encoding to linear intensity | OETF^&nbsp;-1^
+|==========
+
 ==== *++KHR_DF_TRANSFER_SLOG2++* (= 6) ====
 
-This value represents a nonlinear Transfer Function used by some
+This value represents a nonlinear Transfer Function between linear
+scene light intensity and nonlinear pixel values, used by some
 Sony video cameras to represent a further increased dynamic range,
 and is described in <<TRANSFER_SLOG2>>.
 
+[width="60%",cols="^8,^2"]
+|==========
+| Mapping from linear intensity to encoding | OETF
+| Mapping from encoding to linear intensity | OETF^&nbsp;-1^
+|==========
+
 ==== *++KHR_DF_TRANSFER_BT1886++* (= 7) ====
 
-This value represents the nonlinear OETF defined in <<bt1886,BT.1886>>
-and described in <<TRANSFER_BT1886>>.
+This value represents the nonlinear latexmath:[$\gamma = 2.4$]
+EOTF between encoded pixel values and linear image intensity defined
+in <<bt1886,BT.1886>> and described in <<TRANSFER_BT1886>>.
 
+[width="70%",cols="^8,^2,^5"]
+|==========
+| Mapping from linear intensity to encoding | EOTF^&nbsp;-1^ | latexmath:[$\{R',G',B'\} = \{R,G,B\}^{2.4}$]
+| Mapping from encoding to linear intensity | EOTF | latexmath:[$\{R,G,B\} = \{R',G',B'\}^{1\over{2.4}}$]
+|==========
+
+<<<
 ==== *++KHR_DF_TRANSFER_HLG_OETF++* (= 8) ====
 
-This value represents the Hybrid Log Gamma OETF
-defined by the ITU in BT.2100 for high dynamic range television,
-and described in <<TRANSFER_HLG>>.
+This value represents the Hybrid Log Gamma OETF between linear
+scene light intensity and nonlinear pixel values, defined by the
+ITU in BT.2100 for high dynamic range television, and described
+in <<TRANSFER_HLG>>.
+
+[width="60%",cols="^8,^2,^3"]
+|==========
+| Mapping from linear intensity to encoding | OETF | <<TRANSFER_HLG_OETF_NORM>>
+| Mapping from encoding to linear intensity | OETF^&nbsp;-1^ | <<TRANSFER_HLG_IOETF_NORM>>
+|==========
 
 ==== *++KHR_DF_TRANSFER_HLG_EOTF++* (= 9) ====
 
-This value represents the Hybrid Log Gamma OETF
-defined by the ITU in BT.2100 for high dynamic range television,
-and described in <<TRANSFER_HLG>>.
+This value represents the Hybrid Log Gamma EOTF between nonlinear
+pixel values and linear image light intensity, defined by the ITU
+in BT.2100 for high dynamic range television, and described in
+<<TRANSFER_HLG>>.
+
+[width="60%",cols="^8,^2,^3"]
+|==========
+| Mapping from linear intensity to encoding | EOTF^&nbsp;-1^ | <<TRANSFER_HLG_IEOTF_NORM>>
+| Mapping from encoding to linear intensity | EOTF | <<TRANSFER_HLG_EOTF_NORM>>
+|==========
 
 ==== *++KHR_DF_TRANSFER_PQ_EOTF++* (= 10) ====
 
-This value represents the Perceptual Quantization EOTF
-defined by the ITU in BT.2100 for high dynamic range television,
-and described in <<TRANSFER_PQ>>.
+This value represents the Perceptual Quantization EOTF between
+nonlinear pixel values and linear image light intensity, defined
+by the ITU in BT.2100 for high dynamic range television, and
+described in <<TRANSFER_PQ>>.
+
+[width="60%",cols="^8,^2,^3"]
+|==========
+| Mapping from linear intensity to encoding | EOTF^&nbsp;-1^ | <<TRANSFER_PQ_IEOTF>>
+| Mapping from encoding to linear intensity | EOTF | <<TRANSFER_PQ_EOTF>>
+|==========
 
 ==== *++KHR_DF_TRANSFER_PQ_OETF++* (= 11) ====
 
-This value represents the Perceptual Quantization EOTF
-defined by the ITU in BT.2100 for high dynamic range television,
-and described in <<TRANSFER_PQ>>.
+This value represents the Perceptual Quantization OETF between
+linear scene light intensity and nonlinear pixel values, defined
+by the ITU in BT.2100 for high dynamic range television, and
+described in <<TRANSFER_PQ>>.
+
+[width="60%",cols="^8,^2,^3"]
+|==========
+| Mapping from linear intensity to encoding | OETF | <<TRANSFER_PQ_OETF>>
+| Mapping from encoding to linear intensity | OETF^&nbsp;-1^ | <<TRANSFER_PQ_IOETF>>
+|==========
 
 ==== *++KHR_DF_TRANSFER_DCIP3++* (= 12) ====
 
-This value represents the transfer function defined in DCI P3
-and described in <<TRANSFER_DCIP3>>.
+This value represents the transfer function between nonlinear pixel
+values and linear image light intensity defined in DCI P3 and described
+in <<TRANSFER_DCIP3>>.
 
+[width="60%",cols="^8,^2"]
+|==========
+| Mapping from linear intensity to encoding | EOTF^&nbsp;-1^
+| Mapping from encoding to linear intensity | EOTF
+|==========
+
+<<<
 ==== *++KHR_DF_TRANSFER_PAL_OETF++* (= 13) ====
 
-This value represents the OETF for legacy PAL systems described
+This value represents the OETF between linear scene light intensity
+and nonlinear pixel values for legacy PAL systems described
 in <<TRANSFER_LEGACY_PAL_OETF>>.
+
+[width="60%",cols="^8,^2"]
+|==========
+| Mapping from linear intensity to encoding | OETF
+| Mapping from encoding to linear intensity | OETF^&nbsp;-1^
+|==========
 
 ==== *++KHR_DF_TRANSFER_PAL625_EOTF++* (= 14) ====
 
-This value represents the EOTF for legacy 625-line PAL systems
+This value represents the EOTF between nonlinear pixel values and
+linear image light intensity for legacy 625-line PAL systems
 described in <<TRANSFER_LEGACY_PAL_EOTF>>.
+
+[width="60%",cols="^8,^2"]
+|==========
+| Mapping from linear intensity to encoding | EOTF^&nbsp;-1^
+| Mapping from encoding to linear intensity | EOTF
+|==========
 
 ==== *++KHR_DF_TRANSFER_ST240++* (= 15) ====
 
-This value represents the transfer function associated with the
+This value represents the transfer function between linear scene
+light intensity and nonlinear pixel values associated with the
 legacy ST-240 (SMPTE240M) standard, described in <<TRANSFER_ST240>>.
+
+[width="60%",cols="^8,^4"]
+|==========
+| Mapping from linear intensity to encoding | EOTF^&nbsp;-1^ / OETF
+| Mapping from encoding to linear intensity | EOTF / OETF^&nbsp;-1^
+|==========
 
 ==== *++KHR_DF_TRANSFER_ACESCC++* (= 16) ====
 
-This value represents the nonlinear Transfer Function used in
+This value represents the nonlinear transfer function between
+linear scene light intensity and nonlinear pixel values used in
 the ACEScc Academy Color Encoding System logarithmic encoding system
 for use within Color Grading Systems, S-2014-003, defined in
-<<aces>>. This is described in <<TRANSFER_ACESCC>>.
+<<aces,ACES>>. This is described in <<TRANSFER_ACESCC>>.
+
+[width="60%",cols="^8,^2"]
+|==========
+| Mapping from linear intensity to encoding | OETF
+| Mapping from encoding to linear intensity | OETF^&nbsp;-1^
+|==========
 
 ==== *++KHR_DF_TRANSFER_ACESCCT++* (= 17) ====
 
-This value represents the nonlinear Transfer Function used in
+This value represents the nonlinear transfer function between
+linear scene light intensity and nonlinear pixel values used in
 the ACEScc Academy Color Encoding System quasi-logarithmic encoding
 system for use within Color Grading Systems, S-2016-001, defined in
-<<aces>>. This is described in <<TRANSFER_ACESCCT>>.
+<<aces,ACES>>. This is described in <<TRANSFER_ACESCCT>>.
+
+[width="60%",cols="^8,^2"]
+|==========
+| Mapping from linear intensity to encoding | OETF
+| Mapping from encoding to linear intensity | OETF^&nbsp;-1^
+|==========
 
 ==== *++KHR_DF_TRANSFER_ADOBERGB++* (= 18) ====
 
 This value represents the transfer function defined in the
 Adobe RGB (1998) specification and described in <<TRANSFER_ADOBERGB>>.
 
+<<<
 === *_flags_* ===
 
 The format supports some configuration options in the form of
@@ -3370,7 +3493,7 @@ A typical _Y&prime;C~B~C~R~_ 4:2:0 image has _two_ planes for the
 _Y&prime;_ channel in this representation, offset by one line vertically.
 
 The use of byte granularity to define planes is a choice to allow large
-texels.
+texel blocks.
 A consequence of this is that formats which are not byte-aligned on each
 addressable unit, such as 1-bit-per-pixel formats, need to represent a
 texel block of multiple samples, covering multiple texels -- as, for
@@ -3391,8 +3514,7 @@ the first plane holds 0x40 {plus} 128 {times} 0x02 = 0x140 bytes;
 *_bytesPlane2_* then describes the number of bytes in the second plane..
 Since only sixteen bits are used to encode a bit offset for each sample,
 14 bits (two bytes excluding the top bits) are sufficient to encode any
-useful number of bytes -- it is never necessary for two consecutive
-fields to have a top bit set.
+useful number of bytes -- there is no need to ``extend'' the higher byte.
 Few formats are expected to require this ``extension bit'', so for
 most of this specification, the number of bytes in a plane is considered
 to be synonymous with the *_bytesPlane_* value.
@@ -3510,14 +3632,8 @@ Nor is there a requirement that all the bits in a plane be used
 (a format may contain padding).
 
 It is unusual but legal for a descriptor block to contain no
-samples.
-For example, a format with no convenient association between coordinate
-locations and memory may use *++KHR_DF_MODEL_UNSPECIFIED++* and still
-wish to use a descriptor block to define color primaries and a transfer
-function.
-One reason to do so would be to describe a compressed image, which will
-be converted to a more directly-representable image with individual texels
-after decompression.
+samples provided the color model is *++KHR_DF_MODEL_UNSPECIFIED++*.
+See <<UNSIZED>> for details.
 
 <<<
 To simplify code using the Basic Data Format Descriptor Block, the
@@ -3620,7 +3736,7 @@ represented number (without the -1 offset) in parentheses for clarity.
 {plus} *++KHR_DF_SAMPLEWORD_BITLENGTH++*]) >> *++KHR_DF_SAMPLESHIFT_BITLENGTH++*);
 
 <<<
-=== Sample *_channelType_* ===
+=== Sample *_channelType_* and qualifiers ===
 
 The *_channelType_* field is an unsigned 8-bit quantity.
 
@@ -3658,47 +3774,126 @@ The top four bits of the *_channelType_* are described by the
 ((++bdb++[*++KHR_DF_WORD_SAMPLESTART++* {plus} (_sample_ {times} *++KHR_DF_WORD_SAMPLEWORDS++*) +
 {plus} *++KHR_DF_SAMPLEWORD_QUALIFIERS++*]) >> *++KHR_DF_SAMPLESHIFT_QUALIFIERS++*);
 
-If the *++KHR_DF_SAMPLE_DATATYPE_LINEAR++* bit, shown as *_L_* in
-<<SampleOverview>>, is not set, the sample value is modified by the transfer
-function defined in the format's *_transferFunction_* field; if this bit _is_
-set, the sample is considered to contain a linearly-encoded value
-irrespective of the format's *_transferFunction_*.
-
 If the *++KHR_DF_SAMPLE_DATATYPE_EXPONENT++* bit, shown as *_E_* in
-<<SampleOverview>>, is set, this sample holds an exponent (in integer form)
-for this channel.
-For example, this would be used to describe the shared exponent location
-in shared exponent formats (with the exponent bits listed separately under
-each channel).
-An exponent is applied to any integer sample of the same type.
-If this bit is _not_ set, the sample is considered to contain mantissa
-information.
-If the *++KHR_DF_SAMPLE_DATATYPE_SIGNED++* bit (*_S_*) is also set,
-the exponent is considered to be two's complement -- otherwise it is
-treated as unsigned.
-The bias of the exponent can be determined by the exponent's
-*_sampleLower_* value.
-The presence or absence of an implicit leading digit in the mantissa of
-a format with an exponent can be determined by the *_sampleUpper_* value
-of the mantissa.
+<<SampleOverview>>, is not set, the sample contributes to a _base value_;
+multiple samples with the same color channel (bottom four bits of
+*_channelType_*) and same *_samplePos_* values are accumulated into
+the virtual sample in increasing bit order from lowest to highest.
 
-If the *++KHR_DF_SAMPLE_DATATYPE_SIGNED++* bit, shown as *_S_* in
-<<SampleOverview>>, is set, the sample holds a signed value in two's
-complement form.
-If this bit is _not_ set, the sample holds an unsigned value.
-It is possible to represent a sign/magnitude integer value by having a
-sample of unsigned integer type with the same channel and sample location,
-as a 1-bit signed sample.
+For samples in which the *++KHR_DF_SAMPLE_DATATYPE_EXPONENT++* bit is not set:
 
-If the *++KHR_DF_SAMPLE_DATATYPE_FLOAT++* bit, shown as *_F_* in
-<<SampleOverview>>, is set, the sample holds floating point data in a
-conventional format of 10, 11 or 16 bits, as described in <<fpformats>>,
-or of 32, or 64 bits as described in <<IEEE 754>>.
-Unless a genuine unsigned format is intended,
-*++KHR_DF_SAMPLE_DATATYPE_SIGNED++* (bit *_S_*) should also be set.
-Less common floating point representations can be generated with
-multiple samples and a combination of signed integer, unsigned integer
-and exponent fields, as described above and in <<customfp>>.
+* If the *++KHR_DF_SAMPLE_DATATYPE_LINEAR++* bit, shown as *_L_* in
+  <<SampleOverview>>, is not set, the final sample value (after any
+  modifier has been applied to the base value) is modified by the
+  transfer function defined in the *_transferFunction_* field  of the
+  descriptor; if this bit _is_ set, the sample is considered to
+  contain a linearly-encoded value irrespective of the format's
+  *_transferFunction_*.
+  All samples referring to the same base value should have the same
+  value stored in the *++KHR_DF_SAMPLE_DATATYPE_LINEAR++* bit.
+
+* If the *++KHR_DF_SAMPLE_DATATYPE_SIGNED++* bit, shown as *_S_* in
+  <<SampleOverview>>, is set, the sample holds a signed value in two's
+  complement form.
+  If this bit is _not_ set, the sample holds an unsigned value.
+  It is possible to represent a sign/magnitude integer value by having a
+  sample of unsigned integer type with the same channel and sample location,
+  as a 1-bit signed sample.
+
+* If the *++KHR_DF_SAMPLE_DATATYPE_FLOAT++* bit, shown as *_F_* in
+  <<SampleOverview>>, is set, the sample holds floating point data in a
+  conventional format of 10, 11 or 16 bits, as described in <<fpformats>>,
+  or of 32, or 64 bits as described in <<IEEE 754>>.
+  Unless a genuine unsigned format is intended,
+  *++KHR_DF_SAMPLE_DATATYPE_SIGNED++* (bit *_S_*) should also be set.
+  Less common floating point representations can be generated with
+  multiple samples and a combination of signed integer, unsigned integer
+  and exponent fields, as described above and in <<customfp>>.
+
+<<<
+If the *++KHR_DF_SAMPLE_DATATYPE_EXPONENT++* bit, shown as *_E_* in
+<<SampleOverview>>, _is_ set, the sample applies a _modifier_ to the base
+value, with the interpretation of the modifier determined according to
+<<exponentqualifiers>>.
+In this case, the virtual sample contains both a base value and
+a modifier.
+
+All samples contributing to a modifier for the same base value should
+contain the same *_L_* and *_F_* bits (it is not legal, for example, to
+define both a multiplier and a divisor).
+Samples which apply a modifier should directly follow the samples that
+describe the base value.
+If no samples have the *_E_* bit set for this channel and position, the
+base value directly represents the pixel value; it is not legal for
+a virtual sample to describe a modifier but no base value.
+
+NOTE: The same bits of the format may contribute to modifiers for
+more than one channel -- this is commonly the case for high dynamic range
+formats with a shared exponent or divisor.
+The descriptor in this case should contain samples for each color channel
+in turn, with the description of the shared bits replicated for each
+channel, as shown in <<exampledescriptor_r9g9b9e5>>.
+
+[[exponentqualifiers]]
+.Qualifier interpretation when *++KHR_DF_SAMPLE_DATATYPE_EXPONENT++* = 1
+[cols="^1,^1,^1,4,^5", width="50%"]
+|===========
+| *_E_* | *_L_* | *_F_* |&nbsp; *Interpretation* | *Formula*
+| 1 | 0 | 0 |&nbsp; Exponent | latexmath:[$\mathit{base\ value}\times 2^\mathit{modifier}$]
+| 1 | 0 | 1 |&nbsp; Multiplier | latexmath:[$\mathit{base\ value}\times\mathit{modifier}$]
+| 1 | 1 | 0 |&nbsp; Divisor | latexmath:[$\mathit{base\ value}\over\mathit{modifier}$]
+| 1 | 1 | 1 |&nbsp; Power | latexmath:[$\mathit{base\ value}^\mathit{modifier}$]
+|===========
+
+For samples in which the *++KHR_DF_SAMPLE_DATATYPE_EXPONENT++* bit is set:
+
+* If the *++KHR_DF_SAMPLE_DATATYPE_LINEAR++* and
+  *++KHR_DF_SAMPLE_DATATYPE_FLOAT++* bits are clear, this modifier holds
+  an exponent (in integer form) describing a floating-point offset for
+  this channel.
+  For example, this would be used to describe the exponent of a custom
+  floating point format, as shown in <<exampledescriptor_float16explicit>>,
+  or a shared exponent location in shared exponent formats (with the
+  exponent bits listed separately under each channel as shown in
+  <<exampledescriptor_r9g9b9e5>>).
+  If this modifer is used, the base value is considered to contain
+  mantissa information and the samples describing it would not normally
+  have the *++KHR_DF_SAMPLE_DATATYPE_FLOAT++* bit set.
+  If the *++KHR_DF_SAMPLE_DATATYPE_SIGNED++* bit (*_S_*) is also set,
+  the exponent is considered to be two's complement -- otherwise it is
+  treated as unsigned.
+  The bias of the exponent can be determined by the exponent's
+  *_sampleLower_* value.
+  The presence or absence of an implicit leading digit in the mantissa of
+  a format with an exponent can be determined by the *_sampleUpper_* value
+  of the mantissa.
+  The use of the exponent is described in more detail in <<customfp>>.
+
+* If the *++KHR_DF_SAMPLE_DATATYPE_FLOAT++* bit is set and the
+  *++KHR_DF_SAMPLE_DATATYPE_LINEAR++* bit is clear, this sample holds
+  a multiplier (in integer form) for this channel, such that the encoded
+  value is a product of this modifier value and the base value.
+  This approach is useful for encoding a shared multiplier as part of
+  a high dynamic range color image, for example.
+
+* If the *++KHR_DF_SAMPLE_DATATYPE_LINEAR++* bit is set and the
+  *++KHR_DF_SAMPLE_DATATYPE_FLOAT++* bit is clear, this sample holds
+  a divisor (in integer form) for this channel, such that the encoded
+  value is the base value divided by this modifier value.
+  This approach is useful for encoding a shared divisor as part of
+  a high dynamic range color image, for example.
+
+* If both *++KHR_DF_SAMPLE_DATATYPE_FLOAT++* and
+  *++KHR_DF_SAMPLE_DATATYPE_LINEAR++* are set, this sample holds
+  a power term (in integer form) for this channel, such that the encoded
+  value is the base value raised to the power of the modifier value.
+  This approach is useful for encoding a shared multiplier as part of
+  a high dynamic range color image, for example.
+
+Note that in the multiplier, divisor and power cases, the
+*_sampleLower_* and *_sampleUpper_* values allow the modifier value
+to be represented in fixed-point terms, and the values may be signed
+depending on whether the *_S_* bit is set.
 
 <<<
 === *_samplePosition[0..3]_* ===
@@ -4025,6 +4220,33 @@ palette entry.
 <<exampledescriptor_LUT>> shows a 24-bit format with 256-entry palettes
 indexed by each of three 256-bit channels, with a 10-bit _R_, _G_ and _B_
 palette associated with the corresponding channels.
+
+[[UNSIZED]]
+=== Unsized formats
+
+The data format descriptor can be a convenient representation for
+describing some data which does not follow the constraint that
+texel blocks are of a fixed size.
+For example, it may be useful to use a descriptor to encode the
+color space of an image which is compressed with a variable-rate
+compressor (meaning there is no data-independent mapping between
+memory locations and corresponding pixels).
+There are two ways to do this, each with its own uses.
+Only the color primaries and transfer function may be encoded or these
+and the presence of color and alpha samples may be encoded.
+
+In the first case *++KHR_DF_MODEL_UNSPECIFIED++* is used in a descriptor
+with no samples.
+In this case all *_texelBlockDimension_* and *_bytesPlane_* values must
+be zero.
+
+In the second case the appropriate color model is used,
+e.g.*++KHR_DF_MODEL_RGBSDA++*.
+The presence of color and alpha samples is used to indicate the
+presence of these samples in the image.
+In this case, all *_texelBlockDimension_* and *_bytesPlane_*  values
+and the *_bitOffset_*, *_bitLength_* and *_samplePosition_* fields
+of any samples must be set to 0.
 
 <<<
 === C99 struct mapping (informative)
@@ -5417,7 +5639,9 @@ Simon Fenney
 
 Jan-Harald Fredriksen
 
-Andrew Garrard (editor)
+Andrew Garrard
+
+Fabien Giesen
 
 Courtney Goeltzenleuchter
 
@@ -5464,3 +5688,6 @@ Alex Walters
 Eric Werness
 
 David Wilkinson
+
+// vim: filetype=asciidoc ai expandtab tw=72 ts=4 sts=2 sw=2
+

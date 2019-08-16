@@ -234,6 +234,7 @@ The ITU does define other transfer functions, for example the
 described below (originating in <<bt2100,BT.2100>>) and the list
 of EOTFs listed in <<bt470,BT.470-6>>.
 
+[[TRANSFER_ITU_OETF]]
 ==== ITU OETF
 
 The ITU-T <<bt601,BT.601>>, <<bt709,BT.709>> and <<bt2020,BT.2020>>
@@ -265,6 +266,7 @@ Where _&alpha;_ = 1.0993 and _&beta;_ = 0.0181
 for 12-bit encoding in the BT.2020 specification, and
 latexmath:[$\alpha = 1.099$] and latexmath:[$\beta = 0.018$] otherwise.
 
+[[TRANSFER_ITU_INVOETF]]
 ==== ITU OETF^&#160;-1^
 
 From this the inverse (OETF^&#160;-1^) transformation can be deduced:
@@ -827,7 +829,7 @@ specification may have been incorrectly rounded.
 
 The <<bt1886,BT.1886>> standard for the ``Reference electro-optical transfer
 function for flat panel displays used in HDTV studio production'' is intended to
-represent a typical OETF for CRTs and to document this to ensure consistency
+represent a typical EOTF for CRTs and to document this to ensure consistency
 between other display technologies:
 
 [latexmath]
@@ -1237,6 +1239,7 @@ For the purposes of general conversion, _L~W~_ can be assumed to be
 1000cd/m^2^, and _L~B~_ can be approximated as 0, removing the constant
 offset from the above equations and meaning latexmath:[$\gamma=1.2$].
 
+[[TRANSFER_HLG_EOTF_NORM]]
 ==== HLG EOTF
 
 The EOTF of BT.2100 HLG is defined in terms of the OETF and OOTF
@@ -1312,6 +1315,7 @@ B_S&=Y_D^{(1/\gamma)-1}\times B_D
 \end{align*}
 +++++
 
+[[TRANSFER_HLG_IEOTF_NORM]]
 ==== HLG EOTF^&#160;-1^
 
 The EOTF^&#160;-1^ can be defined as:
@@ -1330,6 +1334,7 @@ NOTE: Unlike <<TRANSFER_HLG,BT.2100 HLG>> and other <<TRANSFER_ITU,ITU>>
 EOTF (mapping from the encoded values to the display output), not an OETF
 (mapping from captured scene content to the encoded values).
 
+[[TRANSFER_PQ_EOTF]]
 ==== PQ EOTF
 
 The <<bt2100,BT.2100>> Perceptual Quantization description defines the
@@ -1363,6 +1368,7 @@ c_3 &= {2392\over 4096} \times 32 = 18.6875
 \end{align*}
 +++++
 
+[[TRANSFER_PQ_IEOTF]]
 ==== PQ EOTF^&#160;-1^
 
 The corresponding EOTF^&#160;-1^ is:
@@ -1461,6 +1467,7 @@ latexmath:[$\alpha = 1.0993$] figure from <<bt2020,BT.2020>> is used
 instead of 1.099.
 ====
 
+[[TRANSFER_PQ_OETF]]
 ==== PQ OETF
 
 The OETF of PQ is described in terms of the above OOTF:
@@ -1495,6 +1502,7 @@ E &= \textrm{G}_{709}^{-1}(E') &= &\begin{cases}
 \end{align*}
 +++++
 
+[[TRANSFER_PQ_IOETF]]
 ==== PQ OETF^&#160;-1^
 
 The PQ OETF^&#160;-1^ is described in terms of the OOTF^&#160;-1^:
@@ -1509,21 +1517,22 @@ $$E = \textrm{OETF}^{-1}(E') = \textrm{OOTF}^{-1}(\textrm{EOTF}(E')) = \textrm{O
 === DCI P3 transfer functions
 
 <<dcip3,DCI P3>> defines a simple power function with an exponent of 2.6
-(applied to scaled CIE _XYZ_ values).
+(applied to scaled CIE _XYZ_ values):
 
-That is:
+[options="header",cols="^1,^1"]
+|======
+| EOTF^&#160;-1^ | EOTF
+| latexmath:[$X' = \left({X\over{52.37}}\right)^{1\over{2.6}}$]
 
-[latexmath]
-+++++
-\begin{align*}
-  X' &= \left({X\over{52.37}}\right)^{1\over{2.6}}\\
-  Y' &= \left({Y\over{52.37}}\right)^{1\over{2.6}}\\
-  Z' &= \left({Z\over{52.37}}\right)^{1\over{2.6}}\\
-  X &= X'^{2.6}\times 52.37\\
-  Y &= Y'^{2.6}\times 52.37\\
-  Z &= Z'^{2.6}\times 52.37\\
-\end{align*}
-+++++
+latexmath:[$Y' = \left({Y\over{52.37}}\right)^{1\over{2.6}}$]
+
+latexmath:[$Z' = \left({Z\over{52.37}}\right)^{1\over{2.6}}$]
+| latexmath:[$X = X'^{2.6}\times 52.37$]
+
+latexmath:[$Y = Y'^{2.6}\times 52.37$]
+
+latexmath:[$Z = Z'^{2.6}\times 52.37$]
+|======
 
 This power function is applied directly to scaled CIE _XYZ_ color
 coordinates: the ``primaries'' in DCI define the bounds of the gamut,
@@ -1545,17 +1554,20 @@ This standard, along with <<cfr,e-CFR title 47 section 73.682>>, documents a
 simple EOTF power function with latexmath:[$\gamma = 2.2$] for NTSC display
 devices.
 
-[latexmath]
-+++++
-\begin{align*}
-R' &= R^{1\over{2.2}} \\
-G' &= G^{1\over{2.2}} \\
-B' &= B^{1\over{2.2}} \\
-R &= R'^{2.2} \\
-G &= G'^{2.2} \\
-B &= B'^{2.2}
-\end{align*}
-+++++
+[options="header",cols="^1,^1"]
+|======
+| EOTF^&#160;-1^ | EOTF
+| latexmath:[$R' = R^{1\over{2.2}}$]
+
+latexmath:[$G' = G^{1\over{2.2}}$]
+
+latexmath:[$B' = B^{1\over{2.2}}$]
+| latexmath:[$R = R'^{2.2}$]
+
+latexmath:[$G = G'^{2.2}$]
+
+latexmath:[$B = B'^{2.2}$]
+|======
 
 This value of latexmath:[$\gamma$] is also used for N/PAL signals in the
 Eastern Republic of Uruguay, and was also adopted by <<st240,ST-240>>.
@@ -1579,6 +1591,7 @@ In contrast, <<bt1700,ITU-R BT.1700>> also includes
 device as being the inverse of the current <<TRANSFER_ITU,ITU OETF>>.
 Hence the new NTSC formulation also assumes a linear OOTF.
 
+<<<
 [[TRANSFER_LEGACY_PAL_OETF]]
 === Legacy PAL OETF
 
@@ -1591,17 +1604,20 @@ The reciprocal of this value is 2.5.
 That is, this standard defines an approximate OETF and OETF^&#160;-1^ for
 PAL content:
 
-[latexmath]
-+++++
-\begin{align*}
-R' &\approx R^{0.4} \\
-G' &\approx G^{0.4} \\
-B' &\approx B^{0.4} \\
-R  &\approx R'^{2.5} \\
-G  &\approx G'^{2.5} \\
-B  &\approx B'^{2.5}
-\end{align*}
-+++++
+[options="header",cols="^1,^1"]
+|======
+| OETF | OETF^&#160;-1^
+| latexmath:[$R' \approx R^{0.4}$]
+
+latexmath:[$G' \approx G^{0.4}$]
+
+latexmath:[$B' \approx B^{0.4}$]
+| latexmath:[$R \approx R'^{2.5}$]
+
+latexmath:[$G \approx G'^{2.5}$]
+
+latexmath:[$B \approx B'^{2.5}$]
+|======
 
 [[TRANSFER_LEGACY_PAL_EOTF]]
 === Legacy PAL 625-line EOTF
@@ -1613,17 +1629,20 @@ codes used by country is defined in <<bt2043,ITU-R BT.2043>>.
 This specification describes a simple EOTF power function with
 latexmath:[$\gamma_{\textrm{EOTF}} = 2.8$] for most PAL and SECAM display devices:
 
-[latexmath]
-+++++
-\begin{align*}
-R' &\approx R^{1\over{2.8}} \\
-G' &\approx G^{1\over{2.8}} \\
-B' &\approx B^{1\over{2.8}} \\
-R  &\approx R'^{2.8} \\
-G  &\approx G'^{2.8} \\
-B  &\approx B'^{2.8}
-\end{align*}
-+++++
+[options="header",cols="^1,^1"]
+|======
+| EOTF^&#160;-1^ | EOTF
+| latexmath:[$R' = R^{1\over{2.8}}$]
+
+latexmath:[$G' = G^{1\over{2.8}}$]
+
+latexmath:[$B' = B^{1\over{2.8}}$]
+| latexmath:[$R = R'^{2.8}$]
+
+latexmath:[$G = G'^{2.8}$]
+
+latexmath:[$B = B'^{2.8}$]
+|======
 
 NOTE: Poynton describes a latexmath:[$\gamma$] of 2.8 as being ``unrealistically
 high'' for actual CRT devices.
@@ -1660,6 +1679,7 @@ combined with the <<bt1886,BT.1886>> EOTF results in a more strongly non-linear
 latexmath:[$\gamma_{\textrm{OOTF}} \approx {2.4\over{2.0}} = 1.2$].
 ====
 
+<<<
 [[TRANSFER_ST240]]
 === ST240/SMPTE240M transfer functions
 
@@ -1707,7 +1727,8 @@ The EOTF, and also OETF^&#160;-1^, is:
 === Adobe RGB (1998) transfer functions
 
 The <<adobergb,Adobe RGB (1998) specification>> defines the following transfer
-function (notable for not including a linear component):
+function between nonlinear encoding and linear light intensity (notable for not
+including a linear component):
 
 [latexmath]
 +++++
@@ -1719,7 +1740,8 @@ B &= B'^{2.19921875}
 +++++
 
 2.19921875 is obtained from latexmath:[$2{51\over{256}}$] or hexadecimal 2.33.
-Therefore the inverse transfer function is:
+Therefore the inverse transfer function between linear light intensity and
+nonlinear encoding is:
 
 [latexmath]
 +++++
