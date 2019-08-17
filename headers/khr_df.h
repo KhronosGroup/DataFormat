@@ -183,8 +183,8 @@ typedef enum _khr_df_samplemask_e {
      ((BDB)[KHR_DF_WORD_SAMPLESTART + \
             ((S) * KHR_DF_WORD_SAMPLEWORDS) + \
             KHR_DF_SAMPLEWORD_ ## X] & \
-      ~((KHR_DF_MASK_ ## X) << (KHR_DF_SHIFT_ ## X))) | \
-     (((val) & (KHR_DF_MASK_ ## X)) << (KHR_DF_SHIFT_ ## X)))
+      ~((KHR_DF_SAMPLEMASK_ ## X) << (KHR_DF_SAMPLESHIFT_ ## X))) | \
+     (((val) & (KHR_DF_SAMPLEMASK_ ## X)) << (KHR_DF_SAMPLESHIFT_ ## X)))
 
 /* Helper macro:
    Number of samples in basic descriptor block BDB */
@@ -192,6 +192,12 @@ typedef enum _khr_df_samplemask_e {
     (((KHR_DFDVAL(BDB, DESCRIPTORBLOCKSIZE) >> 2) - \
       KHR_DF_WORD_SAMPLESTART) \
      / KHR_DF_WORD_SAMPLEWORDS)
+
+/* Helper macro:
+   Size in words of basic descriptor block for S samples */
+#define KHR_DFDSIZEWORDS(S) \
+    (KHR_DF_WORD_SAMPLESTART + \
+     (S) * KHR_DF_WORD_SAMPLEWORDS)
 
 /* Vendor ids */
 typedef enum _khr_df_vendorid_e {
