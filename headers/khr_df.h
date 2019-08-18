@@ -161,6 +161,9 @@ typedef enum _khr_df_samplemask_e {
     KHR_DF_SAMPLEMASK_SAMPLEPOSITION1 = 0xFF,
     KHR_DF_SAMPLEMASK_SAMPLEPOSITION2 = 0xFF,
     KHR_DF_SAMPLEMASK_SAMPLEPOSITION3 = 0xFF,
+    /* ISO C restricts enum values to range of int hence the
+       cast. We do it verbosely instead of using -1 to ensure
+       it is a 32-bit value even if int is 64 bits. */
     KHR_DF_SAMPLEMASK_SAMPLEPOSITION_ALL = (int) 0xFFFFFFFFU,
     KHR_DF_SAMPLEMASK_SAMPLELOWER = (int) 0xFFFFFFFFU,
     KHR_DF_SAMPLEMASK_SAMPLEUPPER = (int) 0xFFFFFFFFU
@@ -183,8 +186,8 @@ typedef enum _khr_df_samplemask_e {
      ((BDB)[KHR_DF_WORD_SAMPLESTART + \
             ((S) * KHR_DF_WORD_SAMPLEWORDS) + \
             KHR_DF_SAMPLEWORD_ ## X] & \
-      ~((KHR_DF_SAMPLEMASK_ ## X) << (KHR_DF_SAMPLESHIFT_ ## X))) | \
-     (((val) & (KHR_DF_SAMPLEMASK_ ## X)) << (KHR_DF_SAMPLESHIFT_ ## X)))
+      ~((uint32_t)(KHR_DF_SAMPLEMASK_ ## X) << (KHR_DF_SAMPLESHIFT_ ## X))) | \
+     (((val) & (uint32_t)(KHR_DF_SAMPLEMASK_ ## X)) << (KHR_DF_SAMPLESHIFT_ ## X)))
 
 /* Helper macro:
    Number of samples in basic descriptor block BDB */
