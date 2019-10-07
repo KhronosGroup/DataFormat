@@ -2001,7 +2001,7 @@ representation in ITU-T BT.2100 and described in <<MODEL_ICTCP>>.
 ==== *++KHR_DF_MODEL_CIEXYZ++* (= 14) ====
 
 This color model represents channel data used to describe
-color coordinates in the <<ciexyc,CIE 1931 XYZ>> coordinate
+color coordinates in the <<ciexyz,CIE 1931 XYZ>> coordinate
 space, as shown in <<CIEXYZChannels>>.
 
 [[CIEXYZChannels]]
@@ -2017,7 +2017,7 @@ space, as shown in <<CIEXYZChannels>>.
 ==== *++KHR_DF_MODEL_CIEXYY++* (= 15) ====
 
 This color model represents channel data used to describe
-chromaticity coordinates in the <<ciexyc,CIE 1931 xyY>> coordinate
+chromaticity coordinates in the <<ciexyz,CIE 1931 xyY>> coordinate
 space, as shown in <<CIEXYYChannels>>.
 
 [[CIEXYYChannels]]
