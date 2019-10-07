@@ -302,6 +302,8 @@ is extracted for a texel at location (_x_, _y_) in the block using:
 
 where _bits_[47] is the most-significant and _bits_[0] is the least-significant bit.
 
+<<<
+
 The alpha component for a texel at location (_x_, _y_) in the block is
 given by <<BC3alpha>>.
 

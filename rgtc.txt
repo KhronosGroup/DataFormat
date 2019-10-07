@@ -4,7 +4,7 @@
 == RGTC Compressed Texture Image Formats
 
 _This description is derived from the ``RGTC Compressed Texture Image Formats''
-section of the OpenGL 4.5 specification._
+section of the OpenGL 4.4 specification._
 
 Compressed texture images stored using the RGTC compressed image encodings
 are represented as a collection of 4×4 texel blocks, where each

@@ -220,4 +220,12 @@ Khronos, SYCL, SPIR, WebGL, EGL, COLLADA, StreamInput, OpenVX, OpenKCam, glTF, O
 &nbsp;Updates for KTX2 and glTF&nbsp;
 </revremark>
 </revision>
+<revision>
+<revnumber>1.3 rev 2</revnumber>
+<date>&nbsp;Oct 2019&nbsp;</date>
+<authorinitials>AG/MC</authorinitials>
+<revremark>
+&nbsp;Update HLG to BT.2001-2, typo fixes and more examples.&nbsp;
+</revremark>
+</revision>
 </revhistory>

@@ -1551,11 +1551,11 @@ This process differs for 2D and 3D.
 For 2D, bilinear interpolation is used:
 
 -----
-v0 = js + jt*N;
+v0 = js + jt*Wwidth;
 p00 = decode_weight(v0);
 p01 = decode_weight(v0 + 1);
-p10 = decode_weight(v0 + N);
-p11 = decode_weight(v0 + N + 1);
+p10 = decode_weight(v0 + Wwidth);
+p11 = decode_weight(v0 + Wwidth + 1);
 -----
 
 The function `decode_weight(n)` decodes the _n_^th^ weight in the stored
@@ -1579,26 +1579,26 @@ position as shown in <<astc-simplex-interpolation-parameters>>.
 
 [[astc-simplex-interpolation-parameters]]
 .ASTC simplex interpolation parameters
-[options="header",width="80%"]
+[options="header",width="90%",cols="1,1,1,2,2,1,1,1,1"]
 |==================
 ^| _f~s~_ > _f~t~_ ^| _f~t~_ > _f~r~_ ^| _f~s~_ > _f~r~_  ^| _s_~1~ ^| _s_~2~ ^| _w_~0~    ^| _w_~1~    ^| _w_~2~    ^| _w_~3~
-^| True   ^| True   ^| _True_ ^| 1   ^| N   ^| 16 - _f~s~_  ^| _f~s~_ - _f~t~_  ^| _f~t~_ - _f~r~_  ^| _f~r~_
-^| False  ^| _True_ ^| True   ^| N   ^| 1   ^| 16 - _f~t~_  ^| _f~t~_ - _f~s~_  ^| _f~s~_ - _f~r~_ ^| _f~r~_
-^| _True_ ^| False  ^| True   ^| 1   ^| N {times} M ^| 16 - _f_~s~  ^| _f~s~_ - _f~r~_ ^| _f~r~_ - _f~t~_ ^| _f~t~_
-^| True   ^| _False_  ^| False  ^| N {times} M ^| 1   ^| 16 - _f~r~_  ^| _f~r~_ - _f~s~_  ^| _f~s~_ - _f~t~_  ^| _f~t~_
-^| _False_  ^| True   ^| False  ^| N   ^| N {times} M ^| 16 - _f~t~_  ^| _f~t~_ - _f~r~_  ^| _f~r~_ - _f~s~_  ^| _f~s~_
-^| False  ^| False  ^| _False_  ^| N {times} M ^| N   ^| 16 - _f~r~_  ^| _f~r~_ - _f~t~_  ^| _f~t~_ - _f~s~_ ^| _f~s~_
+^| True   ^| True   ^| _True_ ^| 1   ^| W~width~   ^| 16 - _f~s~_  ^| _f~s~_ - _f~t~_  ^| _f~t~_ - _f~r~_  ^| _f~r~_
+^| False  ^| _True_ ^| True   ^| W~width~   ^| 1   ^| 16 - _f~t~_  ^| _f~t~_ - _f~s~_  ^| _f~s~_ - _f~r~_ ^| _f~r~_
+^| _True_ ^| False  ^| True   ^| 1   ^| W~width~ {times} W~height~ ^| 16 - _f_~s~  ^| _f~s~_ - _f~r~_ ^| _f~r~_ - _f~t~_ ^| _f~t~_
+^| True   ^| _False_  ^| False  ^| W~width~ {times} W~height~ ^| 1   ^| 16 - _f~r~_  ^| _f~r~_ - _f~s~_  ^| _f~s~_ - _f~t~_  ^| _f~t~_
+^| _False_  ^| True   ^| False  ^| W~width~   ^| W~width~ {times} W~height~ ^| 16 - _f~t~_  ^| _f~t~_ - _f~r~_  ^| _f~r~_ - _f~s~_  ^| _f~s~_
+^| False  ^| False  ^| _False_  ^| W~width~ {times} W~height~ ^| W~width~   ^| 16 - _f~r~_  ^| _f~r~_ - _f~t~_  ^| _f~t~_ - _f~s~_ ^| _f~s~_
 |==================
 
 Italicized test results are implied by the others. The effective
 weight _i_ is then calculated as:
 
 -----
-v0 = js + jt*N + jr*N*M;
+v0 = js + jt*Wwidth + jr*Wwidth*Wheight;
 p0 = decode_index(v0);
 p1 = decode_index(v0 + s1);
 p2 = decode_index(v0 + s1 + s2);
-p3 = decode_index(v0 + N*M + N + 1);
+p3 = decode_index(v0 + Wwidth*Wheight + Wwidth + 1);
 i = (p0*w0 + p1*w1 + p2*w2 + p3*w3 + 8) >> 4;
 -----
 

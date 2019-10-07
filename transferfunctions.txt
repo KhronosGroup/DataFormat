@@ -915,7 +915,7 @@ ITU OETF.
 [[TRANSFER_HLG_OETF_NORM]]
 ==== HLG OETF (normalized)
 
-The  <<bt2100,BT.2100>>-1 Hybrid Log Gamma description defines the following
+The  <<bt2100,BT.2100-2>> Hybrid Log Gamma description defines the following
 OETF for linear scene light:
 
 [latexmath]
@@ -953,12 +953,12 @@ This formulation in BT.2100-0 uses different constants for _b_ and _c_
 
 [width="50%",options="header",cols="1,5,5"]
 |============
-| | BT.2100-1 | BT.2100-0
+| | BT.2100-2, BT.2100-1 | BT.2100-0
 | _b_ | _b_~1~ = 0.28466892 | _b_~0~ = 0.02372241
 | _c_ | _c_~1~ = 0.55991073 | _c_~0~ = 1.00429347
 |============
 
-These variations can be derived from the BT.2100-1 numbers as:
+The BT.2100-0 variations can be derived from the BT.2100-2 numbers as:
 
 [latexmath]
 ++++++
@@ -993,16 +993,6 @@ latexmath:[${1\over 2}$]&#160;&lt;&#160;latexmath:[$E' \leq 1$] term,
 using the modified _b_~0~ and _c_~0~ constants described in
 the note in the <<TRANSFER_HLG_OETF_NORM,HLG OETF>> above.
 
-[NOTE]
-====
-<<bt2100,BT.2100>>-1 (the current version at the time of writing)
-includes an apparent typographical error in its definition of the
-OETF^&#160;-1^, providing both the equation with _E_ normalized
-to the range [0..1] and the (legacy) <<TRANSFER_HLG_IOETF_UNNORM,
-equation with _E_ normalized to the range [0..12]>>, without
-explanation.
-====
-
 [[TRANSFER_HLG_OETF_UNNORM]]
 ==== Unnormalized HLG OETF
 
@@ -1010,7 +1000,7 @@ BT.2100-0 describes the HLG OETF formulae with _E_ ``normalized'' to the
 range [0..12], with the <<TRANSFER_HLG_OETF_NORM,variant with the range
 normalized to [0..1]>> as an alternative.
 Only the variant normalized to the range [0..1] is described in the updated
-version of the specification, BT.2100-1.
+versions of the specification, BT.2100-1 and BT.2100-2.
 
 [latexmath]
 ++++++
@@ -1051,7 +1041,7 @@ _a_, _b_ and _c_ are defined as for the
 BT.2100-0 describes this ``unnormalized'' version of the formulae, with the
 variant with the E normalized to [0..1] as an alternative.
 Only the variant with E normalized to [0..1] is described in the updated
-version, BT.2100-1.
+versions, BT.2100-1 and BT.2100-2.
 
 <<<
 ==== Derivation of the HLG constants (informative)
@@ -1061,9 +1051,9 @@ constraints, which are easiest to express in terms of the unnormalized
 OETF^&#160;-1^:
 
  * The derivative of the latexmath:[$0 \leq E' \leq {1\over 2}$] term of
-   the unnormalized EOTF^&#160;-1^ has the same value as the derivative of
+   the unnormalized OETF^&#160;-1^ has the same value as the derivative of
    the latexmath:[${1\over 2}$]&#160;&lt;&#160;latexmath:[$E' \leq 1$] term
-   of the unnormalized EOTF^&#160;-1^ at latexmath:[$E' = {1\over 2}$]:
+   of the unnormalized OETF^&#160;-1^ at latexmath:[$E' = {1\over 2}$]:
 +
 [latexmath]
 ++++++
@@ -1083,9 +1073,9 @@ OETF^&#160;-1^:
 \end{align*}
 ++++++
  * The latexmath:[$0 \leq E' \leq {1\over 2}$] term of the unnormalized
-   EOTF^&#160;-1^ has the same value as the
+   OETF^&#160;-1^ has the same value as the
    latexmath:[${1\over 2}$]&#160;&lt;&#160;latexmath:[$E'\leq 1$]
-   term of the unnormalized EOTF^&#160;-1^ at latexmath:[$E' = {1\over 2}$]:
+   term of the unnormalized OETF^&#160;-1^ at latexmath:[$E' = {1\over 2}$]:
 +
 [latexmath]
 ++++++
@@ -1099,7 +1089,7 @@ b &= 1 - 4\times a
 \end{align*}
 ++++++
  * At _E'_ = 1, the latexmath:[${1\over 2}$]&#160;&lt;&#160;latexmath:[$E'$]
-   term of the unnormalized EOTF^&#160;-1^ = 12:
+   term of the unnormalized OETF^&#160;-1^ = 12:
 +
 [latexmath]
 ++++++
@@ -1177,9 +1167,9 @@ The OOTF of HLG is described as:
 [latexmath]
 +++++
 \begin{align*}
-R_D &= \alpha\times Y_S^{\gamma-1}\times R_S + \beta \\
-G_D &= \alpha\times Y_S^{\gamma-1}\times G_S + \beta \\
-B_D &= \alpha\times Y_S^{\gamma-1}\times B_S + \beta \\
+R_D &= \alpha\times Y_S^{\gamma-1}\times R_S \\
+G_D &= \alpha\times Y_S^{\gamma-1}\times G_S \\
+B_D &= \alpha\times Y_S^{\gamma-1}\times B_S \\
 \end{align*}
 +++++
 
@@ -1202,14 +1192,25 @@ _Y~S~_ is the normalized scene luminance, defined as:
 $$Y_S = 0.2627\times R_S + 0.6780\times G_S + 0.0593\times B_S$$
 +++++
 
-latexmath:[$\beta$] represents the black level (display ``brightness''):
+latexmath:[$\alpha$] represents adjustable user gain (display ``contrast'')
+representing _L~W~_, the nominal peak luminance of achromatic pixels.
+
+[NOTE]
+======
+Versions of BT.2100 prior to BT.2100-2 incorporated a latexmath:[$\beta$]
+black level offset (display ``brightness'') representing the display
+luminance of black in cd/m^2^:
 
 [latexmath]
 +++++
-$$\beta = L_B$$
+\begin{align*}
+R_D &= \alpha\times Y_S^{\gamma-1}\times R_S + \beta \\
+G_D &= \alpha\times Y_S^{\gamma-1}\times G_S + \beta \\
+B_D &= \alpha\times Y_S^{\gamma-1}\times B_S + \beta \\
+\end{align*}
 +++++
 
-latexmath:[$\alpha$] represents the black level (display ``contrast''):
+latexmath:[$\alpha$] then represented the relative display ``contrast'':
 
 [width="70%",options="header",cols="1,5,5"]
 |============
@@ -1217,18 +1218,13 @@ latexmath:[$\alpha$] represents the black level (display ``contrast''):
 | latexmath:[$\alpha$] | latexmath:[${L_W - L_B}$] | latexmath:[${{L_W - L_B}\over{\left(12\right)^\gamma}}$]
 |============
 
-_L~W~_ is the nominal peak luminance of the display in cd/m^2^, and
+where _L~W~_ is the nominal peak luminance of the display in cd/m^2^, and
 _L~B~_ is the display luminance of black in cd/m^2^.
 
-[NOTE]
-====
-<<bt2100,BT.2100>>-1 (the current version at the time of writing)
-includes an apparent typographical error in its definition of the
-OOTF, providing both the equation with scene light normalized
-to the range [0..1] and the (legacy) <<TRANSFER_HLG_IOETF_UNNORM,
-equation with scene light normalized to the range [0..12]>>, without
-explanation.
-====
+That is, in older versions of BT.2100, latexmath:[$\alpha$] represented
+the difference between minimum and maximum brightness, whereas in BT.2100-2
+latexmath:[$\alpha$] is independent of black level.
+=====
 
 latexmath:[$\gamma = 1.2$] for a nominal peak display luminance of 1000cd/m^2^.
 For displays with higher peak luminance or if peak luminance is reduced through
@@ -1239,42 +1235,41 @@ For the purposes of general conversion, _L~W~_ can be assumed to be
 1000cd/m^2^, and _L~B~_ can be approximated as 0, removing the constant
 offset from the above equations and meaning latexmath:[$\gamma=1.2$].
 
-[[TRANSFER_HLG_EOTF_NORM]]
-==== HLG EOTF
+<<<
+==== HLG OOTF^&#160;-1^
 
-The EOTF of BT.2100 HLG is defined in terms of the OETF and OOTF
-defined above:
+The inverse OOTF for HLG can be defined as:
 
 [latexmath]
 +++++
 \begin{align*}
-R_D &= \alpha\times Y_S^{\gamma-1}\times R_S + \beta \\
-G_D &= \alpha\times Y_S^{\gamma-1}\times G_S + \beta \\
-B_D &= \alpha\times Y_S^{\gamma-1}\times B_S + \beta
+R_S&=\left({{Y_D}\over\alpha}\right)^{(1/\gamma)-1}\times \left({{R_D}\over\alpha}\right) \\
+G_S&=\left({{Y_D}\over\alpha}\right)^{(1/\gamma)-1}\times \left({{G_D}\over\alpha}\right) \\
+B_S&=\left({{Y_D}\over\alpha}\right)^{(1/\gamma)-1}\times \left({{B_D}\over\alpha}\right) \\
+Y_D&= 0.2627\times R_D + 0.6780\times G_D + 0.0593\times B_D
 \end{align*}
 +++++
 
-[latexmath]
-+++++
-$$\{R_D,G_D,B_D\}=\textrm{OOTF}(\textrm{OETF}^{-1}(\{R_S',G_S',B_S'\}))$$
-+++++
+For processing without reference to a specific display, latexmath:[$\alpha$] can be assumed
+to be 1.0cd/m^2^.
 
-<<<
-==== HLG OOTF^&#160;-1^
-
-Using the formula from the OOTF leads to the following relationship
+[NOTE]
+=====
+Versions of BT.2100 prior to BT.2100-2 incorporated a latexmath:[$\beta$]
+term into the OOTF.
+Using this formula from the OOTF leads to the following relationship
 between _Y~D~_ and _Y~S~_:
 
 [latexmath]
 +++++
 \begin{align*}
-Y_D =& 0.2627\times R_D + 0.6780\times G_D + 0.0593\times B_D \\
-=& 0.2627\times(\alpha\times Y_S^{\gamma-1}\times R_S + \beta) +
+Y_D &= 0.2627\times R_D + 0.6780\times G_D + 0.0593\times B_D \\
+&= 0.2627\times(\alpha\times Y_S^{\gamma-1}\times R_S + \beta) +
 0.6780\times(\alpha\times Y_S^{\gamma-1}\times G_S + \beta) +
 0.0593\times(\alpha\times Y_S^{\gamma-1}\times B_S + \beta) \\
-=& \alpha\times Y_S^{\gamma-1}\times(0.2627\times R_S
+&= \alpha\times Y_S^{\gamma-1}\times(0.2627\times R_S
 + 0.6780\times G_S + 0.0593\times B_S)+\beta \\
-=& \alpha\times Y_S^{\gamma}+\beta \\
+&= \alpha\times Y_S^{\gamma}+\beta \\
 \therefore Y_S =& \left({{Y_D-\beta}\over\alpha}\right)^{1\over\gamma}\\
 Y_S^{1-\gamma} =& \left({{Y_D-\beta}\over\alpha}\right)^{(1-\gamma)/\gamma}
 \end{align*}
@@ -1314,16 +1309,66 @@ G_S&=Y_D^{(1/\gamma)-1}\times G_D \\
 B_S&=Y_D^{(1/\gamma)-1}\times B_D
 \end{align*}
 +++++
+=====
+
+<<<
+[[TRANSFER_HLG_EOTF_NORM]]
+==== HLG EOTF
+
+The EOTF of BT.2100 HLG is defined in terms of the OETF and OOTF
+defined above:
+
+[latexmath]
++++++
+\begin{align*}
+R_D &= \textrm{OOTF}\left(\textrm{OETF}^{-1}\left(\textrm{max}(0, (1-\beta)R_S' + \beta)\right)\right) \\
+G_D &= \textrm{OOTF}\left(\textrm{OETF}^{-1}\left(\textrm{max}(0, (1-\beta)G_S' + \beta)\right)\right) \\
+B_D &= \textrm{OOTF}\left(\textrm{OETF}^{-1}\left(\textrm{max}(0, (1-\beta)B_S' + \beta)\right)\right) \\
+\beta &= \sqrt{3\times \left({{L_B}\over{L_W}}\right)^{1/\gamma}}
+\end{align*}
++++++
+
+where _L~W~_ is the nominal peak luminance of the display in cd/m^2^, and
+_L~B~_ is the display luminance of black in cd/m^2^.
+
+[NOTE]
+======
+Versions of BT.2100 prior to BT.2100-2 incorporated the black level
+offset (display ``brightness'') latexmath:[$\beta$] into the definition
+of the OOTF, such that:
+
+[latexmath]
++++++
+$$\{R_D,G_D,B_D\}=\textrm{OOTF}(\textrm{OETF}^{-1}(\{R_S',G_S',B_S'\}))$$
++++++
+======
 
 [[TRANSFER_HLG_IEOTF_NORM]]
 ==== HLG EOTF^&#160;-1^
 
-The EOTF^&#160;-1^ can be defined as:
+The EOTF^&#160;-1^ can be derived as:
+
+[latexmath]
++++++
+\begin{align*}
+R_S' &= {{\textrm{OETF}\left(\textrm{OOTF}^{-1}\left(R_D'\right)\right) - \beta}\over{1-\beta}} \\
+G_S' &= {{\textrm{OETF}\left(\textrm{OOTF}^{-1}\left(G_D'\right)\right) - \beta}\over{1-\beta}} \\
+B_S' &= {{\textrm{OETF}\left(\textrm{OOTF}^{-1}\left(B_D'\right)\right) - \beta}\over{1-\beta}} \\
+\beta &= \sqrt{3\times \left({{L_B}\over{L_W}}\right)^{1/\gamma}}
+\end{align*}
++++++
+
+[NOTE]
+======
+Versions of BT.2100 prior to BT.2100-2 incorporated the black level
+offset (display ``brightness'') latexmath:[$\beta$] into the definition
+of the OOTF, such that:
 
 [latexmath]
 +++++
 $$\{R_S',G_S',B_S'\} = \textrm{OETF}(\textrm{OOTF}^{-1}(\{R_D,G_D,B_D\}))$$
 +++++
+=====
 
 <<<
 [[TRANSFER_PQ]]

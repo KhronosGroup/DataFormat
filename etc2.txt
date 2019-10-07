@@ -4,7 +4,7 @@
 == ETC2 Compressed Texture Image Formats
 
 _This description is derived from the ``ETC Compressed Texture Image Formats''
-section of the OpenGL 4.5 specification._
+section of the OpenGL 4.4 specification._
 
 The ETC formats form a family of related compressed texture image formats.
 They are designed to do different tasks, but also to be similar enough
@@ -39,13 +39,13 @@ it delivers higher precision. It is possible to make hardware that can
 decode both formats with minimal overhead.
 
 _Unsigned RG11 EAC_ is a two-channel unsigned format. Each
-channel is decoded exactly as R11 EAC.
+channel is decoded exactly as Unsigned R11 EAC.
 
 _Signed R11 EAC_ is a one-channel signed
 format. This is good in situations when it is important to be able to
 preserve zero exactly, and still use both positive and negative
 values. It is designed to be similar enough to
-Signed R11 EAC so that hardware can decode both with
+Unsigned R11 EAC so that hardware can decode both with
 minimal overhead, but it is not exactly the same. For example; the
 signed version does not add 0.5 to the _base codeword_, and the
 extension from 11 bits differ. For all details, see the corresponding

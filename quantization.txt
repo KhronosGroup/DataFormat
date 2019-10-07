@@ -468,6 +468,8 @@ and slightly reduces the saturation range.
 The achromatic color point is still 2048 in the 12-bit case, so
 no offset is applied in the transformation to compensate for this
 range reduction.
+BT.2100-1 removes this recommendation and lists 4095
+as the nominal peak value.
 
 If, instead of the quantized values, the input is interpreted as fixed-point
 values in the range 0.0..1.0, as might be the case if the values were treated

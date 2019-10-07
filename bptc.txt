@@ -4,7 +4,7 @@
 == BPTC Compressed Texture Image Formats
 
 _This description is derived from the ``BPTC Compressed Texture Image Formats''
-section of the OpenGL 4.5 specification._
+section of the OpenGL 4.4 specification._
 More information on
 link:https://docs.microsoft.com/en-us/windows/desktop/direct3d11/bc7-format[BC7],
 link:https://docs.microsoft.com/en-us/windows/desktop/direct3d11/bc7-format-mode-reference[BC7 modes]
