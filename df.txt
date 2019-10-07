@@ -360,14 +360,14 @@ For example, if a linear 16{times}12 image calculates a pixel offset
 relative to the start of the buffer as:
 
 -----
-pixelOffset = x + (y * 16);
+pixelOffset = x | (y * 16);
 -----
 
 a 16{times}12 image comprised of 4{times}4 tiles may calculate the
 pixel offset relative to the start of the buffer as:
 
 -----
-pixelOffset = (x & 3) + ((y & 3) << 2) + ((x & ~3) << 2) + ((y & ~3) * 16);
+pixelOffset = (x & 3) | ((y & 3) << 2) | ((x & ~3) << 2) | ((y & ~3) * 16);
 -----
 
 [[2DTile4x4]]
