@@ -18,6 +18,12 @@ Copyright notice at https://www.khronos.org/registry/speccopyright.html
 </xsl:template>
 </xsl:stylesheet>
 
+<!--
+<authorgroup>
+<author><firstname>&nbsp;Andrew</firstname><surname>Garrard&nbsp;</surname></author>
+</authorgroup>
+-->
+
 <legalnotice>
 <title>
 Khronos Data Format Specification License Information
@@ -213,19 +219,11 @@ Khronos, SYCL, SPIR, WebGL, EGL, COLLADA, StreamInput, OpenVX, OpenKCam, glTF, O
 </revremark>
 </revision>
 <revision>
-<revnumber>1.3 rev 1</revnumber>
-<date>&nbsp;Aug 2019&nbsp;</date>
-<authorinitials>AG/MC</authorinitials>
-<revremark>
-&nbsp;Updates for KTX2 and glTF&nbsp;
-</revremark>
-</revision>
-<revision>
-<revnumber>1.3 rev 2</revnumber>
+<revnumber>1.3</revnumber>
 <date>&nbsp;Oct 2019&nbsp;</date>
 <authorinitials>AG/MC</authorinitials>
 <revremark>
-&nbsp;Update HLG to BT.2001-2, typo fixes and more examples.&nbsp;
+&nbsp;Updates for KTX2/glTF. BC6h and ASTC table fixes and typo fixes. More examples.&nbsp;
 </revremark>
 </revision>
 </revhistory>

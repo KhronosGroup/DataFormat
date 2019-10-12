@@ -1,7 +1,7 @@
 // Copyright (c) 2014-2019 The Khronos Group Inc.
 // Copyright notice at https://www.khronos.org/registry/speccopyright.html
 ifdef::a2xhtml[]
-= Khronos Data Format Specification v1.3 rev 2 =
+= Khronos Data Format Specification =
 endif::[]
 [abstract]
 
