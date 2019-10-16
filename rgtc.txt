@@ -1,0 +1,203 @@
+// Copyright (C) 2008-2019 The Khronos Group Inc. All Rights Reserved.
+// Copyright notice at https://www.khronos.org/registry/speccopyright.html
+[[RGTC]]
+== RGTC Compressed Texture Image Formats
+
+_This description is derived from the ``RGTC Compressed Texture Image Formats''
+section of the OpenGL 4.4 specification._
+
+Compressed texture images stored using the RGTC compressed image encodings
+are represented as a collection of 4×4 texel blocks, where each
+block contains 64 or 128 bits of texel data. The image is encoded as a
+normal 2D raster image in which each 4×4 block is treated as a
+single pixel. If an RGTC image has a width or height that is not a multiple
+of four, the data corresponding to texels outside the image are irrelevant
+and undefined.
+
+When an RGTC image with a width of _w_, height of _h_, and block
+size of _blocksize_ (8 or 16 bytes) is decoded, the corresponding image
+size (in bytes) is:
+
+[latexmath]
+++++++++++++++++++++++
+\begin{align*}
+\left\lceil { w \over 4 } \right\rceil \times
+\left\lceil { h \over 4 } \right\rceil \times
+\mathit{blocksize}
+\end{align*}
+++++++++++++++++++++++
+
+When decoding an RGTC image, the block containing the texel at offset
+latexmath:[$(x,y)$] begins at an offset (in bytes) relative to the base of the image of:
+
+[latexmath]
+++++++++++++++++++++++
+\begin{align*}
+\mathit{blocksize} \times
+   \left( { \left\lceil  { w \over 4 } \right\rceil \times
+            \left\lfloor { y \over 4 } \right\rfloor +
+            \left\lfloor { x \over 4 } \right\rfloor } \right)
+\end{align*}
+++++++++++++++++++++++
+
+The data corresponding to a specific texel (_x_, _y_) are extracted from a
+4{times}4 texel block using a relative (_x_, _y_) value of
+
+[latexmath]
+++++++++++++++++++++++
+\begin{align*}
+(x \bmod 4,y \bmod 4)
+\end{align*}
+++++++++++++++++++++++
+
+There are four distinct RGTC image formats described in the following
+sections.
+
+<<<
+[[rgtc_bc4]]
+=== BC4 unsigned
+
+Each 4{times}4 block of texels consists of 64 bits of unsigned red image
+data.
+
+Each red image data block is encoded as a sequence of 8 bytes, called (in
+order of increasing address):
+
+[latexmath]
+++++++
+\begin{align*}
+\mathit{red}_0, \mathit{red}_1, \mathit{bits}_0, \mathit{bits}_1, \mathit{bits}_2, \mathit{bits}_3, \mathit{bits}_4, \mathit{bits}_5
+\end{align*}
+++++++
+
+The 6 _bits_~{0..5}~ bytes of the block are decoded into a 48-bit bit vector:
+
+[latexmath]
+++++++++++++++++++++++
+\begin{align*}
+\mathit{bits} & =
+\mathit{bits}_0 +
+  256 \times
+    \left( { \mathit{bits}_1 + 256 \times
+      \left( { \mathit{bits}_2 + 256 \times
+        \left( { \mathit{bits}_3 + 256 \times
+          \left( { \mathit{bits}_4 + 256 \times \mathit{bits}_5 }
+          \right) }
+        \right) }
+      \right) }
+    \right)
+\end{align*}
+++++++++++++++++++++++
+
+_red_~0~ and _red_~1~ are 8-bit unsigned integers that are unpacked to red
+values _RED_~0~ and _RED_~1~ by multiplying by latexmath:[$1\over 255$].
+
+_bits_ is a 48-bit unsigned integer, from which a three-bit control code is
+extracted for a texel at location (_x_, _y_) in the block using:
+
+[latexmath]
+++++++++++++++++++++++
+\begin{align*}
+\mathit{code}(x,y) & =
+ \mathit{bits} \left[
+     3 \times (4 \times y + x) + 2 \dots
+     3 \times (4 \times y + x) + 0 \right]
+\end{align*}
+++++++++++++++++++++++
+
+where _bits_[47] is the most-significant and _bits_[0] is the least-significant bit.
+
+The red value _R_ for a texel at location (_x_, _y_) in
+the block is given by <<BC4blocks>>.
+
+[[BC4blocks]]
+.Block decoding for BC4
+[options="header",width="43%",cols="1,2"]
+|==========
+^| _R_ value ^| Condition
+^| _RED_~0~                         ^.^| _red_~0~ > _red_~1~, _code_(_x_, _y_) = 0
+^| _RED_~1~                         ^.^| _red_~0~ > _red_~1~, _code_(_x_, _y_) = 1
+^| latexmath:[${ 6 \times \mathit{RED}_0 + \mathit{RED}_1 } \over 7$] ^.^| _red_~0~ > _red_~1~, _code_(_x_, _y_) = 2
+^| latexmath:[${ 5 \times \mathit{RED}_0 + 2 \times \mathit{RED}_1 } \over 7$] ^.^| _red_~0~ > _red_~1~, _code_(_x_, _y_) = 3
+^| latexmath:[${ 4 \times \mathit{RED}_0 + 3 \times \mathit{RED}_1 } \over 7$] ^.^| _red_~0~ > _red_~1~, _code_(_x_, _y_) = 4
+^| latexmath:[${ 3 \times \mathit{RED}_0 + 4 \times \mathit{RED}_1 } \over 7$] ^.^| _red_~0~ > _red_~1~, _code_(_x_, _y_) = 5
+^| latexmath:[${ 2 \times \mathit{RED}_0 + 5 \times \mathit{RED}_1 } \over 7$] ^.^| _red_~0~ > _red_~1~, _code_(_x_, _y_) = 6
+^| latexmath:[${ \mathit{RED}_0 + 6 \times \mathit{RED}_1 } \over 7$] ^.^| _red_~0~ > _red_~1~, _code_(_x_, _y_) = 7
+^| _RED_~0~                         ^.^| _red_~0~ {leq} _red_~1~, _code_(_x_, _y_) = 0
+^| _RED_~1~                         ^.^| _red_~0~ {leq} _red_~1~, _code_(_x_, _y_) = 1
+^| latexmath:[${ 4 \times \mathit{RED}_0 +   \mathit{RED}_1 } \over 5$] ^.^| _red_~0~ {leq} _red_~1~, _code_(_x_, _y_) = 2
+^| latexmath:[${ 3 \times \mathit{RED}_0 + 2 \times \mathit{RED}_1 } \over 5$] ^.^| _red_~0~ {leq} _red_~1~, _code_(_x_, _y_) = 3
+^| latexmath:[${ 2 \times \mathit{RED}_0 + 3 \times \mathit{RED}_1 } \over 5$] ^.^| _red_~0~ {leq} _red_~1~, _code_(_x_, _y_) = 4
+^| latexmath:[${   \mathit{RED}_0 + 4 \times \mathit{RED}_1 } \over 5$] ^.^| _red_~0~ {leq} _red_~1~, _code_(_x_, _y_) = 5
+^| _RED~min~_                     ^.^| _red_~0~ {leq} _red_~1~, _code_(_x_, _y_) = 6
+^| _RED~max~_                     ^.^| _red_~0~ {leq} _red_~1~, _code_(_x_, _y_) = 7
+|==========
+
+_RED_~min~ and _RED_~max~ are 0.0 and 1.0 respectively.
+
+Since the decoded texel has a red format, the resulting _RGBA_ value for the
+texel is (_R_,&nbsp;0,&nbsp;0,&nbsp;1).
+
+=== BC4 signed
+
+Each 4{times}4 block of texels consists of 64 bits of signed red image
+data. The red values of a texel are extracted in the same way as
+BC4 unsigned except _red_~0~, _red_~1~, _RED_~0~, _RED_~1~,
+_RED_~min~, and _RED_~max~ are signed values defined as follows:
+
+[latexmath]
+++++++
+\begin{align*}
+\mathit{RED}_0 & = \begin{cases}
+ {\mathit{red}_0 \over 127.0}, & \mathit{red}_0 > -128 \\
+ -1.0, & \mathit{red}_0 = -128
+\end{cases} \\
+\mathit{RED}_1 & = \begin{cases}
+   {\mathit{red}_1 \over 127.0}, & \mathit{red}_1 > -128 \\
+   -1.0, & \mathit{red}_1 = -128
+\end{cases} \\
+\mathit{RED}_{\mathit{min}} & = -1.0 \\
+\mathit{RED}_{\mathit{max}} & = 1.0
+\end{align*}
++++++++++++
+
+_red_~0~ and _red_~1~ are 8-bit signed (two's complement) integers.
+
+CAVEAT: For signed _red_~0~ and _red_~1~ values: the expressions
+_red_~0~ > _red_~1~ and _red_~0~ {leq} _red_~1~
+above are considered undefined (read: may vary by implementation) when
+_red_~0~ = -127 and _red_~1~ = -128.
+This is because if _red_~0~ were remapped to -127 prior to the comparison to
+reduce the latency of a hardware decompressor, the expressions would reverse
+their logic. Encoders for the signed red-green formats should avoid encoding
+blocks where
+_red_~0~ = -127 and _red_~1~ = -128.
+
+[[rgtc_bc5]]
+=== BC5 unsigned
+
+Each 4{times}4 block of texels consists of 64 bits of compressed unsigned
+red image data followed by 64 bits of compressed unsigned green image data.
+
+The first 64 bits of compressed red are decoded exactly like
+BC4 unsigned above.
+The second 64 bits of compressed green are decoded exactly like
+BC4 unsigned above except the decoded value _R_ for this
+second block is considered the resulting green value _G_.
+
+Since the decoded texel has a red-green format, the resulting _RGBA_
+value for the texel is (_R_,_&nbsp;G_,&nbsp;0,&nbsp;1).
+
+=== BC5 signed
+
+Each 4{times}4 block of texels consists of 64 bits of compressed signed
+red image data followed by 64 bits of compressed signed green image data.
+
+The first 64 bits of compressed red are decoded exactly like
+BC4 signed above.
+The second 64 bits of compressed green are decoded exactly like
+BC4 signed above except the decoded value _R_ for
+this second block is considered the resulting green value _G_.
+
+Since this image has a red-green format, the resulting _RGBA_ value is
+(_R_,_&nbsp;G_,&nbsp;0,&nbsp;1).

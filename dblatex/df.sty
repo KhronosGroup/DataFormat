@@ -14,6 +14,10 @@
 % If defined, process the options
 \ProcessOptions\relax
 
+\usepackage{alltt}
+
+\setlength{\abovecaptionskip}{-1ex}
+
 % ##############################################################################
 % ### DocBook and local commands
 % ##############################################################################
@@ -80,6 +84,10 @@
 % To have title rendering changed
 \usepackage[sf,bf]{titlesec}
 
+\renewcommand\floatpagefraction{1}
+\renewcommand\topfraction{1}
+\renewcommand\bottomfraction{1}
+\renewcommand\textfraction{0}
 
 % Display ``DRAFT'' as a water mark:
 \usepackage{ifpdf}
@@ -119,10 +127,13 @@
 %\setlength{\topmargin}{0.5cm}
 \setlength{\topmargin}{1.3cm}
 %\setlength{\headsep}{2cm}
-\setlength{\headsep}{1.1cm}
+%\setlength{\headsep}{1.1cm}
+\setlength{\headsep}{0.5cm}
 \setlength{\textheight}{24cm}
 \setlength{\footskip}{1.5cm}
+\setlength{\tabcolsep}{0.5pt}
 }
+\renewcommand{\arraystretch}{1.2}
 % A4 version
 %\@ifpackageloaded{geometry}{}{
 %\setlength{\paperwidth}{21.0cm}
@@ -212,11 +223,11 @@
 
 \floatstyle{plain}
 \newfloat{dbequation}{htb}{lom}[section]
-\floatname{dbequation}{{\scshape Equation }}
+\floatname{dbequation}{{Equation}}
 
 % Redefinition of tableofcontent, to have it in separate pages
 \let\stdtoc=\tableofcontents
-\def\tableofcontents{ \newpage \stdtoc{} \newpage} 
+\def\tableofcontents{ \newpage \stdtoc{} \newpage}
 }{
 
 \floatstyle{ruled}
@@ -225,7 +236,7 @@
 
 \floatstyle{plain}
 \newfloat{dbequation}{htb}{lom}[chapter]
-\floatname{dbequation}{{\scshape Equation }}
+\floatname{dbequation}{{Equation}}
 }
 
 % Sidebar is a boxed minipage that can contain verbatim
@@ -281,9 +292,9 @@
 
 %
 % Index is redefined to have the section numbered.
-% 
+%
 \renewenvironment{theindex}
-{ 
+{
   \if@twocolumn
     \@restonecolfalse
   \else
@@ -330,7 +341,6 @@
   \end{stdindex}
 }
 
-
 % ##############################################################################
 % ### Commands and environments
 % ##############################################################################
@@ -346,7 +356,7 @@
 \usepackage{df_title}
 \usepackage{df_headfoot}
 \usepackage{dbk_revision}
-\usepackage{dbk_admonition}
+%\usepackage{dbk_admonition}
 \usepackage{dbk_changebar}
 \usepackage{dbk_biblio}
 \usepackage{dbk_table}
@@ -357,5 +367,97 @@
 \usepackage{dbk_callout}
 \usepackage{dbk_annot}
 
+% Replace dbk_admonition with a version that has less spacing
+\newlength{\admlength}
+\newenvironment{DBKadmonition}[2] {
+  \begin{center}
+  \hspace{0mm}%\newline
+  \noindent
+%  \setlength{\fboxsep}{5pt}
+  \setlength{\fboxsep}{0pt}
+  \setlength{\admlength}{\linewidth}
+  \addtolength{\admlength}{-4mm}
+  \sffamily
+  \begin{minipage}{\admlength}
+  \vspace{-2mm}
+  \hrule
+  \vspace{2mm}
+  \ifthenelse{\equal{#1}{}}{
+    \def\admgraph{false}
+  }{
+    \def\admgraph{true}
+    \includegraphics[width=10mm]{#1}\hspace{1mm}
+    \addtolength{\admlength}{-11mm}
+    \begin{minipage}{\admlength}
+  }
+  \textbf{#2}%
+}{
+  \ifthenelse{\equal{\admgraph}{false}}{}{
+    \end{minipage}%\newline
+  }
+%  \vspace{3mm}
+  \vspace{2mm}
+  \hrule
+  \vspace{-2mm}
+  \end{minipage}%\newline
+  \end{center}
+}
+
+
+\renewenvironment{DBKrevtable}{
+  \newpage
+  \renewcommand{\arraystretch}{1.4}
+  \begin{longtable}{ |l|l|l|l| }
+  \hline
+  \emph{ Revision number } & \emph{ Date } & \emph{ Release Info } & \emph{ Author } \tabularnewline
+  \hline
+  \endhead
+}{
+  \end{longtable}
+}
+
+\def\DBKinditem#1#2{
+  #2  & #1 \tabularnewline
+  \hline
+}
+\renewenvironment{DBKindtable}{
+  \renewcommand{\arraystretch}{1.5}
+  \begin{longtable}{ |l|l| }
+  \hline
+  \emph{Collaborator} & \emph{Contribution} \tabularnewline
+  \hline
+  \endhead
+}{
+  \end{longtable}
+}
+
+\renewcommand*\l@section{
+\setlength{\parskip}{0.3ex}
+\setlength{\itemsep}{0.3ex}
+\@dottedtocline{1}{1.5em}{2.8em}}
+\renewcommand*\l@subsection{
+\setlength{\parskip}{0.3ex}
+\setlength{\itemsep}{0.3ex}
+\@dottedtocline{2}{4.3em}{3.9em}}
+\renewcommand*\l@subsubsection{
+\setlength{\parskip}{0.3ex}
+\setlength{\itemsep}{0.3ex}
+\@dottedtocline{3}{8.2em}{4.1em}}
+\renewcommand*\l@table{
+  \setlength{\parskip}{0.3ex}
+\setlength{\itemsep}{0.3ex}
+\@dottedtocline{1}{1.5em}{2.8em}}
+\renewcommand*\l@figure{
+  \setlength{\parskip}{0.3ex}
+\setlength{\itemsep}{0.3ex}
+\@dottedtocline{1}{1.5em}{2.8em}}
+
 \makeatother
 
+\usepackage{etoolbox}
+
+% Workaround for missing section numbers with titlesec 2.10.1.
+\makeatletter
+\patchcmd{\ttlh@hang}{\parindent\z@}{\parindent\z@\leavevmode}{}{}
+\patchcmd{\ttlh@hang}{\noindent}{}{}{}
+\makeatother

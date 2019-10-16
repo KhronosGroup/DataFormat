@@ -1,0 +1,329 @@
+// Copyright (C) 2008-2019 The Khronos Group Inc. All Rights Reserved.
+// Copyright notice at https://www.khronos.org/registry/speccopyright.html
+[[S3TC]]
+== S3TC Compressed Texture Image Formats
+
+_This description is derived from the
+link:https://www.opengl.org/registry/specs/EXT/texture_compression_s3tc.txt[EXT_texture_compression_s3tc] extension._
+// Contact S3 Incorporated (http://www.s3.com) regarding any intellectual
+// property issues associated with implementing this extension.
+// Note: www.s3.com is no longer valid (nor is s3graphics.com. The company
+// is currently owned by HTC.
+
+Compressed texture images stored using the S3TC compressed image formats
+are represented as a collection of 4{times}4 texel blocks, where each block
+contains 64 or 128 bits of texel data.  The image is encoded as a normal
+2D raster image in which each 4{times}4 block is treated as a single pixel.
+If an S3TC image has a width or height that is not a multiple of four, the
+data corresponding to texels outside the image are irrelevant and
+undefined.
+
+When an S3TC image with a width of _w_, height of _h_, and block size of
+_blocksize_ (8 or 16 bytes) is decoded, the corresponding image size (in
+bytes) is:
+
+[latexmath]
+++++++++++++++++
+\begin{align*}
+\left\lceil { w \over 4 } \right\rceil \times
+\left\lceil { h \over 4 } \right\rceil \times
+blocksize
+\end{align*}
+++++++++++++++++
+
+When decoding an S3TC image, the block containing the texel at offset
+(_x_, _y_) begins at an offset (in bytes) relative to the base of the
+image of:
+
+[latexmath]
+++++++++++++++
+\begin{align*}
+blocksize \times
+ \left( { \left\lceil  { w \over 4 } \right\rceil \times
+          \left\lfloor { y \over 4 } \right\rfloor +
+          \left\lfloor { x \over 4 } \right\rfloor } \right)
+\end{align*}
+++++++++++++++
+
+The data corresponding to a specific texel (_x_, _y_) are extracted from a
+4{times}4 texel block using a relative (_x_, _y_) value of
+
+[latexmath]
+++++++++++++++
+\begin{align*}
+(x \bmod 4,y \bmod 4)
+\end{align*}
+++++++++++++++
+
+There are four distinct S3TC image formats:
+
+[[s3tc_bc1_noalpha]]
+=== BC1 with no alpha
+
+Each 4{times}4 block of texels consists of 64
+bits of _RGB_ image data.
+
+Each _RGB_ image data block is encoded as a sequence of 8 bytes, called (in
+order of increasing address):
+
+[latexmath]
+++++++
+\begin{align*}
+c0_{\mathit{lo}}, c0_{\mathit{hi}}, c1_{\mathit{lo}}, c1_{\mathit{hi}}, \mathit{bits}_0, \mathit{bits}_1, \mathit{bits}_2, \mathit{bits}_3
+\end{align*}
+++++++
+
+The 8 bytes of the block are decoded into three quantities:
+
+[latexmath]
+++++++
+\begin{align*}
+\mathit{color}_0 & = c0_{\mathit{lo}} + c0_{\mathit{hi}} \times 256 \\
+\mathit{color}_1 & = c1_{\mathit{lo}} + c1_{\mathit{hi}} \times 256 \\
+\mathit{bits}    & = \mathit{bits}_0 + 256 \times (\mathit{bits}_1 + 256 \times (\mathit{bits}_2 + 256 \times \mathit{bits}_3))
+\end{align*}
+++++++
+
+_color_~0~ and _color_~1~ are 16-bit unsigned integers that
+are unpacked to _RGB_ colors _RGB_~0~ and _RGB_~1~ as though they were 16-bit
+unsigned packed pixels with the _R_ channel in the high 5 bits, _G_ in the
+next 6 bits and _B_ in the low 5 bits:
+
+[latexmath]
+++++++
+\begin{align*}
+\mathit{R}_n & = {{\mathit{color}_n^{15..11}}\over 31} \\
+\mathit{G}_n & = {{\mathit{color}_n^{10..5}}\over 63} \\
+\mathit{B}_n & = {{\mathit{color}_n^{4..0}}\over 31}
+\end{align*}
+++++++
+
+_bits_ is a 32-bit unsigned integer, from which a two-bit control code
+is extracted for a texel at location (_x_, _y_) in the block using:
+
+[latexmath]
+++++++
+\begin{align*}
+\mathit{code}(x,y) & = \mathit{bits}[2\times (4\times y+x)+1\ \dots\ 2\times(4\times y+x)+0]
+\end{align*}
+++++++
+
+where _bits_[31] is the most significant and _bits_[0] is the least
+significant bit.
+
+The _RGB_ color for a texel at location (_x_, _y_) in the block is given
+in <<BC1blocks>>.
+
+[[BC1blocks]]
+.Block decoding for BC1
+[options="header",cols="1,2",width="60%"]
+|==========
+^| Texel value ^| Condition
+^.^| _RGB_~0~ ^.^| _color_~0~ > _color_~1~ and _code_(_x_, _y_) = 0
+^.^| _RGB_~1~ ^.^| _color_~0~ > _color_~1~ and _code_(_x_, _y_) = 1
+^| latexmath:[$(2\times \mathit{RGB}_0 + \mathit{RGB}_1)\over 3$] ^.^| _color_~0~ > _color_~1~ and _code_(_x_, _y_) = 2
+^| latexmath:[$(\mathit{RGB}_0 + 2\times RGB_1)\over 3$] ^.^| _color_~0~ > _color_~1~ and _code_(_x_, _y_) = 3
+^.^| _RGB_~0~ ^.^| _color_~0~ {leq} _color_~1~ and _code_(_x_, _y_) = 0
+^.^| _RGB_~1~ ^.^| _color_~0~ {leq} _color_~1~ and _code_(_x_, _y_) = 1
+^| latexmath:[$(\mathit{RGB}_0+\mathit{RGB}_1)\over 2$] ^.^| _color_~0~ {leq} _color_~1~ and _code_(_x_, _y_) = 2
+^.^| BLACK ^.^| _color_~0~ {leq} _color_~1~ and _code_(_x_, _y_) = 3
+|==========
+
+Arithmetic operations are done per component, and BLACK refers to an
+_RGB_ color where red, green, and blue are all zero.
+
+Since this image has an _RGB_ format, there is no alpha component and the
+image is considered fully opaque.
+
+[[s3tc_bc1_alpha]]
+=== BC1 with alpha
+
+Each 4{times}4 block of texels consists of 64
+bits of _RGB_ image data and minimal alpha information.
+The _RGB_ components of a texel are extracted in the same way as BC1
+with no alpha.
+
+The alpha component for a texel at location (_x_, _y_) in the block is
+given by <<BC1alpha>>.
+
+[[BC1alpha]]
+.BC1 with alpha
+[options="header",cols="1,2",width="60%"]
+|==========
+^| Alpha value ^| Condition
+^| 0.0 ^| _color_~0~ {leq} _color_~1~ and _code_(_x_, _y_) = 3
+^| 1.0 ^| otherwise
+|==========
+
+// This is a discussion of the behavior of the encoder, not of the
+// format itself.
+//
+// IMPORTANT:  When encoding an RGBA image into a format using 1-bit
+// alpha, any texels with an alpha component less than 0.5 end up with an
+// alpha of 0.0 and any texels with an alpha component greater than or
+// equal to 0.5 end up with an alpha of 1.0.  When encoding an RGBA image
+// into the COMPRESSED_RGBA_S3TC_DXT1_EXT format, the resulting red,
+// green, and blue components of any texels with a final alpha of 0.0
+// will automatically be zero (black).  If this behavior is not desired
+// by an application, it should not use COMPRESSED_RGBA_S3TC_DXT1_EXT.
+// This format will never be used when a generic compressed internal
+// format (Table 3.16.2) is specified, although the nearly identical
+// format COMPRESSED_RGB_S3TC_DXT1_EXT (above) may be.
+
+The red, green, and blue components of any texels with a final alpha
+of 0 should be encoded as zero (black).
+
+[NOTE]
+====
+<<Figure-bc1>> shows an example BC1 texel block:
+_color_~0~, encoded as latexmath:[$\left({{29}\over{31}}, {{60}\over{63}}, {{1}\over{31}}\right)$],
+and _color_~1~, encoded as latexmath:[$\left({{20}\over{31}}, {{2}\over{63}}, {{30}\over{31}}\right)$],
+are shown as circles. The interpolated values are shown as small diamonds.
+Since 29 > 20, there are two interpolated values, accessed when
+_code_(_x_, _y_) = 2 and _code_(_x_, _y_) = 3.
+
+[[Figure-bc1]]
+.BC1 two interpolated colors
+image::images/bc1.{svgpdf}[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
+
+<<Figure-bc1a>> shows the example BC1 texel block with the colors swapped:
+_color_~0~, encoded as latexmath:[$\left({{20}\over{31}}, {{2}\over{63}}, {{30}\over{31}}\right)$],
+and _color_~1~, encoded as latexmath:[$\left({{29}\over{31}}, {{60}\over{63}}, {{1}\over{31}}\right)$],
+are shown as circles. The interpolated value is shown as a small diamonds.
+Since 20 {leq} 29, there is one interpolated value for
+_code_(_x_, _y_) = 2, and _code_(_x_, _y_) = 3 represents
+(_R_,_&nbsp;G_,_&nbsp;B_) = (0,&nbsp;0,&nbsp;0).
+
+[[Figure-bc1a]]
+.BC1 one interpolated color {plus} black
+image::images/bc1a.{svgpdf}[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
+
+If the format is BC1 with alpha, _code_(_x_, _y_) = 3 is transparent
+(alpha&nbsp;=&nbsp;0).
+If the format is BC1 with no alpha, _code_(_x_, _y_) = 3 represents
+opaque black.
+
+====
+
+<<<
+
+[[s3tc_bc2]]
+=== BC2
+
+Each 4{times}4 block of texels consists of 64 bits of uncompressed alpha
+image data followed by 64 bits of _RGB_ image data.
+
+Each _RGB_ image data block is encoded according to the
+BC1 formats, with the exception that the two code
+bits always use the non-transparent encodings.
+In other words, they are treated as though _color_~0~ > _color_~1~,
+regardless of the actual values of _color_~0~ and _color_~1~.
+
+Each alpha image data block is encoded as a sequence of 8 bytes, called
+(in order of increasing address):
+
+[latexmath]
+++++++
+\begin{align*}
+a_0, a_1, a_2, a_3, a_4, a_5, a_6, a_7
+\end{align*}
+++++++
+
+The 8 bytes of the block are decoded into one 64-bit integer:
+
+[latexmath]
+++++++
+\begin{align*}
+\mathit{alpha} & = a_0 + 256 \times (a_1 + 256 \times (a_2 + 256 \times (a_3 +
+                   256 \times (a_4 + 256 \times (a_5 + 256 \times (a_6 + 256 \times a_7))))))
+\end{align*}
+++++++
+
+_alpha_ is a 64-bit unsigned integer, from which a four-bit alpha value
+is extracted for a texel at location (_x_, _y_) in the block using:
+
+[latexmath]
+++++++
+\begin{align*}
+\mathit{alpha}(x,y) & = \mathit{bits}[4\times(4\times y+x)+3 \dots 4\times(4\times y+x)+0]
+\end{align*}
+++++++
+
+where _bits_[63] is the most significant and _bits_[0] is the least
+significant bit.
+
+The alpha component for a texel at location (_x_, _y_) in the block is
+given by latexmath:[$\mathit{alpha}(x,y)\over 15$].
+
+[[s3tc_bc3]]
+=== BC3
+
+Each 4{times}4 block of texels consists of 64 bits of compressed
+alpha image data followed by 64 bits of _RGB_ image data.
+
+Each _RGB_ image data block is encoded according to the
+BC1 formats, with the exception that the two code
+bits always use the non-transparent encodings.  In other words, they are
+treated as though _color_~0~ > _color_~1~, regardless of the actual values of
+_color_~0~ and _color_~1~.
+
+Each alpha image data block is encoded as a sequence of 8 bytes, called
+(in order of increasing address):
+
+[latexmath]
+++++++
+\begin{align*}
+\mathit{alpha}_0, \mathit{alpha}_1, \mathit{bits}_0, \mathit{bits}_1, \mathit{bits}_2, \mathit{bits}_3, \mathit{bits}_4, \mathit{bits}_5
+\end{align*}
+++++++
+
+The _alpha_~0~ and _alpha_~1~ are 8-bit unsigned bytes converted to alpha
+components by multiplying by latexmath:[$1\over 255$].
+
+The 6 _bits_ bytes of the block are decoded into one 48-bit integer:
+
+[latexmath]
+++++++
+\begin{align*}
+\mathit{bits} & = \mathit{bits}_0 + 256 \times (\mathit{bits}_1 + 256 \times (\mathit{bits}_2 +
+           256 \times (\mathit{bits}_3 + 256 \times (\mathit{bits}_4 + 256 \times \mathit{bits}_5))))
+\end{align*}
+++++++
+
+_bits_ is a 48-bit unsigned integer, from which a three-bit control code
+is extracted for a texel at location (_x_, _y_) in the block using:
+
+[latexmath]
+++++++
+\begin{align*}
+\mathit{code}(x,y) & = \mathit{bits}[3\times(4\times y+x)+2 \dots 3\times(4\times y+x)+0]
+\end{align*}
+++++++
+
+where _bits_[47] is the most-significant and _bits_[0] is the least-significant bit.
+
+<<<
+
+The alpha component for a texel at location (_x_, _y_) in the block is
+given by <<BC3alpha>>.
+
+[[BC3alpha]]
+.Alpha encoding for BC3 blocks
+[options="header",cols="2,3",width="70%"]
+|=================
+^| Alpha value ^| Condition
+^.^| _alpha_~0~                   ^.^| _code_(_x_, _y_) = 0
+^.^| _alpha_~1~                   ^.^| _code_(_x_, _y_) = 1
+^| latexmath:[$(6\times\mathit{alpha}_0 + 1\times\mathit{alpha}_1)\over 7$]  ^.^| _alpha_~0~ > _alpha_~1~ and _code_(_x_, _y_) = 2
+^| latexmath:[$(5\times\mathit{alpha}_0 + 2\times\mathit{alpha}_1)\over 7$]  ^.^| _alpha_~0~ > _alpha_~1~ and _code_(_x_, _y_) = 3
+^| latexmath:[$(4\times\mathit{alpha}_0 + 3\times\mathit{alpha}_1)\over 7$]  ^.^| _alpha_~0~ > _alpha_~1~ and _code_(_x_, _y_) = 4
+^| latexmath:[$(3\times\mathit{alpha}_0 + 4\times\mathit{alpha}_1)\over 7$]  ^.^| _alpha_~0~ > _alpha_~1~ and _code_(_x_, _y_) = 5
+^| latexmath:[$(2\times\mathit{alpha}_0 + 5\times\mathit{alpha}_1)\over 7$]  ^.^| _alpha_~0~ > _alpha_~1~ and _code_(_x_, _y_) = 6
+^| latexmath:[$(1\times\mathit{alpha}_0 + 6\times\mathit{alpha}_1)\over 7$]  ^.^| _alpha_~0~ > _alpha_~1~ and _code_(_x_, _y_) = 7
+^| latexmath:[$(4\times\mathit{alpha}_0 + 1\times\mathit{alpha}_1)\over 5$]  ^.^| _alpha_~0~ {leq} _alpha_~1~ and _code_(_x_, _y_) = 2
+^| latexmath:[$(3\times\mathit{alpha}_0 + 2\times\mathit{alpha}_1)\over 5$]  ^.^| _alpha_~0~ {leq} _alpha_~1~ and _code_(_x_, _y_) = 3
+^| latexmath:[$(2\times\mathit{alpha}_0 + 3\times\mathit{alpha}_1)\over 5$]  ^.^| _alpha_~0~ {leq} _alpha_~1~ and _code_(_x_, _y_) = 4
+^| latexmath:[$(1\times\mathit{alpha}_0 + 4\times\mathit{alpha}_1)\over 5$]  ^.^| _alpha_~0~ {leq} _alpha_~1~ and _code_(_x_, _y_) = 5
+^.^| 0.0                      ^.^| _alpha_~0~ {leq} _alpha_~1~ and _code_(_x_, _y_) = 6
+^.^| 1.0                      ^.^| _alpha_~0~ {leq} _alpha_~1~ and _code_(_x_, _y_) = 7
+|=================

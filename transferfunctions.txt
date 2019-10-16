@@ -1,0 +1,1890 @@
+// Copyright (c) 2017-2019 The Khronos Group Inc.
+// Copyright notice at https://www.khronos.org/registry/speccopyright.html
+
+[[TRANSFER_CONVERSION]]
+== Transfer functions
+
+=== About transfer functions (informative)
+
+The *transfer function* describes the mapping between a linear numerical
+representation and a non-linear encoding.
+The eye is more sensitive to relative light levels than absolute light
+levels.
+That is, if one image region is twice as bright as another, this will
+be more visible than if one region is 10% brighter than another, even
+if the absolute difference in brightness is the same in both cases.
+To make use of the eye's non-linear response to light to provide better
+image quality with a limited number of quantization steps, it is common
+for color encodings to work with a non-linear representation which
+dedicates a disproportionate number of bits to darker colors compared
+with lighter colors.
+The typical effect of this encoding is that mid-tones are stored with
+a larger (nearer-to-white) numerical value than their actual brightness
+would suggest, and that mid-values in the non-linear encoding typically
+represent darker intensities than their fraction of the representation
+of white would suggest.
+
+.Conversion curves between linear light and encoded values (sRGB example)
+image::images/tf_curves.{svgpdf}[width="{svgpdf@pdf:350pt:576}",align="center"]
+
+The behavior has historically been approximated by a power function
+with an exponent conventionally called latexmath:[$\gamma$]: +
+{_R_,_G_,_B_}~non-linear~ = {_R_,_G_,_B_}~linear~^latexmath:[$\gamma$]^.
+Hence this conversion is colloquially known as _gamma correction_.
+
+NOTE: Many practical transfer functions incorporate a small linear
+segment near 0, instead of being a pure power function.
+This linearity reduces the required resolution for representing
+the conversion, especially where results must be reversible, and
+also reduces the noise sensitivity of the function in an analog
+context.
+When combined with a linear segment, the power function has a different
+exponent from the pure power function that best approximates the
+resulting curve.
+
+<<<
+A consequence of this non-linear encoding is that many image
+processing operations should not be applied directly to the raw
+non-linearly-encoded numbers, but require conversion back to a
+linear representation.
+For example, linear color gradients will appear distorted unless the
+encoding is adjusted to compensate for the encoding; CGI lighting
+calculations need linear intensity values for operation, and filtering
+operations require texel intensities converted to linear form.
+
+In the following example, the checker patterns are filtered in the
+right-most square of each row by averaging the checker colors,
+emulating a view of the pattern from a distance at which the
+individual squares are no longer distinct.
+The intended effect can be seen by viewing the diagram from a
+distance, or deliberately out of focus.
+The output is interpreted using the <<TRANSFER_SRGB,sRGB EOTF>>,
+approximating the behavior of a CRT with uncorrected signals.
+The background represents 50% gray.
+
+.Averaging checker values with different transfer functions
+image::images/tf_sampling.{svgpdf}[width="{svgpdf@pdf:210pt:576}",align="center"]
+
+ * *In row 1* black (0.0) and white (1.0) texels are averaged to calculate
+   a 0.5 value in the frame buffer.
+   Due to the sRGB non-linearity, the appearance of the value 0.5 is darker
+   than the average value of the black and white texels, so the gray box
+   appears darker than the average intensity of the checker pattern.
+ * *In row 2* the 0.5 average of the frame buffer is corrected using the
+   sRGB (electro-optical) EOTF^&#160;-1^ to &sim;0.74.
+   The gray box accordingly appears a good match for the average intensity
+   of the black and white squares on most media.
+ * *In row 3* the checker pattern instead represents values of 25% and
+   75% of the light intensity (the average of which should be the same
+   as the correct average of the black and white squares in the first two
+   rows).
+   These checker values have been converted to their non-linear
+   representations, as might be the case for a texture in this format:
+   the darker squares are represented by &sim;0.54, and
+   the lighter squares are represented by &sim;0.88.
+   Averaging these two values to get a value of 0.71 results in the
+   right-most square: this appears slightly too dark compared with the
+   correct representation of mid-gray (&sim;0.74) because,
+   due to the non-linear encoding, the calculated value should not lie
+   exactly half way between the two end points.
+   Since the end points of the interpolation are less distant than the
+   black and white case, the error is smaller than in the first example,
+   and can more clearly be seen by comparing with the background gray.
+ * *In row 4* the checker values have been converted using the
+   EOTF to a linear representation which can be correctly interpolated,
+   but the resulting output represents linear light, which is therefore
+   interpreted as too dark by the non-linear display.
+ * *In row 5* the results of row 4 have been converted back to the
+   non-linear representation using the EOTF^&#160;-1^.
+   The checker colors are restored to their correct values, and
+   the interpolated value is now the correct average intensity of the
+   two colors.
+
+Incorrectly-applied transfer functions can also introduce color shifts,
+as demonstrated by the saturation change in the following examples:
+
+._R_, _G_, _B_ channels and combined color gradient with linear light intensity in each channel
+image::images/tf_colorshift_intensitylinearvalues.png[width="{svgpdf@pdf:150pt:256}",align="center"]
+
+
+._R&prime;_, _G&prime;_, _B&prime;_ channels and combined color gradient with non-linear sRGB encoding in each channel
+image::images/tf_colorshift_srgblinearvalues.png[width="{svgpdf@pdf:150pt:256}",align="center"]
+
+<<<
+A standard for image representation typically defines one or both of
+two types of transfer functions:
+
+.Opto-electronics and electro-optical transfer functions
+image::images/tf_scene_store_display.{svgpdf}[width="{svgpdf@pdf:450pt:800}",align="center"]
+
+ * An opto-electronic transfer function (OETF) defines the conversion
+   between a normalized linear light intensity as recorded in the scene,
+   and a non-linear electronic representation.
+   Note that there is no requirement that this directly correspond to
+   actual captured light: the content creator or scene capture hardware
+   may adjust the apparent intensity compared to reality for aesthetic
+   reasons, as though the colors (or lighting) of objects in the scene
+   were similarly different from reality.
+   For example, a camera may implement a roll-off function for
+   highlights, and a content creator may introduce tone mapping
+   to preserve shadow detail in the created content, with these
+   being logically recorded as if the scene was actually modified
+   accordingly.
+   The inverse of the OETF (the conversion from the non-linear
+   electronic representation to linear scene light) is written
+   OETF^&#160;-1^(_n_).
+ * An electro-optical transfer function (EOTF) converts between
+   a non-linear electronic representation and a linear light
+   normalized intensity as produced by the output display.
+   The inverse of the EOTF (the conversion from linear display
+   light to the non-linear electronic representation) is written
+   EOTF^&#160;-1^(_n_).
+   Typical CRT technology has implicitly applied a non-linear EOTF
+   which coincidentally offered an approximately perceptually linear
+   gradient when supplied with a linear voltage; other display
+   technologies must implement the EOTF explicitly.
+   As with the OETF, the EOTF describes a logical relationship that in
+   reality will be modified by the viewer's aesthetic configuration
+   choices and environment, and by the implementation choices of the
+   display medium.
+   Modern displays often incorporate proprietary variations from the
+   reference intensity, particularly when mapping high dynamic range
+   content to the capabilities of the hardware.
+
+NOTE: Some color models derive chroma (color difference) channels
+wholly or partly from non-linear intensities.
+It is common for image representations which use these color models
+to use a reduced-resolution representation of the chroma channels,
+since the human eye is less sensitive to high resolution chroma
+errors than to errors in brightness.
+Despite the color shift introduced by interpolating non-linear values,
+these chroma channels are typically resampled directly in their
+native, non-linear representation.
+
+The opto-optical transfer function (OOTF) of a system is the relationship
+between linear input light intensity and displayed output light intensity:
+OOTF(_input_) = EOTF(OETF(_input_)).
+It is common for the OOTF to be non-linear.
+For example, a brightly-lit scene rendered on a display that is viewed
+in a dimly-lit room will typically appear washed-out and lacking contrast,
+despite mapping the full range of scene brightness to the full range
+supported by the display.
+A non-linear OOTF can compensate for this by reducing the intensity of
+mid-tones, which is why television standards typically assume a
+non-linear OOTF: logical scene light intensity is not proportional to
+logical display intensity.
+
+<<<
+
+In the following diagram, the upper pair of images are identical, as are
+the lower pair of images (which have mid-tones darkened but the same maximum
+brightness).
+Adaptation to the surround means that the top left and lower right images
+look similar.
+
+.Simultaneous contrast
+image::images/tf_surround_luminance.{svgpdf}[width="{svgpdf@pdf:450pt:800}",align="center"]
+
+In the context of a non-linear OOTF, an application should be aware of whether
+operations on the image are intended to reflect the representation of colors in
+the scene or whether the intent is to represent the output color accurately,
+at least when it comes to the transfer function applied.
+For example, an application could choose to convert lighting calculations
+from a linear to non-linear representation using the OETF (to match the
+appearance of lighting in the scene), but to perform image scaling
+operations using the EOTF in order to avoid introducing intensity shifts
+due to filtering.
+Working solely with the EOTF or OETF results in ignoring the intended OOTF of
+the system.
+
+In practice, the OOTF is usually near enough to linear that this distinction
+is subtle and rarely worth making for computer graphics, especially since
+computer-generated images may be designed to be viewed in brighter conditions
+which would merit a linear OOTF, and since a lot of graphical content is
+inherently not photo-realistic (or of limited realism, so that the transfer
+functions are not the most important factor in suspending disbelief).
+For video and photographic content viewed in darker conditions, the
+non-linearity of the OOTF is significant.
+The effect of a non-linear OOTF is usually secondary to the benefits of using
+non-linear encoding to reduce quantization.
+
+By convention, non-linearly-encoded values are distinguished from
+linearly-encoded values by the addition of a prime (&prime;)
+symbol. For example, (_R_,_G_,_B_) may represent a linear set of
+red, green and blue components; (_R_&prime;,_G_&prime;,_B_&prime;)
+would represent the non-linear encoding of each value. Typically
+the non-linear encoding is applied to additive primary colors;
+derived color differences may or may not retain the prime symbol.
+
+Charles Poynton provides a further discussion on ``Gamma'' in
+link:http://www.poynton.com/PDFs/TIDV/Gamma.pdf[
+http://www.poynton.com/PDFs/TIDV/Gamma.pdf].
+
+<<<
+[[TRANSFER_ITU]]
+=== ITU transfer functions
+
+NOTE: ``ITU'' is used in this context as a shorthand for the
+OETF shared by the current <<bt601,BT.601>>, <<bt709,BT.709>> and
+<<bt2020,BT.2020>> family of standard dynamic range digital
+television production standards.
+The same OETF is shared by <<smpte170m,SMPTE 170M>>.
+The ITU does define other transfer functions, for example the
+<<TRANSFER_PQ,PQ>> and <<TRANSFER_HLG,HLG>> transfer functions
+described below (originating in <<bt2100,BT.2100>>) and the list
+of EOTFs listed in <<bt470,BT.470-6>>.
+
+[[TRANSFER_ITU_OETF]]
+==== ITU OETF
+
+The ITU-T <<bt601,BT.601>>, <<bt709,BT.709>> and <<bt2020,BT.2020>>
+specifications (for standard definition television, HDTV and UHDTV
+respectively), and <<smpte170m,SMPTE 170M>>, which defines NTSC
+broadcasts, define an opto-electrical transfer function.
+The (OETF) conversion from linear (_R_,_G_,_B_) encoding
+to non-linear (_R&prime;_,_G&prime;_,_B&prime;_) encoding is:
+
+[latexmath]
+++++++
+\begin{align*}
+\textit{R}' &= \begin{cases}
+      \textit{R} \times 4.500, & \textit{R} < \beta \\
+      \alpha \times \textit{R}^{0.45} - (\alpha - 1), & \textit{R} \geq \beta
+  \end{cases} \\
+\textit{G}' &= \begin{cases}
+      \textit{G} \times 4.500, & \textit{G} < \beta \\
+      \alpha \times \textit{G}^{0.45} - (\alpha - 1), & \textit{G} \geq \beta
+  \end{cases} \\
+\textit{B}' &= \begin{cases}
+      \textit{B} \times 4.500, & \textit{B} < \beta \\
+      \alpha \times \textit{B}^{0.45} - (\alpha - 1), & \textit{B} \geq \beta
+  \end{cases}
+\end{align*}
+++++++
+
+Where _&alpha;_ = 1.0993 and _&beta;_ = 0.0181
+for 12-bit encoding in the BT.2020 specification, and
+latexmath:[$\alpha = 1.099$] and latexmath:[$\beta = 0.018$] otherwise.
+
+[[TRANSFER_ITU_INVOETF]]
+==== ITU OETF^&#160;-1^
+
+From this the inverse (OETF^&#160;-1^) transformation can be deduced:
+
+[latexmath]
+++++++
+\begin{align*}
+\textit{R} &= \begin{cases}
+      {{\textit{R}'}\over{4.500}}, & \textit{R}' < \delta \\
+      {\left({\textit{R}' + (\alpha - 1)}\over{\alpha}\right)}^{1\over{0.45}}, & \textit{R}' \geq \delta
+  \end{cases} \\
+\textit{G} &= \begin{cases}
+      {{\textit{G}'}\over{4.500}}, & \textit{G}' < \delta \\
+      {\left({\textit{G}' + (\alpha - 1)}\over{\alpha}\right)}^{1\over{0.45}}, & \textit{G}' \geq \delta
+  \end{cases} \\
+B &= \begin{cases}
+      {{\textit{B}'}\over{4.500}}, & \textit{B}' < \delta \\
+      {\left({\textit{B}' + (\alpha - 1)}\over{\alpha}\right)}^{1\over{0.45}}, & \textit{B}' \geq \delta
+  \end{cases}
+\end{align*}
+++++++
+
+_&delta;_ can be deduced from _&alpha;_ {times} _&beta;_^0.45^
+- (_&alpha;_ - 1) &#8776; 0.0812. Note that this is subtly different from
+4.5 {times} _&beta;_ due to rounding. See the following section
+for the derivation of these values.
+
+<<smpte170m,SMPTE 170M-2004>>, which defines the behavior of NTSC
+televisions, defines the EOTF of the ``reference reproducer'' as the
+OETF^&#160;-1^ function above, with _&delta;_ explicitly
+written as 0.0812.
+Therefore the SMPTE 170M-2004 EOTF^&#160;-1^ equals the OETF given above.
+The ``reference camera'' of SMTPE 170M-2004 has an OETF function matching
+that of the ITU specifications.
+That is, the OOTF of the system described in SMPTE 170M-2004 provides a
+linear mapping of captured scene intensity to display intensity: the SMPTE
+170M-2004 OETF is described as being chosen to result in a linear OOTF
+on a typical display.
+This is distinct from the current ITU specifications, which assume a
+non-linear OOTF.
+SMPTE 170M-2004 also represents a change from the ``assumed gamma'' of
+2.2 associated with most NTSC display devices as described in
+<<bt470,ITU-T BT.470-6>> and <<bt2043,BT.2043>>, although these
+standards also define a linear OOTF.
+
+<<<
+This ``ITU'' OETF is closely approximated by a simple power function with
+an exponent of 0.5 (and therefore the OETF^&#160;-1^ is quite closely
+approximated by a simple power function with an exponent of 2.0);
+the linear segment and offset mean that the best match is _not_ the
+exponent of 0.45 that forms part of the exact equation.
+ITU standards deliberately chose a different transfer curve from that of a
+typical CRT in order to introduce a non-linear OOTF, as a means to compensate
+for the typically dim conditions in which a television is viewed.
+<<bt2087,ITU BT.2087>> refers to the approximation of the OETF with a
+square root latexmath:[$\left(\gamma = {1\over{2}}\right)$] function.
+
+The following graph shows the close relationship between the ITU OETF
+(shown in red) and a pure power function with
+latexmath:[$\gamma={1\over{2}}$] (in blue).
+The difference between the curves is shown in black.
+The largest difference between the curve values at the same point when
+quantized to 8 bits is 15, mostly due to the sharp vertical gradient
+near 0.
+
+.ITU OETF vs pure gamma ^1^/~2~
+image::images/tf_ituvsgamma2_0.png[width="{svgpdf@pdf:160pt:257}",align="center"]
+
+[NOTE]
+====
+<<smpte170m,SMPTE 170M-2004>> contains a note that the OETF is a more ``technically
+correct'' definition of the transfer function, and compares it to a ``transfer
+gradient (gamma exponent) of 2.2'' in previous specifications, and that the
+OETF in older documents is described as ``1/2.2 (0.455...)''.
+While both versions define a linear OOTF, there is no explicit mention that
+curve has substantially changed; this might be due to conflation of the 0.455
+exponent in older specifications with the 0.45 exponent in the new formulae.
+The ITU OETF is actually a closer match to a gamma exponent of
+latexmath:[$1\over{2.0}$], as shown above; it is a relatively poor match to a
+gamma exponent of latexmath:[$1\over{2.2}$]; the following graph shows the
+difference between the ITU OETF (shown in red) and a pure power function
+with latexmath:[$\gamma={1\over{2.2}}$] (in blue).
+The difference between the curves is shown in black.
+
+.ITU OETF vs pure gamma ^1^/~2.2~
+image::images/tf_ituvsgamma2_2.png[width="{svgpdf@pdf:160pt:257}",align="center"]
+====
+
+==== Derivation of the ITU alpha and beta constants (informative)
+
+Using the 12-bit encoding values for _&alpha;_ and _&beta;_
+from <<bt2020,Rec.2020>>, there is an overlap around a non-linear value of 0.08145.
+In other cases, the conversion from linear to non-linear representation with
+encoding introduces a discontinuity between
+(0.018&nbsp;{times}&nbsp;4.500)&nbsp;=&nbsp;0.081 and
+(1.099&nbsp;{times}&nbsp;0.018^0.45^&nbsp;-&nbsp;0.099)&nbsp;&#8776;&nbsp;0.0812,
+corresponding to roughly a single level in a 12-bit range.
+<<smpte170m,SMPTE 170M-2004>> provides formulae for both transformations and uses
+0.0812 as a case selector for the non-linear-to-linear transformation.
+
+The values of _&alpha;_ and _&beta;_ in the ITU function
+were apparently chosen such that the linear segment and power segment meet at the
+same value and with the same derivative (that is, the linear segment meets the
+power segment at a tangent).
+The _&alpha;_ and _&beta;_ values can be derived as follows:
+
+At {_R_,_G_,_B_}&nbsp;= _&beta;_, the linear and non-linear segments of the curve
+must calculate the same value:
+
+[latexmath]
+++++++
+$$4.5 \times \beta = \alpha \times \beta^{0.45} - (\alpha - 1)$$
+++++++
+
+Additionally, the derivatives of the linear and non-linear segments of the curve
+must match:
+
+[latexmath]
+++++++
+$$4.5 = 0.45 \times \alpha \times \beta^{-0.55}$$
+++++++
+
+The derivative can be rearranged to give the equation:
+
+[latexmath]
+++++++
+$$\alpha = 10 \times \beta^{0.55}$$
+++++++
+
+Substituting this into the original equation results in the following:
+
+[latexmath]
+++++++
+$$4.5 \times \beta = 10 \times \beta^{0.55} \times \beta^{0.45} - (10 \times \beta^{0.55} - 1)$$
+++++++
+
+This simplifies to:
+
+[latexmath]
+++++++
+$$5.5 \times \beta - 10 \times \beta^{0.55} + 1 = 0$$
+++++++
+
+This can be solved numerically (for example by Newton-Raphson iteration),
+and results in values of:
+
+[latexmath]
+++++++
+\begin{align*}
+\beta &\approx 0.018053968510808\\
+\alpha &\approx 1.099296826809443\\
+\delta &= \alpha\times\beta^{0.45} - (\alpha-1) = 4.5\times\beta\\
+&\approx 0.081242858298635\\
+\end{align*}
+++++++
+
+<<<
+
+[[TRANSFER_SRGB]]
+=== sRGB transfer functions
+
+[[TRANSFER_SRGB_EOTF]]
+==== sRGB EOTF
+
+The <<srgb,sRGB specification>> defines an electro-optical transfer function.
+The EOTF conversion from non-linear latexmath:[$(R', G', B')$] encoding
+to linear latexmath:[$(R, G, B)$] encoding is:
+
+[[srgbgamma]]
+[latexmath]
+++++++
+\begin{align*}
+  R &= \begin{cases}
+      {R' \over 12.92}, & R' \leq 0.04045 \\
+      \left({R' + 0.055} \over 1.055\right)^{2.4}, & R' > 0.04045
+  \end{cases} \\
+  G &= \begin{cases}
+      {G' \over 12.92}, & G' \leq 0.04045 \\
+      \left({G' + 0.055} \over 1.055\right)^{2.4}, & G' > 0.04045
+  \end{cases} \\
+  B &= \begin{cases}
+      {B' \over 12.92}, & B' \leq 0.04045 \\
+      \left({B' + 0.055} \over 1.055\right)^{2.4}, & B' > 0.04045
+  \end{cases}
+\end{align*}
+++++++
+
+[[TRANSFER_SRGB_INVEOTF]]
+==== sRGB EOTF^-1^
+
+The corresponding sRGB EOTF^&#160;-1^ conversion from linear
+latexmath:[$(R, G, B)$] encoding to non-linear latexmath:[$(R', G', B')$]
+encoding is:
+
+[latexmath]
+++++++
+\begin{align*}
+  R' &= \begin{cases}
+      R \times 12.92, & R \leq 0.0031308 \\
+      1.055 \times R^{1\over 2.4} - 0.055, & R > 0.0031308
+  \end{cases} \\
+  G' &= \begin{cases}
+      G \times 12.92, & G \leq 0.0031308 \\
+      1.055 \times G^{1\over 2.4} - 0.055, & G > 0.0031308
+  \end{cases} \\
+  B' &= \begin{cases}
+      B \times 12.92, & B \leq 0.0031308 \\
+      1.055 \times B^{1\over 2.4} - 0.055, & B > 0.0031308
+  \end{cases}
+\end{align*}
+++++++
+
+[[TRANSFER_SRGB_EOTFVSGAMMA]]
+==== sRGB EOTF vs gamma 2.2
+
+The sRGB EOTF approximates a simple power function with an
+exponent of 2.2, which is intended to be consistent with legacy CRT
+content, particularly for <<TRANSFER_LEGACY_NTSC,NTSC>> devices, and to
+approximate the expected EOTF for <<TRANSFER_ITU,BT.709>> content,
+given the implicit OOTF used in production video content.
+sRGB is distinct from <<TRANSFER_1886,ITU-T BT.1886>>, which offers
+a (different) reference EOTF for flat panels used for HDTV and is
+also intended to complement BT.709; in addition to the change in
+EOTF, sRGB specifies a reference display maximum luminance of 80cd/m^2^,
+compared with 100cd/m^2^ for BT.1886.
+sRGB is also distinct from <<smpte170m,SMPTE 170M>>, which defines
+its EOTF as the inverse of its (and BT.709's) OETF.
+
+<<<
+The following graph compares the sRGB EOTF (in red) and a pure power
+function with latexmath:[$\gamma=2.2$] (in blue); the area between the
+two curves is shown in black.
+The largest non-linear difference at the same linear value when
+quantized to 8 bits is 3.
+
+.sRGB EOTF vs pure gamma 2.2
+image::images/tf_srgbvsgamma.png[width="{svgpdf@pdf:192pt:257}",align="center"]
+
+NOTE: The sRGB standard assumes a quantization scheme in which
+0.0 is represented by the value 0 and 1.0 is represented by 255.
+Despite the goal of complementing <<bt709,ITU-T Rec. BT.709>>,
+this is different from the ITU ``full-range'' encoding scheme
+defined in <<bt2100,ITU-T Rec. BT.2100>>, which represents 1.0 as
+a power of two (not latexmath:[$2^n-1$]) and therefore cannot exactly
+represent 1.0.
+
+The following graph shows the relationship between the sRGB EOTF (shown in red)
+and the <<TRANSFER_ITU,ITU OETF>> (shown in blue).
+The result of applying the two functions in turn, resulting in the OOTF of a combined
+ITU-sRGB system, is shown in black. Since the sRGB EOTF approximates a power function
+with latexmath:[$\gamma=2.2$] and the ITU OETF approximates a power function with
+latexmath:[$\gamma=2.0$], also shown in green is the resulting OOTF corresponding to a
+power function with latexmath:[$\gamma={2.2\over{2.0}}=1.1$].
+
+.sRGB EOTF and ITU OETF
+image::images/tf_ituvssrgb256.png[width="{svgpdf@pdf:192pt:257}",align="center"]
+
+<<<
+[[TRANSFER_SCRGB_EOTF]]
+==== scRGB EOTF and EOTF^-1^
+
+The original sRGB specification was defined only in terms of positive
+values between 0 and 1.
+Subsequent standards, such as <<scrgb,scRGB>> annex B, use the same transfer
+function but expand the range to incorporate values less than 0 and greater
+than 1.0.
+In these cases, when the input channel to the conversion is negative,
+the output should be the negative version of the conversion applied to
+the absolute value of the input.
+That is:
+
+[latexmath]
+++++++
+\begin{align*}
+  R' &= \begin{cases}
+      -1.055 \times (-R)^{1\over 2.4} + 0.055, &  R \leq -0.0031308 \\
+      R \times 12.92, & -0.0031308 < R < 0.0031308 \\
+      1.055 \times R^{1\over 2.4} - 0.055, & R \geq 0.0031308
+  \end{cases} \\
+  G' &= \begin{cases}
+      -1.055 \times (-G)^{1\over 2.4} + 0.055, &  G \leq -0.0031308 \\
+      G \times 12.92, & -0.0031308 < G < 0.0031308 \\
+      1.055 \times G^{1\over 2.4} - 0.055, & G \geq 0.0031308
+  \end{cases} \\
+  B' &= \begin{cases}
+      -1.055 \times (-B)^{1\over 2.4} + 0.055, &  B \leq -0.0031308 \\
+      B \times 12.92, & -0.0031308 < B < 0.0031308 \\
+      1.055 \times B^{1\over 2.4} - 0.055, & B \geq 0.0031308
+  \end{cases}
+\end{align*}
+++++++
+
+NOTE: <<scrgb,scRGB>> annex B changes the behavior of the
+latexmath:[$\{R,G,B\} = 0.0031308$] case compared with the
+<<srgb,sRGB>> specification.
+Since both calculations agree to seven decimal places, this
+is unlikely to be significant in most applications.
+scRGB annex B does not define the EOTF^&#160;-1^, so the
+formulae below are derived by extending the sRGB formulae.
+
+[latexmath]
+++++++
+\begin{align*}
+  R &= \begin{cases}
+      -\left({0.055 - R'} \over 1.055\right)^{2.4}, & R' < -0.04045 \\
+      {R' \over 12.92}, & -0.04045 \leq R' \leq 0.04045 \\
+      \left({R' + 0.055} \over 1.055\right)^{2.4}, & R' > 0.04045
+  \end{cases} \\
+  G &= \begin{cases}
+      -\left({0.055 - G'} \over 1.055\right)^{2.4}, & G' < -0.04045 \\
+      {G' \over 12.92}, & -0.04045 \leq G' \leq 0.04045 \\
+      \left({G' + 0.055} \over 1.055\right)^{2.4}, & G' > 0.04045
+  \end{cases} \\
+  B &= \begin{cases}
+      -\left({0.055 - B'} \over 1.055\right)^{2.4}, & B' < -0.04045 \\
+      {B' \over 12.92}, & -0.04045 \leq B' \leq 0.04045 \\
+      \left({B' + 0.055} \over 1.055\right)^{2.4}, & B' > 0.04045
+  \end{cases}
+\end{align*}
+++++++
+
+[NOTE]
+====
+<<scrgb,sYCC>> includes a hint that a 1cd/m^2^ level of flare should
+be assumed for the reference 80cd/m^2^ output, and that the black level
+should therefore be assumed to be latexmath:[${1\over 80} = 0.0125$].
+It notes that the non-linear sRGB \{latexmath:[$R',G',B'$]\} values can
+be corrected as follows:
+
+[latexmath]
+++++++
+\begin{align*}
+E_{sYCC} &= \begin{cases}
+  0.0125 - \left({1-0.0125\over 1.055^{2.4}}\right)
+  \times (0.055 - E'_{sRGB})^{2.4},
+  & E'_{sRGB} \leq -0.04045\ [\textrm{sic}]\\
+  0.0125 + {1-0.0125\over 12.92} \times
+  E'_{sRGB},
+  & -0.04045 \leq E'_{sRGB} \leq 0.04045 \\
+  0.0125 + \left({1-0.0125\over 1.055^{2.4}}\right)
+  \times (0.055 + E'_{sRGB})^{2.4},
+  & E'_{sRGB} > 0.04045
+  \end{cases}\\
+E_{sYCC} &= (\textrm{linear}) \{R_{sYCC},G_{sYCC},B_{sYCC}\} \\
+E'_{sRGB} &= (\textrm{non-linear}) \{R'_{sRGB},G'_{sRGB},B'_{sRGB}\}
+\end{align*}
+++++++
+
+This is equivalent to applying
+latexmath:[$E_{sYCC} = 0.0125 + {1\over 1-0.0125} \times E_{sRGB}$]
+to linear latexmath:[$\{R,G,B\}$] values.
+The resulting linear latexmath:[$E_{sYCC}$] values then need to be
+non-linearly encoded with the EOTF.
+====
+
+<<<
+
+[[TRANSFER_SRGB_DERIVED]]
+==== Derivation of the sRGB constants (informative)
+
+Similar to the ITU transfer function, the EOTF^&#160;-1^ of the sRGB function
+can be written as:
+
+[latexmath]
+++++++
+\begin{align*}
+\{R,G,B\} &= \begin{cases}
+      \{R',G',B'\} \times 12.92, & \{R',G',B'\} \leq \beta \\
+      \alpha \times \{R',G',B'\}^{1\over{2.4}} - (\alpha - 1), & \{R',G',B'\} < \beta
+  \end{cases}
+\end{align*}
+++++++
+
+Like the ITU transfer function above, the values of latexmath:[$\alpha$]
+and latexmath:[$\beta$] in the sRGB function appear to have been chosen
+such that the linear segment and power segment meet at the same value and
+with the same derivative (that is, the linear segment meets the power
+segment at a tangent).
+The latexmath:[$\alpha$] and latexmath:[$\beta$] values can be derived as
+follows:
+
+At latexmath:[$\{R',G',B'\} = \beta$], the linear and non-linear segments
+of the function must calculate the same value:
+
+[latexmath]
+++++++
+$$12.92 \times \beta = \alpha \times \beta^{1\over{2.4}} - (\alpha - 1)$$
+++++++
+
+Additionally, the derivatives of the linear and non-linear segments of
+the function must match:
+
+[latexmath]
+++++++
+$$12.92 = {{\alpha \times \beta^{{1\over{2.4}}-1}}\over{2.4}}$$
+++++++
+
+This formula can be rearranged to give latexmath:[$\alpha$] in terms of
+latexmath:[$\beta$]:
+
+[latexmath]
+++++++
+$$\alpha = 12.92\times 2.4\times \beta^{1-{1\over{2.4}}}$$
+++++++
+
+Substituting this into the formula for latexmath:[$\{R,G,B\}$]:
+
+[latexmath]
+++++++
+$$12.92 \times \beta = 12.92\times 2.4\times \beta^{1-{1\over{2.4}}} \times \beta^{1\over{2.4}} - (12.92\times 2.4\times \beta^{1-{1\over{2.4}}} - 1)$$
+++++++
+
+This equation simplifies to:
+
+[latexmath]
+++++++
+$$1.4 \times 12.92 \times \beta - 2.4 \times 12.92 \times \beta^{1 - {1\over{2.4}}} + 1 = 0$$
++++++
+
+This can be further simplified to:
+
+[latexmath]
+++++++
+$$1.4 \times \beta - 2.4 \times \beta^{1 - {1\over{2.4}}} + {1\over{12.92}} = 0$$
++++++
+
+The value of latexmath:[$\beta$] can be found numerically (for example by
+Newton-Raphson iteration, with a derivative of
+latexmath:[$1.4-1.4\beta^{-{1\over{2.4}}}$]), and results in values of:
+
+[latexmath]
+++++++
+\begin{align*}
+\beta &\approx  0.003041282560128\\
+\alpha &\approx 1.055010718947587\\
+\delta &= 12.92\times\beta = \alpha\times\beta^{1\over{2.4}}-(\alpha-1.0)\\
+&\approx 0.039293370676848
+\end{align*}
+++++++
+
+Where latexmath:[$\delta$] is the value of the EOTF^&#160;-1^ at
+latexmath:[$\{R',G',B'\} = \beta$].
+
+[NOTE]
+====
+These deduced values are appreciably different from those in the sRGB
+specification, which does not state the origin of its constants.
+The intersection point of the sRGB EOTF has less numerical stability
+(and more nearby local minima in curves being optimized) that the
+corresponding ITU function - it is sensitive to the start value used
+for numerical approximations.
+This may explain how different values were reached for the sRGB
+specification.
+However, the errors both in value and derivative at the point of
+selection between the linear and exponent segments are small in
+practice.
+====
+
+The EOTF can be written with these derived values as:
+
+[latexmath]
+++++++
+  $$\{R,G,B\} = \begin{cases}
+      {{\{R',G',B'\}}\over{12.92}}, & \{R',G',B'\} \leq \delta \\
+      \left({{\{R',G',B'\}}\over{\alpha}} + {{\alpha-1}\over\alpha}\right)^{2.4}, & \{R',G',B'\} > \delta
+  \end{cases}$$
+++++++
+
+[NOTE]
+====
+Apple describes the <<dcip3,Display P3 color space>> as using the
+sRGB transfer function.
+The profile viewer in Apple's ColorSync utility reports that
+the EOTF is of the following form:
+
+[latexmath]
+++++++
+  $$f(x) = \begin{cases}
+  cx, & x < d \\
+  (ax+b)^\gamma, & x \geq d
+  \end{cases}$$
+++++++
+
+The reported figures for latexmath:[$\gamma=2.4,\ a=0.948,\ b=0.52$]
+and latexmath:[$c=0.077$] correspond to the equivalent values in
+the sRGB specification:
+
+[latexmath]
+++++++
+\begin{align*}
+{1\over{\alpha}} &\approx 0.948 = a\\
+{{\alpha-1}\over\alpha} &\approx 0.52 = b\\
+{1\over{12.92}} &\approx 0.077 = c
+\end{align*}
+++++++
+
+These values are correct to the reported precision both for the value
+latexmath:[$\alpha = 1.055$] in the sRGB specification and for the more
+precise latexmath:[$\alpha \approx 1.055010718947587$] derived above.
+
+&#160;
+
+However, where the sRGB specification states that
+latexmath:[$\delta = 0.04045$], the profile viewer reports
+a corresponding d&#160;=&#160;0.039.
+The disparity can be explained if the profile values have been
+derived as described in this section:
+
+[latexmath]
+++++++
+$$\delta \approx 0.039293370676848\approx 0.039 = d$$
+++++++
+
+Note that this value assumes a correspondingly corrected version
+of latexmath:[$\alpha$] rather than latexmath:[$a = 1.055$].
+
+&#160;
+
+The extra precision may be needed over the constants in the sRGB
+specification due to the use of additional bits of accuracy in the
+Display P3 representation, which may expose a discontinuity due to
+rounding with the original numbers, particularly in the gradient of
+the curve.
+However, this distinction is subtle: when calculated over a [0..1]
+range, the derived EOTF and EOTF^&#160;-1^ agree with the official
+sRGB formulae to greater than 16-bit precision.
+====
+
+Without allowing for adjusting the latexmath:[$\alpha = 1.055$]
+constant in the sRGB formula, the power function cannot be made
+to intersect perfectly at a tangent to the linear segment with
+gradient of 12.92.
+However, the intersection point latexmath:[$\beta$] can be
+found by solving:
+
+[latexmath]
+++++++
+$$1.055\times\beta^{1\over{2.4}}-12.92\times\beta-0.055 = 0$$
+++++++
+
+This equation can give us a slightly more precise pair of values
+for the original sRGB equation:
+
+[latexmath]
+++++++
+\begin{align*}
+\beta &\approx 0.003130668 \\
+\delta &\approx 0.040448236
+\end{align*}
+++++++
+
+In practice this makes no measurable difference, but does suggest
+that the values of latexmath:[$\beta = 0.0031308$] in the sRGB
+specification may have been incorrectly rounded.
+
+<<<
+
+[[TRANSFER_BT1886]]
+=== BT.1886 transfer functions
+
+The <<bt1886,BT.1886>> standard for the ``Reference electro-optical transfer
+function for flat panel displays used in HDTV studio production'' is intended to
+represent a typical EOTF for CRTs and to document this to ensure consistency
+between other display technologies:
+
+[latexmath]
+++++++
+$$L = a(\textrm{max}(V+b,0))^\gamma$$
+++++++
+
+[width="40%",grid="none",frame="none"]
+|============
+<|_L_ = screen luminance in cd/m^2^
+<|_V_ = input signal normalized to [0..1]
+<|_a_ = user gain (legacy ``contrast'')
+<|_b_ = black level lift (legacy ``brightness'')
+<|latexmath:[$\gamma$] = 2.4
+|============
+
+If _L~W~_ is the screen luminance of maximum white and _L~B~_ is the screen
+luminance of minimum black:
+
+[latexmath]
+++++++
+\begin{align*}
+L_B &= a \times b^\gamma \\
+L_W &= a \times (1 + b)^\gamma \\
+a &= (L_W^{1\over\gamma} - L_B^{1\over\gamma})^\gamma \\
+b &= {{L_B^{1\over\gamma}}\over{L_W^{1\over\gamma} - L_B^{1\over\gamma}}}
+\end{align*}
+++++++
+
+<<bt2087,ITU BT.2087>> proposes the use of a simple power function with a
+latexmath:[$\gamma = 2.4$] as an approximation to this EOTF for the purposes
+of color conversion, effectively assuming _b_ = 0 and _L~B~_ is pure black.
+The reference display described in BT.1886 has a maximum luminance level of
+100cd/m^2^ (brighter than the equivalent <<TRANSFER_SRGB,sRGB>> reference
+display).
+
+The following graph shows the relationship between the BT.1886 EOTF (shown in red)
+and the <<TRANSFER_ITU,ITU OETF>> such as used for <<bt709,BT.709>> (shown in blue).
+The result of applying the two functions in turn, resulting in the OOTF of a combined
+BT.709-BT.1886 system, is shown in black. Since the ITU OETF approximates a power
+function with latexmath:[$\gamma=2.0$], also shown in green is the resulting OOTF
+corresponding to a power function with latexmath:[$\gamma={2.4\over{2.0}}=1.2$].
+
+.BT.1886 EOTF and BT.709 OETF
+image::images/tf_ituvsgamma256.png[width="{svgpdf@pdf:192pt:257}",align="center"]
+
+[NOTE]
+====
+<<bt1886,BT.1886>> also offers an alternative EOTF which may provide a better
+match to CRT measured luminance than the standard formula listed above:
+
+[latexmath]
+++++++
+\begin{align*}
+L &= \begin{cases}
+  k(V_C+b)^{(\alpha_1-\alpha_2)}(V+b)^{\alpha_2}, & V < V_C \\
+  k(V+b)^{\alpha_1}, & V_C \leq V
+  \end{cases}
+\end{align*}
+++++++
+
+[width="60%",grid="none",frame="none"]
+|============
+<|_V~C~_ = 0.35
+<|latexmath:[$\alpha_1$] = 2.6
+<|latexmath:[$\alpha_2$] = 3.0
+<|_k_ = coefficient of normalization (so that _V_ = 1 gives white),
+<|latexmath:[$k=L_W(1+b)^{-\alpha_1}$]
+<|_b_ = black level lift (legacy ``brightness'')
+|============
+
+====
+
+<<<
+
+[[TRANSFER_HLG]]
+=== BT.2100 HLG transfer functions
+
+HLG (and <<TRANSFER_PQ,PQ>>, below) are intended to allow a better
+encoding of high-dynamic-range content compared with the standard
+ITU OETF.
+
+[[TRANSFER_HLG_OETF_NORM]]
+==== HLG OETF (normalized)
+
+The  <<bt2100,BT.2100-2>> Hybrid Log Gamma description defines the following
+OETF for linear scene light:
+
+[latexmath]
+++++++
+   $$E'_\mathit{norm} = \textrm{OETF}(E) = \begin{cases}
+   \sqrt{3E}, & 0 \leq E \leq {1\over{12}} \\
+   a \times \textrm{ln}((12\times E) - b) + c, & {1\over{12}} < E \leq 1
+   \end{cases}$$
+++++++
+
+[width="80%",grid="none",frame="none"]
+|============
+<|latexmath:[$E$] = the latexmath:[$R_S$], latexmath:[$G_S$] or latexmath:[$B_S$] color component of linear scene light, normalized to [0..1]
+<|latexmath:[$E'$] = the resulting non-linear latexmath:[$R_S'$], latexmath:[$G_S'$] or latexmath:[$B_S'$] non-linear scene light value in in the range [0..1]
+<|_a_ = 0.17883277
+<|_b_ = latexmath:[$1 - 4\times a = 0.28466892$]
+<|_c_ = latexmath:[$0.5 - a\times ln(4\times a) \approx 0.55991073$]
+|============
+
+[NOTE]
+====
+BT.2100-0, in note 5b, defines these formulae equivalently, but slightly
+differently:
+
+[latexmath]
+++++++
+   $$E'_\mathit{norm} = \textrm{OETF}(E) = \begin{cases}
+   \sqrt{3E}, & 0 \leq E \leq {1\over{12}} \\
+   a \times \textrm{ln}(E - b_0) + c_0, & {1\over{12}} < E \leq 1
+   \end{cases}$$
+++++++
+
+This formulation in BT.2100-0 uses different constants for _b_ and _c_
+(_a_ is unmodified), as follows:
+
+[width="50%",options="header",cols="1,5,5"]
+|============
+| | BT.2100-2, BT.2100-1 | BT.2100-0
+| _b_ | _b_~1~ = 0.28466892 | _b_~0~ = 0.02372241
+| _c_ | _c_~1~ = 0.55991073 | _c_~0~ = 1.00429347
+|============
+
+The BT.2100-0 variations can be derived from the BT.2100-2 numbers as:
+
+[latexmath]
+++++++
+\begin{align*}
+a \times \textrm{ln}((12 \times E) - b_1)+ c_1 & = a \times \textrm{ln}\left(12\times\left(E - {b_1\over{12}}\right)\right) + c_1\\
+& = a \times \textrm{ln}\left(E - {{b_1}\over{12}}\right) + a\times\textrm{ln}(12) + c_1 \\
+{{b_1}\over{12}} = {{0.28466892}\over{12}} &= 0.023772241 = b_0 \\
+a\times\textrm{ln}(12) + c_1 = 0.17883277\times\textrm{ln}(12) + 0.55991073 &= 1.00429347 = c_0
+\end{align*}
+++++++
+
+====
+
+<<<
+[[TRANSFER_HLG_IOETF_NORM]]
+==== HLG OETF^&#160;-1^ (normalized)
+
+The OETF^&#160;-1^ of normalized HLG is:
+
+[latexmath]
+++++++
+   $$E = \textrm{OETF}^{-1}(E') = \begin{cases}
+   {{E'^2}\over 3}, & 0 \leq E' \leq {1\over 2} \\
+   {1\over 12} \times \left({b + e^{(E'-c)/a}}\right), & {1\over 2} < E' \leq 1
+   \end{cases}$$
+++++++
+
+_a_, _b_ and _c_ are defined as for the normalized HLG OETF.
+BT.2100-0 again defines an equivalent formula without the
+latexmath:[$1\over{12}$] scale factor in the
+latexmath:[${1\over 2}$]&#160;&lt;&#160;latexmath:[$E' \leq 1$] term,
+using the modified _b_~0~ and _c_~0~ constants described in
+the note in the <<TRANSFER_HLG_OETF_NORM,HLG OETF>> above.
+
+[[TRANSFER_HLG_OETF_UNNORM]]
+==== Unnormalized HLG OETF
+
+BT.2100-0 describes the HLG OETF formulae with _E_ ``normalized'' to the
+range [0..12], with the <<TRANSFER_HLG_OETF_NORM,variant with the range
+normalized to [0..1]>> as an alternative.
+Only the variant normalized to the range [0..1] is described in the updated
+versions of the specification, BT.2100-1 and BT.2100-2.
+
+[latexmath]
+++++++
+   $$E' = \textrm{OETF}(E) = \begin{cases}
+   {{\sqrt{E}}\over{2}}, & 0 \leq E \leq 1 \\
+   a \times \textrm{ln}(E-b) + c, & 1 < E
+   \end{cases}$$
+++++++
+
+[width="80%",grid="none",frame="none"]
+|============
+<|latexmath:[$E'$] = the latexmath:[$R_S$], latexmath:[$G_S$] or latexmath:[$B_S$] color component of linear scene light, normalized to [0..12]
+<|latexmath:[$E_S'$] = the resulting non-linear latexmath:[$R_S'$], latexmath:[$G_S'$] or latexmath:[$B_S'$] value in in the range [0..1]
+<|_a_ = 0.17883277
+<|_b_ = 0.28466892
+<|_c_ = 0.55991073
+|============
+
+Note that these constants are the same as those used in the BT.2100-1
+version of the <<TRANSFER_HLG_OETF_NORM,normalized formulae>>.
+
+[[TRANSFER_HLG_IOETF_UNNORM]]
+==== Unnormalized HLG OETF^&#160;-1^
+
+The OETF^&#160;-1^ of ``unnormalized'' HLG (producing _E_ in the range [0..12]) is:
+
+[latexmath]
+++++++
+   $$E = \textrm{OETF}^{-1}(E') = \begin{cases}
+   4\times E'^2, & 0 \leq E' \leq {1\over 2} \\
+   b + e^{(E'-c)/a}, & {1\over 2} < E'
+   \end{cases}$$
+++++++
+
+_a_, _b_ and _c_ are defined as for the
+<<TRANSFER_HLG_OETF_UNNORM,unnormalized HLG OETF>>.
+
+BT.2100-0 describes this ``unnormalized'' version of the formulae, with the
+variant with the E normalized to [0..1] as an alternative.
+Only the variant with E normalized to [0..1] is described in the updated
+versions, BT.2100-1 and BT.2100-2.
+
+<<<
+==== Derivation of the HLG constants (informative)
+
+HLG constants appear to have chosen _a_, _b_ and _c_ to meet the following
+constraints, which are easiest to express in terms of the unnormalized
+OETF^&#160;-1^:
+
+ * The derivative of the latexmath:[$0 \leq E' \leq {1\over 2}$] term of
+   the unnormalized OETF^&#160;-1^ has the same value as the derivative of
+   the latexmath:[${1\over 2}$]&#160;&lt;&#160;latexmath:[$E' \leq 1$] term
+   of the unnormalized OETF^&#160;-1^ at latexmath:[$E' = {1\over 2}$]:
++
+[latexmath]
+++++++
+\begin{align*}
+{{d(4\times E'^2)}\over{dE'}} = 8\times E' &= 8 \times {1\over 2} = 4
+            \textrm{ (derivative of the } 0 \leq E' \leq {1\over 2} \textrm{ case)}\\
+{{d(e^{(E'-c)/a} + b)}\over{dE'}} &=
+                    {{d{(e^{E'/a}\times e^{-c/a} + b)}}\over{dE'}}
+                    \textrm{ (derivative of the } {1\over 2} < E' \textrm{ case)} \\
+&= {{d((e^{E'}\times e^{-c})^{1/a} + b)}\over{dE'}} \\
+&= {1\over a}\times\left(e^{E'}\times e^{-c}\right)^{(1/a) - 1}\times\left(e^{E'}\times e^{-c}\right)\\
+& = {1\over a}\times\left(e^{E'}\times e^{-c}\right)^{1/a}\\
+4 &= {1\over a}\times\left(e^{0.5}\times e^{-c}\right)^{1/a} \textrm{at } E' = {1\over 2}\\
+\implies (4\times a)^a &= e^{0.5}\times e^{-c}\\
+\implies c &= -\textrm{ln}\left({{(4\times a)^a}\over{e^{0.5}}}\right)\\
+     &= 0.5 - a\times\textrm{ln}(4\times a)
+\end{align*}
+++++++
+ * The latexmath:[$0 \leq E' \leq {1\over 2}$] term of the unnormalized
+   OETF^&#160;-1^ has the same value as the
+   latexmath:[${1\over 2}$]&#160;&lt;&#160;latexmath:[$E'\leq 1$]
+   term of the unnormalized OETF^&#160;-1^ at latexmath:[$E' = {1\over 2}$]:
++
+[latexmath]
+++++++
+\begin{align*}
+4\times{E'}^2 &= e^{{E' - c}\over a} + b
+\textrm{ (from the }0 \leq E' \leq {1\over 2}\textrm{ and }{1\over 2} < E' \textrm{ cases})\\
+4\times{1\over 2}^2 = 1 &= e^{{0.5 - c}\over a} + b \textrm{ (at }E' = {1\over 2})\\
+&= e^{{0.5 - 0.5 + a\times\textrm{ln}(4\times a)}\over a} + b \\
+&= e^{\textrm{ln}(4\times a)} + b\\
+b &= 1 - 4\times a
+\end{align*}
+++++++
+ * At _E'_ = 1, the latexmath:[${1\over 2}$]&#160;&lt;&#160;latexmath:[$E'$]
+   term of the unnormalized OETF^&#160;-1^ = 12:
++
+[latexmath]
+++++++
+\begin{align*}
+12 &= e^{{E'-c}\over a} + b\\
+&= {e^{{1 - 0.5 + a\times\textrm{ln}(4\times a)}\over a} + 1 - 4\times a} \\
+11 + 4\times a &= e^{{0.5\over a} + \textrm{ln}(4\times a)} \\
+11 + 4\times a &= (4\times a)\times e^{0.5\over a} \\
+{11\over{4\times a}} + 1 &= \sqrt{e^{1\over a}} \\
+{121\over{16\times a^2}} + {11\over{2\times a}} + 1 &= e^{1\over a}\\
+{121\over{16}} + {a\times 11\over 2} + a^2 \times (1 - e^{1\over a}) = 0
+\end{align*}
+++++++
+
+This last equation can be solved numerically to find:
+[latexmath]
+++++++
+\begin{align*}
+a \approx 0.1788327726569497656312771
+\end{align*}
+++++++
+
+With this precision, more accurate values of the other constants are:
+
+[latexmath]
+++++++
+\begin{align*}
+b &= 0.28466890937 \\
+c &= 0.55991072776
+\end{align*}
+++++++
+
+The _b_ = 0.28466892 official figure assumes the rounded
+_a_ = 0.17883277 value as an input to the _b_ = latexmath:[$1 - 4\times a$]
+relation.
+
+[NOTE]
+====
+No explanation for the choice of [0..12] range in the official version of
+the formula is explicitly offered in BT.2100-0 (it does _not_, for example,
+appear to relate to the <<bt1886,BT.1886>> OOTF latexmath:[$\gamma = 1.2$]
+combined with the latexmath:[$10\times$] ratio between the
+<<bt2100,1000>>cd/m^2^ of a standard HLG HDR TV and the <<bt1886,100>>cd/m^2^
+of a standard dynamic range set).
+However, allowing for the difference in the maximum display brightness of
+HDR and SDR systems there is deliberate (scaled) compatibility between the HLG
+OETF and the <<TRANSFER_ITU,BT.2020 OETF>> (which itself approximates a square
+root function) over much of the encodable dynamic range of a BT.2020 system.
+Since HDR content is intended to support accurate highlights more than
+to maintain a higher persistent screen brightness (many HDR displays can
+only support maximum brightness in a small area or over a small period
+without overheating), agreement over a significant chunk of the tone curve
+allows a simple adaptation between HDR and SDR devices: fed HLG-encoded
+content, an SDR display may represent darker tones accurately and simply
+under-represent highlights.
+The origins of both HLG and PQ are discussed in <<bt2390,ITU-R BT.2390>>.
+
+&#160;
+
+As graphed in <<bt2390,ITU-R BT.2390>>, the ``unnormalized'' HLG OETF (red)
+is a good approximation to the standard dynamic range ITU transfer function
+(blue, output scaled by 0.5) up to latexmath:[$E \approx 1$] and
+latexmath:[$\textrm{OETF}(E) = E' \approx 0.5$], with a smooth
+curve up to the maximum HLG representable scene light value of ``12'':
+
+.HLG OETF (red) vs ITU OETF/2 (blue)
+image::images/tf_hlg.{svgpdf}[width="{svgpdf@pdf:200pt:300}",align="center"]
+====
+
+<<<
+==== HLG OOTF
+
+The OOTF of HLG is described as:
+
+[latexmath]
++++++
+\begin{align*}
+R_D &= \alpha\times Y_S^{\gamma-1}\times R_S \\
+G_D &= \alpha\times Y_S^{\gamma-1}\times G_S \\
+B_D &= \alpha\times Y_S^{\gamma-1}\times B_S \\
+\end{align*}
++++++
+
+where _R~D~_, _G~D~_ and _B~D~_ describe the luminance of the displayed
+linear component in cd/m^2^ and _R~S~_, _G~S~_ and _B~S~_ describe each
+color component in scene linear light, scaled by camera exposure and
+normalized to the representable range.
+
+NOTE: BT.2100 notes that some legacy displays apply the
+latexmath:[$\gamma$] function to each channel separately, rather than
+to the luminance component.
+That is,
+latexmath:[$\{R_D,G_D,B_D\}=\alpha\times\{R_S,G_S,B_S\}^\gamma+\beta$].
+This is an approximation to the official OOTF.
+
+_Y~S~_ is the normalized scene luminance, defined as:
+
+[latexmath]
++++++
+$$Y_S = 0.2627\times R_S + 0.6780\times G_S + 0.0593\times B_S$$
++++++
+
+latexmath:[$\alpha$] represents adjustable user gain (display ``contrast'')
+representing _L~W~_, the nominal peak luminance of achromatic pixels.
+
+[NOTE]
+======
+Versions of BT.2100 prior to BT.2100-2 incorporated a latexmath:[$\beta$]
+black level offset (display ``brightness'') representing the display
+luminance of black in cd/m^2^:
+
+[latexmath]
++++++
+\begin{align*}
+R_D &= \alpha\times Y_S^{\gamma-1}\times R_S + \beta \\
+G_D &= \alpha\times Y_S^{\gamma-1}\times G_S + \beta \\
+B_D &= \alpha\times Y_S^{\gamma-1}\times B_S + \beta \\
+\end{align*}
++++++
+
+latexmath:[$\alpha$] then represented the relative display ``contrast'':
+
+[width="70%",options="header",cols="1,5,5"]
+|============
+| | Scene light normalized to [0..1] | Scene light normalized to [0..12]
+| latexmath:[$\alpha$] | latexmath:[${L_W - L_B}$] | latexmath:[${{L_W - L_B}\over{\left(12\right)^\gamma}}$]
+|============
+
+where _L~W~_ is the nominal peak luminance of the display in cd/m^2^, and
+_L~B~_ is the display luminance of black in cd/m^2^.
+
+That is, in older versions of BT.2100, latexmath:[$\alpha$] represented
+the difference between minimum and maximum brightness, whereas in BT.2100-2
+latexmath:[$\alpha$] is independent of black level.
+=====
+
+latexmath:[$\gamma = 1.2$] for a nominal peak display luminance of 1000cd/m^2^.
+For displays with higher peak luminance or if peak luminance is reduced through
+a contrast control,
+latexmath:[$\gamma = 1.2 + 0.42\times \textrm{log}_{10}\left({L_W\over 1000}\right)$].
+
+For the purposes of general conversion, _L~W~_ can be assumed to be
+1000cd/m^2^, and _L~B~_ can be approximated as 0, removing the constant
+offset from the above equations and meaning latexmath:[$\gamma=1.2$].
+
+<<<
+==== HLG OOTF^&#160;-1^
+
+The inverse OOTF for HLG can be defined as:
+
+[latexmath]
++++++
+\begin{align*}
+R_S&=\left({{Y_D}\over\alpha}\right)^{(1/\gamma)-1}\times \left({{R_D}\over\alpha}\right) \\
+G_S&=\left({{Y_D}\over\alpha}\right)^{(1/\gamma)-1}\times \left({{G_D}\over\alpha}\right) \\
+B_S&=\left({{Y_D}\over\alpha}\right)^{(1/\gamma)-1}\times \left({{B_D}\over\alpha}\right) \\
+Y_D&= 0.2627\times R_D + 0.6780\times G_D + 0.0593\times B_D
+\end{align*}
++++++
+
+For processing without reference to a specific display, latexmath:[$\alpha$] can be assumed
+to be 1.0cd/m^2^.
+
+[NOTE]
+=====
+Versions of BT.2100 prior to BT.2100-2 incorporated a latexmath:[$\beta$]
+term into the OOTF.
+Using this formula from the OOTF leads to the following relationship
+between _Y~D~_ and _Y~S~_:
+
+[latexmath]
++++++
+\begin{align*}
+Y_D &= 0.2627\times R_D + 0.6780\times G_D + 0.0593\times B_D \\
+&= 0.2627\times(\alpha\times Y_S^{\gamma-1}\times R_S + \beta) +
+0.6780\times(\alpha\times Y_S^{\gamma-1}\times G_S + \beta) +
+0.0593\times(\alpha\times Y_S^{\gamma-1}\times B_S + \beta) \\
+&= \alpha\times Y_S^{\gamma-1}\times(0.2627\times R_S
++ 0.6780\times G_S + 0.0593\times B_S)+\beta \\
+&= \alpha\times Y_S^{\gamma}+\beta \\
+\therefore Y_S =& \left({{Y_D-\beta}\over\alpha}\right)^{1\over\gamma}\\
+Y_S^{1-\gamma} =& \left({{Y_D-\beta}\over\alpha}\right)^{(1-\gamma)/\gamma}
+\end{align*}
++++++
+
+From this, the following relations can be derived:
+[latexmath]
++++++
+\begin{align*}
+R_S &= {(R_D - \beta)\over{\alpha\times Y_S^{\gamma-1}}}
+= Y_S^{1-\gamma}\times{{(R_D-\beta)}\over\alpha}
+= \left({{Y_D - \beta}\over\alpha}\right)^{(1-\gamma)/\gamma} \times
+    \left({{R_D - \beta}\over{\alpha}}\right) \\
+G_S &= {(G_D - \beta)\over{\alpha\times Y_S^{\gamma-1}}}
+= Y_S^{1-\gamma}\times{{(G_D-\beta)}\over\alpha}
+= \left({{Y_D - \beta}\over\alpha}\right)^{(1-\gamma)/\gamma} \times
+    \left({{G_D - \beta}\over{\alpha}}\right) \\
+B_S &= {(B_D - \beta)\over{\alpha\times Y_S^{\gamma-1}}}
+= Y_S^{1-\gamma}\times{{(B_D-\beta)}\over\alpha}
+= \left({{Y_D - \beta}\over\alpha}\right)^{(1-\gamma)/\gamma} \times
+    \left({{B_D - \beta}\over{\alpha}}\right)
+\end{align*}
++++++
+
+For processing without knowledge of the display, latexmath:[$\alpha$]
+can be treated as 1.0cd/m^2^ and latexmath:[$\beta$] can be considered
+to be 0.0cd/m^2^.
+This simplifies the equations as follows:
+
+[latexmath]
++++++
+\begin{align*}
+Y_S &= Y_D^{1/\gamma} \\
+Y_S^{1-\gamma} &= Y_D^{(1/\gamma)-1} \\
+R_S&=Y_D^{(1/\gamma)-1}\times R_D \\
+G_S&=Y_D^{(1/\gamma)-1}\times G_D \\
+B_S&=Y_D^{(1/\gamma)-1}\times B_D
+\end{align*}
++++++
+=====
+
+<<<
+[[TRANSFER_HLG_EOTF_NORM]]
+==== HLG EOTF
+
+The EOTF of BT.2100 HLG is defined in terms of the OETF and OOTF
+defined above:
+
+[latexmath]
++++++
+\begin{align*}
+R_D &= \textrm{OOTF}\left(\textrm{OETF}^{-1}\left(\textrm{max}(0, (1-\beta)R_S' + \beta)\right)\right) \\
+G_D &= \textrm{OOTF}\left(\textrm{OETF}^{-1}\left(\textrm{max}(0, (1-\beta)G_S' + \beta)\right)\right) \\
+B_D &= \textrm{OOTF}\left(\textrm{OETF}^{-1}\left(\textrm{max}(0, (1-\beta)B_S' + \beta)\right)\right) \\
+\beta &= \sqrt{3\times \left({{L_B}\over{L_W}}\right)^{1/\gamma}}
+\end{align*}
++++++
+
+where _L~W~_ is the nominal peak luminance of the display in cd/m^2^, and
+_L~B~_ is the display luminance of black in cd/m^2^.
+
+[NOTE]
+======
+Versions of BT.2100 prior to BT.2100-2 incorporated the black level
+offset (display ``brightness'') latexmath:[$\beta$] into the definition
+of the OOTF, such that:
+
+[latexmath]
++++++
+$$\{R_D,G_D,B_D\}=\textrm{OOTF}(\textrm{OETF}^{-1}(\{R_S',G_S',B_S'\}))$$
++++++
+======
+
+[[TRANSFER_HLG_IEOTF_NORM]]
+==== HLG EOTF^&#160;-1^
+
+The EOTF^&#160;-1^ can be derived as:
+
+[latexmath]
++++++
+\begin{align*}
+R_S' &= {{\textrm{OETF}\left(\textrm{OOTF}^{-1}\left(R_D'\right)\right) - \beta}\over{1-\beta}} \\
+G_S' &= {{\textrm{OETF}\left(\textrm{OOTF}^{-1}\left(G_D'\right)\right) - \beta}\over{1-\beta}} \\
+B_S' &= {{\textrm{OETF}\left(\textrm{OOTF}^{-1}\left(B_D'\right)\right) - \beta}\over{1-\beta}} \\
+\beta &= \sqrt{3\times \left({{L_B}\over{L_W}}\right)^{1/\gamma}}
+\end{align*}
++++++
+
+[NOTE]
+======
+Versions of BT.2100 prior to BT.2100-2 incorporated the black level
+offset (display ``brightness'') latexmath:[$\beta$] into the definition
+of the OOTF, such that:
+
+[latexmath]
++++++
+$$\{R_S',G_S',B_S'\} = \textrm{OETF}(\textrm{OOTF}^{-1}(\{R_D,G_D,B_D\}))$$
++++++
+=====
+
+<<<
+[[TRANSFER_PQ]]
+=== BT.2100 PQ transfer functions
+
+NOTE: Unlike <<TRANSFER_HLG,BT.2100 HLG>> and other <<TRANSFER_ITU,ITU>>
+<<TRANSFER_LEGACY_PAL,broadcast>> standards, PQ is defined in terms of an
+EOTF (mapping from the encoded values to the display output), not an OETF
+(mapping from captured scene content to the encoded values).
+
+[[TRANSFER_PQ_EOTF]]
+==== PQ EOTF
+
+The <<bt2100,BT.2100>> Perceptual Quantization description defines the
+following EOTF:
+
+[latexmath]
++++++
+\begin{align*}
+F_D &= \textrm{EOTF}(E') = 10000\times Y \\
+Y &= \left(\textrm{max}(({E'}^{1\over{m_2}} - c_1),0)\over{c_2 - c_3\times {E'}^{1\over{m_2}}}\right)^{1\over{m_1}}
+\end{align*}
++++++
+
+latexmath:[$E'$] is a non-linear color channel latexmath:[$\{R',G',B'\}$] or
+latexmath:[$\{L',M',S'\}$] encoded as PQ in the range [0..1]. +
+latexmath:[$F_D$] is the luminance of the displayed component in cd/m^2^
+(where the luminance of an latexmath:[$\{R_D,G_D,B_D\}$] or latexmath:[$Y_D$]
+or latexmath:[$I_D$] component is considered to be the luminance of the
+color with all channels set to the same value as the component). +
+When latexmath:[$R'=G'=B'$] the displayed pixel is monochromatic. +
+latexmath:[$Y$] is a linear color value normalized to [0..1].
+
+[latexmath]
++++++
+\begin{align*}
+m_1 &= {2610\over 16384} = 0.1593017578125 \\
+m_2 &= {2523\over 4096} \times 128 = 78.84375 \\
+c_1 &= {3424\over 4096} = 0.8359375 = c_3 - c_2 + 1 \\
+c_2 &= {2413\over 4096} \times 32 = 18.8515625 \\
+c_3 &= {2392\over 4096} \times 32 = 18.6875
+\end{align*}
++++++
+
+[[TRANSFER_PQ_IEOTF]]
+==== PQ EOTF^&#160;-1^
+
+The corresponding EOTF^&#160;-1^ is:
+
+[latexmath]
++++++
+\begin{align*}
+Y &= {F_D\over 10000} \\
+\textrm{EOTF}^{-1}(F_D) &= \left({c_1 + c_2\times Y^{m_1}\over 1 + c_3\times Y^{m_1}}\right)^{m_2}
+\end{align*}
++++++
+
+<<<
+==== PQ OOTF
+
+The OOTF of PQ matches that of <<TRANSFER_BT1886,BT.1886>>'s EOTF combined
+with <<TRANSFER_ITU,BT.709>>'s OETF:
+
+[latexmath]
++++++
+$$F_D = \textrm{OOTF}(E) = \textrm{G}_{1886}(\textrm{G}_{709}(E))$$
++++++
+
+where _E_ is one of latexmath:[$\{R_S,G_S,B_S,Y_S,I_S\}$], the linear
+representation of scene light scaled by camera exposure and in the range
+[0..1], G~1886~ is the EOTF described in <<TRANSFER_BT1886,BT.1886>>, and
+G~709~ is the OETF described in <<TRANSFER_ITU,BT.709>> with a scale factor
+of 59.5208 applied to _E_:
+
+[latexmath]
++++++
+\begin{align*}
+F_D &= \textrm{G}_{1886}(\textrm{G}_{709}(E)) &=\ &\textrm{G}_{1886}(E') = 100\times E'^{2.4} \\
+E' &= \textrm{G}_{709}(E) &= &\begin{cases}
+1.099\times(59.5208\times E)^{0.45} - 0.099, & 1 > E > 0.0003024 \\
+267.84\times E, & 0.0003024 \geq E \geq 0
+\end{cases}
+\end{align*}
++++++
+
+[NOTE]
+====
+<<bt2390,ITU-R BT.2390>> explains the derivation of the scale factor:
+
+&#160;
+
+PQ can encode 100 times the display brightness of a standard dynamic
+range (``SDR'') encoding (10000cd/m^2^ compared with the 100cd/m^2^
+SDR reference display described in <<bt1886,BT.1886>>).
+High dynamic range (HDR) displays are intended to represent the
+majority of scene content within a ``standard'' dynamic range, and
+exposure of a normalized SDR signal is chosen to provide suitable
+exposure.
+HDR displays offer extra capability for representation of small
+or transient highlights (few HDR displays can actually reach the
+maximum 10000cd/m^2^ encodable brightness, and few HDR displays can
+maintain their maximum intensity over a large area for an extended
+period without overheating).
+Therefore the behavior of HDR displays is intended to approximate
+a conventional standard dynamic range display for most of the image,
+while retaining the ability to encode extreme values.
+
+&#160;
+
+As described in BT.2390, the OOTF of SDR is roughly
+latexmath:[$\gamma = 1.2$] (deviating from this curve more near a 0 value),
+so the maximum _scene_ light intensity that can be represented is roughly
+latexmath:[$100^{1\over 1.2} \approx 46.42$] times that of a SDR encoding.
+
+&#160;
+
+Using exact equations from <<bt709,BT.709>> and <<bt1886,BT.1886>>
+to create the OOTF, rather than the latexmath:[$\gamma = 1.2$]
+approximation, the maximum representable scene brightness, if 1.0 is the
+maximum normalized SDR brightness is:
+
+[latexmath]
++++++
+\begin{align*}
+\left({100^{1\over 2.4} + 0.099\over 1.099}\right)^{1\over 0.45} &\approx 59.5208
+\end{align*}
++++++
+
+The other constants in the G~709~ formula are derived as follows:
+
+[latexmath]
++++++
+\begin{align*}
+{0.018\over 59.5208} &\approx 0.0003024 \\
+4.5\times 59.5208 &\approx 267.84
+\end{align*}
++++++
+
+Note that these constants differ slightly if the more accurate
+latexmath:[$\alpha = 1.0993$] figure from <<bt2020,BT.2020>> is used
+instead of 1.099.
+====
+
+[[TRANSFER_PQ_OETF]]
+==== PQ OETF
+
+The OETF of PQ is described in terms of the above OOTF:
+
+[latexmath]
++++++
+$$E' = \textrm{OETF}(E) = \textrm{EOTF}^{-1}(\textrm{OOTF}(E)) = \textrm{EOTF}^{-1}(F_D)$$
++++++
+
+<<<
+==== PQ OOTF^&#160;-1^
+
+The PQ OOTF^&#160;-1^ is:
+
+[latexmath]
++++++
+$$E=\textrm{OOTF}^{-1}(F_D)=\textrm{G}_{709}^{-1}(\textrm{G}_{1886}^{-1}(F_D))$$
++++++
+
+where _F~D~_, display intensity, is one of
+latexmath:[$\{R_D,G_D,B_D,Y_D,I_D\}$], and
+E is the corresponding normalized scene intensity.
+
+[latexmath]
++++++
+\begin{align*}
+E' &= \textrm{G}_{1886}^{-1}(F_D) &= &\left({F_D\over 100}\right)^{1\over 2.4} \\
+E &= \textrm{G}_{709}^{-1}(E') &= &\begin{cases}
+{\left({(E'+0.099)\over {1.099\times 59.5208^{0.45}}}\right)^{1\over 0.45}}, & E'>0.081\implies F_D>8.1^{2.4} \\
+{E'\over{267.84}}, & 0.081\geq E'\geq 0 \implies {8.1}^{2.4}\geq F_D\geq 0
+\end{cases}
+\end{align*}
++++++
+
+[[TRANSFER_PQ_IOETF]]
+==== PQ OETF^&#160;-1^
+
+The PQ OETF^&#160;-1^ is described in terms of the OOTF^&#160;-1^:
+
+[latexmath]
++++++
+$$E = \textrm{OETF}^{-1}(E') = \textrm{OOTF}^{-1}(\textrm{EOTF}(E')) = \textrm{OOTF}^{-1}(F_D)$$
++++++
+
+<<<
+[[TRANSFER_DCIP3]]
+=== DCI P3 transfer functions
+
+<<dcip3,DCI P3>> defines a simple power function with an exponent of 2.6
+(applied to scaled CIE _XYZ_ values):
+
+[options="header",cols="^1,^1"]
+|======
+| EOTF^&#160;-1^ | EOTF
+| latexmath:[$X' = \left({X\over{52.37}}\right)^{1\over{2.6}}$]
+
+latexmath:[$Y' = \left({Y\over{52.37}}\right)^{1\over{2.6}}$]
+
+latexmath:[$Z' = \left({Z\over{52.37}}\right)^{1\over{2.6}}$]
+| latexmath:[$X = X'^{2.6}\times 52.37$]
+
+latexmath:[$Y = Y'^{2.6}\times 52.37$]
+
+latexmath:[$Z = Z'^{2.6}\times 52.37$]
+|======
+
+This power function is applied directly to scaled CIE _XYZ_ color
+coordinates: the ``primaries'' in DCI define the bounds of the gamut,
+but the actual color encoding uses _XYZ_ coordinates.
+DCI scales the resulting non-linear values to the range [0..4095]
+prior to quantization, rounding to nearest.
+
+NOTE: ``Display P3'' uses the <<TRANSFER_SRGB,sRGB transfer function>>,
+modified in some implementations to have more accurate constants (see the
+section on the derivation of the sRGB constants).
+
+[[TRANSFER_LEGACY_NTSC]]
+=== Legacy NTSC transfer functions
+
+<<bt470,ITU-R BT.470-6>>, which has now been deprecated, lists a number of
+regional TV standard variants; an updated list of variant codes used by country
+is defined in <<bt2043,ITU-R BT.2043>>.
+This standard, along with <<cfr,e-CFR title 47 section 73.682>>, documents a
+simple EOTF power function with latexmath:[$\gamma = 2.2$] for NTSC display
+devices.
+
+[options="header",cols="^1,^1"]
+|======
+| EOTF^&#160;-1^ | EOTF
+| latexmath:[$R' = R^{1\over{2.2}}$]
+
+latexmath:[$G' = G^{1\over{2.2}}$]
+
+latexmath:[$B' = B^{1\over{2.2}}$]
+| latexmath:[$R = R'^{2.2}$]
+
+latexmath:[$G = G'^{2.2}$]
+
+latexmath:[$B = B'^{2.2}$]
+|======
+
+This value of latexmath:[$\gamma$] is also used for N/PAL signals in the
+Eastern Republic of Uruguay, and was also adopted by <<st240,ST-240>>.
+
+Combined with the reference in <<smpte170m,SMPTE 170M>> to a
+latexmath:[$\gamma = 2.2$] being used in ``older documents'', this
+suggests a linear design OOTF for NTSC systems.
+
+<<bt1700,ITU-R BT.1700>>, which partly replaced BT.470, also describes an
+``assumed gamma of display device'' of 2.2 for PAL and SECAM systems;
+this is distinct from the latexmath:[$\gamma = 2.8$] value listed in
+<<bt470,ITU-R BT.470-6>>.
+Combined with the <<TRANSFER_ITU,ITU OETF>> which approximates
+latexmath:[$\gamma = {1\over{2.0}}$], the PAL OOTF retains a
+latexmath:[$\gamma \approx 1.1$] when this value of
+latexmath:[$\gamma = 2.2$] is used for the EOTF, similar to the figure
+described under <<TRANSFER_LEGACY_PAL_EOTF,the legacy PAL EOTF>>.
+
+In contrast, <<bt1700,ITU-R BT.1700>> also includes
+<<smpte170m,SMPTE 170m>>, which defines the assumed EOTF of the display
+device as being the inverse of the current <<TRANSFER_ITU,ITU OETF>>.
+Hence the new NTSC formulation also assumes a linear OOTF.
+
+<<<
+[[TRANSFER_LEGACY_PAL_OETF]]
+=== Legacy PAL OETF
+
+<<bt472,ITU-R BT.472>>, ``Video-frequency characteristics of a television
+system to be used for the international exchange of programmes between
+countries that have adopted 625-line colour or monochrome systems'', defines
+that the ``gamma of the picture signal'' should be ``approximately 0.4''.
+The reciprocal of this value is 2.5.
+
+That is, this standard defines an approximate OETF and OETF^&#160;-1^ for
+PAL content:
+
+[options="header",cols="^1,^1"]
+|======
+| OETF | OETF^&#160;-1^
+| latexmath:[$R' \approx R^{0.4}$]
+
+latexmath:[$G' \approx G^{0.4}$]
+
+latexmath:[$B' \approx B^{0.4}$]
+| latexmath:[$R \approx R'^{2.5}$]
+
+latexmath:[$G \approx G'^{2.5}$]
+
+latexmath:[$B \approx B'^{2.5}$]
+|======
+
+[[TRANSFER_LEGACY_PAL_EOTF]]
+=== Legacy PAL 625-line EOTF
+
+<<bt470,ITU-R BT.470-6>>, which has now been deprecated in favor of BT.1700,
+lists a number of regional TV standard variants; an updated list of variant
+codes used by country is defined in <<bt2043,ITU-R BT.2043>>.
+
+This specification describes a simple EOTF power function with
+latexmath:[$\gamma_{\textrm{EOTF}} = 2.8$] for most PAL and SECAM display devices:
+
+[options="header",cols="^1,^1"]
+|======
+| EOTF^&#160;-1^ | EOTF
+| latexmath:[$R' = R^{1\over{2.8}}$]
+
+latexmath:[$G' = G^{1\over{2.8}}$]
+
+latexmath:[$B' = B^{1\over{2.8}}$]
+| latexmath:[$R = R'^{2.8}$]
+
+latexmath:[$G = G'^{2.8}$]
+
+latexmath:[$B = B'^{2.8}$]
+|======
+
+NOTE: Poynton describes a latexmath:[$\gamma$] of 2.8 as being ``unrealistically
+high'' for actual CRT devices.
+
+Combined with the <<TRANSFER_LEGACY_PAL_EOTF,corresponding legacy EOTF>> with
+latexmath:[$\gamma_{\textrm{EOTF}} = 0.4$], the described system OOTF is:
+
+[latexmath]
++++++
+\begin{align*}
+R_{display} &\approx R_{scene}^{2.8\over{2.5}}\\
+G_{display} &\approx G_{scene}^{2.8\over{2.5}}\\
+B_{display} &\approx B_{scene}^{2.8\over{2.5}}
+\end{align*}
++++++
+
+Or latexmath:[$\gamma_{\textrm{OOTF}} \approx 1.12$].
+
+The value of latexmath:[$\gamma_{\textrm{EOTF}} = 2.8$] is described in BT.470-6 as being
+chosen for ``an overall system gamma'' (OOTF power function exponent) of
+``approximately 1.2''; this suggests that the ``approximately 0.4'' exponent in
+<<bt472,BT.472-6>> should be interpreted as nearer to latexmath:[${1.2\over{2.8}}
+\approx 0.43$], or at least that there was enough variation in early devices for
+precise formulae to be considered irrelevant.
+
+[NOTE]
+====
+The EOTF power function of latexmath:[$\gamma_{\textrm{EOTF}} = 2.2$] described in
+<<bt1700,BT.1700>> combines with the <<TRANSFER_ITU,ITU OETF>> described in
+<<bt601,BT.601>> (which approximates latexmath:[$\gamma_{\textrm{OETF}} \approx 0.5$])
+to give a similar system latexmath:[$\gamma_{\textrm{OOTF}} \approx 1.1$].
+As described <<TRANSFER_BT1886,above>>, the <<TRANSFER_ITU,ITU OETF>>
+combined with the <<bt1886,BT.1886>> EOTF results in a more strongly non-linear
+latexmath:[$\gamma_{\textrm{OOTF}} \approx {2.4\over{2.0}} = 1.2$].
+====
+
+<<<
+[[TRANSFER_ST240]]
+=== ST240/SMPTE240M transfer functions
+
+The <<st240,ST-240>>, formerly SMPTE240M, interim standard for HDTV defines the
+following OETF:
+
+[latexmath]
+++++++
+  $$R' = \begin{cases}
+      R \times 4, & 0 \leq R < 0.0228 \\
+      1.1115 \times R^{0.45} - 0.1115, & 1 \geq R \geq 0.0228
+  \end{cases}$$
+  $$G' = \begin{cases}
+      G \times 4, & 0 \leq G < 0.0228 \\
+      1.1115 \times G^{0.45} - 0.1115, & 1 \geq G \geq 0.0228
+  \end{cases}$$
+  $$B' = \begin{cases}
+      B \times 4, & 0 \leq B < 0.0228 \\
+      1.1115 \times B^{0.45} - 0.1115, & 1 \geq B \geq  0.0228
+  \end{cases}$$
+++++++
+
+Like <<smpte170m,SMPTE170m>>, ST-240 defines a linear OOTF.
+Therefore the above relationship also holds for the EOTF^&#160;-1^.
+
+The EOTF, and also OETF^&#160;-1^, is:
+
+[latexmath]
+++++++
+  $$R = \begin{cases}
+      {R' \over 4}, & 0 \leq R < 0.0913 \\
+      \left({R' + 0.1115\over 1.1115}\right)^{1\over 0.45} - 0.1115, & 1 \geq R' \geq 0.0228
+  \end{cases}$$
+  $$G = \begin{cases}
+      {G' \over 4}, & 0 \leq R < 0.0913 \\
+      \left({G' + 0.1115\over 1.1115}\right)^{1\over 0.45} - 0.1115, & 1 \geq G' \geq 0.0228
+  \end{cases}$$
+  $$B = \begin{cases}
+      {B' \over 4}, & 0 \leq R < 0.0913 \\
+      \left({B' + 0.1115\over 1.1115}\right)^{1\over 0.45} - 0.1115, & 1 \geq B' \geq 0.0228
+  \end{cases}$$
+++++++
+
+[[TRANSFER_ADOBERGB]]
+=== Adobe RGB (1998) transfer functions
+
+The <<adobergb,Adobe RGB (1998) specification>> defines the following transfer
+function between nonlinear encoding and linear light intensity (notable for not
+including a linear component):
+
+[latexmath]
++++++
+\begin{align*}
+R &= R'^{2.19921875} \\
+G &= G'^{2.19921875} \\
+B &= B'^{2.19921875}
+\end{align*}
++++++
+
+2.19921875 is obtained from latexmath:[$2{51\over{256}}$] or hexadecimal 2.33.
+Therefore the inverse transfer function between linear light intensity and
+nonlinear encoding is:
+
+[latexmath]
++++++
+\begin{align*}
+R' &= R^{256\over{563}} \\
+G' &= G^{256\over{563}} \\
+B' &= B^{256\over{563}}
+\end{align*}
++++++
+
+<<<
+[[TRANSFER_SLOG]]
+=== Sony S-Log transfer functions
+
+The Sony <<slog,S-Log>> OETF is defined for each color channel as:
+
+[latexmath]
++++++
+$$y = (0.432699 \times \textrm{log}_{10}(t + 0.037584) + 0.616596) + 0.03$$
++++++
+
+Linear camera input scaled by exposure _t_ ranges from 0 to 10.0;
+_y_ is the non-linear encoded value.
+
+The OETF^&#160;-1^ is:
+
+[latexmath]
++++++
+$$Y = 10.0^{t - 0.616596 - 0.03\over 0.432699} - 0.037584$$
++++++
+
+The encoded non-linear value _t_ ranges from 0 to 1.09; _Y_ is the
+linear scene light.
+
+[[TRANSFER_SLOG2]]
+=== Sony S-Log2 transfer functions
+
+<<slog,S-Log2>> defines the following OETF:
+
+[latexmath]
++++++
+\begin{align*}
+y &= \begin{cases}
+(0.432699\times\textrm{log}_{10}\left({155.0\times x\over 219.0} + 0.037584\right) + 0.616596 + 0.03, &x \geq 0 \\
+x \times 3.53881278538813 + 0.030001222851889303, &x < 0
+\end{cases}
+\end{align*}
++++++
+
+_x_ is the IRE in scene-linear space. +
+_y_ is the IRE in S-Log2 space.
+
+The OETF^&#160;-1^ is:
+
+[latexmath]
++++++
+\begin{align*}
+y &= \begin{cases}
+{219.0 \times 10.0^{x - 0.616596 - 0.03\over 0.432699}\over 155.0}, &x \geq 0.030001222851889303 \\
+{x - 0.030001222851889303\over 3.53881278538813}, &x < 0.030001222851889303
+\end{cases}
+\end{align*}
++++++
+
+_x_ is the IRE in S-Log2 space. +
+_y_ is the IRE in scene-linear space.
+
+A reflection is calculated by multiplying an IRE by 0.9.
+
+[[TRANSFER_ACESCC]]
+=== ACEScc transfer function
+
+<<aces,ACES>> is scene-referred; therefore ACEScc defines an OETF.
+
+For each linear color channel _lin~AP1~_ transformed to the ACEScc primaries,
+the _ACEScc_ non-linear encoding is:
+
+[latexmath]
++++++
+  $$ACEScc = \begin{cases}
+      {{\textrm{log}_\textrm{2}(2^{-16})+9.72}\over{17.52}}, & lin_{AP1} \leq 0 \\
+      {{\textrm{log}_\textrm{2}(2^{-16} + lin_{AP1}\times 0.5) + 9.72}\over{17.52}}, & lin_{AP1} < 2^{-15} \\
+      {{\textrm{log}_\textrm{2}(lin_{AP1})+9.72}\over{17.52}}, & lin_{AP1} \geq 2^{-15}
+  \end{cases}$$
++++++
+
+[[TRANSFER_ACESCCT]]
+=== ACEScct transfer function
+
+<<aces,ACES>> is scene-referred; therefore ACEScct defines an OETF.
+
+For each linear color channel _lin~AP1~_ transformed to the ACEScc
+primaries, the _ACEScct_ non-linear encoding is:
+
+[latexmath]
++++++
+  $$ACEScct = \begin{cases}
+      {10.5402377416545 \times lin_{AP1} + 0.0729055341958355}, & lin_{AP1} \leq 0.0078125 \\
+      {{\textrm{log}_2(lin_{AP1})+9.72}\over{17.52}}, & lin_{AP1} > 0.0078125
+  \end{cases}$$
++++++

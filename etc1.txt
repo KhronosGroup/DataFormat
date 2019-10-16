@@ -1,0 +1,325 @@
+// Copyright (c) 2014-2019 The Khronos Group Inc.
+// Copyright notice at https://www.khronos.org/registry/speccopyright.html
+[[ETC1]]
+== ETC1 Compressed Texture Image Formats
+
+_This description is derived from the
+link:https://www.khronos.org/registry/gles/extensions/OES/OES_compressed_ETC1_RGB8_texture.txt[OES_compressed_ETC1_RGB8_texture]
+OpenGL extension._
+
+The texture is described as a number of 4{times}4 pixel blocks. If the
+texture (or a particular mip-level) is smaller than 4 pixels in
+any dimension (such as a 2{times}2 or a 8{times}1 texture), the texture is
+found in the upper left part of the block(s), and the rest of the
+pixels are not used. For instance, a texture of size 4{times}2 will be
+placed in the upper half of a 4{times}4 block, and the lower half of the
+pixels in the block will not be accessed.
+
+Pixel _a_~1~ (see <<ETC18x8>>) of the first block in memory will
+represent the texture coordinate (_u_=0, _v_=0). Pixel _a_~2~ in the
+second block in memory will be adjacent to pixel _m_~1~ in the first
+block, etc. until the width of the texture. Then pixel _a_~3~ in the
+following block (third block in memory for a 8{times}8 texture) will be
+adjacent to pixel _d_~1~ in the first block, etc. until the height of
+the texture. The data storage for an 8{times}8 texture using the first, second, third and
+fourth block if stored in that order in memory would have the texels encoded in
+the same order as a simple linear format as if the bytes describing the pixels came
+in the following memory order:
+_a_~1~ _e_~1~ _i_~1~ _m_~1~ _a_~2~ _e_~2~ _i_~2~ _m_~2~
+_b_~1~ _f_~1~ _i_~1~ _n_~1~ _b_~2~ _f_~2~ _i_~2~ _n_~2~
+_c_~1~ _g_~1~ _k_~1~ _o_~1~ _c_~2~ _g_~2~ _k_~2~ _o_~2~
+_d_~1~ _h_~1~ _l_~1~ _p_~1~ _d_~2~ _h_~2~ _l_~2~ _p_~2~
+_a_~3~ _e_~3~ _i_~3~ _m_~3~ _a_~4~ _e_~4~ _i_~4~ _m_~4~
+_b_~3~ _f_~3~ _i_~3~ _n_~3~ _b_~4~ _f_~4~ _i_~4~ _n_~4~
+_c_~3~ _g_~3~ _k_~3~ _o_~3~ _c_~4~ _g_~4~ _k_~4~ _o_~4~
+_d_~3~ _h_~3~ _l_~3~ _p_~3~ _d_~4~ _h_~4~ _l_~4~ _p_~4~.
+
+[[ETC18x8]]
+.Pixel layout for an 8×8 texture using four ETC1 compressed blocks
+image::images/ETCletter8x8.{svgpdf}[width="{svgpdf@pdf:218pt:327}",align="center"]
+
+Note how pixel _a_~2~ in the second block is adjacent to pixel _m_~1~ in the first block.
+
+The number of bits that represent a 4{times}4 texel block is 64 bits.
+
+<<<
+
+The data for a block is stored as a number of bytes,
+_q_~0~, _q_~1~, _q_~2~, _q_~3~, _q_~4~, _q_~5~, _q_~6~, _q_~7~,
+where byte _q_~0~ is located at the lowest memory address and
+_q_~7~ at the highest. The 64 bits specifying the block are then
+represented by the following 64 bit integer:
+
+[latexmath]
+++++++
+\begin{align*}
+\mathit{int64bit} & = 256\times (256\times (256\times (256\times (256\times (256\times (256\times q_0+q_1)+q_2)+q_3)+q_4)+q_5)+q_6)+q_7
+\end{align*}
+++++++
+
+Each 64-bit word contains information about a 4{times}4 pixel block as
+shown in <<ETC1layout>>.
+
+[[ETC1layout]]
+.Pixel layout for an ETC1 compressed block
+image::images/ETCletterdirections.{svgpdf}[width="{svgpdf@pdf:115pt:173}",align="center"]
+
+There are two modes in ETC1: the
+`individual' mode and the `differential' mode. Which mode is
+active for a particular 4{times}4 block is controlled by bit 33, which
+we call _diff bit_. If _diff bit_ = 0, the `individual' mode is
+chosen, and if _diff bit_ = 1, then the `differential' mode is
+chosen. The bit layout for the two modes are different: The bit
+layout for the individual mode is shown in <<ETC1format>> <<ETC1individual,part a>> and
+<<ETC1sharedbits,part c>>, and the bit layout for the differential mode is laid out
+in <<ETC1format>> <<ETC1differential,part b>> and <<ETC1sharedbits,part c>>.
+
+[[ETC1format]]
+.Texel Data format for ETC1 compressed textures
+ifdef::a2xhtml[]
+[cols="16*1"]
+endif::[]
+ifndef::a2xhtml[]
+[width="55%",cols="16*1"]
+endif::[]
+|====================
+16+^| [[ETC1individual]]*a) Bit layout in bits 63 through 32 if _diff bit_ = 0*
+^| ~63~ ^| ~62~ ^| ~61~ ^| ~60~ ^| ~59~ ^| ~58~ ^| ~57~ ^| ~56~ ^| ~55~ ^| ~54~ ^| ~53~ ^| ~52~ ^| ~51~ ^| ~50~ ^| ~49~ ^| ~48~
+4+^| Base color 1
+
+_R_ (4 bits)
+4+^| Base color 2
+
+_R_~2~ (4 bits)
+4+^| Base color 1
+
+_G_ (4 bits)
+4+^| Base color 2
+
+_G_~2~ (4 bits)
+^| ~47~ ^| ~46~ ^| ~45~ ^| ~44~ ^| ~43~ ^| ~42~ ^| ~41~ ^| ~40~ ^| ~39~ ^| ~38~ ^| ~37~ ^| ~36~ ^| ~35~ ^| ~34~ ^| ~33~ ^| ~32~
+4+^| Base color 1
+
+_B_ (4 bits)
+4+^| Base color 2
+
+_B_~2~ (4 bits)
+3+^| _Table_
+
+_codeword_ 1
+3+^| _Table_
+
+_codeword_ 2
+^| _diff_
+
+_bit_
+^| _flip_
+
+_bit_
+16+^| [[ETC1differential]]*b) Bit layout in bits 63 through 32 if _diff bit_ = 1*
+^| ~63~ ^| ~62~ ^| ~61~ ^| ~60~ ^| ~59~ ^| ~58~ ^| ~57~ ^| ~56~ ^| ~55~ ^| ~54~ ^| ~53~ ^| ~52~ ^| ~51~ ^| ~50~ ^| ~49~ ^| ~48~
+5+^| Base color
+
+_R_ (5 bits)
+3+^| Color delta
+
+_R_~d~
+5+^| Base color
+
+_G_ (5 bits)
+3+^| Color delta
+
+_G_~d~
+^| ~47~ ^| ~46~ ^| ~45~ ^| ~44~ ^| ~43~ ^| ~42~ ^| ~41~ ^| ~40~ ^| ~39~ ^| ~38~ ^| ~37~ ^| ~36~ ^| ~35~ ^| ~34~ ^| ~33~ ^| ~32~
+5+^| Base color
+
+_B_ (5 bits)
+3+^| Color delta
+
+_B_~d~
+3+^| _Table_
+
+_codeword_ 1
+3+^| _Table_
+
+_codeword_ 2
+^| _diff_
+
+_bit_
+^| _flip_
+
+_bit_
+16+^| [[ETC1sharedbits]]*c) Bit layout in bits 31 through 0 (in both cases)*
+16+^| *More significant pixel index bits*
+^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~
+^| _p_^1^ ^| _o_^1^ ^| _n_^1^ ^| _m_^1^ ^| _l_^1^ ^| _k_^1^ ^| _j_^1^ ^| _i_^1^ ^| _h_^1^ ^| _g_^1^ ^| _f_^1^ ^| _e_^1^ ^| _d_^1^ ^| _c_^1^ ^| _b_^1^ ^| _a_^1^
+16+^| *Less significant pixel index bits*
+^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
+^| _p_^0^ ^| _o_^0^ ^| _n_^0^ ^| _m_^0^ ^| _l_^0^ ^| _k_^0^ ^| _j_^0^ ^| _i_^0^ ^| _h_^0^ ^| _g_^0^ ^| _f_^0^ ^| _e_^0^ ^| _d_^0^ ^| _c_^0^ ^| _b_^0^ ^| _a_^0^
+|====================
+
+<<<
+In both modes, the 4{times}4 block is divided into
+two subblocks of either size 2{times}4 or 4{times}2.
+This is controlled by bit 32, which we call _flip bit_.
+If _flip bit_ = 0, the block is divided into two 2{times}4
+subblocks side-by-side, as shown in <<ETC12x4>>.
+If _flip bit_ = 1,
+the block is divided into two 4{times}2 subblocks on top
+of each other, as shown in <<ETC14x2>>.
+
+[[ETC12x4]]
+.Two 2{times}4-pixel ETC1 subblocks side-by-side
+image::images/ETC2x4.{svgpdf}[width="{svgpdf@pdf:142pt:213}",align="center"]
+
+[[ETC14x2]]
+.Two 4{times}2-pixel ETC1 subblocks on top of each other
+image::images/ETC4x2.{svgpdf}[width="{svgpdf@pdf:142pt:213}",align="center"]
+
+In both individual and differential mode, a _base color_ for each
+subblock is stored, but the way they are stored is different in
+the two modes:
+
+In the `individual' mode (_diff bit_ = 0), the _base color_ for
+subblock 1 is derived from the codewords _R_ (bits 63..60), _G_
+(bits 55..52) and _B_ (bits 47..44), see <<ETC1individual,section a>>
+of <<ETC1format>>.
+These four bit values are extended to _RGB_:888 by replicating the
+four higher order bits in the four lower order bits.
+For instance, if _R_&nbsp;=&nbsp;14&nbsp;=&nbsp;1110b,
+_G_&nbsp;=&nbsp;3&nbsp;=&nbsp;0011b and _B_&nbsp;=&nbsp;8&nbsp;=&nbsp;1000b,
+then the red component of the _base color_ of subblock 1 becomes
+11101110b&nbsp;=&nbsp;238, and the green and blue components become
+00110011b&nbsp;=&nbsp;51 and 10001000b&nbsp;=&nbsp;136.
+The _base color_ for subblock 2 is decoded the same way, but using
+the 4-bit codewords _R_~2~ (bits 59..56), _G_~2~ (bits 51..48) and _B_~2~
+(bits 43..40) instead.
+In summary, the _base colors_ for the subblocks in the individual
+mode are:
+
+[latexmath]
+++++++
+\begin{align*}
+\mathit{base\ color_{subblock1}} & = \mathit{extend\_4to8bits}(\mathit{R}, \mathit{G}, \mathit{B}) \\
+\mathit{base\ color_{subblock2}} & = \mathit{extend\_4to8bits}(\mathit{R}_2, \mathit{G}_2, \mathit{B}_2)
+\end{align*}
+++++++
+
+In the `differential' mode (_diff bit_ = 1), the _base color_ for
+subblock 1 is derived from the five-bit codewords _R_,
+_G_ and _B_.
+These five-bit codewords are extended to eight bits by
+replicating the top three highest-order bits to the three lowest
+order bits.
+For instance, if _R&nbsp;_=&nbsp;28&nbsp;=&nbsp;11100b, the resulting
+eight-bit red color component becomes 11100111b&nbsp;=&nbsp;231.
+Likewise, if _G&nbsp;_=&nbsp;4&nbsp;=&nbsp;00100b and
+_B&nbsp;_=&nbsp;3&nbsp;=&nbsp;00011b, the green and blue components become
+00100001b&nbsp;=&nbsp;33 and 00011000b&nbsp;=&nbsp;24 respectively.
+Thus, in this example, the _base color_ for subblock 1
+is (231,&nbsp;33,&nbsp;24). The five-bit representation for the _base color_
+of subblock 2 is obtained by modifying the five-bit codewords
+_R_, _G_ and _B_ by the codewords _R_~d~, _G_~d~ and _B_~d~.
+Each of _R_~d~, _G_~d~ and _B_~d~ is a three-bit two's-complement number that
+can hold values between -4 and {plus}3.
+For instance, if _R_=&nbsp;28 as above, an
+_R_~d~&nbsp;=&nbsp;100b&nbsp;=&nbsp;-4, then the five-bit representation for
+the red color component is 28{plus}(-4)&nbsp;=&nbsp;24&nbsp;=&nbsp;11000b,
+which is then extended to eight bits, to 11000110b&nbsp;=&nbsp;198.
+Likewise, if _G&nbsp;_=&nbsp;4, _G_~d~&nbsp;=&nbsp;2,
+_B_&nbsp;=&nbsp;3 and _B_~d~&nbsp;=&nbsp;0, the _base color_ of
+subblock 2 will be _RGB&nbsp;_=&nbsp;(198,&nbsp;49,&nbsp;24).
+In summary, the _base colors_ for the subblocks in the differential
+mode are:
+
+[latexmath]
+++++++
+\begin{align*}
+\mathit{base\ color_{subblock1}} & = \mathit{extend\_5to8bits}(\mathit{R}, \mathit{G}, \mathit{B}) \\
+\mathit{base\ color_{subblock2}} & = \mathit{extend\_5to8bits}(\mathit{R}+\mathit{R}_\mathrm{d}, \mathit{G}+\mathit{G}_\mathrm{d}, \mathit{B}+\mathit{B}_\mathrm{d})
+\end{align*}
+++++++
+
+Note that these additions are not allowed to under- or overflow
+(go below zero or above 31). (The compression scheme can easily
+make sure they don't.) For over- or underflowing values, the
+behavior is undefined for all pixels in the 4{times}4 block. Note also
+that the extension to eight bits is performed _after_ the
+addition.
+
+After obtaining the base color, the operations are the same for
+the two modes `individual' and `differential'. First a table is
+chosen using the table codewords: For subblock 1, table codeword 1
+is used (bits 39..37), and for subblock 2, table codeword 2 is used
+(bits 36..34), see <<ETC1format>>. The table codeword is used to
+select one of eight modifier tables, see <<ETC1modifiersets>>. For
+instance, if the table code word is 010b = 2, then the modifier
+table [-29,{nbsp}-9,&nbsp;9,&nbsp;29] is selected.
+Note that the values in <<ETC1modifiersets>> are valid for all
+textures and can therefore be hardcoded into the decompression unit.
+
+Next, we identify which _modifier_ value to use from the modifier
+table using the two `pixel index' bits. The pixel index bits are
+unique for each pixel. For instance, the pixel index for pixel _d_
+(see <<ETC1layout>>) can be found in bits 19 (most significant bit,
+MSB), and 3 (least significant bit, LSB), see <<ETC1sharedbits,section c>> of
+<<ETC1format>>. Note
+that the pixel index for a particular texel is always stored in
+the same bit position, irrespectively of bits _diff bit_ and
+_flip bit_. The pixel index bits are decoded using <<ETC1modifiermapping>>.
+If, for instance, the pixel index bits are 01b = 1, and
+the modifier table [-29,&nbsp;-9,&nbsp;9,&nbsp;29] is used, then the modifier
+value selected for that pixel is 29 (see <<ETC1modifiermapping>>). This
+modifier value is now used to additively modify the base
+color. For example, if we have the base color (231,&nbsp;8,&nbsp;16), we
+should add the modifier value 29 to all three components:
+(231{plus}29,&nbsp;8{plus}29,&nbsp;16{plus}29) resulting in
+(260,&nbsp;37,&nbsp;45). These values are then
+clamped to [0..255], resulting in the color
+(255,&nbsp;37,&nbsp;45), and we are finished decoding the texel.
+
+[[ETC1modifiersets]]
+.Intensity modifier sets for ETC1 compressed textures
+[cols="2,1,1,1,1",width="48%"]
+|==============
+^| *_Table codeword_* 4+^.^| *Modifier table*
+^|          0       >|   -8 &nbsp; >|  -2 &nbsp; >|  2 &nbsp; >|   8 &nbsp;
+^|          1       >|  -17 &nbsp; >|  -5 &nbsp; >|  5 &nbsp; >|  17 &nbsp;
+^|          2       >|  -29 &nbsp; >|  -9 &nbsp; >|  9 &nbsp; >|  29 &nbsp;
+^|          3       >|  -42 &nbsp; >| -13 &nbsp; >| 13 &nbsp; >|  42 &nbsp;
+^|          4       >|  -60 &nbsp; >| -18 &nbsp; >| 18 &nbsp; >|  60 &nbsp;
+^|          5       >|  -80 &nbsp; >| -24 &nbsp; >| 24 &nbsp; >|  80 &nbsp;
+^|          6       >| -106 &nbsp; >| -33 &nbsp; >| 33 &nbsp; >| 106 &nbsp;
+^|          7       >| -183 &nbsp; >| -47 &nbsp; >| 47 &nbsp; >| 183 &nbsp;
+|==============
+
+[[ETC1modifiermapping]]
+.Mapping from pixel index values to modifier values for ETC1 compressed textures
+[cols="1,1,3",width="50%"]
+|============
+2+^| *_Pixel index_ value* .2+^.^| *Resulting modifier value*
+^| *MSB* ^| *LSB*
+^| 1 ^| 1 | &nbsp; -b (large negative value)
+^| 1 ^| 0 | &nbsp; -a (small negative value)
+^| 0 ^| 0 | &nbsp; {plus}a (small positive value)
+^| 0 ^| 1 | &nbsp; {plus}b (large positive value)
+|============
+
+[NOTE]
+====
+ETC1 is a proper subset of ETC2.
+There are examples of ``<<etc2-individual-example,individual>>'' and
+``<<etc2-differential-example,differential>>'' decoding in <<ETC2>>.
+====
+
+[[ETC1S]]
+=== ETC1S
+
+The ETC1S format is a subset the ETC1, simplified to facilitate image
+compression.
+The blocks use differential encoding (_diff bit_ = 1);
+Color deltas _R_~d~ = _G_~d~ = _B_~d~ = 0, so the two subblocks share
+base colors.
+The _Table codeword_ for each subblock is identical.
+Finally, the _flip bit_ is encoded as 0 -- the subsets are identical
+anyway.
