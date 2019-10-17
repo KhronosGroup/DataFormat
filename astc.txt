@@ -1637,19 +1637,18 @@ C~0~ and C~1~ are then interpolated to produce a UNORM16 result C:
 C = floor( (C0*(64-i) + C1*i + 32)/64 )
 -----
 
-
 If sRGB conversion is not enabled and the decoding mode is decode_float16,
 then if C = 65535 the final result is 1.0 (0x3C00); otherwise C is
 divided by 65536 and the infinite-precision result of the division is
 converted to FP16 with round-to-zero semantics.
 
 If sRGB conversion is not enabled and the decoding mode is decode_unorm8,
-then the top 8 bits of the interpolation result for the _R_, _G_, _B_ and
-_A_ channels are used as the final result.
+then the top 8 bits of the interpolation result for the _R_, _G_, _B_
+and _A_ channels are used as the final result.
 
 If sRGB conversion is not enabled and the decoding mode is decode_rgb9e5,
 then the final result is a combination of the (UNORM16) values of C
-for the three color components (C~r~, C~g~ and C~b~) computed as follows:
+for the three color components (_C~r~_, _C~g~_ and _C~b~_) computed as follows:
 
 -----
 int lz = clz17(Cr | Cg | Cb | 1);
@@ -1667,10 +1666,10 @@ uint32_t texel = (exponent << 27) | (Cb << 18) | Cg << 9) | Cr;
 The ++clz17()++ function counts leading zeroes in a 17-bit value.
 
 if sRGB conversion is enabled, then the decoding mode is ignored
-and the top 8 bits of the interpolation result for the R, G and B
-channels  are passed to the external sRGB conversion block and
+and the top 8 bits of the interpolation result for the _R_, _G_ and _B_
+channels are passed to the external sRGB conversion block and
 used as the final result.
-The A channel uses the decode_float16 decoding mode.
+The _A_ channel uses the decode_float16 decoding mode.
 
 For HDR endpoint modes, color values are represented in a 12-bit
 pseudo-logarithmic representation, and interpolation occurs in a
@@ -1703,8 +1702,8 @@ is +Inf or NaN, it is converted to the bit pattern 0x7BFF, which is the
 largest representable finite value.
 
 If the decoding mode is decode_rgb9e5, then the final result is a
-combination fo the (IEEE FP16) values of C~f~ for the three color
-components (C~r~, C~g~ and C~b~) computed as follows:
+combination fo the (IEEE FP16) values of C~f~ for the three color components
+(_C~r~_, _C~g~_ and _C~b~_) computed as follows:
 
 -----
 if( Cr > 0x7c00 ) Cr = 0; else if( Cr == 0x7c00 ) Cr = 0x7bff;

@@ -1,0 +1,530 @@
+// Copyright (c) 2017-2019 The Khronos Group Inc.
+// Copyright notice at https://www.khronos.org/registry/speccopyright.html
+
+[[CONVERSION_QUANTIZATION]]
+== Quantization schemes
+
+The formulae in the previous sections are described in
+terms of operations on continuous values. These values are
+typically represented by quantized integers. There are standard
+encodings for representing some color models within a given bit
+depth range.
+
+[[QUANTIZATION_NARROW]]
+=== ``Narrow range'' encoding
+
+ITU broadcast standards typically reserve values at the ends of
+the representable integer range for rounding errors and for
+signal control data. The nominal range of representable values
+between these limits is represented by the following encodings,
+for bit depth _n_ = {8,&nbsp;10,&nbsp;12}:
+
+[latexmath]
+++++++
+\begin{align*}
+\mathit{DG}'      & = \lfloor 0.5 + (219\times G' + 16)\times 2^{n-8}\rfloor
+&\mathit{DB}'      & = \lfloor 0.5 + (219\times B' + 16)\times 2^{n-8}\rfloor \\
+&&\mathit{DR}'      & = \lfloor 0.5 + (219\times R' + 16)\times 2^{n-8}\rfloor \\
+\mathit{DY}'      & = \lfloor 0.5 + (219\times Y' + 16)\times 2^{n-8}\rfloor
+&\mathit{DC}'_B    & = \lfloor 0.5 + (224\times C'_B + 128)\times 2^{n-8}\rfloor \\
+&&\mathit{DC}'_R    & = \lfloor 0.5 + (224\times C'_R + 128)\times 2^{n-8}\rfloor \\
+\mathit{DY}'_C    & = \lfloor 0.5 + (219\times Y'_C + 16)\times 2^{n-8}\rfloor
+&\mathit{DC}'_\mathit{CB} & = \lfloor 0.5 + (224\times C'_\mathit{CB} + 128)\times 2^{n-8}\rfloor \\
+&&\mathit{DC}'_\mathit{CR} & = \lfloor 0.5 + (224\times C'_\mathit{CR} + 128)\times 2^{n-8}\rfloor \\
+\mathit{DI}       & = \lfloor 0.5 + (219\times I + 16)\times 2^{n-8}\rfloor
+&\mathit{DC}'_T    & = \lfloor 0.5 + (224\times C'_T + 128)\times 2^{n-8}\rfloor \\
+&&\mathit{DC}'_P    & = \lfloor 0.5 + (224\times C'_P + 128)\times 2^{n-8}\rfloor
+\end{align*}
+++++++
+
+The dequantization formulae are therefore:
+[latexmath]
+++++++
+\begin{align*}
+G'      & = {{{\mathit{DG}'\over{2^{n-8}}} - 16}\over{219}} &
+Y'      & = {{{\mathit{DY}'\over{2^{n-8}}} - 16}\over{219}} &
+Y'_C    & = {{{\mathit{DY}_C'\over{2^{n-8}}} - 16}\over{219}} &
+I       & = {{{\mathit{DI}'\over{2^{n-8}}} - 16}\over{219}} \\
+B'      & = {{{\mathit{DB}'\over{2^{n-8}}} - 16}\over{219}} &
+C'_B    & = {{{\mathit{DC}'_B\over{2^{n-8}}} - 128}\over{224}} &
+C'_\mathit{CB} & = {{{\mathit{DC}'_\mathit{CB}\over{2^{n-8}}} - 128}\over{224}} &
+C'_T    & = {{{\mathit{DC}'_T\over{2^{n-8}}} - 128}\over{224}} \\
+R'      & = {{{\mathit{DR}'\over{2^{n-8}}} - 16}\over{219}} &
+C'_R    & = {{{\mathit{DC}'_R\over{2^{n-8}}} - 128}\over{224}} &
+C'_\mathit{CR} & = {{{\mathit{DC}'_\mathit{CR}\over{2^{n-8}}} - 128}\over{224}} &
+C'_P    & = {{{\mathit{DC}'_P\over{2^{n-8}}} - 128}\over{224}}
+\end{align*}
+++++++
+
+For consistency with latexmath:[$Y'_CC'_\mathit{BC}C'_\mathit{RC}$], these
+formulae use the <<bt2020,BT.2020>> and <<b2100,BT.2100>> terminology of
+prefixing a _D_ to represent the digital quantized encoding of a numerical
+value.
+
+<<<
+That is, in ``narrow range'' encoding:
+
+[options="header",cols="18%,34%,48%"]
+|======
+| Value | Continuous encoding value | Quantized encoding
+| Black |
+{_R&prime;_,
+_G&prime;_,
+_B&prime;_,
+_Y&prime;_,
+latexmath:[$Y'_C$],
+_I_} =
+0.0
+|
+{_DR&prime;_,
+_DG&prime;_,
+_DB&prime;_,
+_DY&prime;_,
+latexmath:[$\mathit{DY}'_C$],
+_DI_} =
+latexmath:[$16 \times 2^{n-8}$]
+| Peak brightness |
+{_R&prime;_,
+_G&prime;_,
+_B&prime;_,
+_Y&prime;_,
+latexmath:[$Y'_C$],
+_I_} =
+1.0
+|
+{_DR&prime;_,
+_DG&prime;_,
+_DB&prime;_,
+_DY&prime;_,
+latexmath:[$\mathit{DY}'_C$],
+_DI_} =
+latexmath:[$235 \times 2^{n-8}$]
+| Minimum color difference value |
+{latexmath:[$C'_B$],
+latexmath:[$C'_R$],
+latexmath:[$C'_\mathit{BC}$],
+latexmath:[$C'_\mathit{RC}$],
+_C~T~_,
+_C~P~_} =
+-0.5
+|
+{latexmath:[$\mathit{DC}'_B$],
+latexmath:[$\mathit{DC}'_R$],
+latexmath:[$\mathit{DC}'_\mathit{BC}$],
+latexmath:[$\mathit{DC}'_\mathit{CR}$],
+_DC~T~_,
+_DC~P~_} =
+latexmath:[$16 \times 2^{n-8}$]
+| Maximum color difference value |
+{latexmath:[$C'_B$],
+latexmath:[$C'_R$],
+latexmath:[$C'_\mathit{BC}$],
+latexmath:[$C'_\mathit{RC}$],
+_C~T~_,
+_C~P~_} =
+0.5
+|
+{latexmath:[$\mathit{DC}'_B$],
+latexmath:[$\mathit{DC}'_R$],
+latexmath:[$\mathit{DC}'_\mathit{BC}$],
+latexmath:[$\mathit{DC}'_\mathit{CR}$],
+_DC~T~_,
+_DC~P~_} =
+latexmath:[$240 \times 2^{n-8}$]
+| Achromatic colors |
+_R&prime;_ = _G&prime;_ = _B&prime;_
+
+{latexmath:[$C'_B$],
+latexmath:[$C'_R$],
+latexmath:[$C'_\mathit{BC}$],
+latexmath:[$C'_\mathit{RC}$],
+_C~T~_,
+_C~P~_} =
+0.0
+|
+{latexmath:[$\mathit{DC}'_B$],
+latexmath:[$\mathit{DC}'_R$],
+latexmath:[$\mathit{DC}'_\mathit{BC}$],
+latexmath:[$\mathit{DC}'_\mathit{CR}$],
+_DC~T~_,
+_DC~P~_} =
+latexmath:[$128 \times 2^{n-8}$]
+|======
+
+If, instead of the quantized values, the input is interpreted as fixed-point
+values in the range 0.0..1.0, as might be the case if the values were treated
+as unsigned normalized quantities in a computer graphics API, the following
+conversions can be applied instead:
+
+[latexmath]
+++++++
+\begin{align*}
+G'      & = {{{G'_{\mathit{norm}}\times{2^{n-1}}} - 16\times{2^{n-8}}}\over{219\times 2^{n-8}}} &
+B'      & = {{{B'_{\mathit{norm}}\times{2^{n-1}}} - 16\times{2^{n-8}}}\over{219\times 2^{n-8}}} \\
+&&R'      & = {{{R'_{\mathit{norm}}\times{2^{n-1}}} - 16\times{2^{n-8}}}\over{219\times 2^{n-8}}} \\
+Y'      & = {{{Y'_{\mathit{norm}}\times{2^{n-1}}} - 16\times{2^{n-8}}}\over{219\times 2^{n-8}}} &
+C'_B    & = {{{\mathit{DC}'_{\mathit{Bnorm}}\times{2^{n-1}}} - 128\times 2^{n-8}}\over{224\times 2^{n-8}}} \\
+&&C'_R    & = {{{\mathit{DC}'_{\mathit{Rnorm}}\times{2^{n-1}}} - 128\times 2^{n-8}}\over{224\times 2^{n-8}}} \\
+Y'_C    & = {{{Y'_{\mathit{Cnorm}}\times{2^{n-1}}} - 16\times{2^{n-8}}}\over{219\times 2^{n-8}}} &
+C'_\mathit{CB} & = {{{\mathit{DC}'_{CBnorm}\times{2^{n-1}}} - 128\times 2^{n-8}}\over{224\times 2^{n-8}}} \\
+&&C'_\mathit{CR} & = {{{\mathit{DC}'_{\mathit{CRnorm}}\times{2^{n-1}}} - 128\times 2^{n-8}}\over{224\times 2^{n-8}}} \\
+I       & = {{{I'_{\mathit{norm}}\times{2^{n-1}}} - 16\times{2^{n-8}}}\over{219\times 2^{n-8}}} &
+C'_T    & = {{{\mathit{DC}'_{\mathit{Tnorm}}\times{2^{n-1}}} - 128\times 2^{n-8}}\over{224\times 2^{n-8}}} \\
+&&C'_P    & = {{{\mathit{DC}'_{\mathit{Pnorm}}\times{2^{n-1}}} - 128\times 2^{n-8}}\over{224\times 2^{n-8}}} \\
+G'_\mathit{norm}    & = {{{G'\times{219\times 2^{n-8}}} + 16\times{2^{n-8}}}\over{2^{n-1}}} &
+B'_\mathit{norm}    & = {{{B'\times{219\times 2^{n-8}}} + 16\times{2^{n-8}}}\over{2^{n-1}}} \\
+&&R'_\mathit{norm}    & = {{{R'\times{219\times 2^{n-8}}} + 16\times{2^{n-8}}}\over{2^{n-1}}} \\
+Y'_\mathit{norm}    & = {{{Y'\times{219\times 2^{n-8}}} + 16\times{2^{n-8}}}\over{2^{n-1}}} &
+C'_\mathit{Bnorm}   & = {{{\mathit{DC}'_B\times{224\times ^{n-8}}} + 128\times 2^{n-8}}\over{2^{n-1}}} \\
+&&C'_\mathit{Rnorm}   & = {{{\mathit{DC}'_R\times{224\times ^{n-8}}} + 128\times 2^{n-8}}\over{2^{n-1}}} \\
+Y'_\mathit{Cnorm}   & = {{{Y'_C\times{219\times 2^{n-8}}} + 16\times{2^{n-8}}}\over{2^{n-1}}} &
+C'_\mathit{CBnorm}  & = {{{\mathit{DC}'_\mathit{CB}\times{224\times ^{n-8}}} + 128\times 2^{n-8}}\over{2^{n-1}}} \\
+&&C'_\mathit{CRnorm}  & = {{{\mathit{DC}'_\mathit{CR}\times{224\times ^{n-8}}} + 128\times 2^{n-8}}\over{2^{n-1}}} \\
+I_\mathit{norm}     & = {{{I\times{219\times 2^{n-8}}} + 16\times{2^{n-8}}}\over{2^{n-1}}} &
+C'_\mathit{Tnorm}   & = {{{\mathit{DC}'_{T}\times{224\times ^{n-8}}} + 128\times 2^{n-8}}\over{2^{n-1}}} \\
+&&C'_\mathit{Pnorm}   & = {{{\mathit{DC}'_{P}\times{224\times ^{n-8}}} + 128\times 2^{n-8}}\over{2^{n-1}}}
+\end{align*}
+++++++
+
+
+[[QUANTIZATION_FULL]]
+=== ``Full range'' encoding
+
+<<bt2100,ITU-T Rec. BT.2100>>-1 and the current <<jfif,Rec. T.871>> JFIF
+specification define the following quantization scheme that does
+not incorporate any reserved head-room or foot-room, which is optional
+and described as ``full range'' in BT.2100, and integral to Rec. T.871.
+
+NOTE: Both these specifications modify a definition used in previous versions
+of their specifications, which is described <<QUANTIZATION_LEGACY_FULL,below>>.
+
+For bit depth _n_ = {8 (JFIF),10,12 (Rec.2100)}:
+
+[latexmath]
+++++++
+\begin{align*}
+\mathit{DG}'        & = \textrm{Round}\left(G'\times (2^n-1)\right) &
+\mathit{DB}'        & = \textrm{Round}\left(B'\times (2^n-1)\right) \\
+&&\mathit{DR}'      & = \textrm{Round}\left(R'\times (2^n-1)\right) \\
+\mathit{DY}'        & = \textrm{Round}\left(Y'\times (2^n-1)\right) &
+\mathit{DC}'_B      & = \textrm{Round}\left(C'_B\times (2^n-1) + 2^{n-1}\right) \\
+&&\mathit{DC}'_R    & = \textrm{Round}\left(C'_R\times (2^n-1) + 2^{n-1}\right) \\
+\mathit{DY}'_C      & = \textrm{Round}\left(Y'_C\times (2^n-1)\right) &
+\mathit{DC}'_\mathit{CB}   & = \textrm{Round}\left(C'_\mathit{CB}\times (2^n-1) + 2^{n-1}\right) \\
+&&\mathit{DC}'_\mathit{CR} & = \textrm{Round}\left(C'_\mathit{CR}\times (2^n-1) + 2^{n-1}\right) \\
+\mathit{DI}         & = \textrm{Round}\left(I\times (2^n-1)\right) &
+\mathit{DC}'_T      & = \textrm{Round}\left(C'_T\times (2^n-1) + 2^{n-1}\right) \\
+&&\mathit{DC}'_P    & = \textrm{Round}\left(C'_P\times (2^n-1) + 2^{n-1}\right)
+\end{align*}
+++++++
+
+<<bt2100,BT.2100>>-1 defines Round() as:
+
+[latexmath]
+++++++
+\begin{align*}
+\textrm{Round}(x) &= \textrm{Sign}(x)\times\lfloor|x| + 0.5\rfloor \\
+\textrm{Sign}(x) &= \begin{cases}
+1, & x > 0 \\
+0, & x = 0 \\
+-1, & x < 0
+\end{cases}
+\end{align*}
+++++++
+
+Note that a chroma channel value of exactly 0.5 corresponds to a quantized
+encoding of latexmath:[$2^n$], and must therefore be clamped to the nominal
+peak value of latexmath:[$2^n-1$].
+<<QUANTIZATION_NARROW,Narrow-range encoding>> does not have this problem.
+A chroma channel value of -0.5 corresponds to a quantized encoding of 1,
+which is the nominal minimum peak value.
+
+In <<jfif,Rec. T.871>> (which defines only n = 8), the corresponding
+formula is:
+
+[latexmath]
+++++++
+\begin{align*}
+\textrm{Round}(x) &= \textrm{Clamp}(\lfloor|x| + 0.5\rfloor) \\
+\textrm{clamp}(x) &= \begin{cases}
+255, & x > 255 \\
+0, & x < 0 \\
+x, & \textrm{otherwise}
+\end{cases}
+\end{align*}
+++++++
+
+Allowing for the clamping at a chroma value of 0.5, these formulae are
+equivalent across the expected -0.5..0.5 range for chroma and 0.0..1.0
+range for luma values.
+
+The dequantization formulae are therefore:
+
+[latexmath]
+++++++
+\begin{align*}
+G'      & = {\mathit{DG}'\over{2^n - 1}} &
+Y'      & = {\mathit{DY}'\over{2^n - 1}} &
+Y'_C    & = {\mathit{DY}_C'\over{2^n - 1}} &
+I       & = {\mathit{DI}'\over{2^n - 1}} \\
+B'      & = {\mathit{DB}'\over{2^n - 1}} &
+C'_B    & = {\mathit{DC}'_B - 2^{n-1}\over{2^n - 1}} &
+C'_\mathit{CB} & = {\mathit{DC}'_\mathit{CB} - 2^{n-1}\over{2^n - 1}} &
+C'_T    & = {\mathit{DC}'_T - 2^{n-1}\over{2^n - 1}} \\
+R'      & = {\mathit{DR}'\over{2^n - 1}} &
+C'_R    & = {\mathit{DC}'_R - 2^{n-1}\over{2^n - 1}} &
+C'_\mathit{CR} & = {\mathit{DC}'_\mathit{CR} - 2^{n-1}\over{2^n - 1}} &
+C'_P    & = {\mathit{DC}'_P - 2^{n-1}\over{2^n - 1}}
+\end{align*}
+++++++
+
+<<<
+That is, in ``full range'' encoding:
+
+[options="header",cols="18%,34%,48%"]
+|======
+| Value | Continuous encoding value | Quantized encoding
+| Black |
+{_R&prime;_,
+_G&prime;_,
+_B&prime;_,
+_Y&prime;_,
+latexmath:[$Y'_C$],
+_I_} =
+0.0
+|
+{_DR&prime;_,
+_DG&prime;_,
+_DB&prime;_,
+_DY&prime;_,
+latexmath:[$\mathit{DY}'_C$],
+_DI_} =
+0
+| Peak brightness |
+{_R&prime;_,
+_G&prime;_,
+_B&prime;_,
+_Y&prime;_,
+latexmath:[$Y'_C$],
+_I_} =
+1.0
+|
+{_DR&prime;_,
+_DG&prime;_,
+_DB&prime;_,
+_DY&prime;_,
+latexmath:[$\mathit{DY}'_C$],
+_DI_} =
+2^_n_^ - 1
+| Minimum color difference value |
+{latexmath:[$C'_B$],
+latexmath:[$C'_R$],
+latexmath:[$C'_\mathit{BC}$],
+latexmath:[$C'_\mathit{RC}$],
+_C~T~_,
+_C~P~_} =
+-0.5
+|
+{latexmath:[$\mathit{DC}'_B$],
+latexmath:[$\mathit{DC}'_R$],
+latexmath:[$\mathit{DC}'_\mathit{BC}$],
+latexmath:[$\mathit{DC}'_\mathit{CR}$],
+_DC~T~_,
+_DC~P~_} =
+1
+| Maximum color difference value |
+{latexmath:[$C'_B$],
+latexmath:[$C'_R$],
+latexmath:[$C'_\mathit{BC}$],
+latexmath:[$C'_\mathit{RC}$],
+_C~T~_,
+_C~P~_} =
+0.5
+|
+{latexmath:[$\mathit{DC}'_B$],
+latexmath:[$\mathit{DC}'_R$],
+latexmath:[$\mathit{DC}'_\mathit{BC}$],
+latexmath:[$\mathit{DC}'_\mathit{CR}$],
+_DC~T~_,
+_DC~P~_} =
+latexmath:[$2^n - 1$]
+
+(clamped)
+| Achromatic colors |
+_R&prime;_ = _G&prime;_ = _B&prime;_
+
+{latexmath:[$C'_B$],
+latexmath:[$C'_R$],
+latexmath:[$C'_\mathit{BC}$],
+latexmath:[$C'_\mathit{RC}$],
+_C~T~_,
+_C~P~_} =
+0.0
+|
+{latexmath:[$\mathit{DC}'_B$],
+latexmath:[$\mathit{DC}'_R$],
+latexmath:[$\mathit{DC}'_\mathit{BC}$],
+latexmath:[$\mathit{DC}'_\mathit{CR}$],
+_DC~T~_,
+_DC~P~_} =
+2^_n_-1^
+|======
+
+If, instead of the quantized values, the input is interpreted as fixed-point
+values in the range 0.0..1.0, as might be the case if the values were treated
+as unsigned normalized quantities in a computer graphics API, the following
+conversions can be applied instead:
+
+[latexmath]
+++++++
+\begin{align*}
+G'      & = G'_{\mathit{norm}} &
+B'      & = B'_{\mathit{norm}} \\
+&&R'      & = R'_{\mathit{norm}} \\
+Y'      & = Y'_{\mathit{norm}} &
+C'_B    & = \mathit{DC}'_{\mathit{Bnorm}} - {2^{n-1}\over{2^n - 1}} \\
+&&C'_R    & = \mathit{DC}'_{\mathit{Rnorm}} - {2^{n-1}\over{2^n - 1}} \\
+Y'_C    & = Y'_{\mathit{Cnorm}} &
+C'_\mathit{CB} & = \mathit{DC}'_{\mathit{CBnorm}} - {2^{n-1}\over{2^n - 1}} \\
+&&C'_\mathit{CR} & = \mathit{DC}'_{\mathit{CRnorm}} - {2^{n-1}\over{2^n - 1}} \\
+I       & = I'_{\mathit{norm}} &
+C'_T    & = \mathit{DC}'_{\mathit{Tnorm}} - {2^{n-1}\over{2^n - 1}} \\
+&&C'_P    & = \mathit{DC}'_{\mathit{Pnorm}} - {2^{n-1}\over{2^n - 1}} \\
+G'_{\mathit{norm}}    & = G' &
+B'_{\mathit{norm}}    & = B' \\
+&&R'_{\mathit{norm}}    & = R' \\
+Y'_{\mathit{norm}}    & = Y' &
+C'_{\mathit{Bnorm}}   & = \mathit{DC}'_B + {2^{n-1}\over{2^n - 1}} \\
+&&C'_{\mathit{Rnorm}}   & = \mathit{DC}'_R + {2^{n-1}\over{2^n - 1}} \\
+Y'_{\mathit{Cnorm}}   & = Y'_C &
+C'_{\mathit{CBnorm}}  & = \mathit{DC}'_\mathit{CB} + {2^{n-1}\over{2^n - 1}} \\
+&&C'_{\mathit{CRnorm}}  & = \mathit{DC}'_\mathit{CR} + {2^{n-1}\over{2^n - 1}} \\
+I_{\mathit{norm}}     & = I &
+C'_{\mathit{Tnorm}}   & = \mathit{DC}'_{T} + {2^{n-1}\over{2^n - 1}} \\
+&&C'_{\mathit{Pnorm}}   & = \mathit{DC}'_{P} + {2^{n-1}\over{2^n - 1}}
+\end{align*}
+++++++
+
+<<<
+[[QUANTIZATION_LEGACY_FULL]]
+=== Legacy ``full range'' encoding.
+
+<<bt2100,ITU-T Rec. BT.2100>>-0 formalized an optional encoding scheme that does
+not incorporate any reserved head-room or foot-room.
+The legacy <<jfif,JFIF specification>> similarly used the full range of 8-bit
+channels to represent latexmath:[$Y'C_BC_R$] color.
+For bit depth _n_ = {8 (JFIF),10,12 (Rec.2100)}:
+
+[latexmath]
+++++++
+\begin{align*}
+\mathit{DG}'      & = \lfloor 0.5 + G'\times 2^n\rfloor &
+\mathit{DB}'      & = \lfloor 0.5 + B'\times 2^n\rfloor \\
+&&\mathit{DR}'      & = \lfloor 0.5 + R'\times 2^n\rfloor \\
+\mathit{DY}'      & = \lfloor 0.5 + Y'\times 2^n\rfloor &
+\mathit{DC}'_B    & = \lfloor 0.5 + (C'_B + 0.5)\times 2^n\rfloor \\
+&&\mathit{DC}'_R    & = \lfloor 0.5 + (C'_R + 0.5)\times 2^n\rfloor \\
+\mathit{DY}'_C    & = \lfloor 0.5 + Y'_C\times 2^n\rfloor &
+\mathit{DC}'_\mathit{CB} & = \lfloor 0.5 + (C'_\mathit{CB} + 0.5)\times 2^n\rfloor \\
+&&\mathit{DC}'_\mathit{CR} & = \lfloor 0.5 + (C'_\mathit{CR} + 0.5)\times 2^n\rfloor \\
+\mathit{DI}       & = \lfloor 0.5 + I\times 2^n\rfloor &
+\mathit{DC}'_T    & = \lfloor 0.5 + (C'_T + 0.5)\times 2^n\rfloor \\
+&&\mathit{DC}'_P    & = \lfloor 0.5 + (C'_P + 0.5)\times 2^n\rfloor
+\end{align*}
+++++++
+
+The dequantization formulae are therefore:
+
+[latexmath]
+++++++
+\begin{align*}
+G'      & = \mathit{DG}'\times 2^{-n} &
+Y'      & = \mathit{DY}'\times 2^{-n} &
+Y'_C    & = \mathit{DY}_C'\times 2^{-n} &
+I       & = \mathit{DI}'\times 2^{-n} \\
+B'      & = \mathit{DB}'\times 2^{-n} &
+C'_B    & = \mathit{DC}'_B\times 2^{-n}-0.5 &
+C'_\mathit{CB} & = \mathit{DC}'_\mathit{CB}\times 2^{-n}-0.5 &
+C'_T    & = \mathit{DC}'_T\times 2^{-n}-0.5 \\
+R'      & = \mathit{DR}'\times 2^{-n} &
+C'_R    & = \mathit{DC}'_R\times 2^{-n}-0.5 &
+C'_\mathit{CR} & = \mathit{DC}'_\mathit{CR}\times 2^{-n}-0.5 &
+C'_P    & = \mathit{DC}'_P\times 2^{-n}-0.5
+\end{align*}
+++++++
+
+NOTE: These formulae map luma values of 1.0 and chroma values of 0.5
+to latexmath:[$2^n$], for bit depth latexmath:[$n$].
+This has the effect that the maximum value (e.g. pure white) cannot
+be represented directly.
+Out-of-bounds values must be clamped to the largest representable
+value.
+
+NOTE: ITU-R BT.2100-0 dictates that in 12-bit coding, the largest
+values encoded should be 4092 (``for consistency'' with 10-bit
+encoding, with a maximum value of 1023).
+This slightly reduces the maximum intensity which can be expressed,
+and slightly reduces the saturation range.
+The achromatic color point is still 2048 in the 12-bit case, so
+no offset is applied in the transformation to compensate for this
+range reduction.
+
+If, instead of the quantized values, the input is interpreted as fixed-point
+values in the range 0.0..1.0, as might be the case if the values were treated
+as unsigned normalized quantities in a computer graphics API, the following
+conversions can be applied instead:
+
+[latexmath]
+++++++
+\begin{align*}
+G'      & = {{G'_{\mathit{norm}}\times (2^n-1)}\over{2^n}} &
+B'      & = {{B'_{\mathit{norm}}\times (2^n-1)}\over{2^n}} &
+R'      & = {{R'_{\mathit{norm}}\times (2^n-1)}\over{2^n}} \\
+Y'      & = {{Y'_{\mathit{norm}}\times (2^n-1)}\over{2^n}} &
+C'_B    & = {{C'_{\mathit{Bnorm}}\times (2^n-1)}\over{2^n}} - 0.5 &
+C'_R    & = {{C'_{\mathit{Rnorm}}\times (2^n-1)}\over{2^n}} - 0.5 \\
+Y'_C    & = {{Y_{\mathit{Cnorm}}'\times (2^n-1)}\over{2^n}} &
+C'_\mathit{CB} & = {{C'_{\mathit{CBnorm}}\times (2^n-1)}\over{2^n}} - 0.5 &
+C'_\mathit{CR} & = {{C'_{\mathit{CRnorm}}\times (2^n-1)}\over{2^n}} - 0.5 \\
+I       & = {{I'_{\mathit{norm}}\times (2^n-1)}\over{2^n}} &
+C'_T    & = {{C'_{\mathit{Tnorm}}\times (2^n-1)}\over{2^n}} - 0.5 &
+C'_P    & = {{C'_{\mathit{Pnorm}}\times (2^n-1)}\over{2^n}} - 0.5
+\end{align*}
+++++++
+
+[latexmath]
+++++++
+\begin{align*}
+G_{norm}'   & = {{G'\times 2^n}\over{2^n-1}} &
+B_{norm}'   & = {{B'\times 2^n}\over{2^n-1}} &
+R_{norm}'   & = {{R'\times 2^n}\over{2^n-1}} \\
+Y_{norm}'   & = {{Y'\times 2^n}\over{2^n-1}} &
+C'_{\mathit{Bnorm}}  & = {{(C'_{B} + 0.5)\times 2^n}\over{2^n-1}} &
+C'_{\mathit{Rnorm}}  & = {{(C'_{R} + 0.5)\times 2^n}\over{2^n-1}} \\
+Y'_{\mathit{Cnorm}}  & = {{Y_{C}'\times 2^n}\over{2^n-1}} &
+C'_{\mathit{CBnorm}} & = {{(C'_\mathit{CB} + 0.5)\times 2^n}\over{2^n-1}} &
+C'_{\mathit{CRnorm}} & = {{(C'_\mathit{CR} + 0.5)\times 2^n}\over{2^n-1}} \\
+I_{\mathit{norm}}    & = {{I'\times 2^n}\over{2^n-1}} &
+C'_{\mathit{Tnorm}}  & = {{(C'_{T} + 0.5)\times 2^n}\over{2^n-1}} &
+C'_{\mathit{Pnorm}}  & = {{(C'_{P} + 0.5)\times 2^n}\over{2^n-1}}
+\end{align*}
+++++++
+
+That is, to match the behavior described in these specifications,
+the inputs to color model conversion should be expanded such that
+the maximum representable value is that defined by the quantization
+of these encodings
+latexmath:[$\left({255\over 256},\ {1023\over 1024}\ \textrm{or}\ {4095\over 4096}\right)$],
+and the inverse operation should be applied to the result of the model
+conversion.
+
+For example, a legacy shader-based JPEG decoder may read values
+in a normalized 0..1 range, where the in-memory value 0 represents
+0.0 and the in-memory value 1 represents 1.0.
+The decoder should scale the _Y&prime;_ value by a factor of
+latexmath:[$255\over 256$] to match the encoding in the <<jfif,JFIF3>>
+document, and latexmath:[$C'_B$] and _C~R~_ should be scaled by
+latexmath:[$255\over 256$] and offset by 0.5.
+After the model conversion matrix has been applied, the _R&prime;_,
+_G&prime;_ and _B&prime;_ values should be scaled by
+latexmath:[$256\over 255$], restoring the ability to represent pure white.

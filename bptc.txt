@@ -65,7 +65,7 @@ BC6H format will reference significant sections of the BC7 description.
 
 Each 4{times}4 block of texels consists of 128 bits of _RGBA_
 image data, of which the _RGB_ channels may be encoded linearly or with the
-<<srgbgamma,sRGB transfer function>>.
+<<TRANSFER_SRGB,sRGB transfer function>>.
 
 Each block contains enough information to select and decode a number of
 colors called endpoints, pairs of which forms subsets, then to
@@ -737,7 +737,7 @@ this interpolated color is remapped according to <<BPTCRotation>>.
 
 These 8-bit values should be interpreted as _RGBA_ 8-bit normalized channels,
 either linearly encoded (by multiplying by latexmath:[$1\over 255$]) or
-with the <<srgbgamma,sRGB transfer function>>.
+with the <<TRANSFER_SRGB,sRGB transfer function>>.
 
 <<<
 

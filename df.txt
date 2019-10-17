@@ -1,7 +1,7 @@
 // Copyright (c) 2014-2019 The Khronos Group Inc.
 // Copyright notice at https://www.khronos.org/registry/speccopyright.html
 ifdef::a2xhtml[]
-= Khronos Data Format Specification v1.1 rev 9 =
+= Khronos Data Format Specification v1.2 rev 1 =
 endif::[]
 [abstract]
 
@@ -14,7 +14,8 @@ excluding useful information that may be ignored by other standards.
 Other APIs are expected to map internal formats to this standard scheme,
 allowing formats to be shared and compared. This document also acts as
 a reference for the memory layout of a number of common compressed
-texture formats.
+texture formats, and describes conversion between a number of common
+color spaces.
 
 // Symbols...
 :times: ×
@@ -87,7 +88,8 @@ used in Khronos standards is diverse, and a significant portion of this
 specification is devoted to color formats.
 
 Later sections provide a description of the memory layout of a number of
-common texture compression formats.
+common texture compression formats, and describe some of the common
+color space conversions.
 
 == Overview ==
 
@@ -105,9 +107,9 @@ The ``bulk data'' may be, for example:
 * Vertex data
 * A buffer of simple type
 
-The layout of proprietary data structures is beyond the remit of this specification,
-but the large number of ways to describe colors, vertices and other repeated
-data makes standardization useful.
+The layout of proprietary data structures is beyond the remit of this
+specification, but the large number of ways to describe colors, vertices
+and other repeated data makes standardization useful.
 
 The data structure in this specification describes the elements in the
 bulk data in memory, not the layout of the whole.
@@ -188,7 +190,8 @@ particularly for pixels. Formats which cannot be described within this scheme
 can use additional descriptor blocks of other types as necessary.
 
 Later sections of this specification provide a description of the in-memory
-representation of a number of common compressed texture formats.
+representation of a number of common compressed texture formats, and
+describe several common color spaces.
 
 === Glossary ===
 
@@ -597,13 +600,13 @@ consisting of four _Y&prime;_ samples and one sample each of _C~B~_ and _C~R~_.
 |================================
 | &nbsp; Byte 0 (LSB) | &nbsp; Byte 1 | &nbsp; Byte 2 | &nbsp; Byte 3 (MSB)
 2+| &nbsp; 0 (*_vendorId_*) 2+| &nbsp; 0 (*_descriptorType_*)
-2+| &nbsp; 0 (*_versionNumber_*) 2+| &nbsp; 24 + 16 {times} _#samples_ (*_descriptorBlockSize_*)
+2+| &nbsp; 1 (*_versionNumber_*) 2+| &nbsp; 24 + 16 {times} _#samples_ (*_descriptorBlockSize_*)
 | &nbsp; *_colorModel_* | &nbsp; *_colorPrimaries_* | &nbsp; *_transferFunction_* | &nbsp; *_flags_* 
 | &nbsp; *_texelBlockDimension0_* | &nbsp; *_texelBlockDimension1_* | &nbsp; *_texelBlockDimension2_* | &nbsp; *_texelBlockDimension3_*
 | &nbsp; *_bytesPlane0_* | &nbsp; *_bytesPlane1_* | &nbsp; *_bytesPlane2_* | &nbsp; *_bytesPlane3_*
 | &nbsp; *_bytesPlane4_* | &nbsp; *_bytesPlane5_* | &nbsp; *_bytesPlane6_* | &nbsp; *_bytesPlane7_*
-4+| &nbsp; _Sample information for first sample_
-4+| &nbsp; _Sample information for second sample (optional), etc._
+4+| &nbsp; _Sample information for the first sample_
+4+| &nbsp; _Sample information for the second sample (optional), etc._
 |================================
 
 The fields of the Basic Data Format Descriptor Block are described in
@@ -624,7 +627,7 @@ a value reserved in the enum of Khronos-specific descriptor types,
 === *_versionNumber_* ===
 
 The *_versionNumber_* relating to the Basic Data Format Descriptor Block
-as described in this specification is 0.
+as described in this specification is 1.
 
 === *_descriptorBlockSize_* ===
 
@@ -723,7 +726,8 @@ These formats are distinguished by _C~B~_ and _C~R~_ being a delta between
 the _Y&prime;_ channel and the blue and red channels respectively, rather
 than requiring a full color matrix.
 The conversion between _Y&prime;C~B~C~R~_ and _RGB_ color spaces is defined
-in this case by the choice of value in the *_colorPrimaries_* field.
+in this case by the choice of value in the *_colorPrimaries_* field as
+described in <<MODEL_YUV>>.
 
 NOTE: Most single-channel luma/luminance monochrome data formats should
 select *++KHR_DF_MODEL_YUVSDA++* and use only the _Y_ channel, unless there is
@@ -751,7 +755,7 @@ subtracting two of the color channels from this monochrome value. Proper names
 vary for each variant of the ensuing numbers, but _YUV_ is colloquially used
 for all of them. In the television standards from which this terminology is
 derived, _Y&prime;C~B~C~R~_ is more formally used to describe the representation
-of these color differences.
+of these color differences. See <<MODEL_YUV>> for more detail.
 
 ==== *++KHR_DF_MODEL_YIQSDA++* (= 3) ====
 
@@ -875,6 +879,7 @@ wheel.
 ^| 15 2+| &nbsp; *++KHR_DF_CHANNEL_HSLA_ANG_ALPHA++* | &nbsp; Alpha (opacity)
 |================================
 
+<<<
 ==== *++KHR_DF_MODEL_HSVA_HEX++* (= 9) ====
 
 This color model represents color differences with three channels,
@@ -895,7 +900,6 @@ extremes on a color hexagon.
 ^| 15 2+| &nbsp; *++KHR_DF_CHANNEL_HSVA_HEX_ALPHA++* | &nbsp; Alpha (opacity)
 |================================
 
-<<<
 ==== *++KHR_DF_MODEL_HSLA_HEX++* (= 10) ====
 
 This color model represents color differences with three channels,
@@ -935,7 +939,78 @@ supplemented by a channel for alpha, as shown in <<YCoCgAChannels>>.
 |================================
 
 <<<
+==== *++KHR_DF_MODEL_YCCBCCRC++* (= 12) ====
 
+This color model represents the ``Constant luminance''
+latexmath:[$Y'_CC'_\mathit{BC}C'_\mathit{RC}$] color model defined as an
+optional representation in ITU-T BT.2020 and described in <<MODEL_YCCBCCRC>>.
+
+[[YCBCCRCChannels]]
+.Basic Data Format _Y&prime;~C~C&prime;~BC~C&prime;~RC~_ channels
+[width="100%",options="header"]
+|================================
+^| Channel number 2+| &nbsp; Name | &nbsp; Description
+^| 0 2+| &nbsp; *++KHR_DF_CHANNEL_YCCBCCRC_YC++* | &nbsp; latexmath:[$Y'_C$] (luminance)
+^| 1 2+| &nbsp; *++KHR_DF_CHANNEL_YCCBCCRC_CBC++* | &nbsp; latexmath:[$C'_\mathit{BC}$]
+^| 2 2+| &nbsp; *++KHR_DF_CHANNEL_YCCBCCRC_CRC++* | &nbsp; latexmath:[$C'_\mathit{RC}$]
+^| 13 2+| &nbsp; *++KHR_DF_CHANNEL_YCCBCCRC_STENCIL++* | &nbsp; Stencil
+^| 14 2+| &nbsp; *++KHR_DF_CHANNEL_YCCBCCRC_DEPTH++* | &nbsp; Depth
+^| 15 2+| &nbsp; *++KHR_DF_CHANNEL_YCCBCCRC_ALPHA++* | &nbsp; Alpha (opacity)
+|================================
+
+==== *++KHR_DF_MODEL_ICTCP++* (= 13) ====
+
+This color model represents the ``Constant intensity
+_IC~T~C~P~_ color model'' defined as an optional
+representation in ITU-T BT.2100 and described in <<MODEL_ICTCP>>.
+
+[[ICTCPChannels]]
+.Basic Data Format _IC~T~C~P~_ channels
+[width="100%",options="header"]
+|================================
+^| Channel number 2+| &nbsp; Name | &nbsp; Description
+^| 0 2+| &nbsp; *++KHR_DF_CHANNEL_ICTCP_I++* | &nbsp; _I_ (intensity)
+^| 1 2+| &nbsp; *++KHR_DF_CHANNEL_ICTCP_CT++* | &nbsp; _C~T~_
+^| 2 2+| &nbsp; *++KHR_DF_CHANNEL_ICTCP_CP++* | &nbsp; _C~P~_
+^| 13 2+| &nbsp; *++KHR_DF_CHANNEL_ICTCP_STENCIL++* | &nbsp; Stencil
+^| 14 2+| &nbsp; *++KHR_DF_CHANNEL_ICTCP_DEPTH++* | &nbsp; Depth
+^| 15 2+| &nbsp; *++KHR_DF_CHANNEL_ICTCP_ALPHA++* | &nbsp; Alpha (opacity)
+|================================
+
+<<<
+==== *++KHR_DF_MODEL_CIEXYZ++* (= 14) ====
+
+This color model represents channel data used to describe
+color coordinates in the <<ciexyc,CIE 1931 XYZ>> coordinate
+space, as shown in <<CIEXYZChannels>>.
+
+[[CIEXYZChannels]]
+.Basic Data Format CIE _XYZ_ channels
+[width="100%",options="header"]
+|================================
+^| Channel number 2+| &nbsp; Name | &nbsp; Description
+^| 0 2+| &nbsp; *++KHR_DF_CHANNEL_CIEXYZ_X++* | &nbsp; _X_
+^| 1 2+| &nbsp; *++KHR_DF_CHANNEL_CIEXYZ_Y++* | &nbsp; _Y_
+^| 2 2+| &nbsp; *++KHR_DF_CHANNEL_CIEXYZ_Z++* | &nbsp; _Z_
+|================================
+
+==== *++KHR_DF_MODEL_CIEXYY++* (= 15) ====
+
+This color model represents channel data used to describe
+chromaticity coordinates in the <<ciexyc,CIE 1931 xyY>> coordinate
+space, as shown in <<CIEXYYChannels>>.
+
+[[CIEXYYChannels]]
+.Basic Data Format CIE _xyY_ channels
+[width="100%",options="header"]
+|================================
+^| Channel number 2+| &nbsp; Name | &nbsp; Description
+^| 0 2+| &nbsp; *++KHR_DF_CHANNEL_CIEXYZ_X++* | &nbsp; _x_
+^| 1 2+| &nbsp; *++KHR_DF_CHANNEL_CIEXYZ_YCHROMA++* | &nbsp; _y_
+^| 2 2+| &nbsp; *++KHR_DF_CHANNEL_CIEXYZ_YLUMA++* | &nbsp; _Y_
+|================================
+
+<<<
 === *_colorModel_* for compressed formats ===
 
 A number of compressed formats are supported as part of *++khr_df_model_e++*.
@@ -1056,6 +1131,8 @@ of the data, but a subset of common primary spaces can be identified
 by the *++khr_df_primaries_e++* enumeration, represented as an unsigned 8-bit
 integer value.
 
+More information about color primaries is provided in <<PRIMARY_CONVERSION>>.
+
 ==== *++KHR_DF_PRIMARIES_UNSPECIFIED++* (= 0) ====
 
 This ``set of primaries'' identifies a data representation whose color
@@ -1072,11 +1149,17 @@ description in an extension block.
 ==== *++KHR_DF_PRIMARIES_BT709++* (= 1) ====
 
 This value represents the Color Primaries defined by the
-<<bt709,ITU-R BT.709 specification>>, which are also shared by sRGB.
+<<bt709,ITU-R BT.709 specification>> and described in <<PRIMARIES_BT709>>,
+which are also shared by sRGB.
 
 _RGB_ data is distinguished between BT.709 and sRGB by the Transfer Function.
 Conversion to and from BT.709 _Y&prime;C~B~C~R~_ (_YUV_) representation uses the
-color conversion matrix defined in the <<bt709,BT.709>> specification.
+color conversion matrix defined in the <<bt709,BT.709>> specification, and described
+in <<MODEL_BT709>>, except in the case of sYCC (which can be distinguished
+by the use of the sRGB transfer function), in which case conversion to and
+from BT.709 _Y&prime;C~B~C~R~_ representation uses the color conversion
+matrix defined in the <<bt601,BT.601>> specification, and described
+in <<MODEL_BT601>>.
 This is the preferred set of color primaries used by HDTV and sRGB, and likely
 a sensible default set of color primaries for common rendering operations.
 
@@ -1086,24 +1169,25 @@ a sensible default set of color primaries for common rendering operations.
 
 This value represents the Color Primaries defined in the
 <<bt601,ITU-R BT.601 specification>> for standard-definition television,
-particularly for 625-line signals.
+particularly for 625-line signals, and described in <<PRIMARIES_BT601_EBU>>.
 Conversion to and from BT.601 _Y&prime;C~B~C~R~_ (_YUV_) typically uses the color conversion
-matrix defined in the <<bt601,BT.601 specification>>.
+matrix defined in the BT.601 specification and described in <<MODEL_BT601>>.
 
 ==== *++KHR_DF_PRIMARIES_BT601_SMPTE++* (= 3) ====
 
 This value represents the Color Primaries defined in the
 <<bt601,ITU-R BT.601 specification>> for standard-definition television,
-particularly for 525-line signals.
+particularly for 525-line signals, and described in <<PRIMARIES_BT601_SMPTE>>.
 Conversion to and from BT.601 _Y&prime;C~B~C~R~_ (_YUV_) typically uses the color conversion
-matrix defined in the BT.601 specification.
+matrix defined in the BT.601 specification and described in <<MODEL_BT601>>.
 
 ==== *++KHR_DF_PRIMARIES_BT2020++* (= 4) ====
 
 This value represents the Color Primaries defined in the
-<<bt2020,ITU-R BT.2020 specification>> for ultra-high-definition television.
-Conversion to and from BT.2020 _Y&prime;C~B~C~R~_ (_YUV_) uses the color
-conversion matrix defined in the BT.2020 specification.
+<<bt2020,ITU-R BT.2020 specification>> for ultra-high-definition television
+and described in <<PRIMARIES_BT2020>>. Conversion to and from BT.2020 _Y&prime;C~B~C~R~_
+(_YUV_ uses the color conversion matrix defined in the BT.2020 specification
+and described in <<MODEL_BT2020>>.
 
 ==== *++KHR_DF_PRIMARIES_CIEXYZ++* (= 5) ====
 
@@ -1114,8 +1198,37 @@ color space.
 ==== *++KHR_DF_PRIMARIES_ACES++* (= 6) ====
 
 This value represents the Color Primaries defined
-for the <<aces,Academy Color Encoding System>>.
+for the <<aces,Academy Color Encoding System>> and
+described in <<PRIMARIES_ACES>>.
 
+==== *++KHR_DF_PRIMARIES_ACESCC++* (= 7) ====
+
+This value represents the Color Primaries defined
+for the <<aces,Academy Color Encoding System>>
+compositor and described in <<PRIMARIES_ACESCC>>.
+
+==== *++KHR_DF_PRIMARIES_NTSC1953++* (= 8) ====
+
+This value represents the Color Primaries defined for the
+NTSC 1953 color television transmission standard and described
+in <<PRIMARIES_NTSC>>.
+
+==== *++KHR_DF_PRIMARIES_PAL525++* (= 9) ====
+
+This value represents the Color Primaries defined for
+525-line PAL signals, described in <<PRIMARIES_PAL525>>.
+
+==== *++KHR_DF_PRIMARIES_DISPLAYP3++* (= 10) ====
+
+This value represents the Color Primaries defined for
+the Display P3 color space, described in <<PRIMARIES_DISPLAYP3>>.
+
+==== *++KHR_DF_PRIMARIES_ADOBERGB++* (= 11) ====
+
+This value represents the Color Primaries defined in
+<<adobergb,Adobe RGB (1998)>>, described in <<PRIMARIES_ADOBERGB>>.
+
+<<<
 === *_transferFunction_* ===
 
 Many color representations contain a non-linear _transfer function_
@@ -1164,61 +1277,23 @@ the intensity of additive colors. This transfer function allows for
 blending and filtering operations to be applied directly to the data
 values.
 
-[[srgbgamma]]
 ==== *++KHR_DF_TRANSFER_SRGB++* (= 2) ====
 
 This value represents the non-linear transfer function defined in
 the <<srgb,sRGB specification>> for mapping between numerical pixel values
-and intensity.
-
-That is, the conversion from linear latexmath:[$(R, G, B)$] encoding
-to nonlinear latexmath:[$(R', G', B')$] encoding is:
-
-[latexmath]
-++++++
-  $$R' = \begin{cases}
-      R \times 12.92, & R \leq 0.0031308 \\
-      1.055 \times R^{1\over 2.4} - 0.055, & R > 0.0031308
-  \end{cases}$$
-  $$G' = \begin{cases}
-      G \times 12.92, & G \leq 0.0031308 \\
-      1.055 \times G^{1\over 2.4} - 0.055, & G > 0.0031308
-  \end{cases}$$
-  $$B' = \begin{cases}
-      B \times 12.92, & B \leq 0.0031308 \\
-      1.055 \times B^{1\over 2.4} - 0.055, & B > 0.0031308
-  \end{cases}$$
-++++++
-
-<<<
-The corresponding conversion from nonlinear latexmath:[$(R', G', B')$] encoding
-to linear latexmath:[$(R, G, B)$] encoding is:
-
-[latexmath]
-++++++
-  $$R = \begin{cases}
-      {R' \over 12.92}, & R' \leq 0.04045 \\
-      \left({R' + 0.055} \over 1.055\right)^{2.4}, & R' > 0.04045
-  \end{cases}$$
-  $$G = \begin{cases}
-      {G' \over 12.92}, & G' \leq 0.04045 \\
-      \left({G' + 0.055} \over 1.055\right)^{2.4}, & G' > 0.04045
-  \end{cases}$$
-  $$B = \begin{cases}
-      {B' \over 12.92}, & B' \leq 0.04045 \\
-      \left({B' + 0.055} \over 1.055\right)^{2.4}, & B' > 0.04045
-  \end{cases}$$
-++++++
+and intensity. This is described in <<TRANSFER_SRGB>>.
 
 ==== *++KHR_DF_TRANSFER_ITU++* (= 3) ====
 
 This value represents the non-linear transfer function defined by
 the ITU and used in the BT.601, BT.709 and BT.2020 specifications.
+This is described in <<TRANSFER_ITU>>.
 
 ==== *++KHR_DF_TRANSFER_NTSC++* (= 4) ====
 
 This value represents the non-linear transfer function defined by
 the original NTSC television broadcast specification.
+This is described in <<TRANSFER_LEGACY_NTSC>>.
 
 NOTE: More recent formulations of this transfer functions, such as that
 defined in SMPTE 170M-2004, use it ITU formulation described above.
@@ -1226,12 +1301,82 @@ defined in SMPTE 170M-2004, use it ITU formulation described above.
 ==== *++KHR_DF_TRANSFER_SLOG++* (= 5) ====
 
 This value represents a nonlinear Transfer Function used by some
-Sony video cameras to represent an increased dynamic range.
+Sony video cameras to represent an increased dynamic range,
+and is described in <<TRANSFER_SLOG>>.
 
 ==== *++KHR_DF_TRANSFER_SLOG2++* (= 6) ====
 
 This value represents a nonlinear Transfer Function used by some
-Sony video cameras to represent a further increased dynamic range.
+Sony video cameras to represent a further increased dynamic range,
+and is described in <<TRANSFER_SLOG2>>.
+
+==== *++KHR_DF_TRANSFER_BT1886++* (= 7) ====
+
+This value represents the nonlinear OETF defined in <<bt1886,BT.1886>>
+and described in <<TRANSFER_BT1886>>.
+
+==== *++KHR_DF_TRANSFER_HLG_OETF++* (= 8) ====
+
+This value represents the Hybrid Log Gamma OETF
+defined by the ITU in BT.2100 for high dynamic range television,
+and described in <<TRANSFER_HLG>>.
+
+==== *++KHR_DF_TRANSFER_HLG_EOTF++* (= 9) ====
+
+This value represents the Hybrid Log Gamma OETF
+defined by the ITU in BT.2100 for high dynamic range television,
+and described in <<TRANSFER_HLG>>.
+
+==== *++KHR_DF_TRANSFER_PQ_EOTF++* (= 10) ====
+
+This value represents the Perceptual Quantization EOTF
+defined by the ITU in BT.2100 for high dynamic range television,
+and described in <<TRANSFER_PQ>>.
+
+==== *++KHR_DF_TRANSFER_PQ_OETF++* (= 11) ====
+
+This value represents the Perceptual Quantization EOTF
+defined by the ITU in BT.2100 for high dynamic range television,
+and described in <<TRANSFER_PQ>>.
+
+==== *++KHR_DF_TRANSFER_DCIP3++* (= 12) ====
+
+This value represents the transfer function defined in DCI P3
+and described in <<TRANSFER_DCIP3>>.
+
+==== *++KHR_DF_TRANSFER_PAL_OETF++* (= 13) ====
+
+This value represents the OETF for legacy PAL systems described
+in <<TRANSFER_LEGACY_PAL_OETF>>.
+
+==== *++KHR_DF_TRANSFER_PAL625_EOTF++* (= 14) ====
+
+This value represents the EOTF for legacy 625-line PAL systems
+described in <<TRANSFER_LEGACY_PAL_EOTF>>.
+
+==== *++KHR_DF_TRANSFER_ST240++* (= 15) ====
+
+This value represents the transfer function associated with the
+legacy ST-240 (SMPTE240M) standard, described in <<TRANSFER_ST240>>.
+
+==== *++KHR_DF_TRANSFER_ACESCC++* (= 16) ====
+
+This value represents the nonlinear Transfer Function used in
+the ACEScc Academy Color Encoding System logarithmic encoding system
+for use within Color Grading Systems, S-2014-003, defined in
+<<aces>>. This is described in <<TRANSFER_ACESCC>>.
+
+==== *++KHR_DF_TRANSFER_ACESCCT++* (= 17) ====
+
+This value represents the nonlinear Transfer Function used in
+the ACEScc Academy Color Encoding System quasi-logarithmic encoding
+system for use within Color Grading Systems, S-2016-001, defined in
+<<aces>>. This is described in <<TRANSFER_ACESCCT>>.
+
+==== *++KHR_DF_TRANSFER_ADOBERGB++* (= 18) ====
+
+This value represents the transfer function defined in the
+Adobe RGB (1998) specification and described in <<TRANSFER_ADOBERGB>>.
 
 === *_flags_* ===
 
@@ -1675,7 +1820,7 @@ block that contains only the enumeration. The descriptor itself has a
 !=============
 4+^! &nbsp; ~Basic descriptor block~
 2+! &nbsp; 0 (*_vendorId_*) 2+! &nbsp; 0 (*_descriptorType_*)
-2+! &nbsp; 0 (*_versionNumber_*) 2+! &nbsp; 40 (*_descriptorBlockSize_*)
+2+! &nbsp; 1 (*_versionNumber_*) 2+! &nbsp; 40 (*_descriptorBlockSize_*)
 ! &nbsp; *++RGBSDA++* (*_colorModel_*) ! &nbsp; *++UNSPECIFIED++*
 
 &nbsp; (*_colorPrimaries_*) ! &nbsp; *++UNSPECIFIED++*
@@ -2071,7 +2216,7 @@ in APIs which generate these formats.
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
 4+| 92 (*_totalSize_*)
 2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
-2+| 0 (*_versionNumber_*) 2+| 88 (*_descriptorBlockSize_*)
+2+| 1 (*_versionNumber_*) 2+| 88 (*_descriptorBlockSize_*)
 | *++RGBSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++SRGB++* (*_transferFunction_*) | *++PREMULTIPLIED++* (*_flags_*)
 | 0 (*_texelBlockDimension0_*) | 0 (*_texelBlockDimension1_*) | 0 (*_texelBlockDimension2_*) | 0 (*_texelBlockDimension3_*)
 | 4 (*_bytesPlane0_*) | 0 (*_bytesPlane1_*) | 0 (*_bytesPlane2_*) | 0 (*_bytesPlane3_*)
@@ -2107,7 +2252,7 @@ in APIs which generate these formats.
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
 4+| 76 (*_totalSize_*)
 2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
-2+| 0 (*_versionNumber_*) 2+| 72 (*_descriptorBlockSize_*)
+2+| 1 (*_versionNumber_*) 2+| 72 (*_descriptorBlockSize_*)
 | *++RGBSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++LINEAR++* (*_transferFunction_*) | *++ALPHA_STRAIGHT++* (*_flags_*)
 | 0 (*_texelBlockDimension0_*) | 0 (*_texelBlockDimension1_*) | 0 (*_texelBlockDimension2_*) | 0 (*_texelBlockDimension3_*)
 | 2 (*_bytesPlane0_*) | 0 (*_bytesPlane1_*) | 0 (*_bytesPlane2_*) | 0 (*_bytesPlane3_*)
@@ -2135,7 +2280,7 @@ in APIs which generate these formats.
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
 4+| 44 (*_totalSize_*)
 2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
-2+| 0 (*_versionNumber_*) 2+| 40 (*_descriptorBlockSize_*)
+2+| 1 (*_versionNumber_*) 2+| 40 (*_descriptorBlockSize_*)
 | *++YUVSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++ITU++* (*_transferFunction_*) | *++ALPHA_STRAIGHT++* (*_flags_*)
 | 0 (*_texelBlockDimension0_*) | 0 (*_texelBlockDimension1_*) | 0 (*_texelBlockDimension2_*) | 0 (*_texelBlockDimension3_*)
 | 4 (*_bytesPlane0_*) | 0 (*_bytesPlane1_*) | 0 (*_bytesPlane2_*) | 0 (*_bytesPlane3_*)
@@ -2153,7 +2298,7 @@ in APIs which generate these formats.
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
 4+| 156 (*_totalSize_*)
 2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
-2+| 0 (*_versionNumber_*) 2+| 152 (*_descriptorBlockSize_*)
+2+| 1 (*_versionNumber_*) 2+| 152 (*_descriptorBlockSize_*)
 | *++YUVSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++LINEAR++* (*_transferFunction_*) | *++ALPHA_STRAIGHT++* (*_flags_*)
 | 7 (*_texelBlockDimension0_*) | 0 (*_texelBlockDimension1_*) | 0 (*_texelBlockDimension2_*) | 0 (*_texelBlockDimension3_*)
 | 1 (*_bytesPlane0_*) | 0 (*_bytesPlane1_*) | 0 (*_bytesPlane2_*) | 0 (*_bytesPlane3_*)
@@ -2212,7 +2357,7 @@ in APIs which generate these formats.
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
 4+| 92 (*_totalSize_*)
 2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
-2+| 0 (*_versionNumber_*) 2+| 88 (*_descriptorBlockSize_*)
+2+| 1 (*_versionNumber_*) 2+| 88 (*_descriptorBlockSize_*)
 | *++RGBSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++SRGB++* (*_transferFunction_*) | *++ALPHA_STRAIGHT++* (*_flags_*)
 | 1 (*_texelBlockDimension0_*) | 1 (*_texelBlockDimension1_*) | 0 (*_texelBlockDimension2_*) | 0 (*_texelBlockDimension3_*)
 | 2 (*_bytesPlane0_*) | 2 (*_bytesPlane1_*) | 0 (*_bytesPlane2_*) | 0 (*_bytesPlane3_*)
@@ -2246,7 +2391,7 @@ in APIs which generate these formats.
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
 4+| 108 (*_totalSize_*)
 2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
-2+| 0 (*_versionNumber_*) 2+| 104 (*_descriptorBlockSize_*)
+2+| 1 (*_versionNumber_*) 2+| 104 (*_descriptorBlockSize_*)
 | *++RGBSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++SRGB++* (*_transferFunction_*) | *++PREMULTIPLIED++* (*_flags_*)
 | 0 (*_texelBlockDimension0_*) | 0 (*_texelBlockDimension1_*) | 0 (*_texelBlockDimension2_*) | 0 (*_texelBlockDimension3_*)
 | 0 (*_bytesPlane0_*) | 4 (*_bytesPlane1_*) | 0 (*_bytesPlane2_*) | 0 (*_bytesPlane3_*)
@@ -2286,7 +2431,7 @@ in APIs which generate these formats.
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
 4+| 124 (*_totalSize_*)
 2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
-2+| 0 (*_versionNumber_*) 2+| 120 (*_descriptorBlockSize_*)
+2+| 1 (*_versionNumber_*) 2+| 120 (*_descriptorBlockSize_*)
 | *++YUVSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++ITU++* (*_transferFunction_*) | *++ALPHA_STRAIGHT++* (*_flags_*)
 | 1 (*_texelBlockDimension0_*) | 1 (*_texelBlockDimension1_*) | 0 (*_texelBlockDimension2_*) | 0 (*_texelBlockDimension3_*)
 | 2 (*_bytesPlane0_*) | 2 (*_bytesPlane1_*) | 1 (*_bytesPlane2_*) | 1 (*_bytesPlane3_*)
@@ -2330,7 +2475,7 @@ in APIs which generate these formats.
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
 4+| 92 (*_totalSize_*)
 2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
-2+| 0 (*_versionNumber_*) 2+| 88 (*_descriptorBlockSize_*)
+2+| 1 (*_versionNumber_*) 2+| 88 (*_descriptorBlockSize_*)
 | *++RGBSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++SRGB++* (*_transferFunction_*) | *++ALPHA_STRAIGHT++* (*_flags_*)
 | 0 (*_texelBlockDimension0_*) | 0 (*_texelBlockDimension1_*) | 0 (*_texelBlockDimension2_*) | 0 (*_texelBlockDimension3_*)
 | 2 (*_bytesPlane0_*) | 0 (*_bytesPlane1_*) | 0 (*_bytesPlane2_*) | 0 (*_bytesPlane3_*)
@@ -2364,7 +2509,7 @@ in APIs which generate these formats.
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
 4+| 124 (*_totalSize_*)
 2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
-2+| 0 (*_versionNumber_*) 2+| 120 (*_descriptorBlockSize_*)
+2+| 1 (*_versionNumber_*) 2+| 120 (*_descriptorBlockSize_*)
 | *++RGBSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++LINEAR++* (*_transferFunction_*) | *++ALPHA_STRAIGHT++* (*_flags_*)
 | 0 (*_texelBlockDimension0_*) | 0 (*_texelBlockDimension1_*) | 0 (*_texelBlockDimension2_*) | 0 (*_texelBlockDimension3_*)
 | 4 (*_bytesPlane0_*) | 0 (*_bytesPlane1_*) | 0 (*_bytesPlane2_*) | 0 (*_bytesPlane3_*)
@@ -2413,7 +2558,7 @@ in APIs which generate these formats.
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
 4+| 108 (*_totalSize_*)
 2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
-2+| 0 (*_versionNumber_*) 2+| 104 (*_descriptorBlockSize_*)
+2+| 1 (*_versionNumber_*) 2+| 120 (*_descriptorBlockSize_*)
 | *++RGBSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++LINEAR++* (*_transferFunction_*) | *++ALPHA_STRAIGHT++* (*_flags_*)
 | 0 (*_texelBlockDimension0_*) | 0 (*_texelBlockDimension1_*) | 0 (*_texelBlockDimension2_*) | 0 (*_texelBlockDimension3_*)
 | 1 (*_bytesPlane0_*) | 0 (*_bytesPlane1_*) | 0 (*_bytesPlane2_*) | 0 (*_bytesPlane3_*)
@@ -2451,7 +2596,7 @@ in APIs which generate these formats.
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
 4+| 220 (*_totalSize_*)
 2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
-2+| 0 (*_versionNumber_*) 2+| 216 (*_descriptorBlockSize_*) -- 12 samples
+2+| 1 (*_versionNumber_*) 2+| 216 (*_descriptorBlockSize_*) -- 12 samples
 | *++YUVSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++ITU++* (*_transferFunction_*) | *++ALPHA_STRAIGHT++* (*_flags_*)
 | 5 (*_dimension0_*) | 0 (*_dimension1_*) | 0 (*_dimension2_*) | 0 (*_dimension3_*)
 | 16 (*_bytesPlane0_*) | 0 (*_bytesPlane1_*) | 0 (*_bytesPlane2_*) | 0 (*_bytesPlane3_*)
@@ -2531,7 +2676,7 @@ in APIs which generate these formats.
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
 4+| 92 (*_totalSize_*)
 2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
-2+| 0 (*_versionNumber_*) 2+| 88 (*_descriptorBlockSize_*)
+2+| 1 (*_versionNumber_*) 2+| 88 (*_descriptorBlockSize_*)
 | *++RGBSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++LINEAR++* (*_transferFunction_*) | *++PREMULTIPLIED++* (*_flags_*)
 | 0 (*_texelBlockDimension0_*) | 0 (*_texelBlockDimension1_*) | 0 (*_texelBlockDimension2_*) | 0 (*_texelBlockDimension3_*)
 | 1 (*_bytesPlane0_*) | 0 (*_bytesPlane1_*) | 0 (*_bytesPlane2_*) | 0 (*_bytesPlane3_*)
@@ -2567,7 +2712,7 @@ in APIs which generate these formats.
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
 4+| 76 (*_totalSize_*)
 2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
-2+| 0 (*_versionNumber_*) 2+| 72 (*_descriptorBlockSize_*)
+2+| 1 (*_versionNumber_*) 2+| 72 (*_descriptorBlockSize_*)
 | *++RGBSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++LINEAR++* (*_transferFunction_*) | *++ALPHA_STRAIGHT++* (*_flags_*)
 | 0 (*_texelBlockDimension0_*) | 0 (*_texelBlockDimension1_*) | 0 (*_texelBlockDimension2_*) | 0 (*_texelBlockDimension3_*)
 | 6 (*_bytesPlane0_*) | 0 (*_bytesPlane1_*) | 0 (*_bytesPlane2_*) | 0 (*_bytesPlane3_*)
@@ -2602,7 +2747,7 @@ in APIs which generate these formats.
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
 4+| 76 (*_totalSize_*)
 2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
-2+| 0 (*_versionNumber_*) 2+| 72 (*_descriptorBlockSize_*)
+2+| 1 (*_versionNumber_*) 2+| 72 (*_descriptorBlockSize_*)
 | *++RGBSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++LINEAR++* (*_transferFunction_*) | *++ALPHA_STRAIGHT++* (*_flags_*)
 | 0 (*_texelBlockDimension0_*) | 0 (*_texelBlockDimension1_*) | 0 (*_texelBlockDimension2_*) | 0 (*_texelBlockDimension3_*)
 | 2 (*_bytesPlane0_*) | 0 (*_bytesPlane1_*) | 0 (*_bytesPlane2_*) | 0 (*_bytesPlane3_*)
@@ -2635,7 +2780,7 @@ in APIs which generate these formats.
 | Byte 0 (LSB) | Byte 1 | Byte 2 | Byte 3 (MSB)
 4+| 44 (*_totalSize_*)
 2+| 0 (*_vendorId_*) 2+| 0 (*_descriptorType_*)
-2+| 0 (*_versionNumber_*) 2+| 40 (*_descriptorBlockSize_*)
+2+| 1 (*_versionNumber_*) 2+| 40 (*_descriptorBlockSize_*)
 | *++RGBSDA++* (*_colorModel_*) | *++BT709++* (*_colorPrimaries_*) | *++LINEAR++* (*_transferFunction_*) | *++ALPHA_STRAIGHT++* (*_flags_*)
 | 0 (*_texelBlockDimension0_*) | 0 (*_texelBlockDimension1_*) | 0 (*_texelBlockDimension2_*) | 0 (*_texelBlockDimension3_*)
 | 2 (*_bytesPlane0_*) | 0 (*_bytesPlane1_*) | 0 (*_bytesPlane2_*) | 0 (*_bytesPlane3_*)
@@ -2648,6 +2793,8 @@ in APIs which generate these formats.
 4+| 0xbf80000 (*_sampleLower_*) = -1.0
 4+| 0x3f80000 (*_sampleUpper_*) = 1.0
 |================================
+
+include::conversions.txt[]
 
 include::compformats.txt[]
 
@@ -2664,6 +2811,8 @@ Sean Ellis
 Jan-Harald Fredriksen
 
 Andrew Garrard (editor)
+
+Courtney Goeltzenleuchter
 
 Jonas Gustavsson
 
@@ -2688,6 +2837,8 @@ Hans-Peter Nilsson
 XianQuan Ooi
 
 Alon Or-bach
+
+Jan Outters
 
 Erik Rainey
 

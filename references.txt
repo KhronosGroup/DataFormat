@@ -9,6 +9,10 @@ IEEE Std 754-2008
 http://dx.doi.org/10.1109/IEEESTD.2008.4610935,
 August, 2008. +
 
+*[[ciexyz]]CIE Colorimetry - Part 3: CIE tristimulus values*
+
+link:http://cie.co.at/index.php?i_ca_id=823[http://cie.co.at/index.php?i_ca_id=823] +
+
 *[[bt601]]ITU-R BT.601 Studio encoding parameters of digital television for standard 4:3 and wide-screen 16:9 aspect ratios*
 
 link:http://www.itu.int/rec/R-REC-BT.601/en[http://www.itu.int/rec/R-REC-BT.601/en] +
@@ -20,6 +24,121 @@ link:https://www.itu.int/rec/R-REC-BT.709/en[https://www.itu.int/rec/R-REC-BT.70
 *[[bt2020]]ITU-R BT.2020 Parameter values for ultra-high definition television systems for production and international programme exchange*
 
 link:http://www.itu.int/rec/R-REC-BT.2020/en[http://www.itu.int/rec/R-REC-BT.2020/en] +
+
+*[[bt2100]]ITU-R BT.2100 Image parameter values for high dynamic range television for use in production and international programme exchange*
+
+link:http://www.itu.int/rec/R-REC-BT.2100/en[http://www.itu.int/rec/R-REC-BT.2100/en] +
+
+*[[jfif]]JPEG File Interchange Format (JFIF)*
+
+link:https://www.itu.int/rec/T-REC-T.871/en[https://www.itu.int/rec/T-REC-T.871/en]
+
+Legacy version:
+
+link:https://www.w3.org/Graphics/JPEG/jfif3.pdf[https://www.w3.org/Graphics/JPEG/jfif3.pdf] +
+
+*[[bt1886]]ITU-R BT.1886: Reference electro-optical transfer function for flat panel displays used in HDTV studio production*
+
+https://www.itu.int/rec/R-REC-BT.1886/en[https://www.itu.int/rec/R-REC-BT.1886/en] +
+
+*[[bt2087]]ITU-R BT.2087 Colour conversion from Recommendation ITU-R BT.709 to Recommendation ITU-R BT.2020*
+
+link:http://www.itu.int/rec/R-REC-BT.2087/en[http://www.itu.int/rec/R-REC-BT.2087/en] +
+
+*[[bt2390]]ITU-R BT.2390-1 High dynamic range television for production and international programme exchange*
+
+link:https://www.itu.int/pub/R-REP-BT.2390-5-2018[https://www.itu.int/pub/R-REP-BT.2390-5-2018] +
+
+*[[bt470]]ITU-R BT.470 Conventional analogue television systems*
+
+link:https://www.itu.int/rec/R-REC-BT.470/en[https://www.itu.int/rec/R-REC-BT.470/en]
+
+NOTE: BT.470-6 contains descriptions of analog broadcast systems.
+BT.470-7 deprecates this description in favor of BT.1700.
+
+NOTE: Although this specification is written in English, the countries in Appendix 1
+appear to be listed in alphabetical order as they would have been written in French. +
+
+*[[bt472]]ITU-R BT.472-3: Video-frequency characteristics of a television system to be used for the international exchange of programmes between countries that have adopted 625-line colour or monochrome systems*
+
+link:http://www.itu.int/rec/R-REC-BT.472/en[http://www.itu.int/rec/R-REC-BT.472/en] +
+
+*[[bt1700]]ITU-R BT.1700: Characteristics of composite video signals for conventional analogue television systems*
+
+link:https://www.itu.int/rec/R-REC-BT.1700/en[https://www.itu.int/rec/R-REC-BT.1700/en]
+
+NOTE: This specification includes SMTPE170M-2004 (which describes NTSC)
+along with PAL and NTSC. +
+
+*[[bt2043]]ITU-R BT.2043: Analogue television systems currently in use throughout the world*
+
+link:https://www.itu.int/dms_pub/itu-r/opb/rep/R-REP-BT.2043-2004-PDF-E.pdf[https://www.itu.int/dms_pub/itu-r/opb/rep/R-REP-BT.2043-2004-PDF-E.pdf]
+
+NOTE: Although this specification is written in English, the countries appear to
+be listed in alphabetical order as they would have been written in French.
+
+*[[smpte170m]]SMPTE 170m Composite analog video signal — NTSC for studio applications*
+
+The latest version is available from link:https://www.smpte.org/[https://www.smpte.org/]
+and from the IEEE at:
+
+link:http://ieeexplore.ieee.org/document/7291416/[http://ieeexplore.ieee.org/document/7291416/].
+
+SMPTE 170m-2004 is freely available as part of ITU-R BT.1700 at:
+
+link:https://www.itu.int/rec/R-REC-BT.1700/en[https://www.itu.int/rec/R-REC-BT.1700/en] +
+
+*[[cfr]]FCC 73.682 - TV transmission standards*
+
+link:https://www.gpo.gov/fdsys/search/pagedetails.action?collectionCode=CFR&browsePath=Title+47%2FChapter+I%2FSubchapter+C%2FPart+73%2FSubpart+E%2FSection+73.682&granuleId=CFR-2001-title47-vol4-sec73-682&packageId=CFR-2001-title47-vol4&collapse=true&fromBrowse=true[https://www.gpo.gov/fdsys/search/pagedetails.action?collectionCode=CFR&browsePath=Title+47%2FChapter+I%2FSubchapter+C%2FPart+73%2FSubpart+E%2FSection+73.682&granuleId=CFR-2001-title47-vol4-sec73-682&packageId=CFR-2001-title47-vol4&collapse=true&fromBrowse=true] +
+
+<<<
+*[[st240]]ST 240:1999 - SMPTE Standard - For Television — 1125-Line High-Definition Production Systems — Signal Parameters*
+
+Formerly known as SMPTE240M - interim HDTV standard prior to international
+agreement on BT.709.
+
+Available from the SMPTE and via IEEE:
+
+link:http://ieeexplore.ieee.org/document/7291461/[http://ieeexplore.ieee.org/document/7291461/] +
+
+*[[srgb]]IEC/4WD 61966-2-1: Colour measurement and management in multimedia systems and equipment - part 2-1: default RGB colour space - sRGB*
+
+link:https://webstore.iec.ch/publication/6169[https://webstore.iec.ch/publication/6169 (specification)]
+
+link:http://www.w3.org/Graphics/Color/srgb[http://www.w3.org/Graphics/Color/srgb] +
+
+*[[scrgb]]IEC 61966-2-2:2003: Multimedia systems and equipment -- Colour measurement and management -- Part 2-2: Colour management -- Extended RGB colour space -- scRGB*
+
+link:https://www.iso.org/standard/35876.html[https://www.iso.org/standard/35876.html]
+
+link:http://webstore.iec.ch/webstore/webstore.nsf/artnum/029678[http://webstore.iec.ch/webstore/webstore.nsf/artnum/029678]
+
+link:http://www.color.org/chardata/rgb/scrgb.xalter[http://www.color.org/chardata/rgb/scrgb.xalter]
+
+link:https://webstore.iec.ch/preview/info_iec61966-2-2%7Bed1.0%7Den.pdf[https://webstore.iec.ch/preview/info_iec61966-2-2%7Bed1.0%7Den.pdf]
+
+A working draft is freely available at link:https://web.archive.org/web/20110725185444/http://www.colour.org/tc8-05/Docs/colorspace/61966-2-2NPa.pdf[https://web.archive.org/web/20110725185444/http://www.colour.org/tc8-05/Docs/colorspace/61966-2-2NPa.pdf].
+
+link:http://www.color.org/sycc.pdf[http://www.color.org/sycc.pdf] - sYCC (the latexmath:[$Y'C_BC_R$] variant of sRGB)
+
+link:https://webstore.iec.ch/corrigenda/iec61966-2-2-cor1%7Bed1.0%7Den.pdf[https://webstore.iec.ch/corrigenda/iec61966-2-2-cor1%7Bed1.0%7Den.pdf]
+- Annex B: Non-linear encoding for scRGB : scRGB-nl and its YCC Transformation: scYCC-nl +
+
+*[[dcip3]]DCI P3 color space*
+
+ * SMPTE 428-1: D-Cinema Distribution Master — Image Characteristics +
+   link:http://ieeexplore.ieee.org/document/7290876/[http://ieeexplore.ieee.org/document/7290876/]
+ * SMPTE EG 432-1: Digital Source Processing — Color Processing for D-Cinema +
+   link:http://ieeexplore.ieee.org/document/7289763/[http://ieeexplore.ieee.org/document/7289763/]
+ * SMPTE RP 431-2: D-Cinema Quality — Reference Projector and Environment +
+   link:http://ieeexplore.ieee.org/document/7290729/[http://ieeexplore.ieee.org/document/7290729/]
+
+The latest version is available from link:https://www.smpte.org/[https://www.smpte.org/]
+
+link:https://developer.apple.com/reference/coregraphics/cgcolorspace/1408916-displayp3[
+https://developer.apple.com/reference/coregraphics/cgcolorspace/1408916-displayp3]
+describes Apple's Display P3 color space. +
 
 *[[aces]]Academy Color Encoding System*
 
@@ -40,8 +159,16 @@ within Color Grading Systems]
 link:http://j.mp/S-2016-001_[ACEScct — A Quasi-Logarithmic Encoding of ACES Data
 for use within Color Grading Systems] +
 
-*[[srgb]]IEC/4WD 61966-2-1: Colour measurement and management in multimedia systems and equipment - part 2-1: default RGB colour space - sRGB*
+*[[slog]]Sony S-Log*
 
-link:https://webstore.iec.ch/publication/6169[https://webstore.iec.ch/publication/6169 (specification)]
+link:https://pro.sony.com/bbsccms/assets/files/mkt/cinema/solutions/slog_manual.pdf[https://pro.sony.com/bbsccms/assets/files/mkt/cinema/solutions/slog_manual.pdf] - S-Log description
 
-link:http://www.w3.org/Graphics/Color/srgb[http://www.w3.org/Graphics/Color/srgb] +
+link:https://pro.sony.com/bbsccms/assets/files/micro/dmpc/training/S-Log2_Technical_PaperV1_0.pdf[https://pro.sony.com/bbsccms/assets/files/micro/dmpc/training/S-Log2_Technical_PaperV1_0.pdf] - S-Log2 description
+
+link:http://www.sony.co.uk/pro/support/attachment/1237494271390/1237494271406/technical-summary-for-s-gamut3-cine-s-log3-and-s-gamut3-s-log3.pdf[http://www.sony.co.uk/pro/support/attachment/1237494271390/1237494271406/technical-summary-for-s-gamut3-cine-s-log3-and-s-gamut3-s-log3.pdf] - S-Log3 description +
+
+*[[adobergb]]Adobe RGB (1998)*
+
+link:https://www.adobe.com/digitalimag/pdfs/AdobeRGB1998.pdf[https://www.adobe.com/digitalimag/pdfs/AdobeRGB1998.pdf]
+
+link:https://www.adobe.com/digitalimag/adobergb.html[https://www.adobe.com/digitalimag/adobergb.html]

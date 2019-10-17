@@ -201,4 +201,20 @@ Khronos, SYCL, SPIR, WebGL, EGL, COLLADA, StreamInput, OpenVX, OpenKCam, glTF, O
 &nbsp;Typo fixes and much reformatting&nbsp;
 </revremark>
 </revision>
+<revision>
+<revnumber>1.2 rev 0</revnumber>
+<date>&nbsp;Sep 2017&nbsp;</date>
+<authorinitials>AG</authorinitials>
+<revremark>
+&nbsp;Added color conversion formulae and extra options&nbsp;
+</revremark>
+</revision>
+<revision>
+<revnumber>1.2 rev 1</revnumber>
+<date>&nbsp;Mar 2019&nbsp;</date>
+<authorinitials>AG</authorinitials>
+<revremark>
+&nbsp;Typo fixes and much reformatting&nbsp;
+</revremark>
+</revision>
 </revhistory>

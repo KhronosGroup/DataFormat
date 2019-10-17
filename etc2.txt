@@ -783,7 +783,7 @@ follows that of floating point _RGB_ values of linear RGB ETC2.
 The result is sRGB-encoded values between 0.0 and 1.0.
 The further conversion from an sRGB encoded component _cs_
 to a linear component _cl_ is done according to the formulae
-in <<srgbgamma>>.
+in <<TRANSFER_SRGB>>.
 Assume _cs_ is the sRGB component in the range [0,&nbsp;1].
 
 === Format RGBA ETC2
@@ -936,7 +936,7 @@ Decompression of floating point sRGB values in RGBA ETC2 with sRGB encoding
 follows that of floating point _RGB_ values of linear RGBA ETC2. The
 result is sRGB values between 0.0 and 1.0.
 The further conversion from an sRGB encoded component _cs_ to a linear
-component _cl_ is according to the formula in <<srgbgamma>>. Assume
+component _cl_ is according to the formula in <<TRANSFER_SRGB>>. Assume
 _cs_ is the sRGB component in the range [0,&nbsp;1].
 
 The alpha component of RGBA ETC2 with sRGB encoding is done in the
@@ -1862,6 +1862,6 @@ RGB ETC2 with sRGB encoding and punchthrough alpha follows that of floating poin
 _RGB_ values of RGB ETC2 with punchthrough alpha. The result is
 sRGB values between 0.0 and 1.0. The further conversion from an sRGB
 encoded component, _cs_, to a linear component, _cl_, is according to
-the formula in <<srgbgamma>>. Assume _cs_ is the sRGB component in the range
+the formula in <<TRANSFER_SRGB>>. Assume _cs_ is the sRGB component in the range
 [0,&nbsp;1]. Note that the alpha component is not gamma corrected,
 and hence does not use this formula.
