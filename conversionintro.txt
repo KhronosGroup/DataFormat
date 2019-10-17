@@ -136,7 +136,9 @@ and the operations needed to generate a different set of
 _Y&prime;C~B~C~R~_ values representing the color of the sample
 position in a different color space:
 
-image::images/colorconversion_accurate.{svgpdf}[title="Example sampling in one space and converting to a different space",width="{svgpdf@pdf:475pt:576}",align="center"]
+[[conversionexample]]
+.Example sampling in one space and converting to a different space
+image::images/colorconversion_accurate.{svgpdf}[width="{svgpdf@pdf:475pt:576}",align="center"]
 
 In this diagram, non-linear luma _Y&prime;_ channels are shown
 in black and white, color difference _C~B~_/_C~R~_
@@ -159,7 +161,7 @@ shown only to indicate relative alignment of the coordinates.
 
 <<<
 
-The stages numbered in the above diagram show the following operations:
+The stages numbered in <<conversionexample>> show the following operations:
 
 . Arranging the channels from the representation correctly for the
   conversion operations (a ``swizzle'').
@@ -260,10 +262,12 @@ replication (nearest-neighbor filtering) rather than interpolation.
 
 <<<
 
-An approximation to the above conversion is depicted in the following
-diagram:
+An approximation to the conversion described in <<conversionexample>> is
+depicted in <<approximateconversionexample>>:
 
-image::images/colorconversion_approximate.{svgpdf}[title="Example approximated sampling in one space and converting to a different space",width="{svgpdf@pdf:475pt:576}",align="center"]
+[[approximateconversionexample]]
+.Example approximated sampling in one space and converting to a different space
+image::images/colorconversion_approximate.{svgpdf}[width="{svgpdf@pdf:475pt:576}",align="center"]
 
 A performance-optimized approximation to our example conversion may
 use the following steps:

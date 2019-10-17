@@ -80,6 +80,7 @@ the block dimensions range from 3 to 6 texels.
 Decoding one texel requires only the data from a single block. This
 simplifies cache design, reduces bandwidth and improves encoder throughput.
 
+<<<
 === Block Encoding
 
 To understand how the blocks are stored and decoded, it is useful to start
@@ -449,10 +450,6 @@ described in <<astc-void-extent-blocks>>.
 
 <<<
 
-&nbsp;
-
-<<<
-
 === Block mode
 
 The _block mode_ field specifies the width, height and depth of the grid of
@@ -554,8 +551,6 @@ If the grid size is greater than the footprint dimension in any axis, then
 this is an illegal block encoding and all texels will decode to the error
 color.
 
-<<<
-
 === Color Endpoint Mode
 
 In single-partition mode, the Color Endpoint Mode (CEM) field stores one
@@ -568,22 +563,22 @@ endpoints. They can be summarized as shown in <<astc-color-endpoint-modes>>.
 [cols="2,11,2",options="header",width="55%"]
 |====================
 ^| CEM | &nbsp; Description                        ^| Class
->|  0 &nbsp; | &nbsp; LDR Luminance, direct              ^| 0
->|  1 &nbsp; | &nbsp; LDR Luminance, base+offset         ^| 0
->|  2 &nbsp; | &nbsp; HDR Luminance, large range         ^| 0
->|  3 &nbsp; | &nbsp; HDR Luminance, small range         ^| 0
->|  4 &nbsp; | &nbsp; LDR Luminance+Alpha, direct        ^| 1
->|  5 &nbsp; | &nbsp; LDR Luminance+Alpha, base+offset   ^| 1
->|  6 &nbsp; | &nbsp; LDR _RGB_, base+scale                ^| 1
->|  7 &nbsp; | &nbsp; HDR _RGB_, base+scale                ^| 1
->|  8 &nbsp; | &nbsp; LDR _RGB_, direct                    ^| 2
->|  9 &nbsp; | &nbsp; LDR _RGB_, base+offset               ^| 2
->| 10 &nbsp; | &nbsp; LDR _RGB_, base+scale plus two _A_     ^| 2
->| 11 &nbsp; | &nbsp; HDR _RGB_, direct                    ^| 2
->| 12 &nbsp; | &nbsp; LDR _RGBA_, direct                   ^| 3
->| 13 &nbsp; | &nbsp; LDR _RGBA_, base+offset              ^| 3
->| 14 &nbsp; | &nbsp; HDR _RGB_, direct + LDR Alpha        ^| 3
->| 15 &nbsp; | &nbsp; HDR _RGB_, direct + HDR Alpha        ^| 3
+>|  0 &nbsp;&nbsp; | &nbsp; LDR Luminance, direct              ^| 0
+>|  1 &nbsp;&nbsp; | &nbsp; LDR Luminance, base+offset         ^| 0
+>|  2 &nbsp;&nbsp; | &nbsp; HDR Luminance, large range         ^| 0
+>|  3 &nbsp;&nbsp; | &nbsp; HDR Luminance, small range         ^| 0
+>|  4 &nbsp;&nbsp; | &nbsp; LDR Luminance+Alpha, direct        ^| 1
+>|  5 &nbsp;&nbsp; | &nbsp; LDR Luminance+Alpha, base+offset   ^| 1
+>|  6 &nbsp;&nbsp; | &nbsp; LDR _RGB_, base+scale                ^| 1
+>|  7 &nbsp;&nbsp; | &nbsp; HDR _RGB_, base+scale                ^| 1
+>|  8 &nbsp;&nbsp; | &nbsp; LDR _RGB_, direct                    ^| 2
+>|  9 &nbsp;&nbsp; | &nbsp; LDR _RGB_, base+offset               ^| 2
+>| 10 &nbsp;&nbsp; | &nbsp; LDR _RGB_, base+scale plus two _A_     ^| 2
+>| 11 &nbsp;&nbsp; | &nbsp; HDR _RGB_, direct                    ^| 2
+>| 12 &nbsp;&nbsp; | &nbsp; LDR _RGBA_, direct                   ^| 3
+>| 13 &nbsp;&nbsp; | &nbsp; LDR _RGBA_, base+offset              ^| 3
+>| 14 &nbsp;&nbsp; | &nbsp; HDR _RGB_, direct + LDR Alpha        ^| 3
+>| 15 &nbsp;&nbsp; | &nbsp; HDR _RGB_, direct + HDR Alpha        ^| 3
 |====================
 
 In multi-partition mode, the CEM field is of variable width, from 6 to 14
@@ -605,8 +600,6 @@ for each partition is calculated as shown in <<astc-multi-partition-color-endpoi
 ^| 10 | &nbsp; All endpoint pairs are of class 1 or 2
 ^| 11 | &nbsp; All endpoint pairs are of class 2 or 3
 |====================
-
-<<<
 
 If the CEM selector value in bits [24..23] is not 00,
 then data layout is as shown in <<astc-multi-partition-color-endpoint-mode-layout>>
@@ -645,6 +638,7 @@ after the configuration data and weight data have been specified.
 Details of the decoding procedure for Color Endpoints can be found in
 <<astc-endpoint-unquantization>>.
 
+<<<
 [[astc-integer-sequence-encoding]]
 === Integer Sequence Encoding
 
@@ -719,6 +713,8 @@ block are packed as shown in <<astc-trit-based-packing>> (in this example, _n_ i
 4+^|    m~2~        ^| T^3^ ^| T^2^ 4+^|      m~1~       ^| T^1^ ^| T^0^ 4+^|      m~0~       ^|
 |===========================================
 
+<<<
+
 The five trits t~0~ to t~4~ are obtained by bit manipulations of the 8 bits
 T^7..0^ as follows:
 
@@ -739,8 +735,6 @@ else if C[3:2] = 11
 else
     t2 = C[4]; t1 = C[3:2]; t0 = { C[1], C[0]&~C[1] }
 -----
-
-<<<
 
 If the range is encoded using a quint, then each block contains 3 values
 (v~0~ to v~2~), each of which contains a quint (q~0~ to q~2~) and a corresponding
@@ -790,6 +784,8 @@ efficiently in software using small tables.
 
 Encoding methods are not specified here, although table-based mechanisms
 work well.
+
+<<<
 
 [[astc-endpoint-unquantization]]
 === Endpoint Unquantization
@@ -844,6 +840,8 @@ unq = (A & 0x80) | (unq >> 2);
 Note that the multiply in the first line is nearly trivial as it only
 needs to multiply by 0, 1, 2, 3 or 4.
 
+<<<
+
 === LDR Endpoint Decoding
 
 The decoding method used depends on the Color Endpoint Mode (CEM) field,
@@ -880,8 +878,6 @@ The methods can be summarized as shown in <<astc-ldr-color-endpoint-modes>>.
 >| 14 &nbsp; ^| HDR | &nbsp; _RGB_ + LDR Alpha                        ^| 8
 >| 15 &nbsp; ^| HDR | &nbsp; _RGB_ + HDR Alpha                        ^| 8
 |==============
-
-<<<
 
 Mode 14 is special in that the alpha values are interpolated linearly,
 but the color components are interpolated logarithmically. This is the
@@ -1555,11 +1551,11 @@ This process differs for 2D and 3D.
 For 2D, bilinear interpolation is used:
 
 -----
-v0 = js + jt*N;
+v0 = js + jt*Wwidth;
 p00 = decode_weight(v0);
 p01 = decode_weight(v0 + 1);
-p10 = decode_weight(v0 + N);
-p11 = decode_weight(v0 + N + 1);
+p10 = decode_weight(v0 + Wwidth);
+p11 = decode_weight(v0 + Wwidth + 1);
 -----
 
 The function `decode_weight(n)` decodes the _n_^th^ weight in the stored
@@ -1583,26 +1579,26 @@ position as shown in <<astc-simplex-interpolation-parameters>>.
 
 [[astc-simplex-interpolation-parameters]]
 .ASTC simplex interpolation parameters
-[options="header",width="80%"]
+[options="header",width="90%",cols="1,1,1,2,2,1,1,1,1"]
 |==================
 ^| _f~s~_ > _f~t~_ ^| _f~t~_ > _f~r~_ ^| _f~s~_ > _f~r~_  ^| _s_~1~ ^| _s_~2~ ^| _w_~0~    ^| _w_~1~    ^| _w_~2~    ^| _w_~3~
-^| True   ^| True   ^| _True_ ^| 1   ^| N   ^| 16 - _f~s~_  ^| _f~s~_ - _f~t~_  ^| _f~t~_ - _f~r~_  ^| _f~r~_
-^| False  ^| _True_ ^| True   ^| N   ^| 1   ^| 16 - _f~t~_  ^| _f~t~_ - _f~s~_  ^| _f~s~_ - _f~r~_ ^| _f~r~_
-^| _True_ ^| False  ^| True   ^| 1   ^| N {times} M ^| 16 - _f_~s~  ^| _f~s~_ - _f~r~_ ^| _f~r~_ - _f~t~_ ^| _f~t~_
-^| True   ^| _False_  ^| False  ^| N {times} M ^| 1   ^| 16 - _f~r~_  ^| _f~r~_ - _f~s~_  ^| _f~s~_ - _f~t~_  ^| _f~t~_
-^| _False_  ^| True   ^| False  ^| N   ^| N {times} M ^| 16 - _f~t~_  ^| _f~t~_ - _f~r~_  ^| _f~r~_ - _f~s~_  ^| _f~s~_
-^| False  ^| False  ^| _False_  ^| N {times} M ^| N   ^| 16 - _f~r~_  ^| _f~r~_ - _f~t~_  ^| _f~t~_ - _f~s~_ ^| _f~s~_
+^| True   ^| True   ^| _True_ ^| 1   ^| W~width~   ^| 16 - _f~s~_  ^| _f~s~_ - _f~t~_  ^| _f~t~_ - _f~r~_  ^| _f~r~_
+^| False  ^| _True_ ^| True   ^| W~width~   ^| 1   ^| 16 - _f~t~_  ^| _f~t~_ - _f~s~_  ^| _f~s~_ - _f~r~_ ^| _f~r~_
+^| _True_ ^| False  ^| True   ^| 1   ^| W~width~ {times} W~height~ ^| 16 - _f_~s~  ^| _f~s~_ - _f~r~_ ^| _f~r~_ - _f~t~_ ^| _f~t~_
+^| True   ^| _False_  ^| False  ^| W~width~ {times} W~height~ ^| 1   ^| 16 - _f~r~_  ^| _f~r~_ - _f~s~_  ^| _f~s~_ - _f~t~_  ^| _f~t~_
+^| _False_  ^| True   ^| False  ^| W~width~   ^| W~width~ {times} W~height~ ^| 16 - _f~t~_  ^| _f~t~_ - _f~r~_  ^| _f~r~_ - _f~s~_  ^| _f~s~_
+^| False  ^| False  ^| _False_  ^| W~width~ {times} W~height~ ^| W~width~   ^| 16 - _f~r~_  ^| _f~r~_ - _f~t~_  ^| _f~t~_ - _f~s~_ ^| _f~s~_
 |==================
 
 Italicized test results are implied by the others. The effective
 weight _i_ is then calculated as:
 
 -----
-v0 = js + jt*N + jr*N*M;
+v0 = js + jt*Wwidth + jr*Wwidth*Wheight;
 p0 = decode_index(v0);
 p1 = decode_index(v0 + s1);
 p2 = decode_index(v0 + s1 + s2);
-p3 = decode_index(v0 + N*M + N + 1);
+p3 = decode_index(v0 + Wwidth*Wheight + Wwidth + 1);
 i = (p0*w0 + p1*w1 + p2*w2 + p3*w3 + 8) >> 4;
 -----
 

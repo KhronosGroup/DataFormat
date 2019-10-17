@@ -57,6 +57,7 @@ The data corresponding to a specific texel (_x_, _y_) are extracted from a
 
 There are four distinct S3TC image formats:
 
+[[s3tc_bc1_noalpha]]
 === BC1 with no alpha
 
 Each 4{times}4 block of texels consists of 64
@@ -134,6 +135,7 @@ _RGB_ color where red, green, and blue are all zero.
 Since this image has an _RGB_ format, there is no alpha component and the
 image is considered fully opaque.
 
+[[s3tc_bc1_alpha]]
 === BC1 with alpha
 
 Each 4{times}4 block of texels consists of 64
@@ -181,7 +183,8 @@ Since 29 > 20, there are two interpolated values, accessed when
 _code_(_x_, _y_) = 2 and _code_(_x_, _y_) = 3.
 
 [[Figure-bc1]]
-image::images/bc1.{svgpdf}[title="BC1 two interpolated colors",width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
+.BC1 two interpolated colors
+image::images/bc1.{svgpdf}[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
 
 <<Figure-bc1a>> shows the example BC1 texel block with the colors swapped:
 _color_~0~, encoded as latexmath:[$\left({{20}\over{31}}, {{2}\over{63}}, {{30}\over{31}}\right)$],
@@ -192,7 +195,8 @@ _code_(_x_, _y_) = 2, and _code_(_x_, _y_) = 3 represents
 (_R_,_&nbsp;G_,_&nbsp;B_) = (0,&nbsp;0,&nbsp;0).
 
 [[Figure-bc1a]]
-image::images/bc1a.{svgpdf}[title="BC1 one interpolated color + black",width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
+.BC1 one interpolated color {plus} black
+image::images/bc1a.{svgpdf}[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
 
 If the format is BC1 with alpha, _code_(_x_, _y_) = 3 is transparent
 (alpha&nbsp;=&nbsp;0).
@@ -203,17 +207,17 @@ opaque black.
 
 <<<
 
+[[s3tc_bc2]]
 === BC2
 
-Each 4{times}4 block of texels consists of 64
-bits of uncompressed alpha image data followed by 64 bits of _RGB_ image
-data.
+Each 4{times}4 block of texels consists of 64 bits of uncompressed alpha
+image data followed by 64 bits of _RGB_ image data.
 
 Each _RGB_ image data block is encoded according to the
 BC1 formats, with the exception that the two code
-bits always use the non-transparent encodings.  In other words, they are
-treated as though _color_~0~ > _color_~1~, regardless of the actual values of
-_color_~0~ and _color_~1~.
+bits always use the non-transparent encodings.
+In other words, they are treated as though _color_~0~ > _color_~1~,
+regardless of the actual values of _color_~0~ and _color_~1~.
 
 Each alpha image data block is encoded as a sequence of 8 bytes, called
 (in order of increasing address):
@@ -251,6 +255,7 @@ significant bit.
 The alpha component for a texel at location (_x_, _y_) in the block is
 given by latexmath:[$\mathit{alpha}(x,y)\over 15$].
 
+[[s3tc_bc3]]
 === BC3
 
 Each 4{times}4 block of texels consists of 64 bits of compressed
@@ -296,6 +301,8 @@ is extracted for a texel at location (_x_, _y_) in the block using:
 ++++++
 
 where _bits_[47] is the most-significant and _bits_[0] is the least-significant bit.
+
+<<<
 
 The alpha component for a texel at location (_x_, _y_) in the block is
 given by <<BC3alpha>>.

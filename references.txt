@@ -92,7 +92,6 @@ link:https://www.itu.int/rec/R-REC-BT.1700/en[https://www.itu.int/rec/R-REC-BT.1
 
 link:https://www.gpo.gov/fdsys/search/pagedetails.action?collectionCode=CFR&browsePath=Title+47%2FChapter+I%2FSubchapter+C%2FPart+73%2FSubpart+E%2FSection+73.682&granuleId=CFR-2001-title47-vol4-sec73-682&packageId=CFR-2001-title47-vol4&collapse=true&fromBrowse=true[https://www.gpo.gov/fdsys/search/pagedetails.action?collectionCode=CFR&browsePath=Title+47%2FChapter+I%2FSubchapter+C%2FPart+73%2FSubpart+E%2FSection+73.682&granuleId=CFR-2001-title47-vol4-sec73-682&packageId=CFR-2001-title47-vol4&collapse=true&fromBrowse=true] +
 
-<<<
 *[[st240]]ST 240:1999 - SMPTE Standard - For Television — 1125-Line High-Definition Production Systems — Signal Parameters*
 
 Formerly known as SMPTE240M - interim HDTV standard prior to international
@@ -102,6 +101,7 @@ Available from the SMPTE and via IEEE:
 
 link:http://ieeexplore.ieee.org/document/7291461/[http://ieeexplore.ieee.org/document/7291461/] +
 
+<<<
 *[[srgb]]IEC/4WD 61966-2-1: Colour measurement and management in multimedia systems and equipment - part 2-1: default RGB colour space - sRGB*
 
 link:https://webstore.iec.ch/publication/6169[https://webstore.iec.ch/publication/6169 (specification)]

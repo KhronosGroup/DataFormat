@@ -4,10 +4,10 @@
 [[PRIMARY_CONVERSION]]
 == Color primaries
 
-*Color primaries* define the interpretation of each color channel of the
-color model, particularly with respect to the _RGB_ color model. In the context
-of a typical display, *color primaries* describe the color of the red, green
-and blue phosphors or filters.
+*Color primaries* define the interpretation of each channel of the color
+model, particularly with respect to the _RGB_ model.
+In the context of a typical display, *color primaries* describe the color of
+the red, green and blue phosphors or filters.
 
 Primaries are typically defined using the <<ciexyz,CIE 1931 _XYZ_ color space>>,
 which is a color space which preserves the linearity of light intensity.
@@ -232,6 +232,95 @@ these transforms require a translational component. In some color spaces the
 black point has the same color as the white point, in which case it is also
 possible to adjust the latexmath:[$(R, G, B)$] values outside the matrix.
 
+[NOTE]
+====
+Real-world objects and light sources typically emit a full spectrum
+of wavelengths in varying intensities.
+Describing the color of an object in terms of three wavelengths is
+necessarily an approximation, and effective only because the human eye
+typically sees the world mostly in terms of combinations of three color
+cone cell responses -- ``tristimulus values''.
+The typical response of these ``long'', ``medium'' and ``short''
+wavelength-sensitive cones is the basis of the CIE XYZ color space,
+so a linear combination of primaries described in this color space
+can be mapped to a linear combination of other primaries.
+Two colors with a different spectrum but an identical appearance
+are known as _metamers_, and the tristimulus model of color relies
+on ``metameric matching'': picking a linear combination of some set
+of primaries that will elicit the same cone cell response as the
+desired color.
+
+&nbsp;
+
+Each of the cone cells can appear in mutated form which results in a
+change to its response to different frequencies of light.
+Since the genes for cone cells are encoded on the X chromosome, some
+women have more than one variant of the same cone cell, being
+``tetrachromats'' -- and there is evidence that such people can
+distinguish more colors than the general ``trichromat'' population,
+with only a subset of these colors describable with three color
+primaries.
+There is some evidence for people with two variants of more than one
+cone cell, thereby perceiving color in a five-dimensional space,
+although the processing performed by the human visual system is
+complex and it is not clear how independently these color dimensions
+are in practice.
+In the animal kingdom, it is not uncommon to have more than three
+types of cone cell, and mantis shrimp have up to sixteen kinds of
+photoreceptors.
+Note that rod cells, which dominate the human visual system in
+low light conditions, are typically ignored at higher illumination
+levels for the purposes of color matching.
+
+&nbsp;
+
+The difference between a primary color representation and the
+full spectrum emitted by a real-world object is particularly
+visible for printed media.
+Printing colors are typically described assuming that they will
+reflect the spectrum of a theoretical illuminant; changing this
+light source may change the appearance of the printed object
+in a more complex manner than scaling the primary values.
+This can lead to ``metameric failure'', where two colors may
+appear identical under some lighting conditions and different
+under others.
+This effect is present in nature, notably in the mineral
+alexandrite, which may appear reddish purple under incandescent
+light but green in daylight.
+Camera sensors and film have a related problem that the spectrum
+of filters does not perfectly match that of cone cells, which
+can lead some colors (particularly with sharp peaks in their
+spectra) to appear different.
+Inkjet printing often uses many more than three inks in order to
+maximize the representable gamut and control metamerism.
+
+&nbsp;
+
+Adaptation to a different white point is often performed by a
+linear scaling of primaries, known as the ``von Kries transform''.
+The link:https://onlinelibrary.wiley.com/doi/pdf/10.1002/9781119021780.app3[Bradford color adaptation transform]
+incorporates a slight nonlinear term to the blue component of
+colors to more accurately reflect visual behavior.
+
+&nbsp;
+
+It is common for production rendering systems to represent each
+pixel with more than three channels.
+For example, the contributions from different lights may be recorded
+separately in order to allow later adjustment to color and relative
+intensity, specular and diffuse reflectance from a surface may be
+recorded separately (which is valuable, for example, in denoising
+algorithms), and virtual ``channels'' may be used to control shader
+effects.
+A larger number of wavelengths may also be used when rendering
+effects such as chromatic dispersion, which is important for rendering
+jewelry.
+Currently these are typically represented as multiple images or in
+a proprietary representation, although one could imagine a data format
+descriptor for such a pixel.
+====
+
+<<<
 [[PRIMARIES_BT709]]
 === BT.709 color primaries
 
@@ -576,7 +665,7 @@ brightness over saturation, use the color primaries as described in
 <<PRIMARIES_BT601_SMPTE>>.
 The white point used in the original NTSC 1953 specification is CIE
 Standard Illuminant C, 6774K, as distinct from the CIE Illuminant D65
-white point used by most modern standards.
+used by most modern standards.
 BT.470-6 notes that SECAM systems may use these NTSC primaries and
 white point.
 Japanese legacy NTSC systems used the same primaries but with the white

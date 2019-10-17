@@ -13,15 +13,16 @@ Copyright notice at https://www.khronos.org/registry/speccopyright.html
             tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] }
         });
     </script>
-    <script type="text/javascript"
-        src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
     </script>
 </xsl:template>
 </xsl:stylesheet>
 
+<!--
 <authorgroup>
 <author><firstname>&nbsp;Andrew</firstname><surname>Garrard&nbsp;</surname></author>
 </authorgroup>
+-->
 
 <legalnotice>
 <title>
@@ -90,7 +91,7 @@ Khronos, SYCL, SPIR, WebGL, EGL, COLLADA, StreamInput, OpenVX, OpenKCam, glTF, O
 </revremark>
 </revision>
 <revision>
-<revnumber>1.0</revnumber>
+<revnumber>1.0 rev 1</revnumber>
 <date>&nbsp;May 2015&nbsp;</date>
 <authorinitials>AG</authorinitials>
 <revremark>
@@ -130,7 +131,7 @@ Khronos, SYCL, SPIR, WebGL, EGL, COLLADA, StreamInput, OpenVX, OpenKCam, glTF, O
 </revremark>
 </revision>
 <revision>
-<revnumber>1.1</revnumber>
+<revnumber>1.1 rev 1</revnumber>
 <date>&nbsp;Nov 2015&nbsp;</date>
 <authorinitials>AG</authorinitials>
 <revremark>
@@ -174,7 +175,7 @@ Khronos, SYCL, SPIR, WebGL, EGL, COLLADA, StreamInput, OpenVX, OpenKCam, glTF, O
 <date>&nbsp;Jun 2016&nbsp;</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-&nbsp;ASTC "block footprint" note, fixed credits/changelog/contents&nbsp;
+&nbsp;ASTC block footprint note, fixed credits/changelog/contents&nbsp;
 </revremark>
 </revision>
 <revision>
@@ -182,7 +183,7 @@ Khronos, SYCL, SPIR, WebGL, EGL, COLLADA, StreamInput, OpenVX, OpenKCam, glTF, O
 <date>&nbsp;Sep 2016&nbsp;</date>
 <authorinitials>AG</authorinitials>
 <revremark>
-&nbsp;ASTC multi-point "part" and quint decode typo fixes&nbsp;
+&nbsp;ASTC multi-point part and quint decode typo fixes&nbsp;
 </revremark>
 </revision>
 <revision>
@@ -215,6 +216,14 @@ Khronos, SYCL, SPIR, WebGL, EGL, COLLADA, StreamInput, OpenVX, OpenKCam, glTF, O
 <authorinitials>AG</authorinitials>
 <revremark>
 &nbsp;Typo fixes and much reformatting&nbsp;
+</revremark>
+</revision>
+<revision>
+<revnumber>1.3</revnumber>
+<date>&nbsp;Oct 2019&nbsp;</date>
+<authorinitials>AG/MC</authorinitials>
+<revremark>
+&nbsp;Updates for KTX2/glTF. BC6h and ASTC table fixes and typo fixes. More examples.&nbsp;
 </revremark>
 </revision>
 </revhistory>

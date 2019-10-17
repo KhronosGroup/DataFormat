@@ -1,6 +1,6 @@
-/* The Khronos Data Format Specification (version 1.2) */
+/* The Khronos Data Format Specification (version 1.3) */
 /*
-** Copyright (c) 2015-17 The Khronos Group Inc.
+** Copyright (c) 2015-19 The Khronos Group Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and/or associated documentation files (the
@@ -35,19 +35,205 @@
 #ifndef _KHR_DATA_FORMAT_H_
 #define _KHR_DATA_FORMAT_H_
 
+/* Accessors */
+typedef enum _khr_word_e {
+    KHR_DF_WORD_VENDORID = 0U,
+    KHR_DF_WORD_DESCRIPTORTYPE = 0U,
+    KHR_DF_WORD_VERSIONNUMBER = 1U,
+    KHR_DF_WORD_DESCRIPTORBLOCKSIZE = 1U,
+    KHR_DF_WORD_MODEL = 2U,
+    KHR_DF_WORD_PRIMARIES = 2U,
+    KHR_DF_WORD_TRANSFER = 2U,
+    KHR_DF_WORD_FLAGS = 2U,
+    KHR_DF_WORD_TEXELBLOCKDIMENSION0 = 3U,
+    KHR_DF_WORD_TEXELBLOCKDIMENSION1 = 3U,
+    KHR_DF_WORD_TEXELBLOCKDIMENSION2 = 3U,
+    KHR_DF_WORD_TEXELBLOCKDIMENSION3 = 3U,
+    KHR_DF_WORD_BYTESPLANE0 = 4U,
+    KHR_DF_WORD_BYTESPLANE1 = 4U,
+    KHR_DF_WORD_BYTESPLANE2 = 4U,
+    KHR_DF_WORD_BYTESPLANE3 = 4U,
+    KHR_DF_WORD_BYTESPLANE4 = 5U,
+    KHR_DF_WORD_BYTESPLANE5 = 5U,
+    KHR_DF_WORD_BYTESPLANE6 = 5U,
+    KHR_DF_WORD_BYTESPLANE7 = 5U,
+    KHR_DF_WORD_SAMPLESTART = 6U,
+    KHR_DF_WORD_SAMPLEWORDS = 4U
+} khr_df_word_e;
+
+typedef enum _khr_df_shift_e {
+    KHR_DF_SHIFT_VENDORID = 0U,
+    KHR_DF_SHIFT_DESCRIPTORTYPE = 17U,
+    KHR_DF_SHIFT_VERSIONNUMBER = 0U,
+    KHR_DF_SHIFT_DESCRIPTORBLOCKSIZE = 16U,
+    KHR_DF_SHIFT_MODEL = 0U,
+    KHR_DF_SHIFT_PRIMARIES = 8U,
+    KHR_DF_SHIFT_TRANSFER = 16U,
+    KHR_DF_SHIFT_FLAGS = 24U,
+    KHR_DF_SHIFT_TEXELBLOCKDIMENSION0 = 0U,
+    KHR_DF_SHIFT_TEXELBLOCKDIMENSION1 = 8U,
+    KHR_DF_SHIFT_TEXELBLOCKDIMENSION2 = 16U,
+    KHR_DF_SHIFT_TEXELBLOCKDIMENSION3 = 24U,
+    KHR_DF_SHIFT_BYTESPLANE0 = 0U,
+    KHR_DF_SHIFT_BYTESPLANE1 = 8U,
+    KHR_DF_SHIFT_BYTESPLANE2 = 16U,
+    KHR_DF_SHIFT_BYTESPLANE3 = 24U,
+    KHR_DF_SHIFT_BYTESPLANE4 = 0U,
+    KHR_DF_SHIFT_BYTESPLANE5 = 8U,
+    KHR_DF_SHIFT_BYTESPLANE6 = 16U,
+    KHR_DF_SHIFT_BYTESPLANE7 = 24U
+} khr_df_shift_e;
+
+typedef enum _khr_df_mask_e {
+    KHR_DF_MASK_VENDORID = 0x1FFFFU,
+    KHR_DF_MASK_DESCRIPTORTYPE = 0x7FFFU,
+    KHR_DF_MASK_VERSIONNUMBER = 0xFFFFU,
+    KHR_DF_MASK_DESCRIPTORBLOCKSIZE = 0xFFFFU,
+    KHR_DF_MASK_MODEL = 0xFFU,
+    KHR_DF_MASK_PRIMARIES = 0xFFU,
+    KHR_DF_MASK_TRANSFER = 0xFFU,
+    KHR_DF_MASK_FLAGS = 0xFFU,
+    KHR_DF_MASK_TEXELBLOCKDIMENSION0 = 0xFFU,
+    KHR_DF_MASK_TEXELBLOCKDIMENSION1 = 0xFFU,
+    KHR_DF_MASK_TEXELBLOCKDIMENSION2 = 0xFFU,
+    KHR_DF_MASK_TEXELBLOCKDIMENSION3 = 0xFFU,
+    KHR_DF_MASK_BYTESPLANE0 = 0xFFU,
+    KHR_DF_MASK_BYTESPLANE1 = 0xFFU,
+    KHR_DF_MASK_BYTESPLANE2 = 0xFFU,
+    KHR_DF_MASK_BYTESPLANE3 = 0xFFU,
+    KHR_DF_MASK_BYTESPLANE4 = 0xFFU,
+    KHR_DF_MASK_BYTESPLANE5 = 0xFFU,
+    KHR_DF_MASK_BYTESPLANE6 = 0xFFU,
+    KHR_DF_MASK_BYTESPLANE7 = 0xFFU
+} khr_df_mask_e;
+
+/* Helper macro:
+   Extract field X from basic descriptor block BDB */
+#define KHR_DFDVAL(BDB, X) \
+    (((BDB)[KHR_DF_WORD_ ## X] >> (KHR_DF_SHIFT_ ## X)) \
+     & (KHR_DF_MASK_ ## X))
+
+/* Helper macro:
+   Set field X of basic descriptor block BDB */
+#define KHR_DFDSETVAL(BDB, X, val) \
+    ((BDB)[KHR_DF_WORD_ ## X] = \
+     ((BDB)[KHR_DF_WORD_ ## X] & \
+      ~((KHR_DF_MASK_ ## X) << (KHR_DF_SHIFT_ ## X))) | \
+     (((val) & (KHR_DF_MASK_ ## X)) << (KHR_DF_SHIFT_ ## X)))
+
+/* Offsets relative to the start of a sample */
+typedef enum _khr_df_sampleword_e {
+    KHR_DF_SAMPLEWORD_BITOFFSET = 0U,
+    KHR_DF_SAMPLEWORD_BITLENGTH = 0U,
+    KHR_DF_SAMPLEWORD_CHANNELID = 0U,
+    KHR_DF_SAMPLEWORD_QUALIFIERS = 0U,
+    KHR_DF_SAMPLEWORD_SAMPLEPOSITION0 = 1U,
+    KHR_DF_SAMPLEWORD_SAMPLEPOSITION1 = 1U,
+    KHR_DF_SAMPLEWORD_SAMPLEPOSITION2 = 1U,
+    KHR_DF_SAMPLEWORD_SAMPLEPOSITION3 = 1U,
+    KHR_DF_SAMPLEWORD_SAMPLEPOSITION_ALL = 1U,
+    KHR_DF_SAMPLEWORD_SAMPLELOWER = 2U,
+    KHR_DF_SAMPLEWORD_SAMPLEUPPER = 3U
+} khr_df_sampleword_e;
+
+typedef enum _khr_df_sampleshift_e {
+    KHR_DF_SAMPLESHIFT_BITOFFSET = 0U,
+    KHR_DF_SAMPLESHIFT_BITLENGTH = 16U,
+    KHR_DF_SAMPLESHIFT_CHANNELID = 24U,
+    /* N.B. Qualifiers are defined as an offset into a byte */
+    KHR_DF_SAMPLESHIFT_QUALIFIERS = 24U,
+    KHR_DF_SAMPLESHIFT_SAMPLEPOSITION0 = 0U,
+    KHR_DF_SAMPLESHIFT_SAMPLEPOSITION1 = 8U,
+    KHR_DF_SAMPLESHIFT_SAMPLEPOSITION2 = 16U,
+    KHR_DF_SAMPLESHIFT_SAMPLEPOSITION3 = 24U,
+    KHR_DF_SAMPLESHIFT_SAMPLEPOSITION_ALL = 0U,
+    KHR_DF_SAMPLESHIFT_SAMPLELOWER = 0U,
+    KHR_DF_SAMPLESHIFT_SAMPLEUPPER = 0U
+} khr_df_sampleshift_e;
+
+typedef enum _khr_df_samplemask_e {
+    KHR_DF_SAMPLEMASK_BITOFFSET = 0xFFFFU,
+    KHR_DF_SAMPLEMASK_BITLENGTH = 0xFF,
+    KHR_DF_SAMPLEMASK_CHANNELID = 0xF,
+    /* N.B. Qualifiers are defined as an offset into a byte */
+    KHR_DF_SAMPLEMASK_QUALIFIERS = 0xF0,
+    KHR_DF_SAMPLEMASK_SAMPLEPOSITION0 = 0xFF,
+    KHR_DF_SAMPLEMASK_SAMPLEPOSITION1 = 0xFF,
+    KHR_DF_SAMPLEMASK_SAMPLEPOSITION2 = 0xFF,
+    KHR_DF_SAMPLEMASK_SAMPLEPOSITION3 = 0xFF,
+    /* ISO C restricts enum values to range of int hence the
+       cast. We do it verbosely instead of using -1 to ensure
+       it is a 32-bit value even if int is 64 bits. */
+    KHR_DF_SAMPLEMASK_SAMPLEPOSITION_ALL = (int) 0xFFFFFFFFU,
+    KHR_DF_SAMPLEMASK_SAMPLELOWER = (int) 0xFFFFFFFFU,
+    KHR_DF_SAMPLEMASK_SAMPLEUPPER = (int) 0xFFFFFFFFU
+} khr_df_samplemask_e;
+
+/* Helper macro:
+   Extract field X of sample S from basic descriptor block BDB */
+#define KHR_DFDSVAL(BDB, S, X) \
+    (((BDB)[KHR_DF_WORD_SAMPLESTART + \
+            ((S) * KHR_DF_WORD_SAMPLEWORDS) + \
+            KHR_DF_SAMPLEWORD_ ## X] >> (KHR_DF_SAMPLESHIFT_ ## X)) \
+     & (KHR_DF_SAMPLEMASK_ ## X))
+
+/* Helper macro:
+   Set field X of sample S of basic descriptor block BDB */
+#define KHR_DFDSETSVAL(BDB, S, X, val) \
+    ((BDB)[KHR_DF_WORD_SAMPLESTART + \
+           ((S) * KHR_DF_WORD_SAMPLEWORDS) + \
+           KHR_DF_SAMPLEWORD_ ## X] = \
+     ((BDB)[KHR_DF_WORD_SAMPLESTART + \
+            ((S) * KHR_DF_WORD_SAMPLEWORDS) + \
+            KHR_DF_SAMPLEWORD_ ## X] & \
+      ~((uint32_t)(KHR_DF_SAMPLEMASK_ ## X) << (KHR_DF_SAMPLESHIFT_ ## X))) | \
+     (((val) & (uint32_t)(KHR_DF_SAMPLEMASK_ ## X)) << (KHR_DF_SAMPLESHIFT_ ## X)))
+
+/* Helper macro:
+   Number of samples in basic descriptor block BDB */
+#define KHR_DFDSAMPLECOUNT(BDB) \
+    (((KHR_DFDVAL(BDB, DESCRIPTORBLOCKSIZE) >> 2) - \
+      KHR_DF_WORD_SAMPLESTART) \
+     / KHR_DF_WORD_SAMPLEWORDS)
+
+/* Helper macro:
+   Size in words of basic descriptor block for S samples */
+#define KHR_DFDSIZEWORDS(S) \
+    (KHR_DF_WORD_SAMPLESTART + \
+     (S) * KHR_DF_WORD_SAMPLEWORDS)
+
 /* Vendor ids */
 typedef enum _khr_df_vendorid_e {
     /* Standard Khronos descriptor */
     KHR_DF_VENDORID_KHRONOS = 0U,
-    KHR_DF_VENDORID_MAX     = 0xFFFFU
+    KHR_DF_VENDORID_MAX     = 0x1FFFFU
 } khr_df_vendorid_e;
 
 /* Descriptor types */
 typedef enum _khr_df_khr_descriptortype_e {
-    /* Default Khronos descriptor */
+    /* Default Khronos basic descriptor block */
     KHR_DF_KHR_DESCRIPTORTYPE_BASICFORMAT = 0U,
-    KHR_DF_KHR_DESCRIPTORTYPE_MAX         = 0xFFFFU
+    /* Extension descriptor block for additional planes */
+    KHR_DF_KHR_DESCRIPTORTYPE_ADDITIONAL_PLANES = 0x6001U,
+    /* Extension descriptor block for additional dimensions */
+    KHR_DF_KHR_DESCRIPTORTYPE_ADDITIONAL_DIMENSIONS = 0x6002U,
+    /* Bit indicates modifying requires understanding this extension */
+    KHR_DF_KHR_DESCRIPTORTYPE_NEEDED_FOR_WRITE_BIT = 0x2000U,
+    /* Bit indicates processing requires understanding this extension */
+    KHR_DF_KHR_DESCRIPTORTYPE_NEEDED_FOR_DECODE_BIT = 0x4000U,
+    KHR_DF_KHR_DESCRIPTORTYPE_MAX         = 0x7FFFU
 } khr_df_khr_descriptortype_e;
+
+/* Descriptor block version */
+typedef enum _khr_df_versionnumber_e {
+    /* Standard Khronos descriptor */
+    KHR_DF_VERSIONNUMBER_1_0 = 0U, /* Version 1.0 of the specification */
+    KHR_DF_VERSIONNUMBER_1_1 = 0U, /* Version 1.1 did not bump the version number */
+    KHR_DF_VERSIONNUMBER_1_2 = 1U, /* Version 1.2 increased the version number */
+    KHR_DF_VERSIONNUMBER_1_3 = 2U, /* Version 1.3 increased the version number */
+    KHR_DF_VERSIONNUMBER_LATEST = KHR_DF_VERSIONNUMBER_1_3,
+    KHR_DF_VERSIONNUMBER_MAX = 0xFFFFU
+} khr_df_versionnumber_e;
 
 /* Model in which the color coordinate space is defined.
    There is no requirement that a color format use all the
@@ -85,7 +271,6 @@ typedef enum _khr_df_model_e {
     KHR_DF_MODEL_CIEXYZ       = 14U,
     /* CIE 1931 xyY color coordinates (X, Y, Y) */
     KHR_DF_MODEL_CIEXYY       = 15U,
-    
 
     /* Compressed formats start at 128. */
     /* These compressed formats should generally have a single sample,
@@ -133,7 +318,12 @@ typedef enum _khr_df_model_e {
     /* ASTC HDR vs LDR is determined by the float flag in the channel */
     /* ASTC block size can be distinguished by texel block size */ 
     KHR_DF_MODEL_ASTC          = 162U,
-    /* Proprietary formats (PVRTC, ATITC, etc.) should follow */
+    /* ETC1S is a simplified subset of ETC1 */
+    KHR_DF_MODEL_ETC1S         = 163U,
+    /* PowerVR Texture Compression */
+    KHR_DF_MODEL_PVRTC         = 164U,
+    KHR_DF_MODEL_PVRTC2        = 165U,
+    /* Proprietary formats (ATITC, etc.) should follow */
     KHR_DF_MODEL_MAX = 0xFFU
 } khr_df_model_e;
 
@@ -274,7 +464,9 @@ typedef enum _khr_df_model_channels_e {
     KHR_DF_CHANNEL_DXT1A_COLOR = 0U,
     KHR_DF_CHANNEL_BC1A_COLOR  = 0U,
     KHR_DF_CHANNEL_DXT1A_ALPHAPRESENT = 1U,
+    KHR_DF_CHANNEL_DXT1A_ALPHA = 1U,
     KHR_DF_CHANNEL_BC1A_ALPHAPRESENT  = 1U,
+    KHR_DF_CHANNEL_BC1A_ALPHA  = 1U,
     /* MODEL_DXT2/3/MODEL_BC2 */
     KHR_DF_CHANNEL_DXT2_COLOR =  0U,
     KHR_DF_CHANNEL_DXT3_COLOR =  0U,
@@ -298,8 +490,10 @@ typedef enum _khr_df_model_channels_e {
     KHR_DF_CHANNEL_BC5_G     = 1U,
     /* MODEL_BC6H */
     KHR_DF_CHANNEL_BC6H_COLOR = 0U,
+    KHR_DF_CHANNEL_BC6H_DATA = 0U,
     /* MODEL_BC7 */
     KHR_DF_CHANNEL_BC7_DATA = 0U,
+    KHR_DF_CHANNEL_BC7_COLOR = 0U,
     /* MODEL_ETC1 */
     KHR_DF_CHANNEL_ETC1_DATA  = 0U,
     KHR_DF_CHANNEL_ETC1_COLOR = 0U,
@@ -313,6 +507,15 @@ typedef enum _khr_df_model_channels_e {
     KHR_DF_CHANNEL_ETC2_A     = 15U,
     /* MODEL_ASTC */
     KHR_DF_CHANNEL_ASTC_DATA  = 0U,
+    /* MODEL_ETC1S */
+    KHR_DF_CHANNEL_ETC1S_DATA  = 0U,
+    KHR_DF_CHANNEL_ETC1S_COLOR = 0U,
+    /* MODEL_PVRTC */
+    KHR_DF_CHANNEL_PVRTC_DATA  = 0U,
+    KHR_DF_CHANNEL_PVRTC_COLOR = 0U,
+    /* MODEL_PVRTC2 */
+    KHR_DF_CHANNEL_PVRTC2_DATA  = 0U,
+    KHR_DF_CHANNEL_PVRTC2_COLOR = 0U,
 
     /* Common channel names shared by multiple formats */
     KHR_DF_CHANNEL_COMMON_LUMA    =  0U,

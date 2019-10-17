@@ -4,7 +4,7 @@
 == ETC2 Compressed Texture Image Formats
 
 _This description is derived from the ``ETC Compressed Texture Image Formats''
-section of the OpenGL 4.5 specification._
+section of the OpenGL 4.4 specification._
 
 The ETC formats form a family of related compressed texture image formats.
 They are designed to do different tasks, but also to be similar enough
@@ -39,13 +39,13 @@ it delivers higher precision. It is possible to make hardware that can
 decode both formats with minimal overhead.
 
 _Unsigned RG11 EAC_ is a two-channel unsigned format. Each
-channel is decoded exactly as R11 EAC.
+channel is decoded exactly as Unsigned R11 EAC.
 
 _Signed R11 EAC_ is a one-channel signed
 format. This is good in situations when it is important to be able to
 preserve zero exactly, and still use both positive and negative
 values. It is designed to be similar enough to
-Signed R11 EAC so that hardware can decode both with
+Unsigned R11 EAC so that hardware can decode both with
 minimal overhead, but it is not exactly the same. For example; the
 signed version does not add 0.5 to the _base codeword_, and the
 extension from 11 bits differ. For all details, see the corresponding
@@ -98,7 +98,7 @@ _d_~3~ _h_~3~ _l_~3~ _p_~3~ _d_~4~ _h_~4~ _l_~4~ _p_~4~.
 
 [[ETC28x8]]
 .Pixel layout for an 8×8 texture using four ETC2 compressed blocks
-image::images/ETCletter8x8.{svgpdf}[title="Pixel layout for an 8×8 texture using four ETC2 compressed blocks",width="{svgpdf@pdf:218pt:327}",align="center"]
+image::images/ETCletter8x8.{svgpdf}[width="{svgpdf@pdf:218pt:327}",align="center"]
 
 Note how pixel _a_~3~ in the third block is adjacent to pixel _d_~1~ in the first block.
 
@@ -158,7 +158,7 @@ a three-channel 4{times}4 pixel block as shown in
 
 [[Figure-etc2-pixellayout]]
 .Pixel layout for an ETC2 compressed block
-image::images/ETCletterdirections.{svgpdf}[title="Pixel layout for an ETC2 compressed block",width="{svgpdf@pdf:115pt:173}",align="center"]
+image::images/ETCletterdirections.{svgpdf}[width="{svgpdf@pdf:115pt:173}",align="center"]
 
 [[Table-etc2-dataformat]]
 .Texel Data format for ETC2 compressed texture formats
@@ -226,11 +226,11 @@ they are stored is different in the two modes:
 
 [[Table-etc2-sidebyside]]
 .Two 2{times}4-pixel ETC2 subblocks side-by-side
-image::images/ETC2x4.{svgpdf}[title="Two 2{times}4-pixel ETC2 subblocks side-by-side",width="{svgpdf@pdf:142pt:213}",align="center"]
+image::images/ETC2x4.{svgpdf}[width="{svgpdf@pdf:142pt:213}",align="center"]
 
 [[Table-etc2-ontop]]
 .Two 4{times}2-pixel ETC2 subblocks on top of each other
-image::images/ETC4x2.{svgpdf}[title="Two 4{times}2-pixel ETC2 subblocks on top of each other",width="{svgpdf@pdf:142pt:213}",align="center"]
+image::images/ETC4x2.{svgpdf}[width="{svgpdf@pdf:142pt:213}",align="center"]
 
 In the `individual' mode, following the layout shown in
 <<ETC2IndividualLayout,section b>> of <<Table-etc2-dataformat>>, the
@@ -313,7 +313,7 @@ textures and can therefore be hardcoded into the decompression unit.
 .ETC2 intensity modifier sets for `individual' and `differential' modes
 [cols="2,1,1,1,1",width="45%"]
 |==============
-^| *_Table codeword_* 4+^| *Modifier table*
+^| *_Table codeword_* 4+^.^| Modifier table
 ^|          0       >|   -8 &nbsp; >|  -2 &nbsp; >|  2 &nbsp; >|   8 &nbsp;
 ^|          1       >|  -17 &nbsp; >|  -5 &nbsp; >|  5 &nbsp; >|  17 &nbsp;
 ^|          2       >|  -29 &nbsp; >|  -9 &nbsp; >|  9 &nbsp; >|  29 &nbsp;
@@ -369,8 +369,8 @@ for a subblock falls on a line (shown dashed) parallel to the grayscale
 channels are modified by clamping to the range [0..255].
 
 [[Figure-etc2-individual]]
-.ETC2 individual mode
-image::images/ETC1Ind.{svgpdf}[title="ETC2 individual mode",width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
+.ETC2 `individual' mode
+image::images/ETC1Ind.{svgpdf}[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
 
 In this example, one _base color_ is encoded as the 4-bit triple
 (4,&nbsp;11,&nbsp;9), which is expanded by _extend4to8bits_ to
@@ -425,7 +425,8 @@ for a subblock falls on a line (shown dashed) parallel to the grayscale
 modified by clamping to [0..255].
 
 [[Figure-etc2-differential]]
-image::images/ETC1Diff.{svgpdf}[title="ETC2 differential mode",width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
+.ETC2 `differential' mode
+image::images/ETC1Diff.{svgpdf}[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
 
 Here the first subblock's _base color_ is encoded as the 5-bit triple
 (29,&nbsp;26,&nbsp;8), and expanded by _extend5to8bits_ to
@@ -569,7 +570,8 @@ to the grayscale (0,&nbsp;0,&nbsp;0) to (255,&nbsp;255,&nbsp;255) axis, unless
 channels are modified by clamping to [0..255].
 
 [[Figure-etc2-T]]
-image::images/ETC2T.{svgpdf}[title="ETC2 T mode",width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
+.ETC2 `T' mode
+image::images/ETC2T.{svgpdf}[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
 
 In this example, the first _base color_ is defined as the triple of 4-bit
 _RGB_ values (13,&nbsp;1,&nbsp;8), which is expanded by _extend4to8bits_ to
@@ -629,7 +631,8 @@ dashed) parallel to the grayscale (0,&nbsp;0,&nbsp;0) to
 to the range [0..255].
 
 [[Figure-etc2-H]]
-image::images/ETC2H.{svgpdf}[title="ETC2 H mode",width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
+.ETC2 `H' mode
+image::images/ETC2H.{svgpdf}[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
 
 In this example, the first _base color_ is defined as the triple of 4-bit
 _RGB_ values (13,&nbsp;1,&nbsp;8), as in the `T mode' case above.
@@ -736,7 +739,8 @@ The three _base colors_ are shown as circles, and the interpolated
 values are shown as small diamonds.
 
 [[Figure-etc2-planar]]
-image::images/ETC2P.{svgpdf}[title="ETC2 planar mode",width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
+.ETC2 `planar' mode
+image::images/ETC2P.{svgpdf}[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
 
 In this example, the origin (_R_,_&nbsp;G_,_&nbsp;B_) is encoded as the 6-7-6-bit
 value (12,&nbsp;64,&nbsp;62), which is expanded to (48,&nbsp;129,&nbsp;251).
@@ -771,10 +775,7 @@ The resulting texel colors are then:
 ^| 3 ^| 3 >| 250 &nbsp; >| 112 &nbsp; >| 124 &nbsp;
 |=====
 
-
 ====
-
-<<<
 
 === Format RGB ETC2 with sRGB encoding
 
@@ -786,6 +787,8 @@ to a linear component _cl_ is done according to the formulae
 in <<TRANSFER_SRGB>>.
 Assume _cs_ is the sRGB component in the range [0,&nbsp;1].
 
+<<<
+[[RGBAETC2]]
 === Format RGBA ETC2
 
 Each 4{times}4 block of _RGBA_:8888 information is compressed to 128
@@ -856,6 +859,7 @@ The _base codeword_ is stored in the first 8 bits (bits 63..56) as
 shown in <<Table-etc2eac-dataformat>> part (a).
 This is the first term in <<Equation-etc2eac-eqn-base>>.
 
+<<<
 Next, we want to obtain the _modifier_. Bits 51..48 in
 <<Table-etc2eac-dataformat>> part (a) form a 4-bit index used to select
 one of 16 pre-determined `modifier tables', shown in
@@ -928,8 +932,6 @@ Note that hardware can be effectively shared between the alpha
 decoding part of this format and that of R11 EAC texture. For
 details on how to reuse hardware, see <<Section-r11eac>>.
 
-<<<
-
 === Format RGBA ETC2 with sRGB encoding
 
 Decompression of floating point sRGB values in RGBA ETC2 with sRGB encoding
@@ -941,6 +943,8 @@ _cs_ is the sRGB component in the range [0,&nbsp;1].
 
 The alpha component of RGBA ETC2 with sRGB encoding is done in the
 same way as for linear RGBA ETC2.
+
+<<<
 
 [[Section-r11eac]]
 === Format Unsigned R11 EAC
@@ -1128,6 +1132,7 @@ Thus, the decoder will have to know if it is an
 RGBA ETC2 texture or an R11 EAC texture to decode
 correctly, but the hardware can be 100% shared.
 
+<<<
 As stated above, a _base codeword_ of 255 and a _table value_ of 0 will
 represent a value of latexmath:[${(255.5+0) \over 255.875} = 0.99853444 \ldots$], and this
 does not reach 1.0 even though 255 is the highest possible _base codeword_.
@@ -1175,6 +1180,7 @@ or after clamping
 which shows that several values can be 1.0, even though the base value
 does not reach 1.0. The same reasoning goes for 0.0.
 
+[[Section-rg11eac]]
 === Format Unsigned RG11 EAC
 
 The number of bits to represent a 4{times}4 texel block is 128 bits
@@ -1455,6 +1461,8 @@ information about the green component. Both 64-bit integers are
 decoded in the same way as signed R11 EAC described in
 <<Section-signedr11eac-signedr11eac>>.
 
+<<<
+[[RGBETC2_PUNCHTHROUGH]]
 === Format RGB ETC2 with punchthrough alpha
 
 For RGB ETC2 with punchthrough alpha, each 64-bit word contains

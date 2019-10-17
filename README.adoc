@@ -49,6 +49,8 @@ file; note that the HTML still relies on access to
 link:http://www.mathjax.org[MathJax] and is therefore not completely
 stand-alone.
 This build option requires PERL.
+Since the inline HTML file is very large, "make compressedinlinehtml"
+produces a gzip-compressed version of the output.
 
 "make header" copies the header file into the "out/headers" directory.
 

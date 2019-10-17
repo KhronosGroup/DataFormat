@@ -36,7 +36,7 @@ _d_~3~ _h_~3~ _l_~3~ _p_~3~ _d_~4~ _h_~4~ _l_~4~ _p_~4~.
 
 [[ETC18x8]]
 .Pixel layout for an 8×8 texture using four ETC1 compressed blocks
-image::images/ETCletter8x8.{svgpdf}[title="Pixel layout for an 8×8 texture using four ETC1 compressed blocks",width="{svgpdf@pdf:218pt:327}",align="center"]
+image::images/ETCletter8x8.{svgpdf}[width="{svgpdf@pdf:218pt:327}",align="center"]
 
 Note how pixel _a_~2~ in the second block is adjacent to pixel _m_~1~ in the first block.
 
@@ -62,7 +62,7 @@ shown in <<ETC1layout>>.
 
 [[ETC1layout]]
 .Pixel layout for an ETC1 compressed block
-image::images/ETCletterdirections.{svgpdf}[title="Pixel layout for an ETC1 compressed block",width="{svgpdf@pdf:115pt:173}",align="center"]
+image::images/ETCletterdirections.{svgpdf}[width="{svgpdf@pdf:115pt:173}",align="center"]
 
 There are two modes in ETC1: the
 `individual' mode and the `differential' mode. Which mode is
@@ -158,6 +158,7 @@ _bit_
 ^| _p_^0^ ^| _o_^0^ ^| _n_^0^ ^| _m_^0^ ^| _l_^0^ ^| _k_^0^ ^| _j_^0^ ^| _i_^0^ ^| _h_^0^ ^| _g_^0^ ^| _f_^0^ ^| _e_^0^ ^| _d_^0^ ^| _c_^0^ ^| _b_^0^ ^| _a_^0^
 |====================
 
+<<<
 In both modes, the 4{times}4 block is divided into
 two subblocks of either size 2{times}4 or 4{times}2.
 This is controlled by bit 32, which we call _flip bit_.
@@ -169,11 +170,11 @@ of each other, as shown in <<ETC14x2>>.
 
 [[ETC12x4]]
 .Two 2{times}4-pixel ETC1 subblocks side-by-side
-image::images/ETC2x4.{svgpdf}[title="Two 2{times}4-pixel ETC1 subblocks side-by-side",width="{svgpdf@pdf:142pt:213}",align="center"]
+image::images/ETC2x4.{svgpdf}[width="{svgpdf@pdf:142pt:213}",align="center"]
 
 [[ETC14x2]]
 .Two 4{times}2-pixel ETC1 subblocks on top of each other
-image::images/ETC4x2.{svgpdf}[title="Two 4{times}2-pixel ETC1 subblocks on top of each other",width="{svgpdf@pdf:142pt:213}",align="center"]
+image::images/ETC4x2.{svgpdf}[width="{svgpdf@pdf:142pt:213}",align="center"]
 
 In both individual and differential mode, a _base color_ for each
 subblock is stored, but the way they are stored is different in
@@ -281,7 +282,7 @@ clamped to [0..255], resulting in the color
 .Intensity modifier sets for ETC1 compressed textures
 [cols="2,1,1,1,1",width="48%"]
 |==============
-^| *_Table codeword_* 4+^| *Modifier table*
+^| *_Table codeword_* 4+^.^| *Modifier table*
 ^|          0       >|   -8 &nbsp; >|  -2 &nbsp; >|  2 &nbsp; >|   8 &nbsp;
 ^|          1       >|  -17 &nbsp; >|  -5 &nbsp; >|  5 &nbsp; >|  17 &nbsp;
 ^|          2       >|  -29 &nbsp; >|  -9 &nbsp; >|  9 &nbsp; >|  29 &nbsp;
@@ -308,6 +309,17 @@ clamped to [0..255], resulting in the color
 ====
 ETC1 is a proper subset of ETC2.
 There are examples of ``<<etc2-individual-example,individual>>'' and
-``<<etc2-differential-example,differential>>'' mode
-decoding below.
+``<<etc2-differential-example,differential>>'' decoding in <<ETC2>>.
 ====
+
+[[ETC1S]]
+=== ETC1S
+
+The ETC1S format is a subset the ETC1, simplified to facilitate image
+compression.
+The blocks use differential encoding (_diff bit_ = 1);
+Color deltas _R_~d~ = _G_~d~ = _B_~d~ = 0, so the two subblocks share
+base colors.
+The _Table codeword_ for each subblock is identical.
+Finally, the _flip bit_ is encoded as 0 -- the subsets are identical
+anyway.

@@ -16,6 +16,7 @@
 
 \usepackage{alltt}
 
+\setlength{\abovecaptionskip}{-1ex}
 
 % ##############################################################################
 % ### DocBook and local commands
@@ -83,10 +84,10 @@
 % To have title rendering changed
 \usepackage[sf,bf]{titlesec}
 
-\renewcommand\floatpagefraction{.9}
-\renewcommand\topfraction{.9}
-\renewcommand\bottomfraction{.9}
-\renewcommand\textfraction{.1}
+\renewcommand\floatpagefraction{1}
+\renewcommand\topfraction{1}
+\renewcommand\bottomfraction{1}
+\renewcommand\textfraction{0}
 
 % Display ``DRAFT'' as a water mark:
 \usepackage{ifpdf}
@@ -126,7 +127,8 @@
 %\setlength{\topmargin}{0.5cm}
 \setlength{\topmargin}{1.3cm}
 %\setlength{\headsep}{2cm}
-\setlength{\headsep}{1.1cm}
+%\setlength{\headsep}{1.1cm}
+\setlength{\headsep}{0.5cm}
 \setlength{\textheight}{24cm}
 \setlength{\footskip}{1.5cm}
 \setlength{\tabcolsep}{0.5pt}
@@ -290,9 +292,9 @@
 
 %
 % Index is redefined to have the section numbered.
-% 
+%
 \renewenvironment{theindex}
-{ 
+{
   \if@twocolumn
     \@restonecolfalse
   \else
@@ -354,7 +356,7 @@
 \usepackage{df_title}
 \usepackage{df_headfoot}
 \usepackage{dbk_revision}
-\usepackage{dbk_admonition}
+%\usepackage{dbk_admonition}
 \usepackage{dbk_changebar}
 \usepackage{dbk_biblio}
 \usepackage{dbk_table}
@@ -364,6 +366,43 @@
 \usepackage{dbk_misc}
 \usepackage{dbk_callout}
 \usepackage{dbk_annot}
+
+% Replace dbk_admonition with a version that has less spacing
+\newlength{\admlength}
+\newenvironment{DBKadmonition}[2] {
+  \begin{center}
+  \hspace{0mm}%\newline
+  \noindent
+%  \setlength{\fboxsep}{5pt}
+  \setlength{\fboxsep}{0pt}
+  \setlength{\admlength}{\linewidth}
+  \addtolength{\admlength}{-4mm}
+  \sffamily
+  \begin{minipage}{\admlength}
+  \vspace{-2mm}
+  \hrule
+  \vspace{2mm}
+  \ifthenelse{\equal{#1}{}}{
+    \def\admgraph{false}
+  }{
+    \def\admgraph{true}
+    \includegraphics[width=10mm]{#1}\hspace{1mm}
+    \addtolength{\admlength}{-11mm}
+    \begin{minipage}{\admlength}
+  }
+  \textbf{#2}%
+}{
+  \ifthenelse{\equal{\admgraph}{false}}{}{
+    \end{minipage}%\newline
+  }
+%  \vspace{3mm}
+  \vspace{2mm}
+  \hrule
+  \vspace{-2mm}
+  \end{minipage}%\newline
+  \end{center}
+}
+
 
 \renewenvironment{DBKrevtable}{
   \newpage
