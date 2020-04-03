@@ -18,11 +18,9 @@ Copyright notice at https://www.khronos.org/registry/speccopyright.html
 </xsl:template>
 </xsl:stylesheet>
 
-<!--
 <authorgroup>
 <author><firstname>&nbsp;Andrew</firstname><surname>Garrard&nbsp;</surname></author>
 </authorgroup>
--->
 
 <legalnotice>
 <title>
@@ -224,6 +222,14 @@ Khronos, SYCL, SPIR, WebGL, EGL, COLLADA, StreamInput, OpenVX, OpenKCam, glTF, O
 <authorinitials>AG/MC</authorinitials>
 <revremark>
 &nbsp;Updates for KTX2/glTF. BC6h and ASTC table fixes and typo fixes. More examples.&nbsp;
+</revremark>
+</revision>
+<revision>
+<revnumber>1.3.1</revnumber>
+<date>&nbsp;Nov 2019&nbsp;</date>
+<authorinitials>MC</authorinitials>
+<revremark>
+&nbsp;Fix swapped pre-multiplied alpha in DXT[2345] examples.&nbsp;
 </revremark>
 </revision>
 </revhistory>
