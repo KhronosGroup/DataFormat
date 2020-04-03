@@ -1,7 +1,7 @@
 // Copyright (c) 2014-2019 The Khronos Group Inc.
 // Copyright notice at https://www.khronos.org/registry/speccopyright.html
 ifdef::a2xhtml[]
-= Khronos Data Format Specification =
+= Khronos Data Format Specification v1.3.1 =
 endif::[]
 [abstract]
 
@@ -2177,7 +2177,7 @@ No attempt is made to describe the 16 alpha samples for this position
 independently, since understanding the other channels for any pixel
 requires the whole texel block.
 
-.Example DXT2 descriptor
+.Example DXT2 descriptor (premultiplied alpha)
 [width="97%"]
 |================================
 32+^| *~++uint32_t++ bit~*
@@ -2185,7 +2185,7 @@ requires the whole texel block.
 32+^| *_totalSize:_* 60
 15+^| *_descriptorType:_* 0 17+^| *_vendorId:_* 0
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 2) = 56 16+^| *_versionNumber:_* 2
-8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++DXT2++*
+8+^| *_flags:_* *++PREMULTIPLIED++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++DXT2++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
 8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 16
@@ -2205,7 +2205,7 @@ requires the whole texel block.
 |================================
 
 <<<
-.Example DXT3 descriptor (premultiplied alpha)
+.Example DXT3 descriptor
 [width="97%"]
 |================================
 32+^| *~++uint32_t++ bit~*
@@ -2213,7 +2213,7 @@ requires the whole texel block.
 32+^| *_totalSize:_* 60
 15+^| *_descriptorType:_* 0 17+^| *_vendorId:_* 0
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 2) = 56 16+^| *_versionNumber:_* 2
-8+^| *_flags:_* *++PREMULTIPLIED++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++DXT3++*
+8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++DXT3++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
 8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 16
@@ -2266,7 +2266,7 @@ No attempt is made to describe the 16 alpha samples for this position
 independently, since understanding the other channels for any pixel
 requires the whole texel block.
 
-.Example DXT4 descriptor
+.Example DXT4 descriptor (premultiplied alpha)
 [width="97%"]
 |================================
 32+^| *~++uint32_t++ bit~*
@@ -2274,7 +2274,7 @@ requires the whole texel block.
 32+^| *_totalSize:_* 60
 15+^| *_descriptorType:_* 0 17+^| *_vendorId:_* 0
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 2) = 56 16+^| *_versionNumber:_* 2
-8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++DXT4++*
+8+^| *_flags:_* *++PREMULTIPLIED++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++DXT4++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
 8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 16
@@ -2294,7 +2294,7 @@ requires the whole texel block.
 |================================
 
 <<<
-.Example DXT5 descriptor (premultiplied alpha)
+.Example DXT5 descriptor
 [width="97%"]
 |================================
 32+^| *~++uint32_t++ bit~*
@@ -2302,7 +2302,7 @@ requires the whole texel block.
 32+^| *_totalSize:_* 60
 15+^| *_descriptorType:_* 0 17+^| *_vendorId:_* 0
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 2) = 56 16+^| *_versionNumber:_* 2
-8+^| *_flags:_* *++PREMULTIPLIED++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++DXT5++*
+8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++DXT5++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
 8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 16
@@ -4383,22 +4383,25 @@ For example, it may be useful to use a descriptor to encode the
 color space of an image which is compressed with a variable-rate
 compressor (meaning there is no data-independent mapping between
 memory locations and corresponding pixels).
+
 There are two ways to do this, each with its own uses.
-Only the color primaries and transfer function may be encoded or these
-and the presence of color and alpha samples may be encoded.
+Only the color primaries, transfer function and flags may be encoded
+or these and the presence of color and alpha samples may be encoded.
 
-In the first case *++KHR_DF_MODEL_UNSPECIFIED++* is used in a descriptor
-with no samples.
-In this case all *_texelBlockDimension_* and *_bytesPlane_* values must
-be zero.
+In both cases an unsized format is indicated by setting all
+*_bytesPlane_* values to 0.
 
-In the second case the appropriate color model is used,
-e.g.*++KHR_DF_MODEL_RGBSDA++*.
+In the first case, *++KHR_DF_MODEL_UNSPECIFIED++* is used in a
+descriptor with no samples.
+All *_texelBlockDimension_* values must be zero.
+
+In the second case an appropriate color model is used,
+e.g. *++KHR_DF_MODEL_RGBSDA++*.
 The presence of color and alpha samples is used to indicate the
 presence of these samples in the image.
-In this case, all *_texelBlockDimension_* and *_bytesPlane_*  values
-and the *_bitOffset_*, *_bitLength_* and *_samplePosition_* fields
-of any samples must be set to 0.
+The *_texelBlockDimension_* values and *_bitOffset_*, *_bitLength_* and
+*_samplePosition_* fields of the samples can all be set to 0 or the values
+prior to variable-rate compression can be retained.
 
 <<<
 === C99 struct mapping (informative)
