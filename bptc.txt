@@ -460,7 +460,7 @@ block is:
       \textrm{IB} \times (x + 4\times y) - 1, & \textrm{NS} = 1,\ 0 < x + 4\times y \\
       \textrm{IB} \times (x + 4\times y) - 1, & \textrm{NS} = 2,\ 0 < x + 4\times y \leq \textrm{anchor}_2[\mathit{part}] \\
       \textrm{IB} \times (x + 4\times y) - 2, & \textrm{NS} = 2,\ \textrm{anchor}_2[\mathit{part}] < x + 4\times y \\
-      \textrm{IB} \times (x + 4\times y) - 1, & \textrm{NS} = 3,\ 0 < x + 4\times y \leq \textrm{anchor}_{3,2}[\mathit{part}],\ x + 4\times y \leq \textrm{anchor}_{3,2}[\mathit{part}]\\
+      \textrm{IB} \times (x + 4\times y) - 1, & \textrm{NS} = 3,\ 0 < x + 4\times y \leq \textrm{anchor}_{3,2}[\mathit{part}],\ x + 4\times y \leq \textrm{anchor}_{3,3}[\mathit{part}]\\
       \textrm{IB} \times (x + 4\times y) - 3, & \textrm{NS} = 3,\ x + 4\times y > \textrm{anchor}_{3,2}[\mathit{part}],\ x + 4\times y > \textrm{anchor}_{3,3}[\mathit{part}] \\
       \textrm{IB} \times (x + 4\times y) - 2, & \textrm{NS} = 3,\ \textrm{otherwise} \\
   \end{cases} \\
