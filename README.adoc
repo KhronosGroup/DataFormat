@@ -55,3 +55,8 @@ produces a gzip-compressed version of the output.
 "make header" copies the header file into the "out/headers" directory.
 
 "make clean" removes the contents out "out" and temporary files.
+
+Default Branch Renaming
+=======================
+
+The default branch of this repository was renamed from "master" to "main" on 2024-02-01.
