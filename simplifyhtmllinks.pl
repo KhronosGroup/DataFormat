@@ -1,7 +1,7 @@
 #!/usr/bin/perl
-# Copyright (c) 2019 The Khronos Group Inc.
-# Copyright notice at https://www.khronos.org/registry/speccopyright.html
-#
+# Copyright 2019-2024 The Khronos Group Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 # There appears to be no way to make the HTML output sylistically match the PDF
 # and provide links as numbers without replicating the caption.
 # Therefore we post-process the HTML to fix it.

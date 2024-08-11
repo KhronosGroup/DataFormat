@@ -1,5 +1,8 @@
+// Copyright 2014-2024 The Khronos Group Inc.
+// SPDX-License-Identifier: CC-BY-4.0
+
 Khronos^(TM)^ Data Format Specification
-=======================================
+====
 
 This repository contains source for the Khronos Data Format Specification.
 
@@ -26,7 +29,7 @@ in-memory representation of a number of compressed texture formats,
 and describes some common color spaces.
 
 Building the Specification
-==========================
+====
 
 The build system relies on
 link:http://www.methods.co.nz/asciidoc/index.html[asciidoc], which is
@@ -57,6 +60,6 @@ produces a gzip-compressed version of the output.
 "make clean" removes the contents out "out" and temporary files.
 
 Default Branch Renaming
-=======================
+====
 
 The default branch of this repository was renamed from "master" to "main" on 2024-02-01.

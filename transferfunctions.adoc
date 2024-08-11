@@ -1,5 +1,5 @@
-// Copyright (c) 2017-2019 The Khronos Group Inc.
-// Copyright notice at https://www.khronos.org/registry/speccopyright.html
+// Copyright 2017-2024 The Khronos Group Inc.
+// SPDX-License-Identifier: CC-BY-4.0
 
 [[TRANSFER_CONVERSION]]
 == Transfer functions
@@ -245,7 +245,7 @@ The (OETF) conversion from linear (_R_,_G_,_B_) encoding
 to non-linear (_R&prime;_,_G&prime;_,_B&prime;_) encoding is:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
 \textit{R}' &= \begin{cases}
       \textit{R} \times 4.500, & \textit{R} < \beta \\
@@ -260,7 +260,7 @@ to non-linear (_R&prime;_,_G&prime;_,_B&prime;_) encoding is:
       \alpha \times \textit{B}^{0.45} - (\alpha - 1), & \textit{B} \geq \beta
   \end{cases}
 \end{align*}
-++++++
+++++
 
 Where _&alpha;_ = 1.0993 and _&beta;_ = 0.0181
 for 12-bit encoding in the BT.2020 specification, and
@@ -272,7 +272,7 @@ latexmath:[$\alpha = 1.099$] and latexmath:[$\beta = 0.018$] otherwise.
 From this the inverse (OETF^&#160;-1^) transformation can be deduced:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
 \textit{R} &= \begin{cases}
       {{\textit{R}'}\over{4.500}}, & \textit{R}' < \delta \\
@@ -287,7 +287,7 @@ B &= \begin{cases}
       {\left({\textit{B}' + (\alpha - 1)}\over{\alpha}\right)}^{1\over{0.45}}, & \textit{B}' \geq \delta
   \end{cases}
 \end{align*}
-++++++
+++++
 
 _&delta;_ can be deduced from _&alpha;_ {times} _&beta;_^0.45^
 - (_&alpha;_ - 1) &#8776; 0.0812. Note that this is subtly different from
@@ -377,51 +377,51 @@ At {_R_,_G_,_B_}&nbsp;= _&beta;_, the linear and non-linear segments of the curv
 must calculate the same value:
 
 [latexmath]
-++++++
+++++
 $$4.5 \times \beta = \alpha \times \beta^{0.45} - (\alpha - 1)$$
-++++++
+++++
 
 Additionally, the derivatives of the linear and non-linear segments of the curve
 must match:
 
 [latexmath]
-++++++
+++++
 $$4.5 = 0.45 \times \alpha \times \beta^{-0.55}$$
-++++++
+++++
 
 The derivative can be rearranged to give the equation:
 
 [latexmath]
-++++++
+++++
 $$\alpha = 10 \times \beta^{0.55}$$
-++++++
+++++
 
 Substituting this into the original equation results in the following:
 
 [latexmath]
-++++++
+++++
 $$4.5 \times \beta = 10 \times \beta^{0.55} \times \beta^{0.45} - (10 \times \beta^{0.55} - 1)$$
-++++++
+++++
 
 This simplifies to:
 
 [latexmath]
-++++++
+++++
 $$5.5 \times \beta - 10 \times \beta^{0.55} + 1 = 0$$
-++++++
+++++
 
 This can be solved numerically (for example by Newton-Raphson iteration),
 and results in values of:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
 \beta &\approx 0.018053968510808\\
 \alpha &\approx 1.099296826809443\\
 \delta &= \alpha\times\beta^{0.45} - (\alpha-1) = 4.5\times\beta\\
 &\approx 0.081242858298635\\
 \end{align*}
-++++++
+++++
 
 <<<
 
@@ -437,7 +437,7 @@ to linear latexmath:[$(R, G, B)$] encoding is:
 
 [[srgbgamma]]
 [latexmath]
-++++++
+++++
 \begin{align*}
   R &= \begin{cases}
       {R' \over 12.92}, & R' \leq 0.04045 \\
@@ -452,7 +452,7 @@ to linear latexmath:[$(R, G, B)$] encoding is:
       \left({B' + 0.055} \over 1.055\right)^{2.4}, & B' > 0.04045
   \end{cases}
 \end{align*}
-++++++
+++++
 
 [[TRANSFER_SRGB_INVEOTF]]
 ==== sRGB EOTF^-1^
@@ -462,7 +462,7 @@ latexmath:[$(R, G, B)$] encoding to non-linear latexmath:[$(R', G', B')$]
 encoding is:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
   R' &= \begin{cases}
       R \times 12.92, & R \leq 0.0031308 \\
@@ -477,7 +477,7 @@ encoding is:
       1.055 \times B^{1\over 2.4} - 0.055, & B > 0.0031308
   \end{cases}
 \end{align*}
-++++++
+++++
 
 [[TRANSFER_SRGB_EOTFVSGAMMA]]
 ==== sRGB EOTF vs gamma 2.2
@@ -539,7 +539,7 @@ the absolute value of the input.
 That is:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
   R' &= \begin{cases}
       -1.055 \times (-R)^{1\over 2.4} + 0.055, &  R \leq -0.0031308 \\
@@ -557,7 +557,7 @@ That is:
       1.055 \times B^{1\over 2.4} - 0.055, & B \geq 0.0031308
   \end{cases}
 \end{align*}
-++++++
+++++
 
 NOTE: <<scrgb,scRGB>> annex B changes the behavior of the
 latexmath:[$\{R,G,B\} = 0.0031308$] case compared with the
@@ -568,7 +568,7 @@ scRGB annex B does not define the EOTF^&#160;-1^, so the
 formulae below are derived by extending the sRGB formulae.
 
 [latexmath]
-++++++
+++++
 \begin{align*}
   R &= \begin{cases}
       -\left({0.055 - R'} \over 1.055\right)^{2.4}, & R' < -0.04045 \\
@@ -586,7 +586,7 @@ formulae below are derived by extending the sRGB formulae.
       \left({B' + 0.055} \over 1.055\right)^{2.4}, & B' > 0.04045
   \end{cases}
 \end{align*}
-++++++
+++++
 
 [NOTE]
 ====
@@ -597,7 +597,7 @@ It notes that the non-linear sRGB \{latexmath:[$R',G',B'$]\} values can
 be corrected as follows:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
 E_{sYCC} &= \begin{cases}
   0.0125 - \left({1-0.0125\over 1.055^{2.4}}\right)
@@ -613,7 +613,7 @@ E_{sYCC} &= \begin{cases}
 E_{sYCC} &= (\textrm{linear}) \{R_{sYCC},G_{sYCC},B_{sYCC}\} \\
 E'_{sRGB} &= (\textrm{non-linear}) \{R'_{sRGB},G'_{sRGB},B'_{sRGB}\}
 \end{align*}
-++++++
+++++
 
 This is equivalent to applying
 latexmath:[$E_{sYCC} = 0.0125 + {1\over 1-0.0125} \times E_{sRGB}$]
@@ -631,14 +631,14 @@ Similar to the ITU transfer function, the EOTF^&#160;-1^ of the sRGB function
 can be written as:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
 \{R,G,B\} &= \begin{cases}
       \{R',G',B'\} \times 12.92, & \{R',G',B'\} \leq \beta \\
       \alpha \times \{R',G',B'\}^{1\over{2.4}} - (\alpha - 1), & \{R',G',B'\} < \beta
   \end{cases}
 \end{align*}
-++++++
+++++
 
 Like the ITU transfer function above, the values of latexmath:[$\alpha$]
 and latexmath:[$\beta$] in the sRGB function appear to have been chosen
@@ -652,60 +652,60 @@ At latexmath:[$\{R',G',B'\} = \beta$], the linear and non-linear segments
 of the function must calculate the same value:
 
 [latexmath]
-++++++
+++++
 $$12.92 \times \beta = \alpha \times \beta^{1\over{2.4}} - (\alpha - 1)$$
-++++++
+++++
 
 Additionally, the derivatives of the linear and non-linear segments of
 the function must match:
 
 [latexmath]
-++++++
+++++
 $$12.92 = {{\alpha \times \beta^{{1\over{2.4}}-1}}\over{2.4}}$$
-++++++
+++++
 
 This formula can be rearranged to give latexmath:[$\alpha$] in terms of
 latexmath:[$\beta$]:
 
 [latexmath]
-++++++
+++++
 $$\alpha = 12.92\times 2.4\times \beta^{1-{1\over{2.4}}}$$
-++++++
+++++
 
 Substituting this into the formula for latexmath:[$\{R,G,B\}$]:
 
 [latexmath]
-++++++
+++++
 $$12.92 \times \beta = 12.92\times 2.4\times \beta^{1-{1\over{2.4}}} \times \beta^{1\over{2.4}} - (12.92\times 2.4\times \beta^{1-{1\over{2.4}}} - 1)$$
-++++++
+++++
 
 This equation simplifies to:
 
 [latexmath]
-++++++
+++++
 $$1.4 \times 12.92 \times \beta - 2.4 \times 12.92 \times \beta^{1 - {1\over{2.4}}} + 1 = 0$$
-+++++
+++++
 
 This can be further simplified to:
 
 [latexmath]
-++++++
+++++
 $$1.4 \times \beta - 2.4 \times \beta^{1 - {1\over{2.4}}} + {1\over{12.92}} = 0$$
-+++++
+++++
 
 The value of latexmath:[$\beta$] can be found numerically (for example by
 Newton-Raphson iteration, with a derivative of
 latexmath:[$1.4-1.4\beta^{-{1\over{2.4}}}$]), and results in values of:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
 \beta &\approx  0.003041282560128\\
 \alpha &\approx 1.055010718947587\\
 \delta &= 12.92\times\beta = \alpha\times\beta^{1\over{2.4}}-(\alpha-1.0)\\
 &\approx 0.039293370676848
 \end{align*}
-++++++
+++++
 
 Where latexmath:[$\delta$] is the value of the EOTF^&#160;-1^ at
 latexmath:[$\{R',G',B'\} = \beta$].
@@ -728,12 +728,12 @@ practice.
 The EOTF can be written with these derived values as:
 
 [latexmath]
-++++++
+++++
   $$\{R,G,B\} = \begin{cases}
       {{\{R',G',B'\}}\over{12.92}}, & \{R',G',B'\} \leq \delta \\
       \left({{\{R',G',B'\}}\over{\alpha}} + {{\alpha-1}\over\alpha}\right)^{2.4}, & \{R',G',B'\} > \delta
   \end{cases}$$
-++++++
+++++
 
 [NOTE]
 ====
@@ -743,25 +743,25 @@ The profile viewer in Apple's ColorSync utility reports that
 the EOTF is of the following form:
 
 [latexmath]
-++++++
+++++
   $$f(x) = \begin{cases}
   cx, & x < d \\
   (ax+b)^\gamma, & x \geq d
   \end{cases}$$
-++++++
+++++
 
 The reported figures for latexmath:[$\gamma=2.4,\ a=0.948,\ b=0.52$]
 and latexmath:[$c=0.077$] correspond to the equivalent values in
 the sRGB specification:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
 {1\over{\alpha}} &\approx 0.948 = a\\
 {{\alpha-1}\over\alpha} &\approx 0.52 = b\\
 {1\over{12.92}} &\approx 0.077 = c
 \end{align*}
-++++++
+++++
 
 These values are correct to the reported precision both for the value
 latexmath:[$\alpha = 1.055$] in the sRGB specification and for the more
@@ -776,9 +776,9 @@ The disparity can be explained if the profile values have been
 derived as described in this section:
 
 [latexmath]
-++++++
+++++
 $$\delta \approx 0.039293370676848\approx 0.039 = d$$
-++++++
+++++
 
 Note that this value assumes a correspondingly corrected version
 of latexmath:[$\alpha$] rather than latexmath:[$a = 1.055$].
@@ -803,20 +803,20 @@ However, the intersection point latexmath:[$\beta$] can be
 found by solving:
 
 [latexmath]
-++++++
+++++
 $$1.055\times\beta^{1\over{2.4}}-12.92\times\beta-0.055 = 0$$
-++++++
+++++
 
 This equation can give us a slightly more precise pair of values
 for the original sRGB equation:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
 \beta &\approx 0.003130668 \\
 \delta &\approx 0.040448236
 \end{align*}
-++++++
+++++
 
 In practice this makes no measurable difference, but does suggest
 that the values of latexmath:[$\beta = 0.0031308$] in the sRGB
@@ -833,31 +833,31 @@ represent a typical EOTF for CRTs and to document this to ensure consistency
 between other display technologies:
 
 [latexmath]
-++++++
+++++
 $$L = a(\textrm{max}(V+b,0))^\gamma$$
-++++++
+++++
 
 [width="40%",grid="none",frame="none"]
-|============
+|====
 <|_L_ = screen luminance in cd/m^2^
 <|_V_ = input signal normalized to [0..1]
 <|_a_ = user gain (legacy ``contrast'')
 <|_b_ = black level lift (legacy ``brightness'')
 <|latexmath:[$\gamma$] = 2.4
-|============
+|====
 
 If _L~W~_ is the screen luminance of maximum white and _L~B~_ is the screen
 luminance of minimum black:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
 L_B &= a \times b^\gamma \\
 L_W &= a \times (1 + b)^\gamma \\
 a &= (L_W^{1\over\gamma} - L_B^{1\over\gamma})^\gamma \\
 b &= {{L_B^{1\over\gamma}}\over{L_W^{1\over\gamma} - L_B^{1\over\gamma}}}
 \end{align*}
-++++++
+++++
 
 <<bt2087,ITU BT.2087>> proposes the use of a simple power function with a
 latexmath:[$\gamma = 2.4$] as an approximation to this EOTF for the purposes
@@ -882,24 +882,24 @@ image::images/tf_ituvsgamma256.png[width="{svgpdf@pdf:192pt:257}",align="center"
 match to CRT measured luminance than the standard formula listed above:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
 L &= \begin{cases}
   k(V_C+b)^{(\alpha_1-\alpha_2)}(V+b)^{\alpha_2}, & V < V_C \\
   k(V+b)^{\alpha_1}, & V_C \leq V
   \end{cases}
 \end{align*}
-++++++
+++++
 
 [width="60%",grid="none",frame="none"]
-|============
+|====
 <|_V~C~_ = 0.35
 <|latexmath:[$\alpha_1$] = 2.6
 <|latexmath:[$\alpha_2$] = 3.0
 <|_k_ = coefficient of normalization (so that _V_ = 1 gives white),
 <|latexmath:[$k=L_W(1+b)^{-\alpha_1}$]
 <|_b_ = black level lift (legacy ``brightness'')
-|============
+|====
 
 ====
 
@@ -919,21 +919,21 @@ The  <<bt2100,BT.2100-2>> Hybrid Log Gamma description defines the following
 OETF for linear scene light:
 
 [latexmath]
-++++++
+++++
    $$E'_\mathit{norm} = \textrm{OETF}(E) = \begin{cases}
    \sqrt{3E}, & 0 \leq E \leq {1\over{12}} \\
    a \times \textrm{ln}((12\times E) - b) + c, & {1\over{12}} < E \leq 1
    \end{cases}$$
-++++++
+++++
 
 [width="80%",grid="none",frame="none"]
-|============
+|====
 <|latexmath:[$E$] = the latexmath:[$R_S$], latexmath:[$G_S$] or latexmath:[$B_S$] color component of linear scene light, normalized to [0..1]
 <|latexmath:[$E'$] = the resulting non-linear latexmath:[$R_S'$], latexmath:[$G_S'$] or latexmath:[$B_S'$] non-linear scene light value in in the range [0..1]
 <|_a_ = 0.17883277
 <|_b_ = latexmath:[$1 - 4\times a = 0.28466892$]
 <|_c_ = latexmath:[$0.5 - a\times ln(4\times a) \approx 0.55991073$]
-|============
+|====
 
 [NOTE]
 ====
@@ -941,34 +941,34 @@ BT.2100-0, in note 5b, defines these formulae equivalently, but slightly
 differently:
 
 [latexmath]
-++++++
+++++
    $$E'_\mathit{norm} = \textrm{OETF}(E) = \begin{cases}
    \sqrt{3E}, & 0 \leq E \leq {1\over{12}} \\
    a \times \textrm{ln}(E - b_0) + c_0, & {1\over{12}} < E \leq 1
    \end{cases}$$
-++++++
+++++
 
 This formulation in BT.2100-0 uses different constants for _b_ and _c_
 (_a_ is unmodified), as follows:
 
 [width="50%",options="header",cols="1,5,5"]
-|============
+|====
 | | BT.2100-2, BT.2100-1 | BT.2100-0
 | _b_ | _b_~1~ = 0.28466892 | _b_~0~ = 0.02372241
 | _c_ | _c_~1~ = 0.55991073 | _c_~0~ = 1.00429347
-|============
+|====
 
 The BT.2100-0 variations can be derived from the BT.2100-2 numbers as:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
 a \times \textrm{ln}((12 \times E) - b_1)+ c_1 & = a \times \textrm{ln}\left(12\times\left(E - {b_1\over{12}}\right)\right) + c_1\\
 & = a \times \textrm{ln}\left(E - {{b_1}\over{12}}\right) + a\times\textrm{ln}(12) + c_1 \\
 {{b_1}\over{12}} = {{0.28466892}\over{12}} &= 0.023772241 = b_0 \\
 a\times\textrm{ln}(12) + c_1 = 0.17883277\times\textrm{ln}(12) + 0.55991073 &= 1.00429347 = c_0
 \end{align*}
-++++++
+++++
 
 ====
 
@@ -979,12 +979,12 @@ a\times\textrm{ln}(12) + c_1 = 0.17883277\times\textrm{ln}(12) + 0.55991073 &= 1
 The OETF^&#160;-1^ of normalized HLG is:
 
 [latexmath]
-++++++
+++++
    $$E = \textrm{OETF}^{-1}(E') = \begin{cases}
    {{E'^2}\over 3}, & 0 \leq E' \leq {1\over 2} \\
    {1\over 12} \times \left({b + e^{(E'-c)/a}}\right), & {1\over 2} < E' \leq 1
    \end{cases}$$
-++++++
+++++
 
 _a_, _b_ and _c_ are defined as for the normalized HLG OETF.
 BT.2100-0 again defines an equivalent formula without the
@@ -1003,21 +1003,21 @@ Only the variant normalized to the range [0..1] is described in the updated
 versions of the specification, BT.2100-1 and BT.2100-2.
 
 [latexmath]
-++++++
+++++
    $$E' = \textrm{OETF}(E) = \begin{cases}
    {{\sqrt{E}}\over{2}}, & 0 \leq E \leq 1 \\
    a \times \textrm{ln}(E-b) + c, & 1 < E
    \end{cases}$$
-++++++
+++++
 
 [width="80%",grid="none",frame="none"]
-|============
+|====
 <|latexmath:[$E'$] = the latexmath:[$R_S$], latexmath:[$G_S$] or latexmath:[$B_S$] color component of linear scene light, normalized to [0..12]
 <|latexmath:[$E_S'$] = the resulting non-linear latexmath:[$R_S'$], latexmath:[$G_S'$] or latexmath:[$B_S'$] value in in the range [0..1]
 <|_a_ = 0.17883277
 <|_b_ = 0.28466892
 <|_c_ = 0.55991073
-|============
+|====
 
 Note that these constants are the same as those used in the BT.2100-1
 version of the <<TRANSFER_HLG_OETF_NORM,normalized formulae>>.
@@ -1028,12 +1028,12 @@ version of the <<TRANSFER_HLG_OETF_NORM,normalized formulae>>.
 The OETF^&#160;-1^ of ``unnormalized'' HLG (producing _E_ in the range [0..12]) is:
 
 [latexmath]
-++++++
+++++
    $$E = \textrm{OETF}^{-1}(E') = \begin{cases}
    4\times E'^2, & 0 \leq E' \leq {1\over 2} \\
    b + e^{(E'-c)/a}, & {1\over 2} < E'
    \end{cases}$$
-++++++
+++++
 
 _a_, _b_ and _c_ are defined as for the
 <<TRANSFER_HLG_OETF_UNNORM,unnormalized HLG OETF>>.
@@ -1056,7 +1056,7 @@ OETF^&#160;-1^:
    of the unnormalized OETF^&#160;-1^ at latexmath:[$E' = {1\over 2}$]:
 +
 [latexmath]
-++++++
+++++
 \begin{align*}
 {{d(4\times E'^2)}\over{dE'}} = 8\times E' &= 8 \times {1\over 2} = 4
             \textrm{ (derivative of the } 0 \leq E' \leq {1\over 2} \textrm{ case)}\\
@@ -1071,14 +1071,14 @@ OETF^&#160;-1^:
 \implies c &= -\textrm{ln}\left({{(4\times a)^a}\over{e^{0.5}}}\right)\\
      &= 0.5 - a\times\textrm{ln}(4\times a)
 \end{align*}
-++++++
+++++
  * The latexmath:[$0 \leq E' \leq {1\over 2}$] term of the unnormalized
    OETF^&#160;-1^ has the same value as the
    latexmath:[${1\over 2}$]&#160;&lt;&#160;latexmath:[$E'\leq 1$]
    term of the unnormalized OETF^&#160;-1^ at latexmath:[$E' = {1\over 2}$]:
 +
 [latexmath]
-++++++
+++++
 \begin{align*}
 4\times{E'}^2 &= e^{{E' - c}\over a} + b
 \textrm{ (from the }0 \leq E' \leq {1\over 2}\textrm{ and }{1\over 2} < E' \textrm{ cases})\\
@@ -1087,12 +1087,12 @@ OETF^&#160;-1^:
 &= e^{\textrm{ln}(4\times a)} + b\\
 b &= 1 - 4\times a
 \end{align*}
-++++++
+++++
  * At _E'_ = 1, the latexmath:[${1\over 2}$]&#160;&lt;&#160;latexmath:[$E'$]
    term of the unnormalized OETF^&#160;-1^ = 12:
 +
 [latexmath]
-++++++
+++++
 \begin{align*}
 12 &= e^{{E'-c}\over a} + b\\
 &= {e^{{1 - 0.5 + a\times\textrm{ln}(4\times a)}\over a} + 1 - 4\times a} \\
@@ -1102,25 +1102,25 @@ b &= 1 - 4\times a
 {121\over{16\times a^2}} + {11\over{2\times a}} + 1 &= e^{1\over a}\\
 {121\over{16}} + {a\times 11\over 2} + a^2 \times (1 - e^{1\over a}) = 0
 \end{align*}
-++++++
+++++
 
 This last equation can be solved numerically to find:
 [latexmath]
-++++++
+++++
 \begin{align*}
 a \approx 0.1788327726569497656312771
 \end{align*}
-++++++
+++++
 
 With this precision, more accurate values of the other constants are:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
 b &= 0.28466890937 \\
 c &= 0.55991072776
 \end{align*}
-++++++
+++++
 
 The _b_ = 0.28466892 official figure assumes the rounded
 _a_ = 0.17883277 value as an input to the _b_ = latexmath:[$1 - 4\times a$]
@@ -1165,13 +1165,13 @@ image::images/tf_hlg.{svgpdf}[width="{svgpdf@pdf:200pt:300}",align="center"]
 The OOTF of HLG is described as:
 
 [latexmath]
-+++++
+++++
 \begin{align*}
 R_D &= \alpha\times Y_S^{\gamma-1}\times R_S \\
 G_D &= \alpha\times Y_S^{\gamma-1}\times G_S \\
 B_D &= \alpha\times Y_S^{\gamma-1}\times B_S \\
 \end{align*}
-+++++
+++++
 
 where _R~D~_, _G~D~_ and _B~D~_ describe the luminance of the displayed
 linear component in cd/m^2^ and _R~S~_, _G~S~_ and _B~S~_ describe each
@@ -1188,35 +1188,35 @@ This is an approximation to the official OOTF.
 _Y~S~_ is the normalized scene luminance, defined as:
 
 [latexmath]
-+++++
+++++
 $$Y_S = 0.2627\times R_S + 0.6780\times G_S + 0.0593\times B_S$$
-+++++
+++++
 
 latexmath:[$\alpha$] represents adjustable user gain (display ``contrast'')
 representing _L~W~_, the nominal peak luminance of achromatic pixels.
 
 [NOTE]
-======
+====
 Versions of BT.2100 prior to BT.2100-2 incorporated a latexmath:[$\beta$]
 black level offset (display ``brightness'') representing the display
 luminance of black in cd/m^2^:
 
 [latexmath]
-+++++
+++++
 \begin{align*}
 R_D &= \alpha\times Y_S^{\gamma-1}\times R_S + \beta \\
 G_D &= \alpha\times Y_S^{\gamma-1}\times G_S + \beta \\
 B_D &= \alpha\times Y_S^{\gamma-1}\times B_S + \beta \\
 \end{align*}
-+++++
+++++
 
 latexmath:[$\alpha$] then represented the relative display ``contrast'':
 
 [width="70%",options="header",cols="1,5,5"]
-|============
+|====
 | | Scene light normalized to [0..1] | Scene light normalized to [0..12]
 | latexmath:[$\alpha$] | latexmath:[${L_W - L_B}$] | latexmath:[${{L_W - L_B}\over{\left(12\right)^\gamma}}$]
-|============
+|====
 
 where _L~W~_ is the nominal peak luminance of the display in cd/m^2^, and
 _L~B~_ is the display luminance of black in cd/m^2^.
@@ -1224,7 +1224,7 @@ _L~B~_ is the display luminance of black in cd/m^2^.
 That is, in older versions of BT.2100, latexmath:[$\alpha$] represented
 the difference between minimum and maximum brightness, whereas in BT.2100-2
 latexmath:[$\alpha$] is independent of black level.
-=====
+====
 
 latexmath:[$\gamma = 1.2$] for a nominal peak display luminance of 1000cd/m^2^.
 For displays with higher peak luminance or if peak luminance is reduced through
@@ -1241,27 +1241,27 @@ offset from the above equations and meaning latexmath:[$\gamma=1.2$].
 The inverse OOTF for HLG can be defined as:
 
 [latexmath]
-+++++
+++++
 \begin{align*}
 R_S&=\left({{Y_D}\over\alpha}\right)^{(1/\gamma)-1}\times \left({{R_D}\over\alpha}\right) \\
 G_S&=\left({{Y_D}\over\alpha}\right)^{(1/\gamma)-1}\times \left({{G_D}\over\alpha}\right) \\
 B_S&=\left({{Y_D}\over\alpha}\right)^{(1/\gamma)-1}\times \left({{B_D}\over\alpha}\right) \\
 Y_D&= 0.2627\times R_D + 0.6780\times G_D + 0.0593\times B_D
 \end{align*}
-+++++
+++++
 
 For processing without reference to a specific display, latexmath:[$\alpha$] can be assumed
 to be 1.0cd/m^2^.
 
 [NOTE]
-=====
+====
 Versions of BT.2100 prior to BT.2100-2 incorporated a latexmath:[$\beta$]
 term into the OOTF.
 Using this formula from the OOTF leads to the following relationship
 between _Y~D~_ and _Y~S~_:
 
 [latexmath]
-+++++
+++++
 \begin{align*}
 Y_D &= 0.2627\times R_D + 0.6780\times G_D + 0.0593\times B_D \\
 &= 0.2627\times(\alpha\times Y_S^{\gamma-1}\times R_S + \beta) +
@@ -1273,11 +1273,11 @@ Y_D &= 0.2627\times R_D + 0.6780\times G_D + 0.0593\times B_D \\
 \therefore Y_S =& \left({{Y_D-\beta}\over\alpha}\right)^{1\over\gamma}\\
 Y_S^{1-\gamma} =& \left({{Y_D-\beta}\over\alpha}\right)^{(1-\gamma)/\gamma}
 \end{align*}
-+++++
+++++
 
 From this, the following relations can be derived:
 [latexmath]
-+++++
+++++
 \begin{align*}
 R_S &= {(R_D - \beta)\over{\alpha\times Y_S^{\gamma-1}}}
 = Y_S^{1-\gamma}\times{{(R_D-\beta)}\over\alpha}
@@ -1292,7 +1292,7 @@ B_S &= {(B_D - \beta)\over{\alpha\times Y_S^{\gamma-1}}}
 = \left({{Y_D - \beta}\over\alpha}\right)^{(1-\gamma)/\gamma} \times
     \left({{B_D - \beta}\over{\alpha}}\right)
 \end{align*}
-+++++
+++++
 
 For processing without knowledge of the display, latexmath:[$\alpha$]
 can be treated as 1.0cd/m^2^ and latexmath:[$\beta$] can be considered
@@ -1300,7 +1300,7 @@ to be 0.0cd/m^2^.
 This simplifies the equations as follows:
 
 [latexmath]
-+++++
+++++
 \begin{align*}
 Y_S &= Y_D^{1/\gamma} \\
 Y_S^{1-\gamma} &= Y_D^{(1/\gamma)-1} \\
@@ -1308,8 +1308,8 @@ R_S&=Y_D^{(1/\gamma)-1}\times R_D \\
 G_S&=Y_D^{(1/\gamma)-1}\times G_D \\
 B_S&=Y_D^{(1/\gamma)-1}\times B_D
 \end{align*}
-+++++
-=====
+++++
+====
 
 <<<
 [[TRANSFER_HLG_EOTF_NORM]]
@@ -1319,29 +1319,29 @@ The EOTF of BT.2100 HLG is defined in terms of the OETF and OOTF
 defined above:
 
 [latexmath]
-+++++
+++++
 \begin{align*}
 R_D &= \textrm{OOTF}\left(\textrm{OETF}^{-1}\left(\textrm{max}(0, (1-\beta)R_S' + \beta)\right)\right) \\
 G_D &= \textrm{OOTF}\left(\textrm{OETF}^{-1}\left(\textrm{max}(0, (1-\beta)G_S' + \beta)\right)\right) \\
 B_D &= \textrm{OOTF}\left(\textrm{OETF}^{-1}\left(\textrm{max}(0, (1-\beta)B_S' + \beta)\right)\right) \\
 \beta &= \sqrt{3\times \left({{L_B}\over{L_W}}\right)^{1/\gamma}}
 \end{align*}
-+++++
+++++
 
 where _L~W~_ is the nominal peak luminance of the display in cd/m^2^, and
 _L~B~_ is the display luminance of black in cd/m^2^.
 
 [NOTE]
-======
+====
 Versions of BT.2100 prior to BT.2100-2 incorporated the black level
 offset (display ``brightness'') latexmath:[$\beta$] into the definition
 of the OOTF, such that:
 
 [latexmath]
-+++++
+++++
 $$\{R_D,G_D,B_D\}=\textrm{OOTF}(\textrm{OETF}^{-1}(\{R_S',G_S',B_S'\}))$$
-+++++
-======
+++++
+====
 
 [[TRANSFER_HLG_IEOTF_NORM]]
 ==== HLG EOTF^&#160;-1^
@@ -1349,26 +1349,26 @@ $$\{R_D,G_D,B_D\}=\textrm{OOTF}(\textrm{OETF}^{-1}(\{R_S',G_S',B_S'\}))$$
 The EOTF^&#160;-1^ can be derived as:
 
 [latexmath]
-+++++
+++++
 \begin{align*}
 R_S' &= {{\textrm{OETF}\left(\textrm{OOTF}^{-1}\left(R_D'\right)\right) - \beta}\over{1-\beta}} \\
 G_S' &= {{\textrm{OETF}\left(\textrm{OOTF}^{-1}\left(G_D'\right)\right) - \beta}\over{1-\beta}} \\
 B_S' &= {{\textrm{OETF}\left(\textrm{OOTF}^{-1}\left(B_D'\right)\right) - \beta}\over{1-\beta}} \\
 \beta &= \sqrt{3\times \left({{L_B}\over{L_W}}\right)^{1/\gamma}}
 \end{align*}
-+++++
+++++
 
 [NOTE]
-======
+====
 Versions of BT.2100 prior to BT.2100-2 incorporated the black level
 offset (display ``brightness'') latexmath:[$\beta$] into the definition
 of the OOTF, such that:
 
 [latexmath]
-+++++
+++++
 $$\{R_S',G_S',B_S'\} = \textrm{OETF}(\textrm{OOTF}^{-1}(\{R_D,G_D,B_D\}))$$
-+++++
-=====
+++++
+====
 
 <<<
 [[TRANSFER_PQ]]
@@ -1386,12 +1386,12 @@ The <<bt2100,BT.2100>> Perceptual Quantization description defines the
 following EOTF:
 
 [latexmath]
-+++++
+++++
 \begin{align*}
 F_D &= \textrm{EOTF}(E') = 10000\times Y \\
 Y &= \left(\textrm{max}(({E'}^{1\over{m_2}} - c_1),0)\over{c_2 - c_3\times {E'}^{1\over{m_2}}}\right)^{1\over{m_1}}
 \end{align*}
-+++++
+++++
 
 latexmath:[$E'$] is a non-linear color channel latexmath:[$\{R',G',B'\}$] or
 latexmath:[$\{L',M',S'\}$] encoded as PQ in the range [0..1]. +
@@ -1403,7 +1403,7 @@ When latexmath:[$R'=G'=B'$] the displayed pixel is monochromatic. +
 latexmath:[$Y$] is a linear color value normalized to [0..1].
 
 [latexmath]
-+++++
+++++
 \begin{align*}
 m_1 &= {2610\over 16384} = 0.1593017578125 \\
 m_2 &= {2523\over 4096} \times 128 = 78.84375 \\
@@ -1411,7 +1411,7 @@ c_1 &= {3424\over 4096} = 0.8359375 = c_3 - c_2 + 1 \\
 c_2 &= {2413\over 4096} \times 32 = 18.8515625 \\
 c_3 &= {2392\over 4096} \times 32 = 18.6875
 \end{align*}
-+++++
+++++
 
 [[TRANSFER_PQ_IEOTF]]
 ==== PQ EOTF^&#160;-1^
@@ -1419,12 +1419,12 @@ c_3 &= {2392\over 4096} \times 32 = 18.6875
 The corresponding EOTF^&#160;-1^ is:
 
 [latexmath]
-+++++
+++++
 \begin{align*}
 Y &= {F_D\over 10000} \\
 \textrm{EOTF}^{-1}(F_D) &= \left({c_1 + c_2\times Y^{m_1}\over 1 + c_3\times Y^{m_1}}\right)^{m_2}
 \end{align*}
-+++++
+++++
 
 <<<
 ==== PQ OOTF
@@ -1433,9 +1433,9 @@ The OOTF of PQ matches that of <<TRANSFER_BT1886,BT.1886>>'s EOTF combined
 with <<TRANSFER_ITU,BT.709>>'s OETF:
 
 [latexmath]
-+++++
+++++
 $$F_D = \textrm{OOTF}(E) = \textrm{G}_{1886}(\textrm{G}_{709}(E))$$
-+++++
+++++
 
 where _E_ is one of latexmath:[$\{R_S,G_S,B_S,Y_S,I_S\}$], the linear
 representation of scene light scaled by camera exposure and in the range
@@ -1444,7 +1444,7 @@ G~709~ is the OETF described in <<TRANSFER_ITU,BT.709>> with a scale factor
 of 59.5208 applied to _E_:
 
 [latexmath]
-+++++
+++++
 \begin{align*}
 F_D &= \textrm{G}_{1886}(\textrm{G}_{709}(E)) &=\ &\textrm{G}_{1886}(E') = 100\times E'^{2.4} \\
 E' &= \textrm{G}_{709}(E) &= &\begin{cases}
@@ -1452,7 +1452,7 @@ E' &= \textrm{G}_{709}(E) &= &\begin{cases}
 267.84\times E, & 0.0003024 \geq E \geq 0
 \end{cases}
 \end{align*}
-+++++
+++++
 
 [NOTE]
 ====
@@ -1491,21 +1491,21 @@ approximation, the maximum representable scene brightness, if 1.0 is the
 maximum normalized SDR brightness is:
 
 [latexmath]
-+++++
+++++
 \begin{align*}
 \left({100^{1\over 2.4} + 0.099\over 1.099}\right)^{1\over 0.45} &\approx 59.5208
 \end{align*}
-+++++
+++++
 
 The other constants in the G~709~ formula are derived as follows:
 
 [latexmath]
-+++++
+++++
 \begin{align*}
 {0.018\over 59.5208} &\approx 0.0003024 \\
 4.5\times 59.5208 &\approx 267.84
 \end{align*}
-+++++
+++++
 
 Note that these constants differ slightly if the more accurate
 latexmath:[$\alpha = 1.0993$] figure from <<bt2020,BT.2020>> is used
@@ -1518,9 +1518,9 @@ instead of 1.099.
 The OETF of PQ is described in terms of the above OOTF:
 
 [latexmath]
-+++++
+++++
 $$E' = \textrm{OETF}(E) = \textrm{EOTF}^{-1}(\textrm{OOTF}(E)) = \textrm{EOTF}^{-1}(F_D)$$
-+++++
+++++
 
 <<<
 ==== PQ OOTF^&#160;-1^
@@ -1528,16 +1528,16 @@ $$E' = \textrm{OETF}(E) = \textrm{EOTF}^{-1}(\textrm{OOTF}(E)) = \textrm{EOTF}^{
 The PQ OOTF^&#160;-1^ is:
 
 [latexmath]
-+++++
+++++
 $$E=\textrm{OOTF}^{-1}(F_D)=\textrm{G}_{709}^{-1}(\textrm{G}_{1886}^{-1}(F_D))$$
-+++++
+++++
 
 where _F~D~_, display intensity, is one of
 latexmath:[$\{R_D,G_D,B_D,Y_D,I_D\}$], and
 E is the corresponding normalized scene intensity.
 
 [latexmath]
-+++++
+++++
 \begin{align*}
 E' &= \textrm{G}_{1886}^{-1}(F_D) &= &\left({F_D\over 100}\right)^{1\over 2.4} \\
 E &= \textrm{G}_{709}^{-1}(E') &= &\begin{cases}
@@ -1545,7 +1545,7 @@ E &= \textrm{G}_{709}^{-1}(E') &= &\begin{cases}
 {E'\over{267.84}}, & 0.081\geq E'\geq 0 \implies {8.1}^{2.4}\geq F_D\geq 0
 \end{cases}
 \end{align*}
-+++++
+++++
 
 [[TRANSFER_PQ_IOETF]]
 ==== PQ OETF^&#160;-1^
@@ -1553,9 +1553,9 @@ E &= \textrm{G}_{709}^{-1}(E') &= &\begin{cases}
 The PQ OETF^&#160;-1^ is described in terms of the OOTF^&#160;-1^:
 
 [latexmath]
-+++++
+++++
 $$E = \textrm{OETF}^{-1}(E') = \textrm{OOTF}^{-1}(\textrm{EOTF}(E')) = \textrm{OOTF}^{-1}(F_D)$$
-+++++
+++++
 
 <<<
 [[TRANSFER_DCIP3]]
@@ -1565,7 +1565,7 @@ $$E = \textrm{OETF}^{-1}(E') = \textrm{OOTF}^{-1}(\textrm{EOTF}(E')) = \textrm{O
 (applied to scaled CIE _XYZ_ values):
 
 [options="header",cols="^1,^1"]
-|======
+|====
 | EOTF^&#160;-1^ | EOTF
 | latexmath:[$X' = \left({X\over{52.37}}\right)^{1\over{2.6}}$]
 
@@ -1577,7 +1577,7 @@ latexmath:[$Z' = \left({Z\over{52.37}}\right)^{1\over{2.6}}$]
 latexmath:[$Y = Y'^{2.6}\times 52.37$]
 
 latexmath:[$Z = Z'^{2.6}\times 52.37$]
-|======
+|====
 
 This power function is applied directly to scaled CIE _XYZ_ color
 coordinates: the ``primaries'' in DCI define the bounds of the gamut,
@@ -1600,7 +1600,7 @@ simple EOTF power function with latexmath:[$\gamma = 2.2$] for NTSC display
 devices.
 
 [options="header",cols="^1,^1"]
-|======
+|====
 | EOTF^&#160;-1^ | EOTF
 | latexmath:[$R' = R^{1\over{2.2}}$]
 
@@ -1612,7 +1612,7 @@ latexmath:[$B' = B^{1\over{2.2}}$]
 latexmath:[$G = G'^{2.2}$]
 
 latexmath:[$B = B'^{2.2}$]
-|======
+|====
 
 This value of latexmath:[$\gamma$] is also used for N/PAL signals in the
 Eastern Republic of Uruguay, and was also adopted by <<st240,ST-240>>.
@@ -1650,7 +1650,7 @@ That is, this standard defines an approximate OETF and OETF^&#160;-1^ for
 PAL content:
 
 [options="header",cols="^1,^1"]
-|======
+|====
 | OETF | OETF^&#160;-1^
 | latexmath:[$R' \approx R^{0.4}$]
 
@@ -1662,7 +1662,7 @@ latexmath:[$B' \approx B^{0.4}$]
 latexmath:[$G \approx G'^{2.5}$]
 
 latexmath:[$B \approx B'^{2.5}$]
-|======
+|====
 
 [[TRANSFER_LEGACY_PAL_EOTF]]
 === Legacy PAL 625-line EOTF
@@ -1675,7 +1675,7 @@ This specification describes a simple EOTF power function with
 latexmath:[$\gamma_{\textrm{EOTF}} = 2.8$] for most PAL and SECAM display devices:
 
 [options="header",cols="^1,^1"]
-|======
+|====
 | EOTF^&#160;-1^ | EOTF
 | latexmath:[$R' = R^{1\over{2.8}}$]
 
@@ -1687,7 +1687,7 @@ latexmath:[$B' = B^{1\over{2.8}}$]
 latexmath:[$G = G'^{2.8}$]
 
 latexmath:[$B = B'^{2.8}$]
-|======
+|====
 
 NOTE: Poynton describes a latexmath:[$\gamma$] of 2.8 as being ``unrealistically
 high'' for actual CRT devices.
@@ -1696,13 +1696,13 @@ Combined with the <<TRANSFER_LEGACY_PAL_EOTF,corresponding legacy EOTF>> with
 latexmath:[$\gamma_{\textrm{EOTF}} = 0.4$], the described system OOTF is:
 
 [latexmath]
-+++++
+++++
 \begin{align*}
 R_{display} &\approx R_{scene}^{2.8\over{2.5}}\\
 G_{display} &\approx G_{scene}^{2.8\over{2.5}}\\
 B_{display} &\approx B_{scene}^{2.8\over{2.5}}
 \end{align*}
-+++++
+++++
 
 Or latexmath:[$\gamma_{\textrm{OOTF}} \approx 1.12$].
 
@@ -1732,7 +1732,7 @@ The <<st240,ST-240>>, formerly SMPTE240M, interim standard for HDTV defines the
 following OETF:
 
 [latexmath]
-++++++
+++++
   $$R' = \begin{cases}
       R \times 4, & 0 \leq R < 0.0228 \\
       1.1115 \times R^{0.45} - 0.1115, & 1 \geq R \geq 0.0228
@@ -1745,7 +1745,7 @@ following OETF:
       B \times 4, & 0 \leq B < 0.0228 \\
       1.1115 \times B^{0.45} - 0.1115, & 1 \geq B \geq  0.0228
   \end{cases}$$
-++++++
+++++
 
 Like <<smpte170m,SMPTE170m>>, ST-240 defines a linear OOTF.
 Therefore the above relationship also holds for the EOTF^&#160;-1^.
@@ -1753,7 +1753,7 @@ Therefore the above relationship also holds for the EOTF^&#160;-1^.
 The EOTF, and also OETF^&#160;-1^, is:
 
 [latexmath]
-++++++
+++++
   $$R = \begin{cases}
       {R' \over 4}, & 0 \leq R < 0.0913 \\
       \left({R' + 0.1115\over 1.1115}\right)^{1\over 0.45} - 0.1115, & 1 \geq R' \geq 0.0228
@@ -1766,7 +1766,7 @@ The EOTF, and also OETF^&#160;-1^, is:
       {B' \over 4}, & 0 \leq R < 0.0913 \\
       \left({B' + 0.1115\over 1.1115}\right)^{1\over 0.45} - 0.1115, & 1 \geq B' \geq 0.0228
   \end{cases}$$
-++++++
+++++
 
 [[TRANSFER_ADOBERGB]]
 === Adobe RGB (1998) transfer functions
@@ -1776,26 +1776,26 @@ function between nonlinear encoding and linear light intensity (notable for not
 including a linear component):
 
 [latexmath]
-+++++
+++++
 \begin{align*}
 R &= R'^{2.19921875} \\
 G &= G'^{2.19921875} \\
 B &= B'^{2.19921875}
 \end{align*}
-+++++
+++++
 
 2.19921875 is obtained from latexmath:[$2{51\over{256}}$] or hexadecimal 2.33.
 Therefore the inverse transfer function between linear light intensity and
 nonlinear encoding is:
 
 [latexmath]
-+++++
+++++
 \begin{align*}
 R' &= R^{256\over{563}} \\
 G' &= G^{256\over{563}} \\
 B' &= B^{256\over{563}}
 \end{align*}
-+++++
+++++
 
 <<<
 [[TRANSFER_SLOG]]
@@ -1804,9 +1804,9 @@ B' &= B^{256\over{563}}
 The Sony <<slog,S-Log>> OETF is defined for each color channel as:
 
 [latexmath]
-+++++
+++++
 $$y = (0.432699 \times \textrm{log}_{10}(t + 0.037584) + 0.616596) + 0.03$$
-+++++
+++++
 
 Linear camera input scaled by exposure _t_ ranges from 0 to 10.0;
 _y_ is the non-linear encoded value.
@@ -1814,9 +1814,9 @@ _y_ is the non-linear encoded value.
 The OETF^&#160;-1^ is:
 
 [latexmath]
-+++++
+++++
 $$Y = 10.0^{t - 0.616596 - 0.03\over 0.432699} - 0.037584$$
-+++++
+++++
 
 The encoded non-linear value _t_ ranges from 0 to 1.09; _Y_ is the
 linear scene light.
@@ -1827,14 +1827,14 @@ linear scene light.
 <<slog,S-Log2>> defines the following OETF:
 
 [latexmath]
-+++++
+++++
 \begin{align*}
 y &= \begin{cases}
 (0.432699\times\textrm{log}_{10}\left({155.0\times x\over 219.0} + 0.037584\right) + 0.616596 + 0.03, &x \geq 0 \\
 x \times 3.53881278538813 + 0.030001222851889303, &x < 0
 \end{cases}
 \end{align*}
-+++++
+++++
 
 _x_ is the IRE in scene-linear space. +
 _y_ is the IRE in S-Log2 space.
@@ -1842,14 +1842,14 @@ _y_ is the IRE in S-Log2 space.
 The OETF^&#160;-1^ is:
 
 [latexmath]
-+++++
+++++
 \begin{align*}
 y &= \begin{cases}
 {219.0 \times 10.0^{x - 0.616596 - 0.03\over 0.432699}\over 155.0}, &x \geq 0.030001222851889303 \\
 {x - 0.030001222851889303\over 3.53881278538813}, &x < 0.030001222851889303
 \end{cases}
 \end{align*}
-+++++
+++++
 
 _x_ is the IRE in S-Log2 space. +
 _y_ is the IRE in scene-linear space.
@@ -1865,13 +1865,13 @@ For each linear color channel _lin~AP1~_ transformed to the ACEScc primaries,
 the _ACEScc_ non-linear encoding is:
 
 [latexmath]
-+++++
+++++
   $$ACEScc = \begin{cases}
       {{\textrm{log}_\textrm{2}(2^{-16})+9.72}\over{17.52}}, & lin_{AP1} \leq 0 \\
       {{\textrm{log}_\textrm{2}(2^{-16} + lin_{AP1}\times 0.5) + 9.72}\over{17.52}}, & lin_{AP1} < 2^{-15} \\
       {{\textrm{log}_\textrm{2}(lin_{AP1})+9.72}\over{17.52}}, & lin_{AP1} \geq 2^{-15}
   \end{cases}$$
-+++++
+++++
 
 [[TRANSFER_ACESCCT]]
 === ACEScct transfer function
@@ -1882,9 +1882,9 @@ For each linear color channel _lin~AP1~_ transformed to the ACEScc
 primaries, the _ACEScct_ non-linear encoding is:
 
 [latexmath]
-+++++
+++++
   $$ACEScct = \begin{cases}
       {10.5402377416545 \times lin_{AP1} + 0.0729055341958355}, & lin_{AP1} \leq 0.0078125 \\
       {{\textrm{log}_2(lin_{AP1})+9.72}\over{17.52}}, & lin_{AP1} > 0.0078125
   \end{cases}$$
-+++++
+++++

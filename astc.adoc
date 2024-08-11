@@ -1,5 +1,6 @@
-// Copyright (c) 2014-2019 The Khronos Group Inc.
-// Copyright notice at https://www.khronos.org/registry/speccopyright.html
+// Copyright 2014-2024 The Khronos Group Inc.
+// SPDX-License-Identifier: CC-BY-4.0
+
 [[ASTC]]
 == ASTC Compressed Texture Image Formats
 
@@ -161,14 +162,14 @@ The two modes differ in various ways, as shown in <<astc-differences-between-ldr
 [[astc-differences-between-ldr-and-hdr-modes]]
 .ASTC differences between LDR and HDR modes
 [options="header"]
-|======================
+|====
 | Operation | &nbsp; LDR mode | HDR mode
 | Returned Value 2+| Determined by decoding mode
 | sRGB compatible | Yes | No
 | LDR endpoint decoding precision | 16 bits, or 8 bits for sRGB | 16 bits
 | HDR endpoint mode results | Error color | As decoded
 | Error results | Error color | Vector of NaNs (0xFFFF)
-|======================
+|====
 
 The type of the values returned by the decoding process is determined by
 the decoding mode as shown in <<astc_decoding_modes>>.
@@ -176,12 +177,12 @@ the decoding mode as shown in <<astc_decoding_modes>>.
 [[astc_decoding_modes]]
 .ASTC decoding modes
 [options="header"]
-|================
+|====
 | Decode mode | LDR mode |&nbsp; HDR mode
 | decode_float16 2+| Vector of FP16 values
 | decode_unorm8 | Vector of 8-bit unsigned normalized values |&nbsp; invalid
 | decode_rgb9e5 2+|&nbsp; Vector using a shared exponent format
-|================
+|====
 
 Using the decode_unorm8 decoding mode in HDR mode gives undefined results.
 
@@ -236,7 +237,8 @@ The data specified per block are as follows:
 
 To decode one texel:
 
--------------------
+[source]
+----
 (Optimization: If within known void-extent, immediately return single color)
 
 Find block containing texel
@@ -258,7 +260,7 @@ Read color endpoint mode and endpoint data for selected partition
 Unquantize color endpoints
 Interpolate color endpoints using weight (or weights in dual-plane mode)
 Return interpolated color
--------------------
+----
 
 <<<
 
@@ -276,7 +278,7 @@ For square and nearly-square blocks, this gives the bit rates in
 [[astc_footprint_2D]]
 .ASTC 2D footprint and bit rates
 [cols="1,1,1,1",width="50%"]
-|======================
+|====
 2+^| *Footprint* .2+^.^| *Bit Rate* .2+^.^| *Increment*
 ^| *Width* ^| *Height*
 ^| 4         ^| 4         ^| 8.00     ^| 125%
@@ -293,7 +295,7 @@ For square and nearly-square blocks, this gives the bit rates in
 ^| 10        ^| 10        ^| 1.28     ^| 120%
 ^| 12        ^| 10        ^| 1.07     ^| 120%
 ^| 12        ^| 12        ^| 0.89     ^|
-|=============
+|====
 
 The ``Increment'' column indicates the ratio of bit rate against the next
 lower available rate. A consistent value in this column indicates an even
@@ -308,7 +310,7 @@ For cubic and near-cubic blocks, this gives the bit rates in
 [[astc_footprint_3D]]
 .ASTC 3D footprint and bit rates
 [cols="1,1,1,1,1",width="60%"]
-|======================
+|====
 3+^| *Block Footprint* .2+^.^| *Bit Rate* .2+^.^| *Increment*
 ^| *Width* ^| *Height* ^| *Depth*
 ^| 3     ^| 3      ^| 3     ^| 4.74 ^|   133%
@@ -321,7 +323,7 @@ For cubic and near-cubic blocks, this gives the bit rates in
 ^| 6     ^| 5      ^| 5     ^| 0.85 ^|   120%
 ^| 6     ^| 6      ^| 5     ^| 0.71 ^|   120%
 ^| 6     ^| 6      ^| 6     ^| 0.59 ^|
-|======================
+|====
 
 The full profile supports only those block footprints listed in
 <<astc_footprint_2D>> and <<astc_footprint_3D>>. Other block sizes are not supported.
@@ -338,26 +340,26 @@ Given an image which is _W_ {times} _H_ {times} _D_ pixels in size, with block s
 _w_ {times} _h_ {times} _d_, the size of the image in blocks is:
 
 [latexmath]
-++++++++++++++++++++++
+++++
 \begin{align*}
 \textrm{B}_\textrm{w} & = \left\lceil { W \over w } \right\rceil \\
 \textrm{B}_\textrm{h} & = \left\lceil { H \over h } \right\rceil \\
 \textrm{B}_\textrm{d} & = \left\lceil { D \over d } \right\rceil
 \end{align*}
-++++++++++++++++++++++
+++++
 
 For a 3D image built from 2D slices, each 2D slice is a single texel thick,
 so that for an image which is _W_ {times} _H_ {times} _D_ pixels in size, with block size
 _w_ {times} _h_, the size of the image in blocks is:
 
 [latexmath]
-++++++++++++++++++++++
+++++
 \begin{align*}
 \textrm{B}_\textrm{w} & = \left\lceil { W \over w } \right\rceil \\
 \textrm{B}_\textrm{h} & = \left\lceil { H \over h } \right\rceil \\
 \textrm{B}_\textrm{d} & = D
 \end{align*}
-++++++++++++++++++++++
+++++
 
 === Block Layout
 
@@ -375,7 +377,7 @@ Each block has the same basic layout, shown in <<astc-block-layout>>.
 [[astc-block-layout]]
 .ASTC block layout
 [width="97%",cols="1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1"]
-|====================
+|====
 ^| ~127~ ^| ~126~ ^| ~125~ ^| ~124~ ^| ~123~ ^| ~122~ ^| ~121~ ^| ~120~ ^| ~119~ ^| ~118~ ^| ~117~ ^| ~116~ ^| ~115~ ^| ~114~ ^| ~113~ ^| ~112~
 12+| &nbsp; Texel weight data (variable width) 4+| &nbsp; Fill direction latexmath:[$\rightarrow$]
 ^| ~111~ ^| ~110~ ^| ~109~ ^| ~108~ ^| ~107~ ^| ~106~ ^| ~105~ ^| ~104~ ^| ~103~ ^| ~102~ ^| ~101~ ^| ~100~ ^| ~99~ ^| ~98~ ^| ~97~ ^| ~96~
@@ -392,7 +394,7 @@ Each block has the same basic layout, shown in <<astc-block-layout>>.
 4+| 12+| &nbsp; Extra configuration data
 ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
 3+| &nbsp; Extra 2+| &nbsp; Part 11+| &nbsp; Block mode
-|====================
+|====
 
 Since the size of the ``texel weight data'' field is variable, the
 positions shown for the ``more config data'' field and ``color endpoint
@@ -412,12 +414,12 @@ in <<astc-single-partition-layout>> (only the bottom 32 bits are shown).
 [[astc-single-partition-layout]]
 .ASTC single-partition block layout
 [width="97%",cols="1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1"]
-|====================
+|====
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~
 15+| &nbsp; Color endpoint data ^| CEM
 ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
 3+| &nbsp; CEM ^| 0 ^| 0 11+| &nbsp; Block mode
-|====================
+|====
 
 CEM is the color endpoint mode field, which determines how the Color
 Endpoint Data is encoded.
@@ -428,12 +430,12 @@ directly below the weight bits, as shown in <<astc-multi-partition-layout>>.
 [[astc-multi-partition-layout]]
 .ASTC multi-partition block layout
 [width="97%",cols="1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1"]
-|====================
+|====
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~
 3+| 6+| &nbsp; CEM 7+| &nbsp; Partition index
 ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
 3+| &nbsp; Partition index 2+| &nbsp; Part 11+| &nbsp; Block mode
-|====================
+|====
 
 The Partition Index field specifies which partition layout to use. CEM is
 the first 6 bits of color endpoint mode information for the various
@@ -469,7 +471,7 @@ and Bits. The details of this encoding can be found in
 [[astc-weight-range-encodings]]
 .ASTC weight range encodings
 [width="97%",cols="1,2,1,1,1,2,1,1,1"]
-|====================
+|====
 1.2+^.^| *{rho}^2..0^* 4+^.^| *Low-precision range (_P_=0)* 4+^.^| *High-precision range (_P_=1)*
 ^.^| *Weight range* ^.^| *Trits* ^.^| *Quints* ^.^| *Bits* ^.^| *Weight range* ^.^| *Trits* ^.^| *Quints* ^.^| *Bits*
 ^| 000 4+^| Invalid 4+^| Invalid
@@ -480,7 +482,7 @@ and Bits. The details of this encoding can be found in
 ^| 101 ^| 0..4 ^| ^| 1 ^| ^| 0..19 ^| ^| 1 ^| 2
 ^| 110 ^| 0..5 ^| 1 ^| ^| 1 ^| 0..23 ^| 1 ^| ^| 3
 ^| 111 ^| 0..7 ^| ^| ^| 3 ^| 0..31 ^| ^| ^| 5
-|====================
+|====
 
 For 2D blocks, the Block Mode field is laid out as shown in
 <<astc-2d-block-mode-layout>>.
@@ -488,7 +490,7 @@ For 2D blocks, the Block Mode field is laid out as shown in
 [[astc-2d-block-mode-layout]]
 .ASTC 2D block mode layout, weight grid width and height
 [width="97%",cols="1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1"]
-|====================
+|====
 ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~ 2+^| *W~width~* 2+^| *W~height~* 3+^| *Notes*
 ^| _D~P~_ ^| _P_ 2+^| _W_ 2+^| _H_ ^| {rho}^0^ ^| 0 ^| 0 ^| {rho}^2^ ^| {rho}^1^ 2+^| _W_+4 2+^| _H_+2 3+|
 ^| _D~P~_ ^| _P_ 2+^| _W_ 2+^| _H_ ^| {rho}^0^ ^| 0 ^| 1 ^| {rho}^2^ ^| {rho}^1^ 2+^| _W_+8 2+^| _H_+2 3+|
@@ -503,7 +505,7 @@ For 2D blocks, the Block Mode field is laid out as shown in
 ^| x ^| x ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0 2+^| - 2+^| - 3+^| Void-extent
 ^| x ^| x ^| 1 ^| 1 ^| 1 ^| x ^| x ^| x ^| x ^| 0 ^| 0 2+^| - 2+^| - 3+^| Reserved*
 ^| x ^| x ^| x ^| x ^| x ^| x ^| x ^| 0 ^| 0 ^| 0 ^| 0 2+^| - 2+^| - 3+^| Reserved
-|====================
+|====
 
 Note that, due to the encoding of the {rho} field, as described in the
 previous page, bits {rho}^2^ and {rho}^1^ cannot both be zero, which disambiguates
@@ -524,7 +526,7 @@ For 3D blocks, the Block Mode field is laid out as shown in <<astc-3d-block-mode
 [[astc-3d-block-mode-layout]]
 .ASTC 3D block mode layout, weight grid width, height and depth
 [width="97%",cols="1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1"]
-|====================
+|====
 ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~ 2+^| *W~width~* 2+^| *W~height~* 2+^| *W~depth~* 3+^| *Notes*
 ^| _D~P~_  ^| _P_ 2+^| _H_ 2+^| _W_ ^| {rho}^0^ 2+^| _D_ ^| {rho}^2^ ^| {rho}^1^ 2+^| _W_+2 2+^| _H_+2 2+^| _D_+2 3+^|
 2+^| _H_ ^| 0 ^| 0 2+^| _D_ ^| {rho}^0^ ^| {rho}^2^ ^| {rho}^1^ ^| 0 ^| 0 2+^| 6 2+^| _H_+2 2+^| _D_+2 3+^| _D~P~_=0, _P_=0
@@ -536,7 +538,7 @@ For 3D blocks, the Block Mode field is laid out as shown in <<astc-3d-block-mode
 ^| x ^| x ^| 1 ^| 1 ^| 1 ^| 1  ^| 1  ^| 1  ^| 1  ^| 0 ^| 0 2+^| - 2+^| - 2+^| - 3+^| Void-extent
 ^| x ^| x ^| 1 ^| 1 ^| 1 ^| 1  ^| x  ^| x  ^| x  ^| 0 ^| 0 2+^| - 2+^| - 2+^| - 3+^| Reserved*
 ^| x ^| x ^| x ^| x ^| x ^| x  ^| x  ^| 0  ^| 0  ^| 0 ^| 0 2+^| - 2+^| - 2+^| - 3+^| Reserved
-|====================
+|====
 
 The _D~P~_ bit is set to indicate dual-plane mode. In this mode, the maximum
 allowed number of partitions is 3.
@@ -561,7 +563,7 @@ endpoints. They can be summarized as shown in <<astc-color-endpoint-modes>>.
 [[astc-color-endpoint-modes]]
 .ASTC color endpoint modes
 [cols="2,11,2",options="header",width="55%"]
-|====================
+|====
 ^| CEM | &nbsp; Description                        ^| Class
 >|  0 &nbsp;&nbsp; | &nbsp; LDR Luminance, direct              ^| 0
 >|  1 &nbsp;&nbsp; | &nbsp; LDR Luminance, base+offset         ^| 0
@@ -579,7 +581,7 @@ endpoints. They can be summarized as shown in <<astc-color-endpoint-modes>>.
 >| 13 &nbsp;&nbsp; | &nbsp; LDR _RGBA_, base+offset              ^| 3
 >| 14 &nbsp;&nbsp; | &nbsp; HDR _RGB_, direct + LDR Alpha        ^| 3
 >| 15 &nbsp;&nbsp; | &nbsp; HDR _RGB_, direct + HDR Alpha        ^| 3
-|====================
+|====
 
 In multi-partition mode, the CEM field is of variable width, from 6 to 14
 bits. The lowest 2 bits of the CEM field specify how the endpoint mode
@@ -588,7 +590,7 @@ for each partition is calculated as shown in <<astc-multi-partition-color-endpoi
 [[astc-multi-partition-color-endpoint-modes]]
 .ASTC Multi-Partition Color Endpoint Modes
 [cols="1,5",options="header",width="45%"]
-|====================
+|====
 ^| Value | &nbsp; Meaning
 ^| 00 | &nbsp; All color endpoint pairs are of the same
 
@@ -599,7 +601,7 @@ for each partition is calculated as shown in <<astc-multi-partition-color-endpoi
 ^| 01 | &nbsp; All endpoint pairs are of class 0 or 1
 ^| 10 | &nbsp; All endpoint pairs are of class 1 or 2
 ^| 11 | &nbsp; All endpoint pairs are of class 2 or 3
-|====================
+|====
 
 If the CEM selector value in bits [24..23] is not 00,
 then data layout is as shown in <<astc-multi-partition-color-endpoint-mode-layout>>
@@ -608,21 +610,21 @@ and <<astc-multi-partition-color-endpoint-mode-layout-2>>.
 [[astc-multi-partition-color-endpoint-mode-layout]]
 .ASTC multi-partition color endpoint mode layout
 [cols="2,1,2,1,1,1,1,1,1,1,1,1",width="90%"]
-|====================
+|====
 ^| *Part* ^| ^| ^| ~n~ ^| ~m~ ^| ~l~ ^| ~k~ ^| ~j~ ^| ~i~ ^| ~h~ ^| ~g~ ^|
 ^| 2 ^| ... ^| Weight 2+^| M~1~ 6+| | ...
 ^| 3 ^| ... ^| Weight 2+^| M~2~ 2+^| M~1~ ^| M~0~ 3+| | ...
 ^| 4 ^| ... ^| Weight 2+^| M~3~ 2+^| M~2~ 2+^| M~1~ 2+^| M~0~ | ...
-|====================
+|====
 [[astc-multi-partition-color-endpoint-mode-layout-2]]
 .ASTC multi-partition color endpoint mode layout (2)
 [cols="2,1,1,1,1,1,1",width="60%"]
-|====================
+|====
 ^| *Part* ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~
 ^| 2 2+^| M~0~ ^| C~1~ ^| C~0~ 2+^| CEM
 ^| 3 ^| M~0~ ^| C~2~ ^| C~1~ ^| C~0~ 2+^| CEM
 ^| 4 ^| C~3~ ^| C~2~ ^| C~1~ ^| C~0~ 2+^| CEM
-|====================
+|====
 
 In this view, each partition _i_ has two fields. C~_i_~ is the class selector
 bit, choosing between the two possible CEM classes (0 indicates the
@@ -659,22 +661,22 @@ in one of the forms shown in <<astc-range-forms>> and
 [[astc-range-forms]]
 .ASTC range forms
 [options="header",width="65%",cols="2,3,3"]
-|====================
+|====
 | &nbsp; Value range        | &nbsp; MSB encoding           | &nbsp; LSB encoding
 | &nbsp; latexmath:[$0 \dots 2^n-1$]   | &nbsp; -                      | &nbsp; _n_-bit value _m_ (_n_ {leq} 8)
 | &nbsp; latexmath:[$0 \dots (3 \times 2^n)-1$]  | &nbsp; Base-3 ``trit'' value _t_  | &nbsp; _n_-bit value _m_ (_n_ {leq} 6)
 | &nbsp; latexmath:[$0 \dots (5 \times 2^n)-1$]  | &nbsp; Base-5 ``quint'' value _q_ | &nbsp; _n_-bit value _m_ (_n_ {leq} 5)
-|====================
+|====
 
 [[astc-range-encodings]]
 .ASTC encoding for different ranges
 [options="header",width="60%",cols="4,3,2,5"]
-|====================
+|====
 | &nbsp; Value range         | &nbsp; Value | &nbsp; Block | &nbsp; Packed block size
 | &nbsp; latexmath:[$0 \dots 2^n-1$]        | &nbsp; _m_   | &nbsp; 1      | &nbsp; _n_
 | &nbsp; latexmath:[$0 \dots (3 \times 2^n)-1$] | &nbsp; latexmath:[$t \times 2^n + m$]   | &nbsp; 5 | &nbsp; 8 {plus} 5 {times} _n_
 | &nbsp; latexmath:[$0 \dots (5 \times 2^n)-1$] | &nbsp; latexmath:[$q \times 2^n + m$]   | &nbsp; 3 | &nbsp; 7 {plus} 3 {times} _n_
-|====================
+|====
 
 Since 3^5^ is 243, it is possible to pack five trits into 8 bits (which has
 256 possible values), so a trit can effectively be encoded as 1.6 bits.
@@ -706,19 +708,20 @@ block are packed as shown in <<astc-trit-based-packing>> (in this example, _n_ i
 [[astc-trit-based-packing]]
 .ASTC trit-based packing
 [width="80%"]
-|===========================================
+|====
 4+^| ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~
 4+^| ^| T^7^ 4+^|     m~4~        ^| T^6^ ^| T^5^ 4+^|     m~3~        ^| T^4^
 ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^|  ~9~ ^|  ~8~ ^|  ~7~ ^|  ~6~ ^|  ~5~ ^|  ~4~ ^|  ~3~ ^|  ~2~ ^|  ~1~ ^|  ~0~
 4+^|    m~2~        ^| T^3^ ^| T^2^ 4+^|      m~1~       ^| T^1^ ^| T^0^ 4+^|      m~0~       ^|
-|===========================================
+|====
 
 <<<
 
 The five trits t~0~ to t~4~ are obtained by bit manipulations of the 8 bits
 T^7..0^ as follows:
 
------
+[source]
+----
 if T[4:2] = 111
     C = { T[7:5], T[1:0] }; t4 = t3 = 2
 else
@@ -734,7 +737,7 @@ else if C[3:2] = 11
     t2 = 2; t1 = 2; t0 = C[1:0]
 else
     t2 = C[4]; t1 = C[3:2]; t0 = { C[1], C[0]&~C[1] }
------
+----
 
 If the range is encoded using a quint, then each block contains 3 values
 (v~0~ to v~2~), each of which contains a quint (q~0~ to q~2~) and a corresponding
@@ -747,23 +750,24 @@ The bits in the block are packed as described in <<astc-quint-based-packing>> an
 [[astc-quint-based-packing]]
 .ASTC quint-based packing
 [width="20%"]
-|===========
+|====
 ^| ~18~ ^| ~17~ ^| ~16~
 ^| Q^6^ ^| Q^5^ ^| m~2~
-|===========
+|====
 
 [[astc-quint-based-packing-2]]
 .ASTC quint-based packing (2)
 [width="80%"]
-|===========
+|====
 ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
 3+^|  m~2~       ^| Q^4^ ^| Q^3^ 4+^|     m~1~        ^| Q^2^ ^| Q^1^ ^| Q^0^ 4+^| m~0~
-|===========
+|====
 
 The three quints q~0~ to q~2~ are obtained by bit manipulations of the 7 bits
 Q^6..0^ as follows:
 
------
+[source]
+----
 if Q[2:1] = 11 and Q[6:5] = 00
     q2 = { Q[0], Q[4]&~Q[0], Q[3]&~Q[0] }; q1 = q0 = 4
 else
@@ -776,7 +780,7 @@ else
         q1 = 4; q0 = C[4:3]
     else
         q1 = C[4:3]; q0 = C[2:0]
------
+----
 
 Both these procedures ensure a valid decoding for all 128 possible values
 (even though a few are duplicates). They can also be implemented
@@ -814,7 +818,7 @@ range as described in <<astc-color-unquantization-parameters>>.
 [[astc-color-unquantization-parameters]]
 .ASTC color unquantization parameters
 [cols="4,3,4,3,5,6,6,3,8",width="95%",options="header"]
-|============
+|====
 ^| Range  ^| #Trits ^| #Quints ^| #Bits ^| Bit layout ^| ++A++ ^| ++B++ ^| ++C++ ^| ++D++
 ^| 0..5   ^| 1 ^|   ^| 1 ^| a      ^| aaaaaaaaa ^| 000000000 ^| 204 ^| Trit value
 ^| 0..9   ^|   ^| 1 ^| 1 ^| a      ^| aaaaaaaaa ^| 000000000 ^| 113 ^| Quint value
@@ -827,15 +831,16 @@ range as described in <<astc-color-unquantization-parameters>>.
 ^| 0..95  ^| 1 ^|   ^| 5 ^| edcba  ^| aaaaaaaaa ^| edcb000ed ^| 11  ^| Trit value
 ^| 0..159 ^|   ^| 1 ^| 5 ^| edcba  ^| aaaaaaaaa ^| edcb0000e ^| 6   ^| Quint value
 ^| 0..191 ^| 1 ^|   ^| 6 ^| fedcba ^| aaaaaaaaa ^| fedcb000f ^| 5   ^| Trit value
-|============
+|====
 
 These are then processed as follows:
 
------
+[source]
+----
 unq = D * C + B;
 unq = unq ^ A;
 unq = (A & 0x80) | (unq >> 2);
------
+----
 
 Note that the multiply in the first line is nearly trivial as it only
 needs to multiply by 0, 1, 2, 3 or 4.
@@ -859,7 +864,7 @@ The methods can be summarized as shown in <<astc-ldr-color-endpoint-modes>>.
 [[astc-ldr-color-endpoint-modes]]
 .ASTC LDR color endpoint modes
 [options="header",cols="2,3,11,1",width="55%"]
-|==============
+|====
 ^| CEM ^| Range | &nbsp; Description                         ^| _n_
 >| 0  &nbsp; ^| LDR | &nbsp; Luminance, direct                      ^| 2
 >| 1  &nbsp; ^| LDR | &nbsp; Luminance, base+offset                 ^| 2
@@ -877,7 +882,7 @@ The methods can be summarized as shown in <<astc-ldr-color-endpoint-modes>>.
 >| 13 &nbsp; ^| LDR | &nbsp; _RGBA_, base+offset                      ^| 8
 >| 14 &nbsp; ^| HDR | &nbsp; _RGB_ + LDR Alpha                        ^| 8
 >| 15 &nbsp; ^| HDR | &nbsp; _RGB_ + HDR Alpha                        ^| 8
-|==============
+|====
 
 Mode 14 is special in that the alpha values are interpolated linearly,
 but the color components are interpolated logarithmically. This is the
@@ -888,53 +893,60 @@ Decode the different LDR endpoint modes as follows:
 
 ==== Mode 0  LDR Luminance, direct
 
------
+[source]
+----
 e0=(v0,v0,v0,0xFF); e1=(v1,v1,v1,0xFF);
------
+----
 
 ==== Mode 1  LDR Luminance, base+offset
 
------
+[source]
+----
 L0 = (v0>>2)|(v1&0xC0); L1=L0+(v1&0x3F);
 if (L1>0xFF) { L1=0xFF; }
 e0=(L0,L0,L0,0xFF); e1=(L1,L1,L1,0xFF);
------
+----
 
 ==== Mode 4  LDR Luminance+Alpha,direct
 
------
+[source]
+----
 e0=(v0,v0,v0,v2);
 e1=(v1,v1,v1,v3);
------
+----
 
 ==== Mode 5  LDR Luminance+Alpha, base+offset
 
------
+[source]
+----
 bit_transfer_signed(v1,v0); bit_transfer_signed(v3,v2);
 e0=(v0,v0,v0,v2); e1=(v0+v1,v0+v1,v0+v1,v2+v3);
 clamp_unorm8(e0); clamp_unorm8(e1);
------
+----
 
 ==== Mode 6  LDR _RGB_, base+scale
 
------
+[source]
+----
 e0=(v0*v3>>8,v1*v3>>8,v2*v3>>8, 0xFF);
 e1=(v0,v1,v2,0xFF);
------
+----
 
 ==== Mode 8  LDR _RGB_, Direct
 
------
+[source]
+----
 s0= v0+v2+v4; s1= v1+v3+v5;
 if (s1>=s0){e0=(v0,v2,v4,0xFF);
             e1=(v1,v3,v5,0xFF); }
 else { e0=blue_contract(v1,v3,v5,0xFF);
        e1=blue_contract(v0,v2,v4,0xFF); }
------
+----
 
 ==== Mode 9  LDR _RGB_, base+offset
 
------
+[source]
+----
 bit_transfer_signed(v1,v0);
 bit_transfer_signed(v3,v2);
 bit_transfer_signed(v5,v4);
@@ -944,28 +956,31 @@ else
 { e0=blue_contract(v0+v1,v2+v3,v4+v5,0xFF);
   e1=blue_contract(v0,v2,v4,0xFF); }
 clamp_unorm8(e0); clamp_unorm8(e1);
------
+----
 
 ==== Mode 10 LDR _RGB_, base+scale plus two _A_
 
------
+[source]
+----
 e0=(v0*v3>>8,v1*v3>>8,v2*v3>>8, v4);
 e1=(v0,v1,v2, v5);
------
+----
 
 ==== Mode 12 LDR _RGBA_, direct
 
------
+[source]
+----
 s0= v0+v2+v4; s1= v1+v3+v5;
 if (s1>=s0){e0=(v0,v2,v4,v6);
             e1=(v1,v3,v5,v7); }
 else { e0=blue_contract(v1,v3,v5,v7);
        e1=blue_contract(v0,v2,v4,v6); }
------
+----
 
 ==== Mode 13 LDR _RGBA_, base+offset
 
------
+[source]
+----
 bit_transfer_signed(v1,v0);
 bit_transfer_signed(v3,v2);
 bit_transfer_signed(v5,v4);
@@ -975,7 +990,7 @@ if(v1+v3+v5>=0) { e0=(v0,v2,v4,v6);
 else { e0=blue_contract(v0+v1,v2+v3,v4+v5,v6+v7);
        e1=blue_contract(v0,v2,v4,v6); }
 clamp_unorm8(e0); clamp_unorm8(e1);
------
+----
 
 The `bit_transfer_signed()` procedure transfers a bit from one value (_a_)
 to another (_b_). Initially, both _a_ and _b_ are in the range 0..255.
@@ -983,7 +998,8 @@ After calling this procedure, _a_'s range becomes -32..31, and _b_ remains
 in the range 0..255. Note that, as is often the case, this is easier to
 express in hardware than in C:
 
------
+[source]
+----
 bit_transfer_signed(int& a, int& b)
 {
     b >>= 1;
@@ -992,12 +1008,13 @@ bit_transfer_signed(int& a, int& b)
     a &= 0x3F;
     if( (a&0x20)!=0 ) a-=0x40;
 }
------
+----
 
 The `blue_contract()` procedure is used to give additional precision to
 _RGB_ colors near gray:
 
------
+[source]
+----
 color blue_contract( int r, int g, int b, int a )
 {
     color c;
@@ -1007,12 +1024,13 @@ color blue_contract( int r, int g, int b, int a )
     c.a = a;
     return c;
 }
------
+----
 
 The `clamp_unorm8()` procedure is used to clamp a color into
 8-bit unsigned normalized fixed-point range:
 
------
+[source]
+----
 void clamp_unorm8(color c)
 {
     if(c.r < 0) {c.r=0;} else if(c.r > 255) {c.r=255;}
@@ -1020,7 +1038,7 @@ void clamp_unorm8(color c)
     if(c.b < 0) {c.b=0;} else if(c.b > 255) {c.b=255;}
     if(c.a < 0) {c.a=0;} else if(c.a > 255) {c.a=255;}
 }
------
+----
 
 <<<
 
@@ -1034,7 +1052,8 @@ pseudo-logarithmic representation.
 Mode 2 represents luminance-only data with a large range. It encodes
 using two values (v~0~, v~1~). The complete decoding procedure is as follows:
 
------
+[source]
+----
 if(v1 >= v0)
 {
     y0 = (v0 << 4);
@@ -1048,7 +1067,7 @@ else
 // Construct RGBA result (0x780 is 1.0f)
 e0 = (y0, y0, y0, 0x780);
 e1 = (y1, y1, y1, 0x780);
------
+----
 
 ==== HDR Endpoint Mode 3
 
@@ -1059,18 +1078,19 @@ bits for a base luminance value, together with an offset, into two values
 [[astc-hdr-mode-3-value-layout]]
 .ASTC HDR mode 3 value layout
 [width="60%",cols="2h,1,1,1,1,1,1,1,1"]
-|=====================
+|====
 ^| *Value*  ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
 ^| v~0~     ^| M  7+^|         L^6..0^
 ^| v~1~     4+^|    X^3..0^     4+^|   d^3..0^
-|=====================
+|====
 
 The bit field marked as X allocates different bits to L or d depending
 on the value of the mode bit M.
 
 The complete decoding procedure is as follows:
 
------
+[source]
+----
 // Check mode bit and extract.
 if((v0&0x80) !=0)
 {
@@ -1090,7 +1110,7 @@ if(y1 > 0xFFF) { y1 = 0xFFF; }
 // Construct RGBA result (0x780 is 1.0f)
 e0 = (y0, y0, y0, 0x780);
 e1 = (y1, y1, y1, 0x780);
------
+----
 
 <<<
 
@@ -1103,13 +1123,13 @@ mode bits into the four values (v~0~, v~1~, v~2~, v~3~), as shown in
 [[astc-hdr-mode-7-value-layout]]
 .ASTC HDR mode 7 value layout
 [width="50%",cols="3,1,1,1,1,1,1,1,1"]
-|===================
+|====
 ^| *Value* ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
 ^|v~0~     2+^|M^3..2^ 6+^|       _R_^5..0^
 ^|v~1~     ^|M^1^ ^|X^0^ ^|X^1^ 5+^|      _G_^4..0^
 ^|v~2~     ^|M^0^ ^|X^2^ ^|X^3^ 5+^|      _B_^4..0^
 ^|v~3~     ^|X^4^ ^|X^5^ ^|X^6^ 5+^|      S^4..0^
-|===================
+|====
 
 The mode bits M^0^ to M^3^ are a packed representation of an endpoint bit
 mode, together with the major component index. For modes 0 to 4, the
@@ -1123,7 +1143,7 @@ extra bits X^0^ to X^6^, as shown in <<astc-hdr-mode-7-endpoint-bit-mode>>.
 [[astc-hdr-mode-7-endpoint-bit-mode]]
 .ASTC HDR mode 7 endpoint bit mode
 [width="85%",cols="2h,1,1,1,1,1,2,2,2,2,2,2,2"]
-|===============
+|====
 | 4+^| *Number of bits* | 7+^| *Destination of extra bits*
 ^| Mode   ^| *_R_*  ^| *_G_* ^| *_B_* ^| *S* |     ^| *X^0^* ^| *X^1^* ^| *X^2^* ^| *X^3^* ^| *X^4^* ^| *X^5^* ^| *X^6^*
 ^| 0      ^| 11 ^| 5 ^| 5 ^| 7 ^|     ^| _R_^9^ ^| _R_^8^ ^| _R_^7^ ^| _R_^10^ ^| _R_^6^ ^| S^6^  ^| S^5^
@@ -1132,7 +1152,7 @@ extra bits X^0^ to X^6^, as shown in <<astc-hdr-mode-7-endpoint-bit-mode>>.
 ^| 3      ^| 9  ^| 6 ^| 6 ^| 7 ^|     ^| _R_^8^ ^| _G_^5^ ^| _R_^7^ ^| _B_^5^  ^| _R_^6^ ^| S^6^  ^| S^5^
 ^| 4      ^| 8  ^| 7 ^| 7 ^| 6 ^|     ^| _G_^6^ ^| _G_^5^ ^| _B_^6^ ^| _B_^5^  ^| _R_^6^ ^| _R_^7^  ^| S^5^
 ^| 5      ^| 7  ^| 7 ^| 7 ^| 7 ^|     ^| _G_^6^ ^| _G_^5^ ^| _B_^6^ ^| _B_^5^  ^| _R_^6^ ^| S^6^  ^| S^5^
-|===============
+|====
 
 As noted before, this appears complex when expressed in C, but much
 easier to achieve in hardware: bit masking, extraction, shifting
@@ -1142,7 +1162,8 @@ The complete decoding procedure is as follows:
 
 <<<
 
------
+[source]
+----
 // Extract mode bits and unpack to major component and mode.
 int majcomp; int mode; int modeval = ((v0&0xC0)>>6) | ((v1&0x80)>>5) | ((v2&0x80)>>4);
 
@@ -1204,7 +1225,7 @@ e0.r = clamp( red - scale, 0, 0xFFF );
 e0.g = clamp( green - scale, 0, 0xFFF );
 e0.b = clamp( blue - scale, 0, 0xFFF );
 e0.alpha = 0x780;
------
+----
 
 ==== HDR Endpoint Mode 11
 
@@ -1216,7 +1237,7 @@ mode bits into the six values (v~0~, v~1~, v~2~, v~3~, v~4~, v~5~) as shown in
 [[astc-hdr-mode-11-value-layout]]
 .ASTC HDR mode 11 value layout
 [cols="3h,1,1,1,1,1,1,1,1",width="50%"]
-|======================
+|====
 ^| *Value*  ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
 ^| v~0~     8+^|            a^7..0^
 ^| v~1~     ^|m~0~  ^|a^8^ 6+^|      c^5..0^
@@ -1224,7 +1245,7 @@ mode bits into the six values (v~0~, v~1~, v~2~, v~3~, v~4~, v~5~) as shown in
 ^| v~3~     ^|m~2~  ^|X^1^ 6+^|     b~1~^5..0^
 ^| v~4~     ^|mj~0~ ^|X^2^ ^|X^4^ 5+^|     d~0~^4..0^
 ^| v~5~     ^|mj~1~ ^|X^3^ ^|X^5^ 5+^|     d~1~^4..0^
-|======================
+|====
 
 If the major component bits mj^1..0^ are both 1, then the _RGB_ values
 are specified directly by <<astc-hdr-mode-11-direct-value-layout>>.
@@ -1232,7 +1253,7 @@ are specified directly by <<astc-hdr-mode-11-direct-value-layout>>.
 [[astc-hdr-mode-11-direct-value-layout]]
 .ASTC HDR mode 11 direct value layout
 [cols="3h,1,1,1,1,1,1,1,1",width="50%"]
-|===================
+|====
 ^| *Value*  ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
 ^| v~0~     8+^|         _R_~0~^11..4^
 ^| v~1~     8+^|         _R_~1~^11..4^
@@ -1240,7 +1261,7 @@ are specified directly by <<astc-hdr-mode-11-direct-value-layout>>.
 ^| v~3~     8+^|         _G_~1~^11..4^
 ^| v~4~     ^| 1 7+^|    _B_~0~^11..5^
 ^| v~5~     ^| 1 7+^|    _B_~1~^11..5^
-|===================
+|====
 
 The mode bits m^2..0^ specify the bit allocation for the different
 values, and the destinations of the extra bits X^0^ to X^5^ as shown
@@ -1249,7 +1270,7 @@ in <<astc-hdr-mode-11-endpoint-bit-mode>>.
 [[astc-hdr-mode-11-endpoint-bit-mode]]
 .ASTC HDR mode 11 endpoint bit mode
 [cols="2h,1,1,1,1,1,2,2,2,2,2,2",width="85%"]
-|=================
+|====
 ^|     4+^|  *Number of bits* | 6+^| *Destination of extra bits*
 ^| Mode  ^|  *a*  ^| *b* ^| *c* ^| *d* ^|  ^| *X^0^* ^| *X^1^* ^| *X^2^* ^| *X^3^* ^| *X^4^* ^| *X^5^*
 ^| 0     ^|  9  ^| 7 ^| 6 ^| 7 ^|  ^|  b~0~^6^ ^| b~1~^6^ ^| d~0~^6^ ^| d~1~^6^ ^| d~0~^5^ ^| d~1~^5^
@@ -1260,13 +1281,14 @@ in <<astc-hdr-mode-11-endpoint-bit-mode>>.
 ^| 5     ^|  11 ^| 6 ^| 7 ^| 6 ^|  ^|  a^9^  ^| a^10^ ^| c^7^  ^| c^6^  ^| d~0~^5^ ^| d~1~^5^
 ^| 6     ^|  12 ^| 7 ^| 7 ^| 5 ^|  ^|  b~0~^6^ ^| b~1~^6^ ^| a^11^ ^| c^6^  ^| a^9^  ^| a^10^
 ^| 7     ^|  12 ^| 6 ^| 7 ^| 6 ^|  ^|  a^9^  ^| a^10^ ^| a^11^ ^| c^6^  ^| d~0~^5^ ^| d~1~^5^
-|=================
+|====
 
 The complete decoding procedure is as follows:
 
 <<<
 
------
+[source]
+----
 // Find major component
 int majcomp = ((v4 & 0x80) >> 7) | ((v5 & 0x80) >> 6);
 
@@ -1328,7 +1350,7 @@ e0.alpha = 0x780;
 
 if( majcomp == 1 )      { swap( e0.r, e0.g ); swap( e1.r, e1.g ); }
 else if( majcomp == 2 ) { swap( e0.r, e0.b ); swap( e1.r, e1.b ); }
------
+----
 
 ==== HDR Endpoint Mode 14
 
@@ -1337,14 +1359,15 @@ v~2~, v~3~, v~4~, v~5~, v~6~, v~7~).
 First, the _RGB_ values are decoded from (v~0~..v~5~) using the method
 from Mode 11, then the alpha values are filled in from v~6~ and v~7~:
 
------
+[source]
+----
 // Decode RGB as for mode 11
 (e0,e1) = decode_mode_11(v0,v1,v2,v3,v4,v5)
 
 // Now fill in the alphas
 e0.alpha = v6;
 e1.alpha = v7;
------
+----
 
 Note that in this mode, the alpha values are interpreted (and
 interpolated) as 8-bit unsigned normalized values, as in the LDR modes.
@@ -1363,15 +1386,16 @@ in <<astc-hdr-mode-15-alpha-value-layout>>.
 [[astc-hdr-mode-15-alpha-value-layout]]
 .ASTC HDR mode 15 alpha value layout
 [cols="h,1,1,1,1,1,1,1,1",width="75%"]
-|====================
+|====
 ^| *Value*  ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
 ^| v~6~     ^| _M_^0^ 7+^|        A^6..0^
 ^| v~7~     ^| _M_^1^ 7+^|        B^6..0^
-|====================
+|====
 
 The alpha values are decoded from v~6~ and v~7~ as follows:
 
------
+[source]
+----
 // Decode RGB as for mode 11
 (e0,e1) = decode_mode_11(v0,v1,v2,v3,v4,v5)
 
@@ -1399,7 +1423,7 @@ else
     v7 = clamp(v7, 0, 0xFFF);
     e0.alpha = v6; e1.alpha = v7;
 }
------
+----
 
 Note that in this mode, the alpha values are interpreted (and
 interpolated) as 12-bit HDR values, and are interpolated as
@@ -1442,11 +1466,11 @@ in <<astc-weight-unquantization-values>>.
 [[astc-weight-unquantization-values]]
 .ASTC weight unquantization values
 [cols="3,1,1,1,1,1",width="40%",options="header"]
-|===========
+|====
 ^| Range  ^| 0  ^| 1  ^| 2  ^| 3  ^| 4
 ^| 0..2   ^| 0  ^| 32 ^| 63 ^| -  ^| -
 ^| 0..4   ^| 0  ^| 16 ^| 32 ^| 47 ^| 63
-|===========
+|====
 
 For other values, we calculate the initial inputs to a bit manipulation
 procedure. These are denoted ++A++ (7 bits), ++B++ (7 bits), ++C++ (7 bits),
@@ -1456,22 +1480,23 @@ and ++D++ (3 bits) and are decoded using the range as shown in
 [[astc-weight-unquantization-parameters]]
 .ASTC weight unquantization parameters
 [cols="4,3,4,3,5,6,6,3,8",width="95%",options="header"]
-|============
+|====
 ^| Range  ^| #Trits ^| #Quints ^| #Bits ^| Bit layout ^| ++A++ ^| ++B++ ^| ++C++ ^| ++D++
 ^| 0..5   ^| 1 ^|   ^| 1  ^| a      ^| aaaaaaa ^| 0000000 ^| 50 ^| Trit value
 ^| 0..9   ^|   ^| 1 ^| 1  ^| a      ^| aaaaaaa ^| 0000000 ^| 28 ^| Quint value
 ^| 0..11  ^| 1 ^|   ^| 2  ^| ba     ^| aaaaaaa ^| b000b0b ^| 23 ^| Trit value
 ^| 0..19  ^|   ^| 1 ^| 2  ^| ba     ^| aaaaaaa ^| b0000b0 ^| 13 ^| Quint value
 ^| 0..23  ^| 1 ^|   ^| 3  ^| cba    ^| aaaaaaa ^| cb000cb ^| 11 ^| Trit value
-|===========
+|====
 
 These are then processed as follows:
 
------
+[source]
+----
 unq = D * C + B;
 unq = unq ^ A;
 unq = (A & 0x20) | (unq >> 2);
------
+----
 
 Note that the multiply in the first line is nearly trivial as it only
 needs to multiply by 0, 1, 2, 3 or 4.
@@ -1479,9 +1504,10 @@ needs to multiply by 0, 1, 2, 3 or 4.
 As a final step, for all types of value, the range is expanded from
 0..63 up to 0..64 as follows:
 
------
+[source]
+----
 if (unq > 32) { unq += 1; }
------
+----
 
 This allows the implementation to use 64 as a divisor during interpolation,
 which is much easier than using 63.
@@ -1502,24 +1528,25 @@ have values from 0 to one less than the block dimension in that axis.
 For each block dimension, we compute scale factors (_D~s~_, _D~t~_, _D~r~_):
 
 [latexmath]
-+++++++++++++
+++++
 \begin{align*}
 D_s = \left\lfloor {\left(1024 + \left\lfloor { \textrm{B}_\textrm{s} \over 2 }\right\rfloor\right) \over (\textrm{B}_\textrm{s}-1) } \right\rfloor \\
 D_t = \left\lfloor {\left(1024 + \left\lfloor { \textrm{B}_\textrm{t} \over 2 }\right\rfloor\right) \over (\textrm{B}_\textrm{t}-1) } \right\rfloor \\
 D_r = \left\lfloor {\left(1024 + \left\lfloor { \textrm{B}_\textrm{r} \over 2 }\right\rfloor\right) \over (\textrm{B}_\textrm{r}-1) } \right\rfloor
 \end{align*}
-+++++++++++++
+++++
 
 Since the block dimensions are constrained, these are easily looked up
 in a table.
 These scale factors are then used to scale the (b~s~, b~t~, b~r~) coordinates
 to a homogeneous coordinate (c~s~, c~t~, c~r~):
 
------
+[source]
+----
 cs = Ds * bs;
 ct = Dt * bt;
 cr = Dr * br;
------
+----
 
 This homogeneous coordinate (c~s~, c~t~, c~r~) is then scaled again to
 give a coordinate (g~s~, g~t~, g~r~) in the weight-grid space.
@@ -1527,11 +1554,12 @@ The weight-grid is of size (W~width~, W~height~, W~depth~), as
 specified in the block mode field (<<astc-2d-block-mode-layout>> and
 <<astc-3d-block-mode-layout>>):
 
------
+[source]
+----
 gs = (cs*(Wwidth-1)+32) >> 6;
 gt = (ct*(Wheight-1)+32) >> 6;
 gr = (cr*(Wdepth-1)+32) >> 6;
------
+----
 
 The resulting coordinates may be in the range 0..176. These are interpreted
 as 4:4 unsigned fixed point numbers in the range 0.0 .. 11.0.
@@ -1539,24 +1567,26 @@ as 4:4 unsigned fixed point numbers in the range 0.0 .. 11.0.
 If we label the integral parts of these (j~s~, j~t~, j~r~) and the fractional
 parts (f~s~, f~t~, f~r~), then:
 
------
+[source]
+----
 js = gs >> 4; fs = gs & 0x0F;
 jt = gt >> 4; ft = gt & 0x0F;
 jr = gr >> 4; fr = gr & 0x0F;
------
+----
 
 These values are then used to interpolate between the stored weights.
 This process differs for 2D and 3D.
 
 For 2D, bilinear interpolation is used:
 
------
+[source]
+----
 v0 = js + jt*Wwidth;
 p00 = decode_weight(v0);
 p01 = decode_weight(v0 + 1);
 p10 = decode_weight(v0 + Wwidth);
 p11 = decode_weight(v0 + Wwidth + 1);
------
+----
 
 The function `decode_weight(n)` decodes the _n_^th^ weight in the stored
 weight stream.
@@ -1564,13 +1594,14 @@ The values p~00~ to p~11~ are the weights at the corner of the square
 in which the texel position resides. These are then weighted using the
 fractional position to produce the effective weight _i_ as follows:
 
------
+[source]
+----
 w11 = (fs*ft+8) >> 4;
 w10 = ft - w11;
 w01 = fs - w11;
 w00 = 16 - fs - ft + w11;
 i = (p00*w00 + p01*w01 + p10*w10 + p11*w11 + 8) >> 4;
------
+----
 
 For 3D, simplex interpolation is used as it is cheaper than a na&iuml;ve
 trilinear interpolation. First, we pick some parameters for the interpolation
@@ -1580,7 +1611,7 @@ position as shown in <<astc-simplex-interpolation-parameters>>.
 [[astc-simplex-interpolation-parameters]]
 .ASTC simplex interpolation parameters
 [options="header",width="90%",cols="1,1,1,2,2,1,1,1,1"]
-|==================
+|====
 ^| _f~s~_ > _f~t~_ ^| _f~t~_ > _f~r~_ ^| _f~s~_ > _f~r~_  ^| _s_~1~ ^| _s_~2~ ^| _w_~0~    ^| _w_~1~    ^| _w_~2~    ^| _w_~3~
 ^| True   ^| True   ^| _True_ ^| 1   ^| W~width~   ^| 16 - _f~s~_  ^| _f~s~_ - _f~t~_  ^| _f~t~_ - _f~r~_  ^| _f~r~_
 ^| False  ^| _True_ ^| True   ^| W~width~   ^| 1   ^| 16 - _f~t~_  ^| _f~t~_ - _f~s~_  ^| _f~s~_ - _f~r~_ ^| _f~r~_
@@ -1588,19 +1619,20 @@ position as shown in <<astc-simplex-interpolation-parameters>>.
 ^| True   ^| _False_  ^| False  ^| W~width~ {times} W~height~ ^| 1   ^| 16 - _f~r~_  ^| _f~r~_ - _f~s~_  ^| _f~s~_ - _f~t~_  ^| _f~t~_
 ^| _False_  ^| True   ^| False  ^| W~width~   ^| W~width~ {times} W~height~ ^| 16 - _f~t~_  ^| _f~t~_ - _f~r~_  ^| _f~r~_ - _f~s~_  ^| _f~s~_
 ^| False  ^| False  ^| _False_  ^| W~width~ {times} W~height~ ^| W~width~   ^| 16 - _f~r~_  ^| _f~r~_ - _f~t~_  ^| _f~t~_ - _f~s~_ ^| _f~s~_
-|==================
+|====
 
 Italicized test results are implied by the others. The effective
 weight _i_ is then calculated as:
 
------
+[source]
+----
 v0 = js + jt*Wwidth + jr*Wwidth*Wheight;
 p0 = decode_index(v0);
 p1 = decode_index(v0 + s1);
 p2 = decode_index(v0 + s1 + s2);
 p3 = decode_index(v0 + Wwidth*Wheight + Wwidth + 1);
 i = (p0*w0 + p1*w1 + p2*w2 + p3*w3 + 8) >> 4;
------
+----
 
 <<<
 
@@ -1616,22 +1648,25 @@ corresponding 8-bit endpoint components C~0~ and C~1~ as follows:
 If sRGB conversion is not enabled, or for the alpha channel in any case,
 C~0~ and C~1~ are first expanded to 16 bits by bit replication:
 
------
+[source]
+----
 C0 = (C0 << 8) | C0;    C1 = (C1 << 8) | C1;
------
+----
 
 If sRGB conversion is enabled, C~0~ and C~1~ for the _R_, _G_, and _B_ channels
 are expanded to 16 bits differently, as follows:
 
------
+[source]
+----
 C0 = (C0 << 8) | 0x80;  C1 = (C1 << 8) | 0x80;
------
+----
 
 C~0~ and C~1~ are then interpolated to produce a UNORM16 result C:
 
------
+[source]
+----
 C = floor( (C0*(64-i) + C1*i + 32)/64 )
------
+----
 
 If sRGB conversion is not enabled and the decoding mode is decode_float16,
 then if C = 65535 the final result is 1.0 (0x3C00); otherwise C is
@@ -1646,7 +1681,8 @@ If sRGB conversion is not enabled and the decoding mode is decode_rgb9e5,
 then the final result is a combination of the (UNORM16) values of C
 for the three color components (_C~r~_, _C~g~_ and _C~b~_) computed as follows:
 
------
+[source]
+----
 int lz = clz17(Cr | Cg | Cb | 1);
 if (Cr == 65535) { Cr = 65536; lz = 0; }
 if (Cg == 65535) { Cg = 65536; lz = 0; }
@@ -1657,7 +1693,7 @@ Cg = (Cg >> 8) & 0x1FF;
 Cb = (Cb >> 8) & 0x1FF;
 uint32_t exponent = 16 - lz;
 uint32_t texel = (exponent << 27) | (Cb << 18) | Cg << 9) | Cr;
------
+----
 
 The ++clz17()++ function counts leading zeroes in a 17-bit value.
 
@@ -1679,14 +1715,15 @@ are interpolated in the same way as LDR. The 16-bit value C is then
 decomposed into the top five bits, E, and the bottom 11 bits M, which
 are then processed and recombined with E to form the final value C~f~:
 
------
+[source]
+----
 C = floor( (C0*(64-i) + C1*i + 32)/64 )
 E = (C & 0xF800) >> 11; M = C & 0x7FF;
 if (M < 512) { Mt = 3*M; }
 else if (M >= 1536) { Mt = 5*M - 2048; }
 else { Mt = 4*M - 512; }
 Cf = (E<<10) + (Mt>>3);
------
+----
 
 This interpolation is a considerably closer approximation to a
 logarithmic space than simple 16-bit interpolation.
@@ -1701,7 +1738,8 @@ If the decoding mode is decode_rgb9e5, then the final result is a
 combination fo the (IEEE FP16) values of C~f~ for the three color components
 (_C~r~_, _C~g~_ and _C~b~_) computed as follows:
 
------
+[source]
+----
 if( Cr > 0x7c00 ) Cr = 0; else if( Cr == 0x7c00 ) Cr = 0x7bff;
 if( Cg > 0x7c00 ) Cg = 0; else if( Cg == 0x7c00 ) Cg = 0x7bff;
 if( Cb > 0x7c00 ) Cb = 0; else if( Cb == 0x7c00 ) Cb = 0x7bff;
@@ -1749,7 +1787,7 @@ Gm = (Gm >> gshift) & 0x1FF;
 Bm = (Bm >> bshift) & 0x1FF;
 
 uint32_t texel = (expo << 27) | (Bm << 18) | (Gm << 9) | (Rm << 0);
------
+----
 
 <<<
 
@@ -1769,13 +1807,13 @@ Component Selector (CCS) field as shown in <<astc-dual-plane-color-component-sel
 [[astc-dual-plane-color-component-selector-values]]
 .ASTC dual plane color component selector values
 [options="header",width="40%"]
-|==========
+|====
 ^| Value  ^| Weight 0 ^| Weight 1
 ^| 0      ^|   _GBA_  ^|    _R_
 ^| 1      ^|   _RBA_  ^|    _G_
 ^| 2      ^|   _RGA_  ^|    _B_
 ^| 3      ^|   _RGB_  ^|    _A_
-|==========
+|====
 
 The CCS bits are stored at a variable position directly below the weight
 bits and any additional CEM bits.
@@ -1797,7 +1835,8 @@ For 2D textures and texture slices, _z_ will always be 0.
 
 The full partition selection algorithm is as follows:
 
------
+[source]
+----
 int select_partition(int seed, int x, int y, int z,
                      int partitioncount, int small_block)
 {
@@ -1850,7 +1889,7 @@ int select_partition(int seed, int x, int y, int z,
     else if( c >= d ) return 2;
     else return 3;
 }
------
+----
 
 As has been observed before, the bit selections are much easier to
 express in hardware than in C.
@@ -1860,7 +1899,8 @@ express in hardware than in C.
 The seed is expanded using a hash function `hash52()`, which is defined
 as follows:
 
------
+[source]
+----
 uint32_t hash52( uint32_t p )
 {
     p ^= p >> 15;  p -= p << 17;  p += p << 7; p += p <<  4;
@@ -1868,7 +1908,7 @@ uint32_t hash52( uint32_t p )
     p ^= p <<  6;  p ^= p >> 17;
     return p;
 }
------
+----
 
 This assumes that all operations act on 32-bit values
 
@@ -1878,7 +1918,8 @@ The size of the data used to represent color endpoints is not
 explicitly specified. Instead, it is determined from the block mode and
 number of partitions as follows:
 
------
+[source]
+----
 config_bits = 17;
 if(num_partitions>1)
     if(single_CEM)
@@ -1899,7 +1940,7 @@ weight_bits = ceil(num_weights*8*trits_in_weight_range/5) +
 remaining_bits = 128 - config_bits - weight_bits;
 
 num_CEM_pairs = base_CEM_class+1 + count_bits(extra_CEM_bits);
------
+----
 
 The CEM value range is then looked up from a table indexed by remaining
 bits and `num_CEM_pairs`.
@@ -1910,7 +1951,8 @@ remaining bits.
 
 An equivalent iterative algorithm would be:
 
------
+[source]
+----
 num_CEM_values = num_CEM_pairs*2;
 
 for(range = each possible CEM range in descending order of size)
@@ -1923,7 +1965,7 @@ for(range = each possible CEM range in descending order of size)
         break;
 }
 return range;
------
+----
 
 In cases where this procedure results in unallocated bits, these bits
 are not read by the decoding process and can have any value.
@@ -1945,7 +1987,7 @@ The layout of a 2D Void-Extent block is as shown in <<astc-2d-void-extend-block-
 [[astc-2d-void-extend-block-layout-overview]]
 .ASTC 2D void-extent block layout overview
 [cols="1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1",width="97%"]
-|=================
+|====
 ^| ~127~ ^| ~126~ ^| ~125~ ^| ~124~ ^| ~123~ ^| ~122~ ^| ~121~ ^| ~120~ ^| ~119~ ^| ~118~ ^| ~117~ ^| ~116~ ^| ~115~ ^| ~114~ ^| ~113~ ^| ~112~
 16+^|                 Block color _A_ component^15..0^
 ^| ~111~ ^| ~110~ ^| ~109~ ^| ~108~ ^| ~107~ ^| ~106~ ^| ~105~ ^| ~104~ ^| ~103~ ^| ~102~ ^| ~101~ ^| ~100~ ^| ~99~ ^| ~98~ ^| ~97~ ^| ~96~
@@ -1962,14 +2004,14 @@ The layout of a 2D Void-Extent block is as shown in <<astc-2d-void-extend-block-
 7+^| Void-extent maximum _s_ coordinate^5..0^    9+^|  Void-extent minimum _s_ coordinate^12..4^
 ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
 4+^| Minimum _s_ coordinate^3..0^ ^| 1 ^| 1 ^| D ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0
-|=================
+|====
 
 The layout of a 3D Void-Extent block is as shown in <<astc-3d-void-extend-block-layout-overview>>.
 
 [[astc-3d-void-extend-block-layout-overview]]
 .ASTC 3D void-extent block layout overview
 [cols="1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1",width="97%"]
-|=================
+|====
 ^| ~127~ ^| ~126~ ^| ~125~ ^| ~124~ ^| ~123~ ^| ~122~ ^| ~121~ ^| ~120~ ^| ~119~ ^| ~118~ ^| ~117~ ^| ~116~ ^| ~115~ ^| ~114~ ^| ~113~ ^| ~112~
 16+^|                 Block color _A_ component^15..0^
 ^| ~111~ ^| ~110~ ^| ~109~ ^| ~108~ ^| ~107~ ^| ~106~ ^| ~105~ ^| ~104~ ^| ~103~ ^| ~102~ ^| ~101~ ^| ~100~ ^| ~99~ ^| ~98~ ^| ~97~ ^| ~96~
@@ -1986,7 +2028,7 @@ The layout of a 3D Void-Extent block is as shown in <<astc-3d-void-extend-block-
 4+^| Minimum _t_ coordinate^3..0^   9+^|  Void-extent minimum _s_ coordinate^8..0^ 3+^| Min _s_ coord^8..6^
 ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
 6+^| Void-extent minimum _s_ coordinate^5..0^       ^| D ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0
-|=================
+|====
 
 Bit 9 is the Dynamic Range flag, which indicates the format in which
 colors are stored. A 0 value indicates LDR, in which case the color

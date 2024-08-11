@@ -1,5 +1,6 @@
-// Copyright (C) 2008-2019 The Khronos Group Inc. All Rights Reserved.
-// Copyright notice at https://www.khronos.org/registry/speccopyright.html
+// Copyright 2008-2024 The Khronos Group Inc.
+// SPDX-License-Identifier: CC-BY-4.0
+
 [[RGTC]]
 == RGTC Compressed Texture Image Formats
 
@@ -19,36 +20,36 @@ size of _blocksize_ (8 or 16 bytes) is decoded, the corresponding image
 size (in bytes) is:
 
 [latexmath]
-++++++++++++++++++++++
+++++
 \begin{align*}
 \left\lceil { w \over 4 } \right\rceil \times
 \left\lceil { h \over 4 } \right\rceil \times
 \mathit{blocksize}
 \end{align*}
-++++++++++++++++++++++
+++++
 
 When decoding an RGTC image, the block containing the texel at offset
 latexmath:[$(x,y)$] begins at an offset (in bytes) relative to the base of the image of:
 
 [latexmath]
-++++++++++++++++++++++
+++++
 \begin{align*}
 \mathit{blocksize} \times
    \left( { \left\lceil  { w \over 4 } \right\rceil \times
             \left\lfloor { y \over 4 } \right\rfloor +
             \left\lfloor { x \over 4 } \right\rfloor } \right)
 \end{align*}
-++++++++++++++++++++++
+++++
 
 The data corresponding to a specific texel (_x_, _y_) are extracted from a
 4{times}4 texel block using a relative (_x_, _y_) value of
 
 [latexmath]
-++++++++++++++++++++++
+++++
 \begin{align*}
 (x \bmod 4,y \bmod 4)
 \end{align*}
-++++++++++++++++++++++
+++++
 
 There are four distinct RGTC image formats described in the following
 sections.
@@ -64,16 +65,16 @@ Each red image data block is encoded as a sequence of 8 bytes, called (in
 order of increasing address):
 
 [latexmath]
-++++++
+++++
 \begin{align*}
 \mathit{red}_0, \mathit{red}_1, \mathit{bits}_0, \mathit{bits}_1, \mathit{bits}_2, \mathit{bits}_3, \mathit{bits}_4, \mathit{bits}_5
 \end{align*}
-++++++
+++++
 
 The 6 _bits_~{0..5}~ bytes of the block are decoded into a 48-bit bit vector:
 
 [latexmath]
-++++++++++++++++++++++
+++++
 \begin{align*}
 \mathit{bits} & =
 \mathit{bits}_0 +
@@ -87,7 +88,7 @@ The 6 _bits_~{0..5}~ bytes of the block are decoded into a 48-bit bit vector:
       \right) }
     \right)
 \end{align*}
-++++++++++++++++++++++
+++++
 
 _red_~0~ and _red_~1~ are 8-bit unsigned integers that are unpacked to red
 values _RED_~0~ and _RED_~1~ by multiplying by latexmath:[$1\over 255$].
@@ -96,14 +97,14 @@ _bits_ is a 48-bit unsigned integer, from which a three-bit control code is
 extracted for a texel at location (_x_, _y_) in the block using:
 
 [latexmath]
-++++++++++++++++++++++
+++++
 \begin{align*}
 \mathit{code}(x,y) & =
  \mathit{bits} \left[
      3 \times (4 \times y + x) + 2 \dots
      3 \times (4 \times y + x) + 0 \right]
 \end{align*}
-++++++++++++++++++++++
+++++
 
 where _bits_[47] is the most-significant and _bits_[0] is the least-significant bit.
 
@@ -113,7 +114,7 @@ the block is given by <<BC4blocks>>.
 [[BC4blocks]]
 .Block decoding for BC4
 [options="header",width="43%",cols="1,2"]
-|==========
+|====
 ^| _R_ value ^| Condition
 ^| _RED_~0~                         ^.^| _red_~0~ > _red_~1~, _code_(_x_, _y_) = 0
 ^| _RED_~1~                         ^.^| _red_~0~ > _red_~1~, _code_(_x_, _y_) = 1
@@ -131,7 +132,7 @@ the block is given by <<BC4blocks>>.
 ^| latexmath:[${   \mathit{RED}_0 + 4 \times \mathit{RED}_1 } \over 5$] ^.^| _red_~0~ {leq} _red_~1~, _code_(_x_, _y_) = 5
 ^| _RED~min~_                     ^.^| _red_~0~ {leq} _red_~1~, _code_(_x_, _y_) = 6
 ^| _RED~max~_                     ^.^| _red_~0~ {leq} _red_~1~, _code_(_x_, _y_) = 7
-|==========
+|====
 
 _RED_~min~ and _RED_~max~ are 0.0 and 1.0 respectively.
 
@@ -146,7 +147,7 @@ BC4 unsigned except _red_~0~, _red_~1~, _RED_~0~, _RED_~1~,
 _RED_~min~, and _RED_~max~ are signed values defined as follows:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
 \mathit{RED}_0 & = \begin{cases}
  {\mathit{red}_0 \over 127.0}, & \mathit{red}_0 > -128 \\
@@ -159,7 +160,7 @@ _RED_~min~, and _RED_~max~ are signed values defined as follows:
 \mathit{RED}_{\mathit{min}} & = -1.0 \\
 \mathit{RED}_{\mathit{max}} & = 1.0
 \end{align*}
-+++++++++++
+++++
 
 _red_~0~ and _red_~1~ are 8-bit signed (two's complement) integers.
 

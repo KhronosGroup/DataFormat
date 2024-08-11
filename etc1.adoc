@@ -1,5 +1,6 @@
-// Copyright (c) 2014-2019 The Khronos Group Inc.
-// Copyright notice at https://www.khronos.org/registry/speccopyright.html
+// Copyright 2014-2024 The Khronos Group Inc.
+// SPDX-License-Identifier: CC-BY-4.0
+
 [[ETC1]]
 == ETC1 Compressed Texture Image Formats
 
@@ -51,11 +52,11 @@ _q_~7~ at the highest. The 64 bits specifying the block are then
 represented by the following 64 bit integer:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
 \mathit{int64bit} & = 256\times (256\times (256\times (256\times (256\times (256\times (256\times q_0+q_1)+q_2)+q_3)+q_4)+q_5)+q_6)+q_7
 \end{align*}
-++++++
+++++
 
 Each 64-bit word contains information about a 4{times}4 pixel block as
 shown in <<ETC1layout>>.
@@ -82,7 +83,7 @@ endif::[]
 ifndef::a2xhtml[]
 [width="55%",cols="16*1"]
 endif::[]
-|====================
+|====
 16+^| [[ETC1individual]]*a) Bit layout in bits 63 through 32 if _diff bit_ = 0*
 ^| ~63~ ^| ~62~ ^| ~61~ ^| ~60~ ^| ~59~ ^| ~58~ ^| ~57~ ^| ~56~ ^| ~55~ ^| ~54~ ^| ~53~ ^| ~52~ ^| ~51~ ^| ~50~ ^| ~49~ ^| ~48~
 4+^| Base color 1
@@ -156,7 +157,7 @@ _bit_
 16+^| *Less significant pixel index bits*
 ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
 ^| _p_^0^ ^| _o_^0^ ^| _n_^0^ ^| _m_^0^ ^| _l_^0^ ^| _k_^0^ ^| _j_^0^ ^| _i_^0^ ^| _h_^0^ ^| _g_^0^ ^| _f_^0^ ^| _e_^0^ ^| _d_^0^ ^| _c_^0^ ^| _b_^0^ ^| _a_^0^
-|====================
+|====
 
 <<<
 In both modes, the 4{times}4 block is divided into
@@ -198,12 +199,12 @@ In summary, the _base colors_ for the subblocks in the individual
 mode are:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
 \mathit{base\ color_{subblock1}} & = \mathit{extend\_4to8bits}(\mathit{R}, \mathit{G}, \mathit{B}) \\
 \mathit{base\ color_{subblock2}} & = \mathit{extend\_4to8bits}(\mathit{R}_2, \mathit{G}_2, \mathit{B}_2)
 \end{align*}
-++++++
+++++
 
 In the `differential' mode (_diff bit_ = 1), the _base color_ for
 subblock 1 is derived from the five-bit codewords _R_,
@@ -233,12 +234,12 @@ In summary, the _base colors_ for the subblocks in the differential
 mode are:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
 \mathit{base\ color_{subblock1}} & = \mathit{extend\_5to8bits}(\mathit{R}, \mathit{G}, \mathit{B}) \\
 \mathit{base\ color_{subblock2}} & = \mathit{extend\_5to8bits}(\mathit{R}+\mathit{R}_\mathrm{d}, \mathit{G}+\mathit{G}_\mathrm{d}, \mathit{B}+\mathit{B}_\mathrm{d})
 \end{align*}
-++++++
+++++
 
 Note that these additions are not allowed to under- or overflow
 (go below zero or above 31). (The compression scheme can easily
@@ -281,7 +282,7 @@ clamped to [0..255], resulting in the color
 [[ETC1modifiersets]]
 .Intensity modifier sets for ETC1 compressed textures
 [cols="2,1,1,1,1",width="48%"]
-|==============
+|====
 ^| *_Table codeword_* 4+^.^| *Modifier table*
 ^|          0       >|   -8 &nbsp; >|  -2 &nbsp; >|  2 &nbsp; >|   8 &nbsp;
 ^|          1       >|  -17 &nbsp; >|  -5 &nbsp; >|  5 &nbsp; >|  17 &nbsp;
@@ -291,19 +292,19 @@ clamped to [0..255], resulting in the color
 ^|          5       >|  -80 &nbsp; >| -24 &nbsp; >| 24 &nbsp; >|  80 &nbsp;
 ^|          6       >| -106 &nbsp; >| -33 &nbsp; >| 33 &nbsp; >| 106 &nbsp;
 ^|          7       >| -183 &nbsp; >| -47 &nbsp; >| 47 &nbsp; >| 183 &nbsp;
-|==============
+|====
 
 [[ETC1modifiermapping]]
 .Mapping from pixel index values to modifier values for ETC1 compressed textures
 [cols="1,1,3",width="50%"]
-|============
+|====
 2+^| *_Pixel index_ value* .2+^.^| *Resulting modifier value*
 ^| *MSB* ^| *LSB*
 ^| 1 ^| 1 | &nbsp; -b (large negative value)
 ^| 1 ^| 0 | &nbsp; -a (small negative value)
 ^| 0 ^| 0 | &nbsp; {plus}a (small positive value)
 ^| 0 ^| 1 | &nbsp; {plus}b (large positive value)
-|============
+|====
 
 [NOTE]
 ====

@@ -1,7 +1,7 @@
-// Copyright (c) 2019 The Khronos Group Inc.
-// Copyright notice at https://www.khronos.org/registry/speccopyright.html
+// Copyright 2019-2024 The Khronos Group Inc.
+// SPDX-License-Identifier: CC-BY-4.0
 
-== External references ==
+== External references
 
 *[[IEEE 754]]IEEE754-2008 - IEEE standard for floating-point arithmetic*
 

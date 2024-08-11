@@ -1,5 +1,6 @@
-// Copyright (c) 2014-2019 The Khronos Group Inc.
-// Copyright notice at https://www.khronos.org/registry/speccopyright.html
+// Copyright 2014-2024 The Khronos Group Inc.
+// SPDX-License-Identifier: CC-BY-4.0
+
 [[PVRTC]]
 == PVRTC Compressed Texture Image Formats
 
@@ -68,14 +69,14 @@ color contains a bit to describe whether it contains alpha data.
 
 .Texel Data format for PVRTC1 4bpp compressed texture formats
 [width="97%",cols="32*^"]
-|=======
+|====
 32+| *~Bits 64..32: Color data and flags~*
 | ~63~ | ~62~ | ~61~ | ~60~ | ~59~ | ~58~ | ~57~ | ~56~ | ~55~ | ~54~ | ~53~ | ~52~ | ~51~ | ~50~ | ~49~ | ~48~ | ~47~ | ~46~ | ~45~ | ~44~ | ~43~ | ~42~ | ~41~ | ~40~ | ~39~ | ~38~ | ~37~ | ~36~ | ~35~ | ~34~ | ~33~ | ~32~
 16+| *Color B* 15+| *Color A* | _M_
 32+| *~Bits 31..0: Modulation data bits [1..0] for pixel offset (_x_, _y_)~*
 | ~31~ | ~30~ | ~29~ | ~28~ | ~27~ | ~26~ | ~25~ | ~24~ | ~23~ | ~22~ | ~21~ | ~20~ | ~19~ | ~18~ | ~17~ | ~16~ | ~15~ | ~14~ | ~13~ | ~12~ | ~11~ | ~10~ | ~9~ | ~8~ | ~7~ | ~6~ | ~5~ | ~4~ | ~3~ | ~2~ | ~1~ | ~0~
 2+| 3,3 2+| 2,3 2+| 1,3 2+| 0,3 2+| 3,2 2+| 2,2 2+| 1,2 2+| 0,2 2+| 3,1 2+| 2,1 2+| 1,1 2+| 0,1 2+| 3,0 2+| 2,0 2+| 1,0 2+| 0,0
-|=======
+|====
 
 ==== PVRTC1 4bpp word offset calculation
 
@@ -98,14 +99,14 @@ Let _Yb_ be the number of bits used to express _Y_ -- i.e. latexmath:[$\mathit{Y
 Then:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
 \textit{Reflected Morton order offset W}_\textit{X,Y} &= \begin{cases}
       \mathit{X}^{\textit{Xb}}\ldots\mathit{X}^\textrm{n}\ldots\mathit{X}^{\textit{Yb}+1}\mathit{X}^{\textit{Yb}}\mathit{Y}^{\textit{Yb}}\ldots\mathit{X}^\textrm{m}\mathit{Y}^\textrm{m}\ldots\mathit{X}^0\mathit{Y}^0, & \textrm{width} \geq \textrm{height} \\
       \mathit{Y}^{\textit{Yb}}\ldots\mathit{Y}^\textrm{n}\ldots\mathit{Y}^{\textit{Xb}+1}\mathit{X}^{\textit{Xb}}\mathit{Y}^{\textit{Xb}}\ldots\mathit{X}^\textrm{m}\mathit{Y}^\textrm{m}\ldots\mathit{X}^0\mathit{Y}^0, & \textrm{width} < \textrm{height}
   \end{cases} \\
 \end{align*}
-++++++
+++++
 
 That is, to form the word offset, bits of _X_ and _Y_ are interleaved, with
 bits from _Y_ in the lower of each interleaved pair.
@@ -131,29 +132,30 @@ is constructed as follows:
 
 .Calculation of reflected Morton word offset for 13,2
 [width="35%"]
-|=======
+|====
 2+^| _X_ ^| *1* ^| *1* 2+^| *0* 2+^| *1* 2+^| = 13
 2+^| _W~13,2~_ ^| *1* ^| *1* ^| *0* ^| _1_ ^| *1* ^| _0_ 2+^| = 54
 2+^| _Y_ 2+^| 2+^| _1_ 2+^| _0_ 2+^| = 2
-|=======
+|====
 
 Where _wordWidth_ and _wordHeight_ are the image width and height in
 units of 4{times}4 areas encoded by words:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
 \textit{wordWidth} =& \left\lceil{\textit{width}\over 4}\right\rceil \\
 \textit{wordHeight} =& \left\lceil{\textit{height}\over 4}\right\rceil
 \end{align*}
-++++++
+++++
 
 the word offset for
 latexmath:[$\mathit{X} = \left\lfloor{\mathit{x}\over 4}\right\rfloor$] and
 latexmath:[$\mathit{Y} = \left\lfloor{\mathit{y}\over 4}\right\rfloor$] can
 be calculated iteratively as follows:
 
------
+[source]
+----
 uint32_t reflectedMortonOffset(const uint32_t X,
                                const uint32_t Y,
                                const uint32_t wordWidth,
@@ -180,7 +182,7 @@ uint32_t reflectedMortonOffset(const uint32_t X,
 
     return offset;
 }
------
+----
 
 <<<
 
@@ -199,15 +201,15 @@ latexmath:[$W_{X_\textit{Low}+1,Y_\textit{Low}+1}$],
 where _X~Low~_ and _Y~Low~_ are derived as follows:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
 X_\textit{Low}=&\left\lfloor{{x - 2}\over 4}\right\rfloor &
 Y_\textit{Low}=&\left\lfloor{{y - 2}\over 4}\right\rfloor
 \end{align*}
-++++++
+++++
 
 [NOTE]
-=====
+====
 <<PVRTCrecon>> shows a grid of pixels with (_x_ = 0, _y_ = 0) at top left.
 Each word latexmath:[$W_{X_\mathit{Mod},Y_\mathit{Mod}}$] holds modulation
 values for a 4{times}4 texel region
@@ -237,7 +239,7 @@ additional words.
 [[PVRTCrecon]]
 .PVRTC1 image reconstruction
 image::images/PVRTC1_image_reconstruction_simple.{svgpdf}[width="{svgpdf@pdf:350pt:550}",align="center"]
-=====
+====
 
 <<<
 
@@ -245,7 +247,7 @@ The texture data words are wrapped toroidally, such that the ``nearest''
 sample may exist on the opposite side of the image.
 
 [NOTE]
-=====
+====
 For example, sampling a pixel in any corner of the image results in the
 words in all four corners being examined -- or sampling a pixel at the
 bottom of the image will result in words from the top of the image
@@ -265,7 +267,7 @@ latexmath:[$W_{X_\mathit{Low}+1,Y_\mathit{Low}}$] at the bottom of the image.
 [[PVRTCwraprecon]]
 .PVRTC1 image reconstruction (wrapping)
 image::images/PVRTC1_image_reconstruction_wrap.{svgpdf}[width="{svgpdf@pdf:300pt:466}",align="center"]
-=====
+====
 
 <<<
 
@@ -279,7 +281,7 @@ The exact data layout of each color is described below:
 
 .Data layout of color segments in a PVRTC1 word
 [cols="^,^1,^1,^1,^1,^1,^1,^1,^1,^1,^1,^1,^1,^1,^1,^1",width="55%"]
-|====================================================================
+|====
 16+s| ~*Color B* -- opaque color mode (opacity flag _Op_ = 1)~
 | ~63~ | ~62~ | ~61~ | ~60~ | ~59~ | ~58~ | ~57~ | ~56~ | ~55~ | ~54~ | ~53~ | ~52~ | ~51~ | ~50~ | ~49~ | ~48~
 | 1 5+| Red 5+| Green 5+| Blue
@@ -292,7 +294,7 @@ The exact data layout of each color is described below:
 16+s| ~*Color A* -- translucent color mode (opacity flag _Op_ = 0)~
 | ~47~ | ~46~ | ~45~ | ~44~ | ~43~ | ~42~ | ~41~ | ~40~ | ~39~ | ~38~ | ~37~ | ~36~ | ~35~ | ~34~ | ~33~ | ~32~
 | 0 3+| Alpha 4+| Red 4+| Green 3+| Blue | _M_
-|====================================================================
+|====
 
 <<<
 
@@ -337,7 +339,7 @@ as described above.
 [[PVRTC1_4bpp_interpolation]]
 .PVRTC1 4bpp color channel interpolation
 [latexmath]
-++++++
+++++
 \begin{align*}
 \textit{C}_\textit{x,y} = &
 \left(\textbf{C}_{\textbf{X}_\textbf{Low}, \textbf{Y}_\textbf{Low}}
@@ -350,7 +352,7 @@ as described above.
 \left(\textbf{C}_{\textbf{X}_\textbf{Low}+1, \textbf{Y}_\textbf{Low}+1}
 \times x_r \times y_r\right)
 \end{align*}
-++++++
+++++
 
 [NOTE]
 ====
@@ -412,23 +414,23 @@ depending on the value of modulation flag _M_.
 [[PVRTC1ModulationWeights]]
 .Modulation weights for PVRTC1 4bpp
 [cols="10,10,1,10,10,10"]
-|=======
+|====
 2+^| *Standard bilinear* (_M_ = 0) .6+| 3+^| *Punch-through* (_M_ = 1)
 ^| *Modulation bits* ^| *Weight* ^| *Modulation bits* ^| *Weight* ^| *Alpha*
 ^| 00 ^| 0 ^| 00 ^| 0 .2+^.^|&nbsp;Normal
 ^| 01 ^| 3 ^| 01 .2+^.^|&nbsp;4
 ^| 10 ^| 5 ^| 10 ^| ``Punch-through''
 ^| 11 ^| 8 | 11 ^| 8 ^| Normal
-|=======
+|====
 
 [[PVRTCmodulate]]
 .PVRTC image modulation
 [latexmath]
-++++++
+++++
 \begin{align*}
 \textit{Final color}_\textit{x,y} = & \left\lfloor{{(\textbf{Image A}_\textit{x,y} \times (8 - \textit{weight})) + (\textbf{Image B}_\textit{x,y} \times \textit{weight})}\over 8}\right\rfloor
 \end{align*}
-++++++
+++++
 
 If punch-through mode is selected, and the modulation bits for a given
 pixel have a value of 0b10, the alpha value of the resulting color is 0x00.
@@ -486,7 +488,7 @@ latexmath:[$\textit{W}_{\textit{X}_\textit{Low},\textit{Y}_\textit{Low}}$]:
 [[PVRTC1_2bpp_interpolation]]
 .PVRTC1 2bpp color channel interpolation
 [latexmath]
-++++++
+++++
 \begin{align*}
 \textit{C}_\textit{x,y} = &
 \left(\textbf{C}_{\textbf{X}_\textbf{Low}, \textbf{Y}_\textbf{Low}}
@@ -499,7 +501,7 @@ latexmath:[$\textit{W}_{\textit{X}_\textit{Low},\textit{Y}_\textit{Low}}$]:
 \left(\textbf{C}_{\textbf{X}_\textbf{Low}+1, \textbf{Y}_\textbf{Low}+1}
 \times x_r \times y_r\right)
 \end{align*}
-++++++
+++++
 
 For the red, green and blue channels, _C~x,y~_ is a 5.5-bit fixed-point
 value whose bit pattern can be converted to an 8-bit normalized
@@ -529,7 +531,7 @@ affect the layout:
 
 .Texel Data format for PVRTC1 2bpp compressed texture formats
 [width="97%",cols="32*^"]
-|=======
+|====
 32+| *~Bits 64..32: Color data and flags~*
 32+| _Identical to PVRTC1 4bpp_
 32+| *~Bits 31..0: Modulation data: direct encoding, 1 bit per pixel (modulation flag~* ~_M_~ *~= 0) for pixel offset (_x_, _y_)~*
@@ -541,7 +543,7 @@ affect the layout:
 32+| *~Bits 31..0: Modulation data, horizontally- or vertically-interpolated encoding, samples for pixel offset (_x_, _y_) (modulation flag~* ~_M_~ *~= 1, bit 0 flag = 1)~*
 | ~31~ | ~30~ | ~29~ | ~28~ | ~27~ | ~26~ | ~25~ | ~24~ | ~23~ | ~22~ | ~21~ | ~20~ | ~19~ | ~18~ | ~17~ | ~16~ | ~15~ | ~14~ | ~13~ | ~12~ | ~11~ | ~10~ | ~9~ | ~8~ | ~7~ | ~6~ | ~5~ | ~4~ | ~3~ | ~2~ | ~1~ | ~0~
 2+| 7,3 2+| 5,3 2+| 3,3 2+| 1,3 2+| 6,2 | 4,2 | _F_ 2+| 2,2 2+| 0,2 2+| 7,1 2+| 5,1 2+| 3,1 2+| 1,1 2+| 6,0 2+| 4,0 2+| 2,0 | 0,0 | 1
-|=======
+|====
 
 If the modulation flag _M_ is set to 0, each pixel only has a single
 bit of modulation data.
@@ -550,11 +552,11 @@ and *Image B* for modulation data bit = 1.
 
 .Modulation modes for PVRTC1 2bpp
 [cols="2,2",width="75%"]
-|=======
+|====
 ^| *Modulation flag value* _M_ ^| *Mode*
 ^| 0 ^| Standard Bilinear, 1bpp modulation
 ^| 1 ^| Punch-through, interpolated modulation
-|=======
+|====
 
 If the modulation flag _M_ is set to 1, the pixels with 2-bit stored values have
 modulation weights equal to those of PVRTC1 4bpp for modulation mode 1,
@@ -619,18 +621,18 @@ discontinuities, or diverse color distributions.
 
 .Texel Data format for PVRTC2 4bpp compressed texture formats
 [width="97%",cols="32*^"]
-|=======
+|====
 32+| *~Bits 64..32: Color data and flags~*
 | ~63~ | ~62~ | ~61~ | ~60~ | ~59~ | ~58~ | ~57~ | ~56~ | ~55~ | ~54~ | ~53~ | ~52~ | ~51~ | ~50~ | ~49~ | ~48~ | ~47~ | ~46~ | ~45~ | ~44~ | ~43~ | ~42~ | ~41~ | ~40~ | ~39~ | ~38~ | ~37~ | ~36~ | ~35~ | ~34~ | ~33~ | ~32~
 | _Op_ 15+| *Color B* | _H_ 14+| *Color A* | _M_
 32+| *~Bits 31..0: Modulation data bits [1..0] for pixel offset (_x_, _y_) -- identical to PVRTC1 4bpp~*
 | ~31~ | ~30~ | ~29~ | ~28~ | ~27~ | ~26~ | ~25~ | ~24~ | ~23~ | ~22~ | ~21~ | ~20~ | ~19~ | ~18~ | ~17~ | ~16~ | ~15~ | ~14~ | ~13~ | ~12~ | ~11~ | ~10~ | ~9~ | ~8~ | ~7~ | ~6~ | ~5~ | ~4~ | ~3~ | ~2~ | ~1~ | ~0~
 2+| 3,3 2+| 2,3 2+| 1,3 2+| 0,3 2+| 3,2 2+| 2,2 2+| 1,2 2+| 0,2 2+| 3,1 2+| 2,1 2+| 1,1 2+| 0,1 2+| 3,0 2+| 2,0 2+| 1,0 2+| 0,0
-|=======
+|====
 
 .Data layout of color segments in a PVRTC2 word
 [cols="^,^1,^1,^1,^1,^1,^1,^1,^1,^1,^1,^1,^1,^1,^1,^1",width="55%"]
-|====================================================================
+|====
 16+s| ~*Color B* -- opaque color mode (opacity flag _Op_ = 1)~
 | ~63~ | ~62~ | ~61~ | ~60~ | ~59~ | ~58~ | ~57~ | ~56~ | ~55~ | ~54~ | ~53~ | ~52~ | ~51~ | ~50~ | ~49~ | ~48~
 | 1 5+| Red 5+| Green 5+| Blue
@@ -643,7 +645,7 @@ discontinuities, or diverse color distributions.
 16+s| ~*Color A* -- translucent color mode (opacity flag _Op_ = 0)~
 | ~47~ | ~46~ | ~45~ | ~44~ | ~43~ | ~42~ | ~41~ | ~40~ | ~39~ | ~38~ | ~37~ | ~36~ | ~35~ | ~34~ | ~33~ | ~32~
 | _H_ 3+| Alpha 4+| Red 4+| Green 3+| Blue | _M_
-|====================================================================
+|====
 
 There is one change to the interpretation of the color data relative to
 PVRTC1: as there is only one opacity flag for each PVRTC2 data word, to
@@ -692,13 +694,13 @@ pixel in the subregion are evaluated, as summarized in the table below.
 
 .Modulation modes for PVRTC2 4bpp
 [cols="1^,1^,2^"]
-|=======
+|====
 ^| *Modulation flag* _M_ ^| *Hard transition flag* _H_ ^| *Mode*
 | 0 | 0 | Standard bilinear
 | 1 | 0 | Punch-through alpha
 | 0 | 1 | Non-interpolated
 | 1 | 1 | Local palette
-|=======
+|====
 
 In `standard bilinear' the modulation behaves as described for PVRTC1 4bpp.
 
@@ -755,7 +757,7 @@ palette as follows:
 
 .Color mappings in local palette mode for PVRTC2 4bpp
 [cols="2^,5^,3^,3^,3^"]
-|==================================================================
+|====
 | *~Modulation bits~* | *~0,0~* | *~1,0~* | *~2,0~* | *~3,0~*
 | 0
 | latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}$]
@@ -840,7 +842,7 @@ palette as follows:
 | latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}$]
 | latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}$]
 | latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}$]
-|==================================================================
+|====
 
 [NOTE]
 ====
@@ -892,12 +894,12 @@ the single opacity flag _Op_, as specified in the PVRTC2 4bpp format.
 
 .Texel Data format for PVRTC2 2bpp compressed texture formats
 [width="50%"]
-|=======
+|====
 ^s| Bits 63-32: Color data and flags
 ^| Identical to PVRTC2 4bpp
 ^s| Bits 31-0: Modulation data
 ^| Identical to PVRTC1 2bpp
-|=======
+|====
 
 Color values are interpreted in the same manner as for the PVRTC2 4bpp format.
 
@@ -906,13 +908,13 @@ uses the non-interpolated mode -- no local palette mode exists.
 
 .Modulation modes for PVRTC2 2bpp
 [cols="1^,1^,2^"]
-|=======
+|====
 ^| *Modulation flag* _M_ ^| *Hard transition* _H_ ^| Mode
 | 0 | 0 | Standard bilinear, 1bpp modulation
 | 1 | 0 | Standard bilinear, interpolated modulation
 | 0 | 1 | Non-interpolated, 1bpp modulation
 | 1 | 1 | Non-interpolated, interpolated modulation
-|=======
+|====
 
 If the hard transition flag _H_ for PVRTC2 2bpp is equal to 0, the format is
 interpreted in the same manner as the PVRTC1 2bpp format.

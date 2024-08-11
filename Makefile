@@ -1,5 +1,6 @@
-# Copyright (c) 2014-2019 The Khronos Group Inc.
-# Copyright notice at https://www.khronos.org/registry/speccopyright.html
+# Copyright 2014-2024 The Khronos Group Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 all: compressedinlinehtml pdf header
 
 XMLLINT    = --no-xmllint

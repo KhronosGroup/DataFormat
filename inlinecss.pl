@@ -1,6 +1,7 @@
 #!/usr/bin/perl
-# Copyright (c) 2017 The Khronos Group Inc.
-# Copyright notice at https://www.khronos.org/registry/speccopyright.html
+# Copyright 2017-2024 The Khronos Group Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 open(FILE, "config/df-xhtml.css");
 read(FILE,$stylesheet,10000);
 close(FILE);

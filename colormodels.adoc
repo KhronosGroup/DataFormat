@@ -1,5 +1,5 @@
-// Copyright (c) 2017 The Khronos Group Inc.
-// Copyright notice at https://www.khronos.org/registry/speccopyright.html
+// Copyright 2017-2024 The Khronos Group Inc.
+// SPDX-License-Identifier: CC-BY-4.0
 
 [[MODEL_CONVERSION]]
 == Color models
@@ -86,21 +86,21 @@ In the broadcast standards which define these models:
 Color differences are calculated from the non-linear _Y&prime;_ and
 color components as:
 [latexmath]
-++++++
+++++
 \begin{align*}
   B'-Y' &= (1-K_B) \times B' - (1-K_R-K_B) \times G' - K_R \times R' \\
   R'-Y' &= (1-K_R) \times R' - (1-K_R-K_B) \times G' - K_B \times B'
 \end{align*}
-++++++
+++++
 Note that, for _R&prime;_, _G&prime;_, _B&prime;_ in the range [0..1]:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
   (1-K_B) \geq B'-Y' \geq -(1-K_B) \\
   (1-K_R) \geq R'-Y' \geq -(1-K_R)
 \end{align*}
-++++++
+++++
 
 * latexmath:[$(B'-Y')$] scaled appropriately for incorporation into a PAL
   sub-carrier signal is referred to in <<bt1700,BT.1700>> as _U_;
@@ -149,7 +149,7 @@ Note that, for _R&prime;_, _G&prime;_, _B&prime;_ in the range [0..1]:
 Using this terminology, the following conversion formulae can be derived:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
 Y'   & = K_r \times R' + (1-K_R-K_B) \times G' + K_B \times B' \\
 C'_B & = {(B' - Y')\over{2(1-K_B)}} \\
@@ -157,23 +157,23 @@ C'_B & = {(B' - Y')\over{2(1-K_B)}} \\
 C'_R & = {(R' - Y')\over{2(1-K_R)}} \\
      & = {R'\over{2}} - {{K_B \times B' + (1 - K_R - K_B) \times G'}\over{2(1-K_R)}}
 \end{align*}
-++++++
+++++
 
 <<<
 
 For the inverse conversion:
 [latexmath]
-++++++
+++++
 \begin{align*}
 R' & = Y' + 2(1-K_R)\times C'_R \\
 B' & = Y' + 2(1-K_B)\times C'_B
 \end{align*}
-++++++
+++++
 The formula for _G&prime;_ can be derived by substituting the formulae
 for _R&prime;_ and _B&prime;_ into the derivation of _Y&prime;_:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
 Y'  = &\ K_R \times R' + (1-K_R-K_B) \times G' + K_B \times B' \\
     = &\ K_R \times (Y'+2(1-K_R)\times C'_R) + \\
@@ -184,7 +184,7 @@ Y'\times(1-K_R-K_B) = &\ (1-K_R-K_B)\times G' + \\
                       &\ K_B\times 2(1-K_B)\times C'_B \\
 G'  = &\ Y' - {2(K_R(1-K_R)\times C'_R + K_B(1-K_B)\times C'_B)\over{1-K_R-K_B}}
 \end{align*}
-++++++
+++++
 
 The values chosen for _K~R~_ and _K~B~_ vary
 between standards.
@@ -239,16 +239,16 @@ defined in <<PRIMARIES_BT709,BT.709 color primaries>> and using the
 <<KHR_DF_TRANSFER_ITU,ITU transfer function>>:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
 Y'   & = 0.2126 \times R' + 0.7152 \times G' + 0.0722 \times B' \\
 C'_B & = {(B' - Y')\over{1.8556}} \\
 C'_R & = {(R' - Y')\over{1.5748}} \\
 \end{align*}
-++++++
+++++
 Alternatively:
 [latexmath]
-++++++
+++++
   $$\left(\begin{array}{c}Y' \\
   C'_B \\
   C'_R\end{array}\right) =
@@ -258,11 +258,11 @@ Alternatively:
   \left(\begin{array}{c}R'\\
   G'\\
   B'\end{array}\right)$$
-++++++
+++++
 
 For the inverse conversion:
 [latexmath]
-++++++
+++++
   $$\left(\begin{array}{c}R'\\
   G'\\
   B'\end{array}\right) =
@@ -272,7 +272,7 @@ For the inverse conversion:
   \left(\begin{array}{c}Y'\\
   C'_B\\
   C'_R\end{array}\right)$$
-++++++
+++++
 
 [[MODEL_BT601]]
 ==== BT.601 _Y&prime;C~B~C~R~_ conversion
@@ -285,16 +285,16 @@ defined in <<PRIMARIES_BT601_EBU,BT.601 EBU color primaries>> or
 <<KHR_DF_TRANSFER_ITU,ITU transfer function>>:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
 Y'   & = 0.299 \times R' + 0.587 \times G' + 0.114 \times B' \\
 C'_B & = {(B' - Y')\over{1.772}} \\
 C'_R & = {(R' - Y')\over{1.402}} \\
 \end{align*}
-++++++
+++++
 Alternatively:
 [latexmath]
-++++++
+++++
   $$\left(\begin{array}{c}Y' \\
   C'_B \\
   C'_R\end{array}\right) =
@@ -304,11 +304,11 @@ Alternatively:
   \left(\begin{array}{c}R'\\
   G'\\
   B'\end{array}\right)$$
-++++++
+++++
 
 For the inverse conversion:
 [latexmath]
-++++++
+++++
   $$\left(\begin{array}{c}R'\\
   G'\\
   B'\end{array}\right) =
@@ -318,7 +318,7 @@ For the inverse conversion:
   \left(\begin{array}{c}Y'\\
   C'_B\\
   C'_R\end{array}\right)$$
-++++++
+++++
 
 <<<
 [[MODEL_BT2020]]
@@ -332,16 +332,16 @@ defined in <<PRIMARIES_BT2020,BT.2020 color primaries>> and using the
 <<KHR_DF_TRANSFER_ITU,ITU transfer function>>:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
 Y'   & = 0.2627 \times R' + 0.6780 \times G' + 0.0593 \times B' \\
 C'_B & = {(B' - Y')\over{1.8814}} \\
 C'_R & = {(R' - Y')\over{1.4746}} \\
 \end{align*}
-++++++
+++++
 Alternatively:
 [latexmath]
-++++++
+++++
   $$\left(\begin{array}{c}Y' \\
   C'_B \\
   C'_R\end{array}\right) =
@@ -351,11 +351,11 @@ Alternatively:
   \left(\begin{array}{c}R'\\
   G'\\
   B'\end{array}\right)$$
-++++++
+++++
 
 For the inverse conversion:
 [latexmath]
-++++++
+++++
   $$\left(\begin{array}{c}R'\\
   G'\\
   B'\end{array}\right) =
@@ -365,7 +365,7 @@ For the inverse conversion:
   \left(\begin{array}{c}Y'\\
   C'_B\\
   C'_R\end{array}\right)$$
-++++++
+++++
 
 [[MODEL_ST240]]
 ==== ST-240/SMPTE 240M _Y&prime;C~B~C~R~_ conversion
@@ -377,16 +377,16 @@ That is, for conversion using the
 <<KHR_DF_TRANSFER_ST240,ST240 transfer function>>:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
 Y'   & = 0.212 \times R' + 0.701 \times G' + 0.087 \times B' \\
 C'_B & = {(B' - Y')\over{1.826}} \\
 C'_R & = {(R' - Y')\over{1.576}} \\
 \end{align*}
-++++++
+++++
 Alternatively:
 [latexmath]
-++++++
+++++
   $$\left(\begin{array}{c}Y' \\
   C'_B \\
   C'_R\end{array}\right) =
@@ -396,11 +396,11 @@ Alternatively:
   \left(\begin{array}{c}R'\\
   G'\\
   B'\end{array}\right)$$
-++++++
+++++
 
 For the inverse conversion:
 [latexmath]
-++++++
+++++
   $$\left(\begin{array}{c}R'\\
   G'\\
   B'\end{array}\right) =
@@ -410,7 +410,7 @@ For the inverse conversion:
   \left(\begin{array}{c}Y'\\
   C'_B\\
   C'_R\end{array}\right)$$
-++++++
+++++
 
 <<<
 [[MODEL_YCCBCCRC]]
@@ -421,7 +421,7 @@ color representation as an alternative representation to
 _Y&prime;C~B~C~R~_:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
 Y'_C    & = (0.2627R + 0.6780G + 0.0593B)' \\
 C'_\mathit{BC} & = \begin{cases}
@@ -431,7 +431,7 @@ C'_\mathit{RC} & = \begin{cases}
         {{R'-Y'_C}\over{1.7184}}, & -0.8592 \leq R'-Y'_C \leq 0 \\
         {{R'-Y'_C}\over{0.9936}}, & 0 < R'-Y'_C \leq 0.4968\end{cases}
 \end{align*}
-++++++
+++++
 
 This terminology follow's BT.2020's convention of describing the
 continuous values as latexmath:[$Y'_C$], latexmath:[$C'_\mathit{BC}$] and
@@ -449,7 +449,7 @@ still encode differences between non-linear values.
 The inverse transformation can be derived from the above:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
 B'      & = \begin{cases}
         Y'_C + 1.9404C'_\mathit{BC}, & C'_\mathit{BC} \leq 0 \\
@@ -459,7 +459,7 @@ R'      & = \begin{cases}
         Y'_C + 0.9936C'_\mathit{RC}, & C'_\mathit{RC} > 0\end{cases}\\
 G       & = Y_C - 0.2627R - 0.0593B
 \end{align*}
-++++++
+++++
 
 NOTE: Performing these calculations requires conversion between
 a linear representation and a non-linear transfer function during
@@ -474,7 +474,7 @@ color representation as an alternative representation to
 _Y&prime;C~B~C~R~_:
 
 [latexmath]
-++++++
+++++
 \begin{align*}
 L   & = {(1688R + 2146G + 262B)\over{4096}}\\
 M   & = {(683R + 2951G + 462B)\over{4096}}\\
@@ -492,7 +492,7 @@ I   & = 0.5L' + 0.5M'\\
 C_T & = {(6610L' - 13613M' + 7003S')\over{4096}}\\
 C_P & = {(17933L' - 17390M' - 543S')\over{4096}}
 \end{align*}
-++++++
+++++
 
 Note that the suffix ~D~ indicates that PQ encoding is
 _display-referred_ and the suffix ~S~ indicates that HLG
@@ -502,7 +502,7 @@ display and scene light respectively.
 To invert this, it can be observed that:
 
 [latexmath]
-++++++
+++++
   $$\left(\begin{array}{c}L' \\
   M' \\
   S' \end{array}\right) =
@@ -561,4 +561,4 @@ To invert this, it can be observed that:
   \left(\begin{array}{c}L\\
   M\\
   S\end{array}\right)$$
-++++++
+++++
