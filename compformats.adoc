@@ -1,18 +1,18 @@
 // Copyright (c) 2014-2019 The Khronos Group Inc.
 // Copyright notice at https://www.khronos.org/registry/speccopyright.html
 
-include::compintro.txt[]
+include::compintro.adoc[]
 
-include::s3tc.txt[]
+include::s3tc.adoc[]
 
-include::rgtc.txt[]
+include::rgtc.adoc[]
 
-include::bptc.txt[]
+include::bptc.adoc[]
 
-include::etc1.txt[]
+include::etc1.adoc[]
 
-include::etc2.txt[]
+include::etc2.adoc[]
 
-include::astc.txt[]
+include::astc.adoc[]
 
-include::pvrtc.txt[]
+include::pvrtc.adoc[]

@@ -5768,19 +5768,19 @@ ifndef::a2xhtml[]
 = Color conversions
 endif::[]
 
-include::conversions.txt[]
+include::conversions.adoc[]
 
 ifndef::a2xhtml[]
 = Compressed Texture Formats
 endif::[]
 
-include::compformats.txt[]
+include::compformats.adoc[]
 
 ifndef::a2xhtml[]
 = References and contributors
 endif::[]
 
-include::references.txt[]
+include::references.adoc[]
 
 == Contributors ==
 

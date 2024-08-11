@@ -1,8 +1,8 @@
 // Copyright (c) 2017 The Khronos Group Inc.
 // Copyright notice at https://www.khronos.org/registry/speccopyright.html
 
-include::conversionintro.txt[]
-include::transferfunctions.txt[]
-include::primaries.txt[]
-include::colormodels.txt[]
-include::quantization.txt[]
+include::conversionintro.adoc[]
+include::transferfunctions.adoc[]
+include::primaries.adoc[]
+include::colormodels.adoc[]
+include::quantization.adoc[]
