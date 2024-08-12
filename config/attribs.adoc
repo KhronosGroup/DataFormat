@@ -1,0 +1,129 @@
+// Copyright 2015-2024 The Khronos Group Inc.
+//
+// SPDX-License-Identifier: CC-BY-4.0
+
+// Various special / math symbols, matching LaTeX names.
+// The pass:[+ ] notation avoids asciidoctor EOL treatment of the attribute.
+
+// Macro just to avoid typing the messy expression many times.
+// \' does not work in title, captions, link text, etc.
+:YCbCr: pass:q[Y′C~B~C~R~]
+:RGBprime: pass:q[R′G′B′]
+:prime: ′
+
+// Used when an italicized 'i' is wanted in the middle of an enum name,
+// such as `VK_IMAGE_ASPECT_PLANE__{ibit}__BIT`
+:ibit: _i_
+
+// Special symbols - not used in [eq] spans
+:sym1: ✓
+:sym2: †
+:sym3: ‡
+:sym4: §
+:reg: ®
+:trade: ™
+:harr: ↔
+
+// Math operators and logic symbols
+:times: ×
+:cdot: ⋅
+:plus: pass:[+ ]
+:minus: pass:[- ]
+:geq: ≥
+:leq: ≤
+:neq: ≠
+:leftarrow: ←
+:uparrow: ↑
+:rightarrow: →
+:downarrow: ↓
+:elem: ∈
+:lnot: ¬
+:land: ∧
+:lor: ∨
+:oplus: ⊕
+:lceil: ⌈
+:rceil: ⌉
+:lfloor: ⌊
+:rfloor: ⌋
+:vert: |
+:partial: ∂
+:onehalf: ½
+:onequarter: ¼
+:ldots: …
+:forall: ∀
+:sqrt: √
+:inf: ∞
+:plusmn: ±
+
+// Greek letters
+:alpha: α
+:beta: β
+:gamma: γ
+:DeltaUpper: Δ
+:delta: δ
+:epsilon: ε
+:eta: η
+:theta: θ
+:lambda: λ
+:pi: π
+:rho: ρ
+:sigma: σ
+:tau: τ
+:phi: ϕ
+
+// Word break opportunity tag for HTML
+ifdef::backend-html5[]
+:wbro: pass:[<wbr>]
+endif::backend-html5[]
+ifndef::backend-html5[]
+:wbro:
+endif::backend-html5[]
+
+// header names
+ifndef::VKSC_VERSION_1_0[]
+:core_header: vulkan_core.h
+:full_header: vulkan.h
+endif::VKSC_VERSION_1_0[]
+ifdef::VKSC_VERSION_1_0[]
+:core_header: vulkan_sc_core.h
+:core_header_hpp: vulkan_sc_core.hpp
+:full_header: vulkan_sc.h
+endif::VKSC_VERSION_1_0[]
+
+// Placeholders for host synchronization block text
+:externsynctitle: Host Synchronization
+:externsyncprefix: Host access to
+
+// SPIR-V terms
+// macros are not case-sensitive but are defined as such for readability
+:ExecutionModel: code:Execution code:Model
+:ExecutionMode: code:Execution code:Mode
+:StorageClass: code:Storage code:Class
+
+// Human-readable names for XML 'specialuse' attributes, used in
+// chapters/extensions.adoc for the <<extendingvulkan-specialuse-table>> table
+// as well as in some extension appendices.
+:cadsupport: CAD support
+:d3demulation: D3D support
+:devtools: Developer tools
+:debugging: Debugging tools
+:glemulation: OpenGL / ES support
+
+
+// Link/xref prefix for the location of feature description documents.
+// The Antora resource ID must change if the component or module layout of
+// the feature descriptions changes.
+:specRepositoryURL: https://github.com/KhronosGroup/Vulkan-Docs/tree/main/
+ifdef::site-gen-antora[:proposalRefPath: xref:features:features:]
+ifndef::site-gen-antora[:proposalRefPath: link:{specRepositoryURL}]
+
+// URL prefix for the GLSL extensions registry
+:GLSLregistry: https://github.com/KhronosGroup/GLSL/blob/main/extensions
+// URL prefix for the OpenGL extensions registry
+:GLregistry: https://registry.khronos.org/OpenGL/extensions
+// URL prefix for the SPIR-V extensions registry
+:spirv: https://htmlpreview.github.io/?https://github.com/KhronosGroup/SPIRV-Registry/blob/main/extensions
+
+// Prefix for anchors that are encountered twice by the validusagei
+// extractor. Set on the command line for VU extraction.
+ifndef::vuprefix[:vuprefix:]

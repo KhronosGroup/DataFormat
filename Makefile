@@ -11,7 +11,6 @@ A2XOPTS    = -a mathjax \
 	     $(XMLLINT) $(VERBOSE) --icons
 
 sources    := df.adoc \
-	     df-docinfo.xml \
 	     conversions.adoc \
 	     conversionintro.adoc \
 	     transferfunctions.adoc \
@@ -38,7 +37,7 @@ pdf_config  := $(addprefix config/,${pdf_config})
 version     := 1.3
 outbasename := out/dataformat.$(version)
 
-html: $(outbasename).html out/config/df-xhtml.css out/images/Khronos_RGB_June18.svg out/images/icons/note.png
+html: $(outbasename).html out/config/df-xhtml.css out/images/Khronos_RGB_June18.svg
 inlinehtml: $(outbasename).inline.html
 compressedinlinehtml: $(outbasename).inline.html.gz
 pdf: $(outbasename).pdf
@@ -49,18 +48,6 @@ $(outbasename).html: $(sources) $(html_config) | out
 	./simplifyhtmllinks.pl out/df.html out/df2.html
 	rm out/df.html
 	mv out/df2.html out/dataformat.1.3.html
-
-out/config/df-xhtml.css: config/df-xhtml.css  | out out/config
-	cp $< $@
-
-out/images/Khronos_RGB_June18.svg: images/Khronos_RGB_June18.svg | out/images
-	cp $< $@
-
-out/images/icons/note.png: images/icons/note.png | out/images/icons
-	cp $< $@
-
-out out/config out/headers out/images out/images/icons:
-	mkdir -p $@
 
 $(outbasename).inline.html: $(outbasename).html inlinecss.pl inlineimages.pl
 	./inlinecss.pl < out/dataformat.1.3.html | ./inlineimages.pl > $@

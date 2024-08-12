@@ -1,0 +1,263 @@
+# Copyright 2018-2024 The Khronos Group Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+# Gitlab CI file for vulkan spec and header generation
+
+# All stages use the same Docker image, so there are no prerequisites
+# Refer to the container by its SHA instead of the name, to prevent
+# caching problems when updating the image.
+# image: khronosgroup/docker-images:asciidoctor-spec.20240727
+image: khronosgroup/docker-images@sha256:089687083ceb36483a3917389e4278718ab19c594099634f5dd80e22540c960f
+
+# Specify which gitlab runner to use
+default:
+  tags:
+    - khrmedium
+
+# Verify repository license compliance
+license-check:
+  stage: build
+  before_script:
+    # Nothing, all prerequisites are in the Docker image
+  script:
+    - reuse lint
+  allow_failure: false
+
+# Run various checker scripts on the spec and XML sources
+# Separate from the generate step to set allow_failure: false
+terminology_check:
+  stage: build
+  before_script:
+    # Nothing, all prerequisites are in the Docker image
+  script:
+    # Internal self-test of the check_spec_links script
+    - ( cd scripts && pytest test*.py )
+    - mkdir -p gen/out/checks
+    # Generate a summary of problems for CI logs (if any)
+    # Override CHECK_XREFS to avoid building a redundant HTML target at this stage
+    - scripts/check_spec_links.py --html=gen/out/checks/problems.html > /dev/null || true
+    - make CHECK_XREFS= allchecks
+  allow_failure: false
+
+# Verify SPEC_VERSION = 1 for extension development branches
+# This only runs on merge requests
+spec_version_check:
+  stage: build
+  before_script:
+    # Nothing, all prerequisites are in the Docker image
+  script:
+    # Only run the test if CI_COMMIT_BRANCH is defined
+    - test -z "$CI_COMMIT_BRANCH" || scripts/testSpecVersion.py -branch $CI_COMMIT_BRANCH
+  allow_failure: false
+
+# Build a test spec and check against expectation, to make sure the spec toolchain works as expected
+spec-toolchain:
+  stage: build
+  before_script:
+    # Nothing, all prerequisites are in the Docker image
+  script:
+    - ./testBuild
+
+# Build the vulkan specification and generate any associated files (such as vulkan.h)
+spec-generate:
+  stage: build
+  before_script:
+    # Nothing, all prerequisites are in the Docker image
+  script:
+    - NODE_PATH="/usr/lib/node_modules"
+    - export NODE_PATH
+    # Build the core-only spec, to catch some incorrect ifdef errors
+    - ./makeSpec -clean -spec core -genpath gencore QUIET= -j${nproc} -Otarget html manhtmlpages
+    # Build the HTML/chunked spec and other common targets.
+    # The spec, refpages, and auxiliary documents are built first and the
+    # build log checked for asciidoctor warnings that cannot be made into
+    # fatal errors.
+    - ./makeSpec -clean -spec all QUIET= -j${nproc} -Otarget html manhtmlpages styleguide registry |& tee ERRS
+    - |+
+      if fgrep -q 'WARNING: skipping reference to missing attribute:' ERRS
+      then
+          echo 'Found missing (undefined) asciidoctor attributes.'
+          echo 'These are probably from commonvalidity includes where attributes are not defined.'
+          echo 'If these are reported from building a refpage, edit the corresponding part of'
+          echo 'the specification source to fix the problem.'
+          echo '----'
+          fgrep -B 1 'WARNING: skipping reference to missing attribute:' ERRS
+          false
+      else
+          true
+      fi
+    # Build the rest of the targets, without cleaning the output directory
+    - ./makeSpec -spec all QUIET= -j${nproc} -Otarget chunked validusage
+    # Check consistency of internal xrefs and anchors in the HTML output
+    - make check-xrefs
+    # Build headers, for use by all later stages
+    - ( cd xml && make validate install test vtest )
+  artifacts:
+    when: always
+    paths:
+      - src/
+      - gen/
+      - gencore/
+    expire_in: 1 week
+
+# Build the vulkan sc specification and generate any associated files (such as vulkan_sc_core.h)
+vksc-generate:
+  stage: build
+  before_script:
+    # Nothing, all prerequisites are in the Docker image
+  script:
+    - NODE_PATH="/usr/lib/node_modules"
+    - export NODE_PATH
+    - VULKAN_API="vulkansc"
+    - export VULKAN_API
+    # Build the actual spec (both chunked and single-page HTML), and other common targets
+    - ./makeSpec -clean -spec all -version sc1.0 -genpath genvksc QUIET= -j${nproc} -Otarget manhtmlpages validusage styleguide registry chunked html
+    # Check consistency of internal xrefs and anchors in the output, now
+    # that an HTML output is available
+    #- make check-xrefs
+    # Build headers, for use by all later stages
+    - ( cd xml && make GENERATED=../genvksc validate install test )
+  artifacts:
+    when: always
+    paths:
+      - genvksc/
+    expire_in: 1 week
+  allow_failure: true
+
+
+# Generate the vulkan C++ header (vulkan.hpp)
+hpp-generate:
+  stage: build
+  before_script:
+    - SPEC_DIR="${PWD}"
+    - cd /tmp
+    - rm -rf Vulkan-Hpp
+    - git clone https://github.com/KhronosGroup/Vulkan-Hpp.git
+    - cd Vulkan-Hpp
+    - git submodule update --init --recursive -- tinyxml2
+    - rm -rf Vulkan-Docs
+    - cp -r "${SPEC_DIR}" Vulkan-Docs
+    # Copy Vulkan C headers into subdir copy used by Vulkan-Hpp
+    - cp -p ${SPEC_DIR}/include/vulkan/*.h Vulkan-Docs/include/vulkan/
+  script:
+    - cd /tmp/Vulkan-Hpp
+    - cmake -H. -Bbuild
+    - make -C build
+    - cd build
+    - ./VulkanHppGenerator -f "${SPEC_DIR}"/xml/vk.xml
+  after_script:
+    - mkdir -p Vulkan-Hpp/vulkan/
+    - cp /tmp/Vulkan-Hpp/vulkan/*.hpp Vulkan-Hpp/vulkan/
+  artifacts:
+    paths:
+      - Vulkan-Hpp/vulkan/
+    expire_in: 1 week
+  allow_failure: true
+
+# Regenerate Rust bindings (Ash crate)
+ash-generate:
+  image: khronosgroup/docker-images@sha256:cf554c9cf5d0322e022f0be32efad9bff44ada4b32653bfdc8033cba22972fa2
+  stage: build
+  needs:
+    - spec-generate # For the full include/ directory
+  cache: # Generator has lots of dependencies that take a while to download/compile
+    key: cargo-ash-generator
+    paths:
+      - cargo-cache
+      - ash-target
+  before_script:
+    - SPEC_DIR="${PWD}"
+    - rm -rf ash
+    - git clone https://github.com/ash-rs/ash
+    - pushd ash
+    # Piece together minimal Vulkan-Headers - Ash only needs headers and vk.xml
+    - rm -rf generator/Vulkan-Headers/* # Should already be empty, just in case
+    - ln -s ${SPEC_DIR}/gen/include generator/Vulkan-Headers/ # Complete headers come from spec-generate
+    - ln -s ${SPEC_DIR}/xml generator/Vulkan-Headers/registry # vk.xml sits in the root of this spec repo
+    # Move to root directory to be picked up by `cache` step
+    - export CARGO_HOME="${SPEC_DIR}/cargo-cache"
+    - export CARGO_TARGET_DIR="${SPEC_DIR}/ash-target"
+  script:
+    - cargo run -p generator
+    - cargo fmt --all
+  after_script:
+    # Make the folder a single level deep
+    - mv ash/ash ash-crate
+    - rm -rf ash/
+    - mv ash-crate ash
+  artifacts:
+    paths:
+      - ash
+    expire_in: 1 week
+  allow_failure: true
+
+# Run the CTS Vulkan framework tests, to make sure XML changes will not
+# cause problems there.
+cts-framework-tests:
+  stage: build
+  before_script:
+    # Nothing, all prerequisites are in the Docker image
+  script:
+    # Clone the CTS GitHub repository.
+    # Use sparse / shallow clone since the repo is enormous and mostly not needed for these tests
+    - git clone --sparse --depth 1 --single-branch --branch main https://github.com/KhronosGroup/VK-GL-CTS.git
+    - cd VK-GL-CTS
+    # Add sparse checkout paths for required directories
+    - git sparse-checkout add scripts external/vulkancts/framework external/vulkancts/scripts
+    # Link the spec project into CTS hierarchy, instead of cloning it
+    - mkdir external/vulkan-docs
+    - ln -s `cd .. ; pwd` external/vulkan-docs/src
+    # Run the Vulkan-specific tests (from scripts/check_build_sanity.py) # codespell:allow sanity
+    - python3 external/vulkancts/scripts/gen_framework.py
+    - python3 external/vulkancts/scripts/gen_framework_c.py
+    - python3 external/vulkancts/scripts/gen_framework.py --api SC
+    - python3 external/vulkancts/scripts/gen_framework_c.py --api SC
+  allow_failure: true
+
+# Compile a simple test program that uses vulkan.h
+# The fake platform headers in tests/ allow compiling with all Vulkan
+# platforms at once.
+h-compile:
+  stage: test
+  needs:
+    - spec-generate
+  before_script:
+  # Nothing, all prerequisites are in the Docker image
+  script:
+    - gcc -c -std=c11 -Igen/include -Itests -Wall -Wextra -Werror tests/htest.c
+    - clang -c -std=c11 -Igen/include -Itests -Wall -Wextra -Werror tests/htest.c
+
+# Compile a simple test program that uses vulkan.hpp
+hpp-compile:
+  stage: test
+  needs:
+    - spec-generate
+    - hpp-generate
+  before_script:
+    # Nothing, all prerequisites are in the Docker image
+  script:
+    - g++ -c -std=c++11 -Igen/include -IVulkan-Hpp -Wall -Wextra -Werror tests/hpptest.cpp
+    - clang++ -c -std=c++11 -Igen/include -IVulkan-Hpp -Wall -Wextra -Werror tests/hpptest.cpp
+  allow_failure: true
+
+# Build-test Rust bindings (Ash crate)
+ash-compile:
+  image: khronosgroup/docker-images@sha256:cf554c9cf5d0322e022f0be32efad9bff44ada4b32653bfdc8033cba22972fa2
+  stage: test
+  needs:
+    - ash-generate
+  cache:
+    key:
+      files:
+        - ash/Cargo.toml
+    paths:
+      - cargo-cache
+      - ash-target
+  before_script:
+    - export CARGO_HOME="${SPEC_DIR}/cargo-cache"
+    - export CARGO_TARGET_DIR="${SPEC_DIR}/ash-target"
+  script:
+    - cd ash
+    # Build-test the ash crate
+    - cargo clippy --all --all-targets
+  allow_failure: true
