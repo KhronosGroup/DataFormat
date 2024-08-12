@@ -1,8 +1,12 @@
 // Copyright 2017-2024 The Khronos Group Inc.
 // SPDX-License-Identifier: CC-BY-4.0
 
-include::conversionintro.adoc[]
-include::transferfunctions.adoc[]
-include::primaries.adoc[]
-include::colormodels.adoc[]
-include::quantization.adoc[]
+include::{chapters}/conversionintro.adoc[]
+
+include::{chapters}/transferfunctions.adoc[]
+
+include::{chapters}/primaries.adoc[]
+
+include::{chapters}/colormodels.adoc[]
+
+include::{chapters}/quantization.adoc[]

@@ -139,7 +139,7 @@ position in a different color space:
 
 [[conversionexample]]
 .Example sampling in one space and converting to a different space
-image::images/colorconversion_accurate.{svgpdf}[width="{svgpdf@pdf:475pt:576}",align="center"]
+image::{images}/colorconversion_accurate.svg[width="{svgpdf@pdf:475pt:576}",align="center"]
 
 In this diagram, non-linear luma _Y&prime;_ channels are shown
 in black and white, color difference _C~B~_/_C~R~_
@@ -268,7 +268,7 @@ depicted in <<approximateconversionexample>>:
 
 [[approximateconversionexample]]
 .Example approximated sampling in one space and converting to a different space
-image::images/colorconversion_approximate.{svgpdf}[width="{svgpdf@pdf:475pt:576}",align="center"]
+image::{images}/colorconversion_approximate.svg[width="{svgpdf@pdf:475pt:576}",align="center"]
 
 A performance-optimized approximation to our example conversion may
 use the following steps:

@@ -185,7 +185,7 @@ _code_(_x_, _y_) = 2 and _code_(_x_, _y_) = 3.
 
 [[Figure-bc1]]
 .BC1 two interpolated colors
-image::images/bc1.{svgpdf}[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
+image::{images}/bc1.svg[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
 
 <<Figure-bc1a>> shows the example BC1 texel block with the colors swapped:
 _color_~0~, encoded as latexmath:[$\left({{20}\over{31}}, {{2}\over{63}}, {{30}\over{31}}\right)$],
@@ -197,7 +197,7 @@ _code_(_x_, _y_) = 2, and _code_(_x_, _y_) = 3 represents
 
 [[Figure-bc1a]]
 .BC1 one interpolated color {plus} black
-image::images/bc1a.{svgpdf}[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
+image::{images}/bc1a.svg[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
 
 If the format is BC1 with alpha, _code_(_x_, _y_) = 3 is transparent
 (alpha&nbsp;=&nbsp;0).

@@ -147,7 +147,7 @@ green channel in the next 6 bits, and red channel in the top 5 bits of a
 
 [[SimpleTexelBlock]]
 .A simple one-texel texel block
-image::images/565pixels.{svgpdf}[width="{svgpdf@pdf:400pt:800}",align="center"]
+image::{images}/565pixels.svg[width="{svgpdf@pdf:400pt:800}",align="center"]
 
 === 1-D texel addressing
 
@@ -185,15 +185,15 @@ the _pixel stride_ in bytes.
 
 [[1DBytes]]
 .(Trivial) 1D address offsets for 1-byte elements, start of buffer
-image::images/1DByteOffset.{svgpdf}[width="{svgpdf@pdf:290pt:450}",align="center"]
+image::{images}/1DByteOffset.svg[width="{svgpdf@pdf:290pt:450}",align="center"]
 
 [[1DWords]]
 .1D address offsets for 2-byte elements, start of buffer
-image::images/1DWordOffset.{svgpdf}[width="{svgpdf@pdf:290pt:450}",align="center"]
+image::{images}/1DWordOffset.svg[width="{svgpdf@pdf:290pt:450}",align="center"]
 
 [[1DRGB]]
 .1D address offsets for _R_,_G_,_B_ elements (padding in gray), start of buffer
-image::images/1DRGBOffset.{svgpdf}[width="{svgpdf@pdf:460pt:720}",align="center"]
+image::{images}/1DRGBOffset.svg[width="{svgpdf@pdf:460pt:720}",align="center"]
 
 An alternative representation is a ``structure of arrays'',
 distinct from the ``array of structures'' ++myRGBarray++:
@@ -254,7 +254,7 @@ buffer, padding row stride to a multiple of four elements.
 
 [[2DLinear]]
 .2D linear texel offsets from coordinates
-image::images/2DLinearOffsets.{svgpdf}[width="{svgpdf@pdf:350pt:540}",align="center"]
+image::{images}/2DLinearOffsets.svg[width="{svgpdf@pdf:350pt:540}",align="center"]
 
 [[2DLinearMemoryOrder]]
 .Order of byte storage in memory for coordinates in a linear 5{times}3 buffer, padded (italics) to 8{times}3
@@ -266,7 +266,7 @@ image::images/2DLinearOffsets.{svgpdf}[width="{svgpdf@pdf:350pt:540}",align="cen
 
 [[2DLinearRGB]]
 .2D _R_,_G_,_B_ byte offsets (padding in gray) from coordinates for a 4{times}4 image
-image::images/2DRGBOffsets.{svgpdf}[width="{svgpdf@pdf:350pt:540}",align="center"]
+image::{images}/2DRGBOffsets.svg[width="{svgpdf@pdf:350pt:540}",align="center"]
 
 By convention, this ``linear'' layout is in _y_-major order (with the
 _x_ axis changing most quickly).
@@ -283,7 +283,7 @@ form, two-dimensional data can also be implemented as multiple _planes_.
 
 [[2DRGBplanes]]
 .2D _R_,_G_,_B_ plane offsets from coordinates for 8{times}4 texels
-image::images/2DRGBplanes.{svgpdf}[width="{svgpdf@pdf:250pt:400}",align="center"]
+image::{images}/2DRGBplanes.svg[width="{svgpdf@pdf:250pt:400}",align="center"]
 
 In early graphics, planes often contributed individual bits to the pixel.
 This allowed pixels of less than a byte, reducing bandwidth and storage;
@@ -380,7 +380,7 @@ pixelOffset = (x & 3) | ((y & 3) << 2) | ((x & ~3) << 2) | ((y & ~3) * 16);
 
 [[2DTile4x4]]
 .4×4 tiled order texel offsets from coordinates (consecutive values linked in red to show the pattern)
-image::images/2DTile4x4.{svgpdf}[width="{svgpdf@pdf:350pt:575}",align="center"]
+image::{images}/2DTile4x4.svg[width="{svgpdf@pdf:350pt:575}",align="center"]
 
 Textures which have dimensions that are not a multiple of the tile
 size require padding.
@@ -405,7 +405,7 @@ One such scheme is Morton order:
 
 [[2DMorton]]
 .Morton order texel offsets from coordinates (consecutive values linked in red)
-image::images/2DMortonOffsets.{svgpdf}[width="{svgpdf@pdf:350pt:575}",align="center"]
+image::{images}/2DMortonOffsets.svg[width="{svgpdf@pdf:350pt:575}",align="center"]
 
 [source]
 ----
@@ -447,7 +447,7 @@ space and memory offset, is Hilbert curve order:
 
 [[2DHilbert]]
 .Hilbert curve order texel offsets from coordinates (consecutive values linked in red)
-image::images/2DHilbertOffsets.{svgpdf}[width="{svgpdf@pdf:350pt:575}",align="center"]
+image::{images}/2DHilbertOffsets.svg[width="{svgpdf@pdf:350pt:575}",align="center"]
 
 [source]
 ----
@@ -612,11 +612,11 @@ the _C~B~_ and _C~R~_ values are shared across pairs of elements.
 
 [[1DYCBCR_Y]]
 .1-D _Y&prime;C~B~C~R~_ 4:2:2 buffer, texels associated with _Y&prime;_ values
-image::images/1DYCbCr_Y.{svgpdf}[width="{svgpdf@pdf:320pt:520}",align="center"]
+image::{images}/1DYCbCr_Y.svg[width="{svgpdf@pdf:320pt:520}",align="center"]
 
 [[1DYCBCR_CBCR]]
 .1-D _Y&prime;C~B~C~R~_ 4:2:2 buffer, texels associated with _C~B~_ and _C~R~_ values
-image::images/1DYCbCr_CbCr.{svgpdf}[width="{svgpdf@pdf:320pt:520}",align="center"]
+image::{images}/1DYCbCr_CbCr.svg[width="{svgpdf@pdf:320pt:520}",align="center"]
 
 In this case, we can say that the 2{times}1 coordinate region forms
 a _texel block_ which contains two _Y&prime;_ values, one _C~B~_ value
@@ -658,11 +658,11 @@ may be more appropriate.
 
 [[1DYCbCr_cosited]]
 .1-D _Y&prime;C~B~C~R~_ 4:2:2 buffer, _C~B~_ and _C~R~_ cosited with even _Y&prime;_ values
-image::images/1DYCbCr_cosited.{svgpdf}[width="{svgpdf@pdf:220pt:340}",align="center"]
+image::{images}/1DYCbCr_cosited.svg[width="{svgpdf@pdf:220pt:340}",align="center"]
 
 [[1DYCbCr_midpoint]]
 .1-D _Y&prime;C~B~C~R~_ 4:2:2 buffer, _C~B~_ and _C~R~_ midpoint between _Y&prime;_ values
-image::images/1DYCbCr_midpoint.{svgpdf}[width="{svgpdf@pdf:220pt:340}",align="center"]
+image::{images}/1DYCbCr_midpoint.svg[width="{svgpdf@pdf:220pt:340}",align="center"]
 
 Traditional APIs have described the _C~B~_ and _C~R~_ as having 2{times}1
 _downsampling_ in this format (there are half as many samples available
@@ -686,7 +686,7 @@ storage.
 
 [[2DYCbCr420_traditional]]
 .2-D _Y&prime;C~B~C~R~_ 4:2:0 planes, downsampled _C~B~_ and _C~R~_ at midpoint between _Y&prime;_ values
-image::images/2DYCbCr420_traditional.{svgpdf}[width="{svgpdf@pdf:310pt:480}",align="center"]
+image::{images}/2DYCbCr420_traditional.svg[width="{svgpdf@pdf:310pt:480}",align="center"]
 
 In this case, the _C~B~_ and _C~R~_ planes are half the width and half
 the height of the _Y&prime;_ plane, and also have half the line stride.
@@ -713,7 +713,7 @@ block, and two green values offset diagonally, as in <<BayerOffsets>>.
 
 [[BayerOffsets]]
 .An 18{times}12 _^RG^_/_~GB~_ Bayer filter pattern (repeating pattern outlined in yellow)
-image::images/Bayer18x12.{svgpdf}[width="{svgpdf@pdf:400pt:640}",align="center"]
+image::{images}/Bayer18x12.svg[width="{svgpdf@pdf:400pt:640}",align="center"]
 
 A Bayer pattern can then be used to sample an image, as shown in
 <<SimpleBayerBlock>>, and this sampled version can later be used to
@@ -727,7 +727,7 @@ this specification.
 
 [[SimpleBayerBlock]]
 .A Bayer-sampled image with a repeating 2{times}2 _^RG^_/_~GB~_ texel block (outlined in yellow)
-image::images/Bayer.{svgpdf}[width="{svgpdf@pdf:95pt:170}",align="center"]
+image::{images}/Bayer.svg[width="{svgpdf@pdf:95pt:170}",align="center"]
 
 In the Bayer representation, the red and blue channels can be considered
 to be downsampled by a factor of two in each dimension.
@@ -746,7 +746,7 @@ and green is ``downsampled'' by latexmath:[$3\over\sqrt{5}$].
 
 [[XTrans]]
 .An 18{times}12 X-Trans image (repeating 6{times}6 pattern outlined in yellow)
-image::images/X-Trans18x12.{svgpdf}[width="{svgpdf@pdf:400pt:640}",align="center"]
+image::{images}/X-Trans18x12.svg[width="{svgpdf@pdf:400pt:640}",align="center"]
 
 Allowing for possible alternative orientations of the samples (such as
 whether the Bayer pattern starts with a row containing red or blue
@@ -941,7 +941,7 @@ the fourth dimension representing ``time''.
 
 [[2DYCbCr420_KDFS]]
 .2-D _Y&prime;C~B~C~R~_ 4:2:0 planes, with separate even and odd _Y&prime;_ planes
-image::images/2DYCbCr420_KDFS.{svgpdf}[width="{svgpdf@pdf:310pt:480}",align="center"]
+image::{images}/2DYCbCr420_KDFS.svg[width="{svgpdf@pdf:310pt:480}",align="center"]
 
 <<<
 === Bit pattern interpretation and _samples_
@@ -981,7 +981,7 @@ right.
 
 [[2DYCbCr420Encoding]]
 ._Y&prime;C~B~C~R~_ 4:2:0 described in six samples
-image::images/2DYCbCrKDFSEncoding.{svgpdf}[width="{svgpdf@pdf:475pt:800}",align="center"]
+image::{images}/2DYCbCrKDFSEncoding.svg[width="{svgpdf@pdf:475pt:800}",align="center"]
 
 <<<
 Consecutive samples with the same channel, location and flags may describe
@@ -1011,7 +1011,7 @@ The descriptor block for this format is shown in
 
 [[RGB565BEEncoding]]
 ._RGB_ 565 big-endian encoding
-image::images/RGB565BEKDFSEncoding.{svgpdf}[width="{svgpdf@pdf:490pt:850}",align="center"]
+image::{images}/RGB565BEKDFSEncoding.svg[width="{svgpdf@pdf:490pt:850}",align="center"]
 
 In <<RGB565BEEncoding>>, bit 0 of the logical bit stream corresponds to
 bit 3 of the virtual sample that describes the green channel; therefore
@@ -5787,19 +5787,19 @@ ifndef::a2xhtml[]
 = Color conversions
 endif::[]
 
-include::conversions.adoc[]
+include::{chapters}/conversions.adoc[]
 
 ifndef::a2xhtml[]
 = Compressed Texture Formats
 endif::[]
 
-include::compformats.adoc[]
+include::{chapters}/compformats.adoc[]
 
 ifndef::a2xhtml[]
 = References and contributors
 endif::[]
 
-include::references.adoc[]
+include::{chapters}/references.adoc[]
 
 == Contributors
 

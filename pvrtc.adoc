@@ -86,7 +86,7 @@ word _W~X,Y~_:
 
 [[Morton]]
 .Reflected Morton order 16×4-block image
-image::images/Morton.{svgpdf}[title="Reflected Morton Order 16×4-block image",width="{svgpdf@pdf:321pt:426}",align="center"]
+image::{images}/Morton.svg[title="Reflected Morton Order 16×4-block image",width="{svgpdf@pdf:321pt:426}",align="center"]
 
 Expressing each of the _X_ and _Y_ indices as an array of bits, the index of a
 particular PVRTC word can be found by interleaving the bits of the _X_ and _Y_
@@ -238,7 +238,7 @@ additional words.
 
 [[PVRTCrecon]]
 .PVRTC1 image reconstruction
-image::images/PVRTC1_image_reconstruction_simple.{svgpdf}[width="{svgpdf@pdf:350pt:550}",align="center"]
+image::{images}/PVRTC1_image_reconstruction_simple.svg[width="{svgpdf@pdf:350pt:550}",align="center"]
 ====
 
 <<<
@@ -266,7 +266,7 @@ latexmath:[$W_{X_\mathit{Low}+1,Y_\mathit{Low}}$] at the bottom of the image.
 
 [[PVRTCwraprecon]]
 .PVRTC1 image reconstruction (wrapping)
-image::images/PVRTC1_image_reconstruction_wrap.{svgpdf}[width="{svgpdf@pdf:300pt:466}",align="center"]
+image::{images}/PVRTC1_image_reconstruction_wrap.svg[width="{svgpdf@pdf:300pt:466}",align="center"]
 ====
 
 <<<
@@ -680,7 +680,7 @@ latexmath:[$W_{X_\mathit{Mod},Y_\mathit{Mod}}^{47}$].
 
 [[PVRTC2HardTransition]]
 .PVRTC2 hard transition subsets
-image::images/PVRTC2_hard_transition.{svgpdf}[title="PVRTC2 hard transition subsets",width="{svgpdf@pdf:130pt:200}",align="center"]
+image::{images}/PVRTC2_hard_transition.svg[title="PVRTC2 hard transition subsets",width="{svgpdf@pdf:130pt:200}",align="center"]
 
 The hard transition region is further subdivided into four smaller
 subregions, shown with the dotted 2{times}2 texel outlines in

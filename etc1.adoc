@@ -37,7 +37,7 @@ _d_~3~ _h_~3~ _l_~3~ _p_~3~ _d_~4~ _h_~4~ _l_~4~ _p_~4~.
 
 [[ETC18x8]]
 .Pixel layout for an 8×8 texture using four ETC1 compressed blocks
-image::images/ETCletter8x8.{svgpdf}[width="{svgpdf@pdf:218pt:327}",align="center"]
+image::{images}/ETCletter8x8.svg[width="{svgpdf@pdf:218pt:327}",align="center"]
 
 Note how pixel _a_~2~ in the second block is adjacent to pixel _m_~1~ in the first block.
 
@@ -63,7 +63,7 @@ shown in <<ETC1layout>>.
 
 [[ETC1layout]]
 .Pixel layout for an ETC1 compressed block
-image::images/ETCletterdirections.{svgpdf}[width="{svgpdf@pdf:115pt:173}",align="center"]
+image::{images}/ETCletterdirections.svg[width="{svgpdf@pdf:115pt:173}",align="center"]
 
 There are two modes in ETC1: the
 `individual' mode and the `differential' mode. Which mode is
@@ -171,11 +171,11 @@ of each other, as shown in <<ETC14x2>>.
 
 [[ETC12x4]]
 .Two 2{times}4-pixel ETC1 subblocks side-by-side
-image::images/ETC2x4.{svgpdf}[width="{svgpdf@pdf:142pt:213}",align="center"]
+image::{images}/ETC2x4.svg[width="{svgpdf@pdf:142pt:213}",align="center"]
 
 [[ETC14x2]]
 .Two 4{times}2-pixel ETC1 subblocks on top of each other
-image::images/ETC4x2.{svgpdf}[width="{svgpdf@pdf:142pt:213}",align="center"]
+image::{images}/ETC4x2.svg[width="{svgpdf@pdf:142pt:213}",align="center"]
 
 In both individual and differential mode, a _base color_ for each
 subblock is stored, but the way they are stored is different in

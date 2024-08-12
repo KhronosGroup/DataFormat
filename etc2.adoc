@@ -99,7 +99,7 @@ _d_~3~ _h_~3~ _l_~3~ _p_~3~ _d_~4~ _h_~4~ _l_~4~ _p_~4~.
 
 [[ETC28x8]]
 .Pixel layout for an 8×8 texture using four ETC2 compressed blocks
-image::images/ETCletter8x8.{svgpdf}[width="{svgpdf@pdf:218pt:327}",align="center"]
+image::{images}/ETCletter8x8.svg[width="{svgpdf@pdf:218pt:327}",align="center"]
 
 Note how pixel _a_~3~ in the third block is adjacent to pixel _d_~1~ in the first block.
 
@@ -159,7 +159,7 @@ a three-channel 4{times}4 pixel block as shown in
 
 [[Figure-etc2-pixellayout]]
 .Pixel layout for an ETC2 compressed block
-image::images/ETCletterdirections.{svgpdf}[width="{svgpdf@pdf:115pt:173}",align="center"]
+image::{images}/ETCletterdirections.svg[width="{svgpdf@pdf:115pt:173}",align="center"]
 
 [[Table-etc2-dataformat]]
 .Texel Data format for ETC2 compressed texture formats
@@ -227,11 +227,11 @@ they are stored is different in the two modes:
 
 [[Table-etc2-sidebyside]]
 .Two 2{times}4-pixel ETC2 subblocks side-by-side
-image::images/ETC2x4.{svgpdf}[width="{svgpdf@pdf:142pt:213}",align="center"]
+image::{images}/ETC2x4.svg[width="{svgpdf@pdf:142pt:213}",align="center"]
 
 [[Table-etc2-ontop]]
 .Two 4{times}2-pixel ETC2 subblocks on top of each other
-image::images/ETC4x2.{svgpdf}[width="{svgpdf@pdf:142pt:213}",align="center"]
+image::{images}/ETC4x2.svg[width="{svgpdf@pdf:142pt:213}",align="center"]
 
 In the `individual' mode, following the layout shown in
 <<ETC2IndividualLayout,section b>> of <<Table-etc2-dataformat>>, the
@@ -371,7 +371,7 @@ channels are modified by clamping to the range [0..255].
 
 [[Figure-etc2-individual]]
 .ETC2 `individual' mode
-image::images/ETC1Ind.{svgpdf}[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
+image::{images}/ETC1Ind.svg[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
 
 In this example, one _base color_ is encoded as the 4-bit triple
 (4,&nbsp;11,&nbsp;9), which is expanded by _extend4to8bits_ to
@@ -427,7 +427,7 @@ modified by clamping to [0..255].
 
 [[Figure-etc2-differential]]
 .ETC2 `differential' mode
-image::images/ETC1Diff.{svgpdf}[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
+image::{images}/ETC1Diff.svg[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
 
 Here the first subblock's _base color_ is encoded as the 5-bit triple
 (29,&nbsp;26,&nbsp;8), and expanded by _extend5to8bits_ to
@@ -572,7 +572,7 @@ channels are modified by clamping to [0..255].
 
 [[Figure-etc2-T]]
 .ETC2 `T' mode
-image::images/ETC2T.{svgpdf}[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
+image::{images}/ETC2T.svg[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
 
 In this example, the first _base color_ is defined as the triple of 4-bit
 _RGB_ values (13,&nbsp;1,&nbsp;8), which is expanded by _extend4to8bits_ to
@@ -633,7 +633,7 @@ to the range [0..255].
 
 [[Figure-etc2-H]]
 .ETC2 `H' mode
-image::images/ETC2H.{svgpdf}[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
+image::{images}/ETC2H.svg[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
 
 In this example, the first _base color_ is defined as the triple of 4-bit
 _RGB_ values (13,&nbsp;1,&nbsp;8), as in the `T mode' case above.
@@ -741,7 +741,7 @@ values are shown as small diamonds.
 
 [[Figure-etc2-planar]]
 .ETC2 `planar' mode
-image::images/ETC2P.{svgpdf}[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
+image::{images}/ETC2P.svg[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
 
 In this example, the origin (_R_,_&nbsp;G_,_&nbsp;B_) is encoded as the 6-7-6-bit
 value (12,&nbsp;64,&nbsp;62), which is expanded to (48,&nbsp;129,&nbsp;251).

@@ -1,18 +1,18 @@
 // Copyright 2014-2024 The Khronos Group Inc.
 // SPDX-License-Identifier: CC-BY-4.0
 
-include::compintro.adoc[]
+include::{chapters}/compintro.adoc[]
 
-include::s3tc.adoc[]
+include::{chapters}/s3tc.adoc[]
 
-include::rgtc.adoc[]
+include::{chapters}/rgtc.adoc[]
 
-include::bptc.adoc[]
+include::{chapters}/bptc.adoc[]
 
-include::etc1.adoc[]
+include::{chapters}/etc1.adoc[]
 
-include::etc2.adoc[]
+include::{chapters}/etc2.adoc[]
 
-include::astc.adoc[]
+include::{chapters}/astc.adoc[]
 
-include::pvrtc.adoc[]
+include::{chapters}/pvrtc.adoc[]
