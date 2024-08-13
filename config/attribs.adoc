@@ -1,5 +1,4 @@
 // Copyright 2015-2024 The Khronos Group Inc.
-//
 // SPDX-License-Identifier: CC-BY-4.0
 
 // Various special / math symbols, matching LaTeX names.
@@ -23,6 +22,7 @@
 :reg: ®
 :trade: ™
 :harr: ↔
+:check: ✓
 
 // Math operators and logic symbols
 :times: ×

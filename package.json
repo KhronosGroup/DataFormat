@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "escape-string-regexp": "^2.0.0",
+    "he": "^1.2.0",
+    "lunr": "^2.3.6"
+  }
+}
