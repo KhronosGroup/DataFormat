@@ -3,7 +3,7 @@
 
 == External references
 
-*[[IEEE 754]]IEEE754-2008 - IEEE standard for floating-point arithmetic*
+*[[IEEE-754]]IEEE754-2008 - IEEE standard for floating-point arithmetic*
 
 IEEE Std 754-2008
 http://dx.doi.org/10.1109/IEEESTD.2008.4610935,

@@ -161,11 +161,9 @@ $(KATEXINSTDIR): $(KATEXSRCDIR)
 
 html: $(HTMLDIR)/dataformat.html $(SPECSRC) $(COMMONDOCS)
 
-#@TODO $(HTMLDIR)/dataformat.html: KATEXDIR = ../katex
-#@TODO $(HTMLDIR)/dataformat.html: $(SPECSRC) $(COMMONDOCS) $(KATEXINSTDIR)
-$(HTMLDIR)/dataformat.html: $(SPECSRC) $(COMMONDOCS)
+$(HTMLDIR)/dataformat.html: KATEXDIR = ../katex
+$(HTMLDIR)/dataformat.html: $(SPECSRC) $(COMMONDOCS) $(KATEXINSTDIR)
 	$(QUIET)$(ASCIIDOC) -b html5 $(ADOCOPTS) $(ADOCHTMLOPTS) -o $@ $(SPECSRC)
-	cp $@ `basename $@`.unproc.html
 	$(QUIET)$(TRANSLATEMATH) $@
 
 # PDF optimizer - usage $(OPTIMIZEPDF) in.pdf out.pdf

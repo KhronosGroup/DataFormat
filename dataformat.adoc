@@ -25,7 +25,8 @@ include::{config}/attribs.adoc[]
 // Table of contents is inserted here
 toc::[]
 
-:leveloffset: 1
+// TODO restore this when chapters are split into separate files for Antora
+// :leveloffset: 1
 
 <<<<
 
