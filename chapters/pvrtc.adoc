@@ -1,0 +1,929 @@
+// Copyright 2014-2024 The Khronos Group Inc.
+// SPDX-License-Identifier: CC-BY-4.0
+
+[[PVRTC]]
+== PVRTC Compressed Texture Image Formats
+
+_This description is derived from the PVRTC Texture Compression User Guide,
+part of the link:https://www.imgtec.com/developers/powervr-sdk-tools/documentation/[PowerVR Documentation]._
+
+=== PVRTC Overview
+
+PVRTC is PowerVR's family of proprietary texture compression schemes,
+providing compression of color data at 4 or 2 bits per pixel (4/2bpp).
+
+There are two generations of PVRTC: PVRTC1 and PVRTC2.
+Both support 4bpp and 2bpp compression ratios.
+They are broadly similar, but PVRTC2 adds additional features to the format.
+Both primarily use an interpolation and modulation scheme to compress texture
+data wherein texel values are encoded as two low-resolution images,
+**A~Low~** and **B~Low~**, along with a full-resolution, low bit-precision
+modulation signal, **M~Sig~**, to combine those images.
+
+More information on the specifics of the PVRTC1 compression technique can be
+found in the ``Graphics Hardware 2003'' paper
+link:http://cdn.imgtec.com/sdk-documentation/PVR+Texture+Compression.Whitepaper.pdf[Texture Compression using Low-Frequency Signal Modulation].
+
+In PVRTC, images are described in terms of 64-bit little-endian words,
+each of which contains a pixel from each of the low-resolution images,
+**A~Low~** and **B~Low~**, and a subset of the modulation data, **M~Sig~**,
+corresponding to either a 4{times}4 or 8{times}4 set of pixels.
+Unlike traditional block-based formats, PVRTC uses adjacent data-words
+to reconstruct the original image.
+
+If combined with this encoding scheme, the <<TRANSFER_SRGB,sRGB EOTF>>
+is applied to the unquantized version of the _R&prime;_, _G&prime;_ and
+_B&prime;_ channels (that is,
+latexmath:[\textit{R}_\textit{out} = \textit{EOTF}_{\textit{sRGB}}\left({\textit{R}'\over 255}\right)],
+etc.) at the end of the texel decode process, but the _A_ channel is
+interpreted linearly.
+
+<<<
+
+=== Format PVRTC1 4bpp
+
+For PVRTC1 4bpp, each 64-bit word _W_~_X_,_Y_~ at block coordinates (_X_,_Y_)
+contains the modulation information for a 4{times}4 block of texels beginning
+at image pixels latexmath:[(4\times\mathit{X}, 4\times\mathit{Y})], and a
+color sample for each low-resolution image which influences an overlapping
+7{times}7 texel region of the final output, with each sample centered on
+output pixel latexmath:[((4\times\mathit{X})+2, (4\times\mathit{Y})+2)].
+Nearly every texel location requires data from a set of 2{times}2 data words
+in order to be decoded: the low-resolution encoded images are bilinearly interpolated
+to, in effect, generate a pair of full-resolution images prior to modulation, and this
+interpolation requires examining multiple data words in the compressed image
+data.
+At least one word of PVRTC data must exist in each mip level of a texture.
+If a texture (or a particular mip-level) is smaller than the size of the block
+of texels described by one word in any dimension, reconstruction of an image
+occurs as if fetching the upper-left most texels from the region covered by
+those words.
+PVRTC1 images must have dimensions that are power of two values.
+
+==== PVRTC1 4bpp word encoding
+
+Each data word contains two colors and a set of modulation data describing
+how to interpolate between them for each pixel location in the original image.
+A flag _M_ describes how the modulation data should be interpreted, and each
+color contains a bit to describe whether it contains alpha data.
+
+.Texel Data format for PVRTC1 4bpp compressed texture formats
+[width="97%",cols="32*^"]
+|====
+32+| *~Bits 64..32: Color data and flags~*
+| ~63~ | ~62~ | ~61~ | ~60~ | ~59~ | ~58~ | ~57~ | ~56~ | ~55~ | ~54~ | ~53~ | ~52~ | ~51~ | ~50~ | ~49~ | ~48~ | ~47~ | ~46~ | ~45~ | ~44~ | ~43~ | ~42~ | ~41~ | ~40~ | ~39~ | ~38~ | ~37~ | ~36~ | ~35~ | ~34~ | ~33~ | ~32~
+16+| *Color B* 15+| *Color A* | _M_
+32+| *~Bits 31..0: Modulation data bits [1..0] for pixel offset (_x_, _y_)~*
+| ~31~ | ~30~ | ~29~ | ~28~ | ~27~ | ~26~ | ~25~ | ~24~ | ~23~ | ~22~ | ~21~ | ~20~ | ~19~ | ~18~ | ~17~ | ~16~ | ~15~ | ~14~ | ~13~ | ~12~ | ~11~ | ~10~ | ~9~ | ~8~ | ~7~ | ~6~ | ~5~ | ~4~ | ~3~ | ~2~ | ~1~ | ~0~
+2+| 3,3 2+| 2,3 2+| 1,3 2+| 0,3 2+| 3,2 2+| 2,2 2+| 1,2 2+| 0,2 2+| 3,1 2+| 2,1 2+| 1,1 2+| 0,1 2+| 3,0 2+| 2,0 2+| 1,0 2+| 0,0
+|====
+
+==== PVRTC1 4bpp word offset calculation
+
+Data words in PVRTC1 formats are stored in a reflected Morton order, as shown
+in the figure below, where each cell corresponds to the index of a 64-bit
+word _W~X,Y~_:
+
+[[Morton]]
+.Reflected Morton order 16×4-block image
+image::{images}/Morton.svg[title="Reflected Morton Order 16×4-block image",width="{svgpdf@pdf:321pt:426}",align="center"]
+
+Expressing each of the _X_ and _Y_ indices as an array of bits, the index of a
+particular PVRTC word can be found by interleaving the bits of the _X_ and _Y_
+indices as follows:
+
+Let _Xb_ be the number of bits used to express _X_ -- i.e. latexmath:[\mathit{Xb} = \mathrm{log}_2\left(\left\lceil{\mathit{width}\over 4}\right\rceil\right)].
+
+Let _Yb_ be the number of bits used to express _Y_ -- i.e. latexmath:[\mathit{Yb} = \mathrm{log}_2\left(\left\lceil{\mathit{height}\over 4}\right\rceil\right)].
+
+Then:
+
+[latexmath]
+++++
+\begin{align*}
+\textit{Reflected Morton order offset W}_\textit{X,Y} &= \begin{cases}
+      \mathit{X}^{\textit{Xb}}\ldots\mathit{X}^\textrm{n}\ldots\mathit{X}^{\textit{Yb}+1}\mathit{X}^{\textit{Yb}}\mathit{Y}^{\textit{Yb}}\ldots\mathit{X}^\textrm{m}\mathit{Y}^\textrm{m}\ldots\mathit{X}^0\mathit{Y}^0, & \textrm{width} \geq \textrm{height} \\
+      \mathit{Y}^{\textit{Yb}}\ldots\mathit{Y}^\textrm{n}\ldots\mathit{Y}^{\textit{Xb}+1}\mathit{X}^{\textit{Xb}}\mathit{Y}^{\textit{Xb}}\ldots\mathit{X}^\textrm{m}\mathit{Y}^\textrm{m}\ldots\mathit{X}^0\mathit{Y}^0, & \textrm{width} < \textrm{height}
+  \end{cases} \\
+\end{align*}
+++++
+
+That is, to form the word offset, bits of _X_ and _Y_ are interleaved, with
+bits from _Y_ in the lower of each interleaved pair.
+These bits are interleaved up to the number of bits needed to represent
+the largest possible _X_ or _Y_, for whichever of _width_ and _height_ is
+smaller.
+Any remaining bits from _X_ or _Y_, for whichever of _width_ and _height_ is
+larger, are appended to the offset bit pattern.
+
+For example, <<Morton>> represents a 64{times}16-texel image represented
+by 16{times}4 = 64 words of 64 bits.
+The largest possible _X_ value in this example is
+latexmath:[{64\over 4} - 1] = 15; the largest possible
+_Y_ value in this example is latexmath:[{16\over 4} - 1] = 3.
+The bottom four bits of the word offset are composed by interleaving the
+bottom two bits of _Y_ and the bottom two bits of _X_ (with _Y_ in the
+lowest bit).
+Bits 5..4 of the word offset are derived from bits 3..2 of _X_, since
+no further bits are required to represent _Y_.
+
+In this case, the word at _X_=13, _Y_=2, _W_~13,2~=54
+is constructed as follows:
+
+.Calculation of reflected Morton word offset for 13,2
+[width="35%"]
+|====
+2+^| _X_ ^| *1* ^| *1* 2+^| *0* 2+^| *1* 2+^| = 13
+2+^| _W~13,2~_ ^| *1* ^| *1* ^| *0* ^| _1_ ^| *1* ^| _0_ 2+^| = 54
+2+^| _Y_ 2+^| 2+^| _1_ 2+^| _0_ 2+^| = 2
+|====
+
+Where _wordWidth_ and _wordHeight_ are the image width and height in
+units of 4{times}4 areas encoded by words:
+
+[latexmath]
+++++
+\begin{align*}
+\textit{wordWidth} =& \left\lceil{\textit{width}\over 4}\right\rceil \\
+\textit{wordHeight} =& \left\lceil{\textit{height}\over 4}\right\rceil
+\end{align*}
+++++
+
+the word offset for
+latexmath:[\mathit{X} = \left\lfloor{\mathit{x}\over 4}\right\rfloor] and
+latexmath:[\mathit{Y} = \left\lfloor{\mathit{y}\over 4}\right\rfloor] can
+be calculated iteratively as follows:
+
+[source]
+----
+uint32_t reflectedMortonOffset(const uint32_t X,
+                               const uint32_t Y,
+                               const uint32_t wordWidth,
+                               const uint32_t wordHeight)
+{
+    const uint32_t minDim = (wordWidth <= wordHeight) ? wordWidth : wordHeight;
+    uint32_t offset = 0, shift = 0, mask;
+
+    // Tests XY bounds AND that Width and Height != 0
+    assert(X < wordWidth && Y < wordHeight);
+
+    // Must be (non-zero) powers of 2
+    assert((wordWidth  & (wordWidth  - 1)) == 0);
+    assert((wordHeight & (wordHeight - 1)) == 0);
+
+    for (mask = 1; mask < minDim; mask <<= 1)
+    {
+        offset |= (((Y & mask) | ((X & mask) <<  1))) << shift;
+        shift++;
+    }
+
+    // At least one of X or Y will have run out of MSBs
+    offset |= ((X | Y) >> shift) << (shift * 2);
+
+    return offset;
+}
+----
+
+<<<
+
+==== PVRTC1 4bpp color reconstruction samples
+
+Each data word encodes a color sample value from each of the two
+low-resolution images, with the (_X_, _Y_) location of the block
+corresponding to the (_X~Low~_, _Y~Low~_) location of the colors in
+the low-resolution images.
+The image colors for a given pixel location (_x_, _y_) are reconstructed
+using the words containing the four nearest color samples:
+latexmath:[W_{X_\textit{Low},Y_\textit{Low}}],
+latexmath:[W_{X_\textit{Low}+1,Y_\textit{Low}}],
+latexmath:[W_{X_\textit{Low},Y_\textit{Low}+1}] and
+latexmath:[W_{X_\textit{Low}+1,Y_\textit{Low}+1}],
+where _X~Low~_ and _Y~Low~_ are derived as follows:
+
+[latexmath]
+++++
+\begin{align*}
+X_\textit{Low}=&\left\lfloor{{x - 2}\over 4}\right\rfloor &
+Y_\textit{Low}=&\left\lfloor{{y - 2}\over 4}\right\rfloor
+\end{align*}
+++++
+
+[NOTE]
+====
+<<PVRTCrecon>> shows a grid of pixels with (_x_ = 0, _y_ = 0) at top left.
+Each word latexmath:[W_{X_\mathit{Mod},Y_\mathit{Mod}}] holds modulation
+values for a 4{times}4 texel region
+latexmath:[\mathbf{M}_{\mathbf{X}_\mathbf{Mod},\mathbf{Y}_\mathbf{Mod}}],
+as described in <<PVRTC4bpp_modulation>>, where
+latexmath:[X_\mathit{Mod} = \left\lfloor{x\over 4}\right\rfloor]
+and latexmath:[Y_\mathit{Mod} = \left\lfloor{y\over 4}\right\rfloor].
+
+For latexmath:[X_\mathit{Low} = \left\lfloor{{x - 2}\over 4}\right\rfloor]
+and latexmath:[Y_\mathit{Low} = \left\lfloor{{y - 2}\over 4}\right\rfloor],
+color reconstruction for the pixels shaded in <<PVRTCrecon>> requires data
+from the words latexmath:[W_{X_\mathit{Low},Y_\mathit{Low}}] through
+latexmath:[W_{X_\mathit{Low}+1,Y_\mathit{Low}+1}]; the pixels for
+which these these words hold modulation values are shown as
+latexmath:[\mathbf{M}_{\mathbf{X}_\mathbf{Mod},\mathbf{Y}_\mathbf{Mod}}]
+through
+latexmath:[\mathbf{M}_{\mathbf{X}_\mathbf{Mod}+1,\mathbf{Y}_\mathbf{Mod}+1}],
+outlined in red.
+
+All pixels within the region contained by the dashed outline have the same
+values for latexmath:[X_\mathit{Low}] and latexmath:[Y_\mathit{Low}].
+The remaining shaded pixels have different calculated
+latexmath:[X_\mathit{Low}] and/or latexmath:[Y_\mathit{Low}] values, but
+due to <<PVRTC1_4bpp_interpolation>>, no contribution is required from
+additional words.
+
+[[PVRTCrecon]]
+.PVRTC1 image reconstruction
+image::{images}/PVRTC1_image_reconstruction_simple.svg[width="{svgpdf@pdf:350pt:550}",align="center"]
+====
+
+<<<
+
+The texture data words are wrapped toroidally, such that the ``nearest''
+sample may exist on the opposite side of the image.
+
+[NOTE]
+====
+For example, sampling a pixel in any corner of the image results in the
+words in all four corners being examined -- or sampling a pixel at the
+bottom of the image will result in words from the top of the image
+being examined, as shown in <<PVRTCwraprecon>>.
+In this example, the nearest samples ``below'' the shaded pixels in regions
+latexmath:[\mathbf{M}_{\mathbf{X}_\mathbf{Mod},\mathbf{Y}_\mathbf{Mod}}]
+and
+latexmath:[\mathbf{M}_{\mathbf{X}_\mathbf{Mod}+1,\mathbf{Y}_\mathbf{Mod}}]
+the row of words at the top of the image, and the nearest samples
+``above'' the shaded pixels in regions
+latexmath:[\mathbf{M}_{\mathbf{X}_\mathbf{Mod},\mathbf{Y}_\mathbf{Mod}+1}]
+and
+latexmath:[\mathbf{M}_{\mathbf{X}_\mathbf{Mod}+1,\mathbf{Y}_\mathbf{Mod}+1}]
+are in words latexmath:[W_{X_\mathit{Low},Y_\mathit{Low}}] and
+latexmath:[W_{X_\mathit{Low}+1,Y_\mathit{Low}}] at the bottom of the image.
+
+[[PVRTCwraprecon]]
+.PVRTC1 image reconstruction (wrapping)
+image::{images}/PVRTC1_image_reconstruction_wrap.svg[width="{svgpdf@pdf:300pt:466}",align="center"]
+====
+
+<<<
+
+==== PVRTC1 4bpp image reconstruction
+
+The layout of color data in PVRTC word depends on the value of the
+opacity flag _Op_, stored in the most-significant bit of the color.
+If _Op_ is 1, then the color is treated as opaque (no alpha data),
+and if _Op_ is 0, the color has alpha data and may be translucent.
+The exact data layout of each color is described below:
+
+.Data layout of color segments in a PVRTC1 word
+[cols="^,^1,^1,^1,^1,^1,^1,^1,^1,^1,^1,^1,^1,^1,^1,^1",width="55%"]
+|====
+16+s| ~*Color B* -- opaque color mode (opacity flag _Op_ = 1)~
+| ~63~ | ~62~ | ~61~ | ~60~ | ~59~ | ~58~ | ~57~ | ~56~ | ~55~ | ~54~ | ~53~ | ~52~ | ~51~ | ~50~ | ~49~ | ~48~
+| 1 5+| Red 5+| Green 5+| Blue
+16+s| ~*Color B* -- translucent color mode (opacity flag _Op_ = 0)~
+| ~63~ | ~62~ | ~61~ | ~60~ | ~59~ | ~58~ | ~57~ | ~56~ | ~55~ | ~54~ | ~53~ | ~52~ | ~51~ | ~50~ | ~49~ | ~48~
+| 0 3+| Alpha 4+| Red 4+| Green 4+| Blue
+16+s| ~*Color A* -- opaque color mode (opacity flag _Op_ = 1)~
+| ~47~ | ~46~ | ~45~ | ~44~ | ~43~ | ~42~ | ~41~ | ~40~ | ~39~ | ~38~ | ~37~ | ~36~ | ~35~ | ~34~ | ~33~ | ~32~
+| 1 5+| Red 5+| Green 4+| Blue | _M_
+16+s| ~*Color A* -- translucent color mode (opacity flag _Op_ = 0)~
+| ~47~ | ~46~ | ~45~ | ~44~ | ~43~ | ~42~ | ~41~ | ~40~ | ~39~ | ~38~ | ~37~ | ~36~ | ~35~ | ~34~ | ~33~ | ~32~
+| 0 3+| Alpha 4+| Red 4+| Green 3+| Blue | _M_
+|====
+
+<<<
+
+The *Color A* values and *Color B* values for each word are bilinearly
+interpolated by a factor of 4 in both dimensions, resulting in a pair
+of color values from two virtual images, *Image A* and *Image B*.
+This upscale operation is performed by treating each color as an
+_ARGB_:4555 format, and generating results in an _ARGB_:8888 format.
+Any _R_, _G_, or _B_ channel in each color with fewer than 5 bits is
+initially expanded via bit replication:
+
+* a 3-bit channel, C^2^C^1^C^0^ becomes C^2^C^1^C^0^C^2^C^1^
+* a 4-bit channel, C^3^C^2^C^1^C^0^ becomes C^3^C^2^C^1^C^0^C^3^
+
+The 3-bit alpha channel values are expanded to 4 bits by zero padding:
+
+* _A_^2^_A_^1^_A_^0^ becomes _A_^2^_A_^1^_A_^0^0
+
+If the color is 'opaque', then the alpha channel is expanded to the 4-bit value, 0b1111.
+
+For each channel _C_ of each color (*Color A* and *Color B*), the
+interpolation proceeds as follows:
+
+* For low-resolution image color channel
+latexmath:[\textbf{C}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+stored in word
+latexmath:[\textit{W}_{\textit{X}_\textit{Low},\textit{Y}_\textit{Low}}]:
+** _X~Low~_ = latexmath:[\left\lfloor{{x-2}\over 4}\right\rfloor],
+as described above.
+** _Y~Low~_ = latexmath:[\left\lfloor{{y-2}\over 4}\right\rfloor],
+as described above.
+* Using relative coordinates:
+** latexmath:[x_r
+= (x - 2) - \left(4\times\left\lfloor{{x - 2}\over 4}\right\rfloor\right)
+= (x - 2) - (4 \times X_\textit{Low})]
+** latexmath:[y_r
+= (y - 2) - \left(4\times\left\lfloor{{y - 2}\over 4}\right\rfloor\right)
+= (y - 2) - (4 \times Y_\textit{Low})]
+* Coordinates wrap at the edges of the image.
+* An interpolation is performed which is mathematically equivalent to  <<PVRTC1_4bpp_interpolation>>.
+
+[[PVRTC1_4bpp_interpolation]]
+.PVRTC1 4bpp color channel interpolation
+[latexmath]
+++++
+\begin{align*}
+\textit{C}_\textit{x,y} = &
+\left(\textbf{C}_{\textbf{X}_\textbf{Low}, \textbf{Y}_\textbf{Low}}
+\times (4 - x_r) \times (4 - y_r)\right) +
+\left(\textbf{C}_{\textbf{X}_\textbf{Low}+1, \textbf{Y}_\textbf{Low}}
+\times x_r \times (4 - y_r)\right) \\
+ + &
+\left(\textbf{C}_{\textbf{X}_\textbf{Low}, \textbf{Y}_\textbf{Low}+1}
+\times (4 - x_r) \times y_r\right) +
+\left(\textbf{C}_{\textbf{X}_\textbf{Low}+1, \textbf{Y}_\textbf{Low}+1}
+\times x_r \times y_r\right)
+\end{align*}
+++++
+
+[NOTE]
+====
+The colors of **Image A** and **Image B** at
+(latexmath:[x = (4 \times X_\mathit{Low} + 2)],
+latexmath:[y = (4 \times Y_\mathit{Low} + 2)]) are exactly the
+corresponding colors that word
+latexmath:[W_{X_\mathit{Low}, Y_\mathit{Low}}] encodes.
+Texels in the same column as a texel block such that latexmath:[x_r = 0]
+are not influenced by the color samples from words
+latexmath:[W_{X_\mathit{Low}+1, Y_\mathit{Low}}] and
+latexmath:[W_{X_\mathit{Low}+1, Y_\mathit{Low}+1}].
+Texels in the same row as a texel block such that latexmath:[y_r = 0]
+are not influenced by the color samples from words
+latexmath:[W_{X_\mathit{Low}, Y_\mathit{Low}+1}] and
+latexmath:[W_{X_\mathit{Low}+1, Y_\mathit{Low}+1}].
+Therefore a single color sample at latexmath:[C_{x,y}] influences the
+interpolated color of all texels in the 7{times}7 region
+from latexmath:[C_{x-3,y-3}] to latexmath:[C_{x+3,y+3}] centered on
+the color sample.
+
+&nbsp;
+
+Any 2{times}2 quad of texel values can be evaluated from a single
+set of four adjacent texel blocks.
+This means that the number of texel blocks accessed during
+bilinear filtering is no worse than the worst case of the
+self-contained texel blocks of other schemes.
+====
+
+
+For the red, green and blue channels, _C~x,y~_ is a 5.4-bit fixed-point
+value whose bit pattern can be converted to an 8-bit normalized
+value, i.e. UNORM, as
+latexmath:[\textbf{Image \{A,B\}}\{\textit{R,G,B}\}_{x,y} = \left\lfloor{{C_{x,y}}\over 2}\right\rfloor+\left\lfloor{{C_{x,y}}\over 64}\right\rfloor].
+
+For the alpha channel, _C~x,y~_ is a 4.4-bit fixed-point value
+whose bit pattern can be converted to an 8-bit normalized value as
+latexmath:[\textbf{Image \{A,B\}}\{\textit{A}\}_{x,y} = C_{x,y}+\left\lfloor{{C_{x,y}}\over 16}\right\rfloor].
+
+<<<
+
+[[PVRTC4bpp_modulation]]
+==== PVRTC1 4bpp color modulation
+
+The final image is created by linearly interpolating between the
+*Image A* and *Image B* texels, using the modulation data for each
+pixel to determine the weighting.
+The modulation information is retrieved from word
+latexmath:[W_{X_\textit{Mod},Y_\textit{Mod}}]
+where latexmath:[X_\textit{Mod} = \left\lfloor{x\over 4}\right\rfloor]
+and latexmath:[Y_\textit{Mod} = \left\lfloor{y\over 4}\right\rfloor].
+The weight for the interpolation is derived from the 2 bits of
+the modulation data corresponding to the relevant pixel offset
+(_x~offset~_ = _x_ - (4 {times} _X~Mod~_),
+_y~offset~_ = _y_ - (4 {times} _Y~Mod~_)),
+depending on the value of modulation flag _M_.
+
+[[PVRTC1ModulationWeights]]
+.Modulation weights for PVRTC1 4bpp
+[cols="10,10,1,10,10,10"]
+|====
+2+^| *Standard bilinear* (_M_ = 0) .6+| 3+^| *Punch-through* (_M_ = 1)
+^| *Modulation bits* ^| *Weight* ^| *Modulation bits* ^| *Weight* ^| *Alpha*
+^| 00 ^| 0 ^| 00 ^| 0 .2+^.^|&nbsp;Normal
+^| 01 ^| 3 ^| 01 .2+^.^|&nbsp;4
+^| 10 ^| 5 ^| 10 ^| ``Punch-through''
+^| 11 ^| 8 | 11 ^| 8 ^| Normal
+|====
+
+[[PVRTCmodulate]]
+.PVRTC image modulation
+[latexmath]
+++++
+\begin{align*}
+\textit{Final color}_\textit{x,y} = & \left\lfloor{{(\textbf{Image A}_\textit{x,y} \times (8 - \textit{weight})) + (\textbf{Image B}_\textit{x,y} \times \textit{weight})}\over 8}\right\rfloor
+\end{align*}
+++++
+
+If punch-through mode is selected, and the modulation bits for a given
+pixel have a value of 0b10, the alpha value of the resulting color is 0x00.
+This is irrespective of the presence or values of any alpha channel in
+the input colors.
+
+[NOTE]
+====
+For punch-through pixels, the _RGB_ components are 50:50 blends of the
+corresponding pixels in the upscaled images.
+For this reason, with PVRTC1 4bpp, it is advised to not use pre-multiplied
+alpha textures, and to change the color of fully transparent areas to the
+average of the local neighborhood.
+PVRTexTool provides ``alpha bleed'' functionality to modify
+fully-transparent areas appropriately.
+====
+
+<<<
+
+=== Format PVRTC1 2bpp
+
+PVRTC1 2bpp has the same broad data layout as PVRTC1 4bpp, but instead
+uses an 8{times}4 bilinear upscale.
+
+==== PVRTC1 2bpp word offset calculation
+
+The inputs to the Morton order encoding for 2bpp mode are:
+
+Let _Xb_ be the number of bits used to express _X_ -- i.e. latexmath:[\mathit{Xb} = \mathrm{log}_2\left(\left\lceil{\mathit{width}\over 8}\right\rceil\right)].
+
+Let _Yb_ be the number of bits used to express _Y_ -- i.e. latexmath:[\mathit{Yb} = \mathrm{log}_2\left(\left\lceil{\mathit{height}\over 4}\right\rceil\right)].
+
+
+==== PVRTC1 2bpp image reconstruction
+
+For each channel _C_ of each color (*Color A* and *Color B*), the
+interpolation proceeds as follows:
+
+* For low-resolution image color channel
+latexmath:[\textbf{C}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+stored in word
+latexmath:[\textit{W}_{\textit{X}_\textit{Low},\textit{Y}_\textit{Low}}]:
+** _X~Low~_ = latexmath:[\left\lfloor{{x-4}\over 8}\right\rfloor]
+** _Y~Low~_ = latexmath:[\left\lfloor{{y-2}\over 4}\right\rfloor]
+* Using relative coordinates:
+** latexmath:[x_r
+= (x - 4) - \left(8\times\left\lfloor{{x - 4}\over 8}\right\rfloor\right)
+= (x - 4) - (8 \times X_\textit{Low})]
+** latexmath:[y_r
+= (y - 2) - \left(4\times\left\lfloor{{y - 2}\over 4}\right\rfloor\right)
+= (y - 2) - (4 \times Y_\textit{Low})]
+* Coordinates wrap at the edges of the image.
+* An interpolation is performed which is mathematically equivalent to  <<PVRTC1_2bpp_interpolation>>.
+
+[[PVRTC1_2bpp_interpolation]]
+.PVRTC1 2bpp color channel interpolation
+[latexmath]
+++++
+\begin{align*}
+\textit{C}_\textit{x,y} = &
+\left(\textbf{C}_{\textbf{X}_\textbf{Low}, \textbf{Y}_\textbf{Low}}
+\times (8 - x_r) \times (4 - y_r)\right) +
+\left(\textbf{C}_{\textbf{X}_\textbf{Low}+1, \textbf{Y}_\textbf{Low}}
+\times x_r \times (4 - y_r)\right) \\
+ + &
+\left(\textbf{C}_{\textbf{X}_\textbf{Low}, \textbf{Y}_\textbf{Low}+1}
+\times (8 - x_r) \times y_r\right) +
+\left(\textbf{C}_{\textbf{X}_\textbf{Low}+1, \textbf{Y}_\textbf{Low}+1}
+\times x_r \times y_r\right)
+\end{align*}
+++++
+
+For the red, green and blue channels, _C~x,y~_ is a 5.5-bit fixed-point
+value whose bit pattern can be converted to an 8-bit normalized
+value as
+latexmath:[\textbf{Image \{A,B\}}\{\textit{R,G,B}\}_{x,y} = \left\lfloor{{C_{x,y}}\over 4}\right\rfloor+\left\lfloor{{C_{x,y}}\over 128}\right\rfloor].
+
+For the alpha channel, _C~x,y~_ is a 4.5-bit fixed-point value
+whose bit pattern can be converted to an 8-bit normalized value as
+latexmath:[\textbf{Image \{A,B\}}\{\textit{A}\}_{x,y} = \left\lfloor{{C_{x,y}}\over 2}\right\rfloor+\left\lfloor{{C_{x,y}}\over 32}\right\rfloor].
+
+<<<
+
+==== PVRTC1 2bpp color modulation
+The modulation data, retrieved from word _W~X,Y~_ where
+latexmath:[X_\mathit{Mod} = \left\lfloor{x\over 8}\right\rfloor] and
+latexmath:[Y_\mathit{Mod} = \left\lfloor{y\over 4}\right\rfloor], are
+interpreted differently in order to accommodate the additional pixels.
+Each word holds the modulation data which corresponds to pixels that
+have offsets (_x~offset~_ = _x_ - 8 {times} _X~Mod~_,
+_y~offset~_ = _y_ - 4 {times} _Y~Mod~_).
+
+In PVRTC1 2bpp, rather than changing the weight values as in PVRTC1
+4bpp, the modulation flag _M_ in bit 32 affects the modulation data
+layout.
+Optional flags in bit 0 and bit 20 of the modulation data may further
+affect the layout:
+
+.Texel Data format for PVRTC1 2bpp compressed texture formats
+[width="97%",cols="32*^"]
+|====
+32+| *~Bits 64..32: Color data and flags~*
+32+| _Identical to PVRTC1 4bpp_
+32+| *~Bits 31..0: Modulation data: direct encoding, 1 bit per pixel (modulation flag~* ~_M_~ *~= 0) for pixel offset (_x_, _y_)~*
+| ~31~ | ~30~ | ~29~ | ~28~ | ~27~ | ~26~ | ~25~ | ~24~ | ~23~ | ~22~ | ~21~ | ~20~ | ~19~ | ~18~ | ~17~ | ~16~ | ~15~ | ~14~ | ~13~ | ~12~ | ~11~ | ~10~ | ~9~ | ~8~ | ~7~ | ~6~ | ~5~ | ~4~ | ~3~ | ~2~ | ~1~ | ~0~
+| 7,3 | 6,3 | 5,3 | 4,3 | 3,3 | 2,3 | 1,3 | 0,3 | 7,2 | 6,2 | 5,2 | 4,2 | 3,2 | 2,2 | 1,2 | 0,2 | 7,1 | 6,1 | 5,1 | 4,1 | 3,1 | 2,1 | 1,1 | 0,1 | 7,0 | 6,0 | 5,0 | 4,0 | 3,0 | 2,0 | 1,0 | 0,0
+32+| *~Bits 31..0: Modulation data, checkerboard-interpolated encoding, samples for pixel offset (_x_, _y_), bits[1..0] (modulation flag~* ~_M_~ *~= 1, bit 0 flag = 0)~*
+| ~31~ | ~30~ | ~29~ | ~28~ | ~27~ | ~26~ | ~25~ | ~24~ | ~23~ | ~22~ | ~21~ | ~20~ | ~19~ | ~18~ | ~17~ | ~16~ | ~15~ | ~14~ | ~13~ | ~12~ | ~11~ | ~10~ | ~9~ | ~8~ | ~7~ | ~6~ | ~5~ | ~4~ | ~3~ | ~2~ | ~1~ | ~0~
+2+| 7,3 2+| 5,3 2+| 3,3 2+| 1,3 2+| 6,2 2+| 4,2 2+| 2,2 2+| 0,2 2+| 7,1 2+| 5,1 2+| 3,1 2+| 1,1 2+| 6,0 2+| 4,0 2+| 2,0 | 0,0 | 0
+32+| *~Bits 31..0: Modulation data, horizontally- or vertically-interpolated encoding, samples for pixel offset (_x_, _y_) (modulation flag~* ~_M_~ *~= 1, bit 0 flag = 1)~*
+| ~31~ | ~30~ | ~29~ | ~28~ | ~27~ | ~26~ | ~25~ | ~24~ | ~23~ | ~22~ | ~21~ | ~20~ | ~19~ | ~18~ | ~17~ | ~16~ | ~15~ | ~14~ | ~13~ | ~12~ | ~11~ | ~10~ | ~9~ | ~8~ | ~7~ | ~6~ | ~5~ | ~4~ | ~3~ | ~2~ | ~1~ | ~0~
+2+| 7,3 2+| 5,3 2+| 3,3 2+| 1,3 2+| 6,2 | 4,2 | _F_ 2+| 2,2 2+| 0,2 2+| 7,1 2+| 5,1 2+| 3,1 2+| 1,1 2+| 6,0 2+| 4,0 2+| 2,0 | 0,0 | 1
+|====
+
+If the modulation flag _M_ is set to 0, each pixel only has a single
+bit of modulation data.
+The selected color is *Image A* for modulation data bit = 0,
+and *Image B* for modulation data bit = 1.
+
+.Modulation modes for PVRTC1 2bpp
+[cols="2,2",width="75%"]
+|====
+^| *Modulation flag value* _M_ ^| *Mode*
+^| 0 ^| Standard Bilinear, 1bpp modulation
+^| 1 ^| Punch-through, interpolated modulation
+|====
+
+If the modulation flag _M_ is set to 1, the pixels with 2-bit stored values have
+modulation weights equal to those of PVRTC1 4bpp for modulation mode 1,
+as shown in <<PVRTC1ModulationWeights>>.
+
+The modulation data for the pixel at 0,0 (and when bit~0~ = 1, the pixel
+at 2,4) is treated as if the value was duplicated -- so the single-bit 0
+encoding becomes 0b00, and 1 becomes 0b11, such that the texels always
+correspond to *Image A* or *Image B*.
+
+For pixels without stored modulation data, bit~0~ and flag _F_
+in bit 20 determine how they are reconstructed:
+
+* If bit~0~ is 0, the value is the mean of the weights of the four
+horizontally- and vertically-adjacent pixels, rounded to the nearest
+integer:
+latexmath:[\textit{weight}_{x,y} = \left\lfloor{{w(\textit{md}(x-1,y))+w(\textit{md}(x,y-1))+w(\textit{md}(x+1,y))+w(\textit{md}(x,y+1))+2}\over 4}\right\rfloor].
+
+* If bit~0~ is 1, and flag _F_ is 1, the value is the mean of the
+weights of the two vertically-adjacent pixels, rounded to the
+nearest integer:
+latexmath:[\textit{weight}_{x,y} = \left\lfloor{{w(\textit{md}(x,y-1))+w(\textit{md}(x,y+1))+1}\over 2}\right\rfloor].
+
+* If bit~0~ is 1, and flag _F_ is 0, the value is the mean of the
+weights from the horizontally-adjacent pixels, rounded to the
+nearest integer:
+latexmath:[\textit{weight}_{x,y} = \left\lfloor{{w(\textit{md}(x-1,y))+w(\textit{md}(x+1,y))+1}\over 2}\right\rfloor].
+
+where _md(x,y)_ is the modulation data for texel offset (_x_, _y_) and
+_w_() is the weighting described in <<PVRTC1ModulationWeights>>
+for _M_ = 1.
+
+If an adjacent pixel's modulation value is not present in the current
+word, the value is obtained from the adjacent PVRTC word which does
+contain that pixel's modulation data, with the location wrapping to
+the other side of the image if necessary.
+
+This weight is then applied to <<PVRTCmodulate>>.
+
+<<<
+=== Format PVRTC2 4bpp
+PVRTC2 is the second revision of the PVRTC compression scheme, and shares most
+of its layout and interpretation. The PVRTC2 sections document the differences
+between the formats.
+
+PVRTC2 images may have logical dimensions of any size greater than zero.
+If the logical size of the image is not a multiple of the interpolation size,
+the stored format uses the next-larger multiple. Any padding texels added by
+this resize are not accessed when reconstructing the image.
+
+PVRTC2 words are not laid out in a reflected Morton order, instead they are
+laid out in a standard linear order, as with all other formats.
+
+The layout of PVRTC2 data words is very similar to that of PVRTC1, though there
+are two main differences:
+
+* There is only a single opacity flag _Op_ that affects both colors, rather
+than per-color flags.
+
+* A _hard transition_ flag _H_ is included to aid representing color
+discontinuities, or diverse color distributions.
+
+.Texel Data format for PVRTC2 4bpp compressed texture formats
+[width="97%",cols="32*^"]
+|====
+32+| *~Bits 64..32: Color data and flags~*
+| ~63~ | ~62~ | ~61~ | ~60~ | ~59~ | ~58~ | ~57~ | ~56~ | ~55~ | ~54~ | ~53~ | ~52~ | ~51~ | ~50~ | ~49~ | ~48~ | ~47~ | ~46~ | ~45~ | ~44~ | ~43~ | ~42~ | ~41~ | ~40~ | ~39~ | ~38~ | ~37~ | ~36~ | ~35~ | ~34~ | ~33~ | ~32~
+| _Op_ 15+| *Color B* | _H_ 14+| *Color A* | _M_
+32+| *~Bits 31..0: Modulation data bits [1..0] for pixel offset (_x_, _y_) -- identical to PVRTC1 4bpp~*
+| ~31~ | ~30~ | ~29~ | ~28~ | ~27~ | ~26~ | ~25~ | ~24~ | ~23~ | ~22~ | ~21~ | ~20~ | ~19~ | ~18~ | ~17~ | ~16~ | ~15~ | ~14~ | ~13~ | ~12~ | ~11~ | ~10~ | ~9~ | ~8~ | ~7~ | ~6~ | ~5~ | ~4~ | ~3~ | ~2~ | ~1~ | ~0~
+2+| 3,3 2+| 2,3 2+| 1,3 2+| 0,3 2+| 3,2 2+| 2,2 2+| 1,2 2+| 0,2 2+| 3,1 2+| 2,1 2+| 1,1 2+| 0,1 2+| 3,0 2+| 2,0 2+| 1,0 2+| 0,0
+|====
+
+.Data layout of color segments in a PVRTC2 word
+[cols="^,^1,^1,^1,^1,^1,^1,^1,^1,^1,^1,^1,^1,^1,^1,^1",width="55%"]
+|====
+16+s| ~*Color B* -- opaque color mode (opacity flag _Op_ = 1)~
+| ~63~ | ~62~ | ~61~ | ~60~ | ~59~ | ~58~ | ~57~ | ~56~ | ~55~ | ~54~ | ~53~ | ~52~ | ~51~ | ~50~ | ~49~ | ~48~
+| 1 5+| Red 5+| Green 5+| Blue
+16+s| ~*Color B* -- translucent color mode (opacity flag _Op_ = 0)~
+| ~63~ | ~62~ | ~61~ | ~60~ | ~59~ | ~58~ | ~57~ | ~56~ | ~55~ | ~54~ | ~53~ | ~52~ | ~51~ | ~50~ | ~49~ | ~48~
+| 0 3+| Alpha 4+| Red 4+| Green 4+| Blue
+16+s| ~*Color A* -- opaque color mode (opacity flag _Op_ = 1)~
+| ~47~ | ~46~ | ~45~ | ~44~ | ~43~ | ~42~ | ~41~ | ~40~ | ~39~ | ~38~ | ~37~ | ~36~ | ~35~ | ~34~ | ~33~ | ~32~
+| _H_ 5+| Red 5+| Green 4+| Blue | _M_
+16+s| ~*Color A* -- translucent color mode (opacity flag _Op_ = 0)~
+| ~47~ | ~46~ | ~45~ | ~44~ | ~43~ | ~42~ | ~41~ | ~40~ | ~39~ | ~38~ | ~37~ | ~36~ | ~35~ | ~34~ | ~33~ | ~32~
+| _H_ 3+| Alpha 4+| Red 4+| Green 3+| Blue | _M_
+|====
+
+There is one change to the interpretation of the color data relative to
+PVRTC1: as there is only one opacity flag for each PVRTC2 data word, to
+allow a local area to span the full alpha gamut when in translucent mode,
+*Color B*'s 3-bit alpha channel is expanded to four bits as
+_A_^2^_A_^1^_A_^0^1, instead of _A_^2^_A_^1^_A_^0^0.
+
+<<<
+
+==== Hard transition flag
+
+The bilinear interpolation scheme of PVRTC1 usually works well as most
+areas of natural image textures are reasonably `continuous'.
+However at the boundaries of non-tiling textures, around sub-textures in
+texture atlases, or in some areas of hand-drawn graphics, this assumption
+can break down.
+To address these issues, PVRTC2 includes the _hard transition flag_, _H_.
+
+Since it can be assumed that such discontinuities are more likely to be
+centered on boundaries of multiples of 4{times}4 texel regions, the hard
+transition flag _H_ changes the behavior of the entire red-dotted region
+shown in <<PVRTC2HardTransition>>.
+This is a subset of the logical 4{times}4 pixel regions
+latexmath:[\textbf{M}_{\textbf{X}_\textbf{Mod},\textbf{Y}_\textbf{Mod}}]
+through
+latexmath:[\textbf{M}_{\textbf{X}_\textbf{Mod}+1,\textbf{Y}_\textbf{Mod}+1}]
+that correspond to the modulation data stored in 64-bit data words
+latexmath:[W_{X_\mathit{Mod},Y_\mathit{Mod}}] through
+latexmath:[W_{X_\mathit{Mod}+1,Y_\mathit{Mod}+1}].
+The flag _H_ for this hard transition region is stored in
+latexmath:[W_{X_\mathit{Mod},Y_\mathit{Mod}}^{47}].
+
+[[PVRTC2HardTransition]]
+.PVRTC2 hard transition subsets
+image::{images}/PVRTC2_hard_transition.svg[title="PVRTC2 hard transition subsets",width="{svgpdf@pdf:130pt:200}",align="center"]
+
+The hard transition region is further subdivided into four smaller
+subregions, shown with the dotted 2{times}2 texel outlines in
+<<PVRTC2HardTransition>>, where it intersects the pixel regions
+latexmath:[\textbf{M}_{\textbf{X}_\textbf{Mod},\textbf{Y}_\textbf{Mod}}]
+through
+latexmath:[\textbf{M}_{\textbf{X}_\textbf{Mod}+1,\textbf{Y}_\textbf{Mod}+1}].
+The hard transition flag _H_, coupled with the relevant modulation flag _M_
+for the texel subregion, determines how the colors for each reconstructed
+pixel in the subregion are evaluated, as summarized in the table below.
+
+.Modulation modes for PVRTC2 4bpp
+[cols="1^,1^,2^"]
+|====
+^| *Modulation flag* _M_ ^| *Hard transition flag* _H_ ^| *Mode*
+| 0 | 0 | Standard bilinear
+| 1 | 0 | Punch-through alpha
+| 0 | 1 | Non-interpolated
+| 1 | 1 | Local palette
+|====
+
+In `standard bilinear' the modulation behaves as described for PVRTC1 4bpp.
+
+In `punch-through alpha', the modulation behaves in almost the same manner
+as the equivalent mode as for PVRTC1 4bpp except that for texels marked
+as `punch-through'; i.e. using the 2-bit encoding 0b10, the output texel is
+set to transparent black, which may be better suited to pre-multiplied
+texture formats.
+
+The remaining two modes are described below.
+
+==== Non-interpolated
+
+In the non-interpolated mode, the *A* and *B* base colors are not bilinearly
+interpolated in the affected regions.
+Instead, the colors for the word encapsulating each particular pixel are
+used directly, in the sense that the stored colors are expanded, where
+necessary, via bit replication to an _ARGB_:4555 format and then, again, by
+bit replication to _ARGB_:8888.
+The modulation encodings are interpreted in the same manner as for the
+``standard bilinear'' weights, and the colors blended, as before, with
+<<PVRTCmodulate>>.
+
+<<<
+
+==== Local palette mode
+
+In local palette mode, the hard transition region is no longer reconstructed
+by interpolating the upscaled images.
+Instead, the eight distinct colors from each surrounding word make up a local
+palette from which colors are selected.
+
+Denoting *Color B* and *Color A* from words
+latexmath:[W_{X_\textit{Low},Y_\textit{Low}}] through
+latexmath:[W_{X_\textit{Low}+1,Y_\textit{Low}+1}] as described
+above, the following colors are available:
+latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}],
+latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}],
+latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}],
+latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}],
+latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}],
+latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}],
+latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}]
+and
+latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}].
+
+Whilst 8 distinct colors exist in each of those four words, only two bits of
+modulation data are available for each pixel.
+Subsequently, each pixel at offset
+latexmath:[(x_r = (x - 2) - (4 \times X_\textit{Low}),
+y_r = (y - 2) - (4 \times Y_\textit{Low}))] relative to
+start of the hard transition region has access to a subset of the
+palette as follows:
+
+.Color mappings in local palette mode for PVRTC2 4bpp
+[cols="2^,5^,3^,3^,3^"]
+|====
+| *~Modulation bits~* | *~0,0~* | *~1,0~* | *~2,0~* | *~3,0~*
+| 0
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| 1
+| latexmath:[\left\lfloor{{5\times \textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}+3\times \textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}}\over 8}\right\rfloor]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| 2
+| latexmath:[\left\lfloor{{3\times \textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}+5\times \textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}}\over 8}\right\rfloor]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
+| 3
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
+| *~Modulation bits~* | *~0,1~* | *~1,1~* | *~2,1~* | *~3,1~*
+| 0
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}]
+| 1
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| 2
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
+| 3
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
+| *~Modulation bits~* |*~0,2~* | *~1,2~* | *~2,2~* | *~3,2~*
+| 0
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}]
+| 1
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}]
+| 2
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
+| 3
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
+| *~Modulation bits~* | *~0,3~* | *~1,3~* | *~2,3~* | *~3,3~*
+| 0
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}]
+| 1
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}]
+| 2
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
+| 3
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
+|====
+
+[NOTE]
+====
+The entry for offset 0,0 is interpolated as per PVRTC's standard
+bilinear filtering mode. It will thus only use colors from word
+latexmath:[W_{X_\textit{Low},Y_\textit{Low}}].
+
+&nbsp;
+
+The local palette mode shares with the other modes of PVRTC2 the property
+that the column latexmath:[x_r = 0] has no contribution from words
+latexmath:[W_{X_\mathit{Low}+1, Y_\mathit{Low}}] and
+latexmath:[W_{X_\mathit{Low}+1, Y_\mathit{Low}+1}],
+and that row latexmath:[y_r = 0] has no contribution from words
+latexmath:[W_{X_\mathit{Low}, Y_\mathit{Low}+1}] and
+latexmath:[W_{X_\mathit{Low}+1, Y_\mathit{Low}+1}].
+Therefore any 2{times}2 quad of texel values, required for example by
+bilinear filtering, can be evaluated from a single set of four adjacent
+texel blocks.
+====
+
+* The modulation values correspond to the same entry in the list for each
+  pixel above.
+  For instance, a modulation value of 3 (bit pattern 11) for pixel location
+  0,1 (which is offset 2,3 relative to the top left of block P) would
+  correspond to color latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}] being selected.
+
+* The stored color values are first expanded, _where necessary_, to
+  _ARGB_:4555 (via bit replication for _R_, _G_, or _B_ and via padding
+  for Alpha) and then from 4555 to _ARGB_:8888, again by bit replication.
+  For example,
+
+  ** A three-bit alpha value for **Color A**, _A_^2^_A_^1^_A_^0^, is
+     initially mapped to _A_^2^_A_^1^_A_^0^0, and then to
+     _A_^2^_A_^1^_A_^0^0 _A_^2^_A_^1^_A_^0^0
+
+  ** A four-bit color value, _C_^3^_C_^2^_C_^1^_C_^0^, is first mapped to
+     _C_^3^_C_^2^_C_^1^_C_^0^_C_^3^ and then subsequently to
+     _C_^3^_C_^2^_C_^1^_C_^0^_C_^3^_C_^3^_C_^2^_C_^1^
+
+<<<
+
+=== Format PVRTC2 2bpp
+
+PVRTC2 2bpp data layout has color data laid out identically to PVRTC2 4bpp,
+and modulation data equivalent to PVRTC1 2bpp. The only difference between the
+PVRTC1 and PVRTC2 variants is the addition of the hard transition flag _H_ and
+the single opacity flag _Op_, as specified in the PVRTC2 4bpp format.
+
+.Texel Data format for PVRTC2 2bpp compressed texture formats
+[width="50%"]
+|====
+^s| Bits 63-32: Color data and flags
+^| Identical to PVRTC2 4bpp
+^s| Bits 31-0: Modulation data
+^| Identical to PVRTC1 2bpp
+|====
+
+Color values are interpreted in the same manner as for the PVRTC2 4bpp format.
+
+The 2bpp variation of PVRTC2 is slightly simpler than the 4bpp, in that it only
+uses the non-interpolated mode -- no local palette mode exists.
+
+.Modulation modes for PVRTC2 2bpp
+[cols="1^,1^,2^"]
+|====
+^| *Modulation flag* _M_ ^| *Hard transition* _H_ ^| Mode
+| 0 | 0 | Standard bilinear, 1bpp modulation
+| 1 | 0 | Standard bilinear, interpolated modulation
+| 0 | 1 | Non-interpolated, 1bpp modulation
+| 1 | 1 | Non-interpolated, interpolated modulation
+|====
+
+If the hard transition flag _H_ for PVRTC2 2bpp is equal to 0, the format is
+interpreted in the same manner as the PVRTC1 2bpp format.
+
+When the hard transition flag _H_ for PVRTC2 2bpp is equal to 1, the initial
+bilinear interpolation of block colors across the hard transition region is
+skipped as for PVRTC2 4bpp. Subsequently, the format is interpreted in the same
+way as the PVRTC1 2bpp format.
+
+NOTE: When interpreting modulation data in the interpolated modulation mode,
+the hard transition flag has no effect on this -- the modulation values are
+always interpolated across PVRTC words.

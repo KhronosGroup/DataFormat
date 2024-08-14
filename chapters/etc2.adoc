@@ -1,0 +1,1880 @@
+// Copyright 2014-2024 The Khronos Group Inc.
+// SPDX-License-Identifier: CC-BY-4.0
+
+[[ETC2]]
+== ETC2 Compressed Texture Image Formats
+
+_This description is derived from the ``ETC Compressed Texture Image Formats''
+section of the OpenGL 4.4 specification._
+
+The ETC formats form a family of related compressed texture image formats.
+They are designed to do different tasks, but also to be similar enough
+that hardware can be reused between them. Each one is described in detail
+below, but we will first give an overview of each format and describe how
+it is similar to others and the main differences.
+
+_RGB ETC2_ is a format for compressing _RGB_ data. It
+is a superset of the older ETC1
+format. This means that an older ETC1 texture can be decoded using an
+ETC2-compliant decoder. The main difference is that the
+newer version contains three new modes; the `T-mode' and the `H-mode'
+which are good for sharp chrominance blocks and the `Planar' mode
+which is good for smooth blocks.
+
+_RGB ETC2 with sRGB encoding_ is the same as linear RGB ETC2 with the
+difference that the values should be interpreted as being encoded
+with the sRGB transfer function instead of linear _RGB_-values.
+
+_RGBA ETC2_ encodes _RGBA_ 8-bit data. The _RGB_ part is
+encoded exactly the same way as RGB ETC2. The
+alpha part is encoded separately.
+
+_RGBA ETC2 with sRGB encoding_ is the same as
+RGBA ETC2 but here the _RGB_ values (but not
+the alpha value) should be interpreted as being encoded
+with the sRGB transfer function.
+
+_Unsigned R11 EAC_ is a one-channel unsigned format. It is
+similar to the alpha part of RGBA ETC2 but not exactly the same;
+it delivers higher precision. It is possible to make hardware that can
+decode both formats with minimal overhead.
+
+_Unsigned RG11 EAC_ is a two-channel unsigned format. Each
+channel is decoded exactly as Unsigned R11 EAC.
+
+_Signed R11 EAC_ is a one-channel signed
+format. This is good in situations when it is important to be able to
+preserve zero exactly, and still use both positive and negative
+values. It is designed to be similar enough to
+Unsigned R11 EAC so that hardware can decode both with
+minimal overhead, but it is not exactly the same. For example; the
+signed version does not add 0.5 to the _base codeword_, and the
+extension from 11 bits differ. For all details, see the corresponding
+sections.
+
+_Signed RG11 EAC_ is a two-channel signed
+format. Each channel is decoded exactly as
+signed R11 EAC.
+
+_RGB ETC2 with ``punchthrough'' alpha_ is very similar to
+RGB ETC2, but has the ability to represent
+``punchthrough'' alpha (completely opaque or transparent). Each block
+can select to be completely opaque using one bit. To fit this bit,
+there is no individual mode in
+RGB ETC2 with punchthrough alpha. In other respects,
+the opaque blocks are decoded as in RGB ETC2. For
+the transparent blocks, one index is reserved to represent
+transparency, and the decoding of the _RGB_ channels are also
+affected. For details, see the corresponding sections.
+
+_RGB ETC2 with punchthrough alpha and sRGB encoding_ is the same as
+linear RGB ETC2 with punchthrough alpha but the _RGB_ channel values
+should be interpreted as being encoded with the sRGB transfer function.
+
+A texture compressed using any of the ETC texture image formats is
+described as a number of 4{times}4 pixel blocks.
+
+<<<
+
+Pixel _a_~1~ (see <<ETC28x8>>) of the first block in
+memory will represent the texture coordinate (_u_=0,_&nbsp;v_=0). Pixel
+_a_~2~ in the second block in memory will be adjacent to pixel _m_~1~
+in the first block, etc. until the width of the texture. Then pixel
+_a_~3~ in the following block (third block in memory for an 8{times}8
+texture) will be adjacent to pixel _d_~1~ in the first block, etc.
+until the height of the texture.
+
+The data storage for an 8{times}8 texture using the first, second, third and
+fourth block if stored in that order in memory would have the texels encoded in
+the same order as a simple linear format as if the bytes describing the pixels came
+in the following memory order:
+_a_~1~ _e_~1~ _i_~1~ _m_~1~ _a_~2~ _e_~2~ _i_~2~ _m_~2~
+_b_~1~ _f_~1~ _i_~1~ _n_~1~ _b_~2~ _f_~2~ _i_~2~ _n_~2~
+_c_~1~ _g_~1~ _k_~1~ _o_~1~ _c_~2~ _g_~2~ _k_~2~ _o_~2~
+_d_~1~ _h_~1~ _l_~1~ _p_~1~ _d_~2~ _h_~2~ _l_~2~ _p_~2~
+_a_~3~ _e_~3~ _i_~3~ _m_~3~ _a_~4~ _e_~4~ _i_~4~ _m_~4~
+_b_~3~ _f_~3~ _i_~3~ _n_~3~ _b_~4~ _f_~4~ _i_~4~ _n_~4~
+_c_~3~ _g_~3~ _k_~3~ _o_~3~ _c_~4~ _g_~4~ _k_~4~ _o_~4~
+_d_~3~ _h_~3~ _l_~3~ _p_~3~ _d_~4~ _h_~4~ _l_~4~ _p_~4~.
+
+[[ETC28x8]]
+.Pixel layout for an 8×8 texture using four ETC2 compressed blocks
+image::{images}/ETCletter8x8.svg[width="{svgpdf@pdf:218pt:327}",align="center"]
+
+Note how pixel _a_~3~ in the third block is adjacent to pixel _d_~1~ in the first block.
+
+If the width or height of the texture (or a particular mip-level) is
+not a multiple of four, then padding is added to ensure that the
+texture contains a whole number of 4{times}4 blocks in each
+dimension. The padding does not affect the texel coordinates. For
+example, the texel shown as _a_~1~ in <<ETC28x8>>
+always has coordinates (_i_=0,_&nbsp;j_=0). The values of padding texels
+are irrelevant, e.g., in a 3{times}3 texture, the texels marked as
+_m_~1~, _n_~1~, _o_~1~, _d_~1~, _h_~1~, _l_~1~ and _p_~1~ form padding and
+have no effect on the final texture image.
+
+The number of bits that represent a 4{times}4 texel block is 64 bits
+if the format is RGB ETC2, RGB ETC2 with sRGB encoding, RGBA ETC2 with punchthrough
+alpha, or RGB ETC2 with punchthrough alpha and sRGB encoding.
+
+In those cases the data for a block is stored as a number of bytes,
+\{_q_~0~, _q_~1~, _q_~2~, _q_~3~, _q_~4~, _q_~5~, _q_~6~, _q_~7~\}, where byte
+_q_~0~ is located at the lowest memory address and _q_~7~ at the highest. The 64
+bits specifying the block are then represented by the following 64 bit integer:
+
+[latexmath]
+++++
+\begin{align*}
+\mathit{int64bit} & = 256\times (256\times (256\times (256\times (256\times (256\times (256\times q_0+q_1)+q_2)+q_3)+q_4)+q_5)+q_6)+q_7
+\end{align*}
+++++
+
+The number of bits that represent a 4{times}4 texel block is 128
+bits if the format is RGBA ETC2 with a linear or sRGB transfer function. In
+those cases the data for a block is stored as a number of bytes:
+\{_q_~0~, _q_~1~, _q_~2~, _q_~3~, _q_~4~, _q_~5~, _q_~6~, _q_~7~,
+_q_~8~, _q_~9~, _q_~10~, _q_~11~, _q_~12~, _q_~13~, _q_~14~, _q_~15~\},
+where byte _q_~0~ is located at the lowest memory address and _q_~15~ at
+the highest.
+
+This is split into two 64-bit integers, one used for color channel
+decompression and one for alpha channel decompression:
+
+[latexmath]
+++++
+\begin{align*}
+\mathit{int64bit_{Alpha}} & = 256\times (256\times (256\times (256\times (256\times (256\times (256\times q_0+q_1)+q_2)+q_3)+q_4)+q_5)+q_6)+q_7 \\
+\mathit{int64bit_{Color}} & = 256\times (256\times (256\times (256\times (256\times (256\times (256\times q_8+q_9)+q_{10})+q_{11})+q_{12})+q_{13})+q_{14})+q_{15}
+\end{align*}
+++++
+
+<<<
+
+[[RGBETC2]]
+=== Format RGB ETC2
+
+For RGB ETC2, each 64-bit word contains information about
+a three-channel 4{times}4 pixel block as shown in
+<<Figure-etc2-pixellayout>>.
+
+[[Figure-etc2-pixellayout]]
+.Pixel layout for an ETC2 compressed block
+image::{images}/ETCletterdirections.svg[width="{svgpdf@pdf:115pt:173}",align="center"]
+
+[[Table-etc2-dataformat]]
+.Texel Data format for ETC2 compressed texture formats
+[cols="1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1",width="97%"]
+|====
+32+| [[ETC2ModeSelection]]&nbsp; *a) Location of bits for mode selection*
+^| ~63~ ^| ~62~ ^| ~61~ ^| ~60~ ^| ~59~ ^| ~58~ ^| ~57~ ^| ~56~ ^| ~55~ ^| ~54~ ^| ~53~ ^| ~52~ ^| ~51~ ^| ~50~ ^| ~49~ ^| ~48~ ^| ~47~ ^| ~46~ ^| ~45~ ^| ~44~ ^| ~43~ ^| ~42~ ^| ~41~ ^| ~40~ ^| ~39~ ^| ~38~ ^| ~37~ ^| ~36~ ^| ~35~ ^| ~34~ ^| ~33~ ^| ~32~
+5+^| _R_ 3+^| _R_~d~ 5+^| _G_ 3+^| _G_~d~ 5+^| _B_ 3+^| _B_~d~ 6+^| ...... ^| _D_ ^| .
+32+| [[ETC2IndividualLayout]]&nbsp; *b) Bit layout for bits 63 through 32 for `individual' mode*
+^| ~63~ ^| ~62~ ^| ~61~ ^| ~60~ ^| ~59~ ^| ~58~ ^| ~57~ ^| ~56~ ^| ~55~ ^| ~54~ ^| ~53~ ^| ~52~ ^| ~51~ ^| ~50~ ^| ~49~ ^| ~48~ ^| ~47~ ^| ~46~ ^| ~45~ ^| ~44~ ^| ~43~ ^| ~42~ ^| ~41~ ^| ~40~ ^| ~39~ ^| ~38~ ^| ~37~ ^| ~36~ ^| ~35~ ^| ~34~ ^| ~33~ ^| ~32~
+4+^| _R_ 4+^| _R_~2~ 4+^| _G_ 4+^| _G_~2~ 4+^| _B_ 4+^| _B_~2~ 3+^| _table_~1~ 3+^| _table_~2~ ^| 0 ^| _F~B~_
+32+| [[ETC2DifferentialLayout]]&nbsp; *c) Bit layout for bits 63 through 32 for `differential' mode*
+^| ~63~ ^| ~62~ ^| ~61~ ^| ~60~ ^| ~59~ ^| ~58~ ^| ~57~ ^| ~56~ ^| ~55~ ^| ~54~ ^| ~53~ ^| ~52~ ^| ~51~ ^| ~50~ ^| ~49~ ^| ~48~ ^| ~47~ ^| ~46~ ^| ~45~ ^| ~44~ ^| ~43~ ^| ~42~ ^| ~41~ ^| ~40~ ^| ~39~ ^| ~38~ ^| ~37~ ^| ~36~ ^| ~35~ ^| ~34~ ^| ~33~ ^| ~32~
+5+^| _R_ 3+^| _R_~d~ 5+^| _G_ 3+^| _G_~d~ 5+^| _B_ 3+^| _B_~d~ 3+^| _table_~1~ 3+^| _table_~2~ ^| 1 ^| _F~B~_
+32+| [[ETC2TLayout]]&nbsp; *d) Bit layout for bits 63 through 32 for `T' mode*
+^| ~63~ ^| ~62~ ^| ~61~ ^| ~60~ ^| ~59~ ^| ~58~ ^| ~57~ ^| ~56~ ^| ~55~ ^| ~54~ ^| ~53~ ^| ~52~ ^| ~51~ ^| ~50~ ^| ~49~ ^| ~48~ ^| ~47~ ^| ~46~ ^| ~45~ ^| ~44~ ^| ~43~ ^| ~42~ ^| ~41~ ^| ~40~ ^| ~39~ ^| ~38~ ^| ~37~ ^| ~36~ ^| ~35~ ^| ~34~ ^| ~33~ ^| ~32~
+3+^| ... 2+^| _R_^3..2^ ^| . 2+^| _R_^1..0^ 4+^| _G_ 4+^| _B_ 4+^| _R_~2~ 4+^| _G_~2~ 4+^| _B_~2~ 2+^| _d_~a~ ^| 1 ^| _d_~b~
+32+| [[ETC2HLayout]]&nbsp; *e) Bit layout for bits 63 through 32 for `H' mode*
+^| ~63~ ^| ~62~ ^| ~61~ ^| ~60~ ^| ~59~ ^| ~58~ ^| ~57~ ^| ~56~ ^| ~55~ ^| ~54~ ^| ~53~ ^| ~52~ ^| ~51~ ^| ~50~ ^| ~49~ ^| ~48~ ^| ~47~ ^| ~46~ ^| ~45~ ^| ~44~ ^| ~43~ ^| ~42~ ^| ~41~ ^| ~40~ ^| ~39~ ^| ~38~ ^| ~37~ ^| ~36~ ^| ~35~ ^| ~34~ ^| ~33~ ^| ~32~
+^| . 4+^| _R_ 3+^| _G_^3..1^ 3+^| ... ^| _G_^0^ ^| _B_^3^ ^| . 3+^| _B_^2..0^ 4+^| _R_~2~ 4+^| _G_~2~ 4+^| _B_~2~ ^| _d~a~_ ^| 1 ^| _d~b~_
+32+| [[ETC2LowBits]]&nbsp; *f) Bit layout for bits 31 through 0 for `individual', `differential', `T' and `H' modes*
+^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
+^| _p_^1^ ^| _o_^1^ ^| _n_^1^ ^| _m_^1^ ^| _l_^1^ ^| _k_^1^ ^| _j_^1^ ^| _i_^1^ ^| _h_^1^ ^| _g_^1^ ^| _f_^1^ ^| _e_^1^ ^| _d_^1^ ^| _c_^1^ ^| _b_^1^ ^| _a_^1^ ^| _p_^0^ ^| _o_^0^ ^| _n_^0^ ^| _m_^0^ ^| _l_^0^ ^| _k_^0^ ^| _j_^0^ ^| _i_^0^ ^| _h_^0^ ^| _g_^0^ ^| _f_^0^ ^| _e_^0^ ^| _d_^0^ ^| _c_^0^ ^| _b_^0^ ^| _a_^0^
+32+| [[ETC2Planar]]&nbsp; *g) Bit layout for bits 63 through 0 for `planar' mode*
+^| ~63~ ^| ~62~ ^| ~61~ ^| ~60~ ^| ~59~ ^| ~58~ ^| ~57~ ^| ~56~ ^| ~55~ ^| ~54~ ^| ~53~ ^| ~52~ ^| ~51~ ^| ~50~ ^| ~49~ ^| ~48~ ^| ~47~ ^| ~46~ ^| ~45~ ^| ~44~ ^| ~43~ ^| ~42~ ^| ~41~ ^| ~40~ ^| ~39~ ^| ~38~ ^| ~37~ ^| ~36~ ^| ~35~ ^| ~34~ ^| ~33~ ^| ~32~
+^| . 6+^| _R_ ^| _G_^6^ ^| . 6+^| _G_^5..0^ ^| _B_^5^ 3+^| ... 2+^| _B_^4..3^ ^| . 3+^| _B_^2..0^ 5+^| _R_~h~^5..1^ ^| 1 ^| _R~h~_^0^
+^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
+7+^| _G_~h~ 6+^| _B_~h~ 6+^| _R_~v~ 7+^| _G_~v~ 6+^| _B_~v~
+|====
+
+<<<
+
+The blocks are compressed using one of five different `modes'.
+<<ETC2ModeSelection,Section a>> of <<Table-etc2-dataformat>> shows the
+bits used for determining the mode used in a given block.
+First, if the `differential bit' marked _D_ is set to 0, the `individual'
+mode is used. Otherwise, the three 5-bit values _R_, _G_ and _B_, and the three
+3-bit values _R_~d~, _G_~d~ and _B_~d~ are examined.
+_R_, _G_ and _B_ are treated as integers between 0 and 31 and _R_~d~, _G_~d~ and
+_B_~d~ as two's-complement integers between -4 and +3.
+First, _R_ and _R_~d~ are added, and if the sum is not within the interval
+[0..31], the `T' mode is selected.
+Otherwise, if the sum of _G_ and _G_~d~ is outside the interval [0..31],
+the `H' mode is selected.
+Otherwise, if the sum of _B_ and _B_~d~ is outside of the interval [0..31],
+the `planar' mode is selected.
+Finally, if the _D_ bit is set to 1 and all of the aforementioned sums
+lie between 0 and 31, the `differential' mode is selected.
+
+The layout of the bits used to decode the `individual' and
+`differential' modes are shown in
+<<ETC2IndividualLayout,section b>> and <<ETC2DifferentialLayout,section c>>
+of <<Table-etc2-dataformat>>, respectively.
+Both of these modes share several characteristics.
+In both modes, the 4{times}4 block is split into two subblocks of either
+size 2{times}4 or 4{times}2.
+This is controlled by bit 32, which we dub the _flip bit_  (_F~B~_ in
+<<Table-etc2-dataformat>> (b) and (c)).
+If the _flip bit_ is 0, the block is divided into two 2{times}4
+subblocks side-by-side, as shown in <<Table-etc2-sidebyside>>.
+If the _flip bit_ is 1, the block is divided into two 4{times}2 subblocks
+on top of each other, as shown in <<Table-etc2-ontop>>.
+In both modes, a _base color_ for each subblock is stored, but the way
+they are stored is different in the two modes:
+
+[[Table-etc2-sidebyside]]
+.Two 2{times}4-pixel ETC2 subblocks side-by-side
+image::{images}/ETC2x4.svg[width="{svgpdf@pdf:142pt:213}",align="center"]
+
+[[Table-etc2-ontop]]
+.Two 4{times}2-pixel ETC2 subblocks on top of each other
+image::{images}/ETC4x2.svg[width="{svgpdf@pdf:142pt:213}",align="center"]
+
+In the `individual' mode, following the layout shown in
+<<ETC2IndividualLayout,section b>> of <<Table-etc2-dataformat>>, the
+_base color_ for subblock 1 is derived from the codewords _R_ (bits 63..60),
+_G_ (bits 55..52) and _B_ (bits 47..44).
+These four bit values are extended to _RGB_:888 by replicating the four higher
+order bits in the four lower order bits.
+For instance, if _R_ = 14 = 1110 binary (1110b for short), _G_ = 3 = 0011b
+and _B_ = 8 = 1000b, then the red component of the _base color_
+of subblock 1 becomes 11101110b = 238, and the green and blue
+components become 00110011b = 51 and 10001000b = 136.
+The _base color_ for subblock 2 is decoded the same way, but using the
+4-bit codewords _R_~2~ (bits 59..56), _G_~2~ (bits 51..48) and _B_~2~ (bits 43..40)
+instead.
+In summary, the _base colors_ for the subblocks in the individual mode are:
+
+[latexmath]
+++++
+\begin{align*}
+\mathit{base\ color_{subblock1}} & = \mathit{extend4to8bits}(\mathit{R}, \mathit{G}, \mathit{B}) \\
+\mathit{base\ color_{subblock2}} & = \mathit{extend4to8bits}(\mathit{R}_2, \mathit{G}_2, \mathit{B}_2)
+\end{align*}
+++++
+
+<<<
+
+In the `differential' mode, following the layout shown in
+<<ETC2DifferentialLayout,section c>> of <<Table-etc2-dataformat>>, the
+_base color_ for subblock 1 is derived from the five-bit codewords _R_, _G_ and _B_.
+These five-bit codewords are extended to eight bits by replicating the top
+three highest-order bits to the three lowest-order bits.
+For instance, if _R_&nbsp;=&nbsp;28&nbsp;=&nbsp;11100b, the resulting eight-bit
+red color component becomes 11100111b&nbsp;=&nbsp;231.
+Likewise, if _G_&nbsp;=&nbsp;4&nbsp;=&nbsp;00100b and
+_B_&nbsp;=&nbsp;3&nbsp;=&nbsp;00011b, the green and blue components become
+00100001b = 33 and 00011000b = 24 respectively.
+Thus, in this example, the _base color_ for subblock 1 is
+(231,&nbsp;33,&nbsp;24).
+The five-bit representation for the _base color_ of subblock 2 is obtained
+by modifying the five-bit codewords _R_, _G_ and _B_ by the codewords _R_~d~, _G_~d~
+and _B_~d~.
+Each of _R_~d~, _G_~d~ and _B_~d~ is a 3-bit two's-complement number that can
+hold values between -4 and {plus}3.
+For instance, if _R_&nbsp;=&nbsp;28 as above, and
+_R_~d~&nbsp;=&nbsp;100b&nbsp;=&nbsp;y&nbsp;-&nbsp;4,
+then the five bit representation for the red color component is
+28{plus}(-4)&nbsp;=&nbsp;24&nbsp;=&nbsp;11000b, which is then extended to
+eight bits to 11000110b&nbsp;=&nbsp;198.
+Likewise, if _G_&nbsp;=&nbsp;4, _G_~d~&nbsp;=&nbsp;2, _B_&nbsp;=&nbsp;3 and
+_B_~d~&nbsp;=&nbsp;0, the _base color_ of subblock 2 will be
+_RGB&nbsp;_=&nbsp;198,&nbsp;49,&nbsp;24.
+In summary, the _base colors_ for the subblocks in the `differential' mode
+are:
+
+[latexmath]
+++++
+\begin{align*}
+\mathit{base\ color_{subblock1}} & = \mathit{extend5to8bits}(\mathit{R}, \mathit{G}, \mathit{B}) \\
+\mathit{base\ color_{subblock2}} & = \mathit{extend5to8bits}(\mathit{R}+\mathit{R}_\mathrm{d}, \mathit{G}+\mathit{G}_\mathrm{d}, \mathit{B}+\mathit{B}_\mathrm{d})
+\end{align*}
+++++
+
+Note that these additions will not under- or overflow, or one of the
+alternative decompression modes would have been chosen instead of the
+`differential' mode.
+
+After obtaining the _base color_, the operations are the same for the
+two modes `individual' and `differential'. First a table is chosen
+using the _table codewords_: For subblock 1, _table codeword 1_ is used
+(bits 39..37), and for subblock 2, _table codeword 2_ is used (bits
+36..34), see <<ETC2IndividualLayout,section b>> or <<ETC2DifferentialLayout,section c>>
+of <<Table-etc2-dataformat>>. The _table codeword_ is used to select
+one of eight modifier tables, see <<Table-etc2-modifiers>>. For
+instance, if the _table codeword_ is 010&nbsp;binary&nbsp;=&nbsp;2, then the modifier
+table [-29,&nbsp;-9,&nbsp;9,&nbsp;29] is selected for the corresponding sub-block.
+Note that the values in <<Table-etc2-modifiers>> are valid for all
+textures and can therefore be hardcoded into the decompression unit.
+
+[[Table-etc2-modifiers]]
+.ETC2 intensity modifier sets for `individual' and `differential' modes
+[cols="2,1,1,1,1",width="45%"]
+|====
+^| *_Table codeword_* 4+^.^| Modifier table
+^|          0       >|   -8 &nbsp; >|  -2 &nbsp; >|  2 &nbsp; >|   8 &nbsp;
+^|          1       >|  -17 &nbsp; >|  -5 &nbsp; >|  5 &nbsp; >|  17 &nbsp;
+^|          2       >|  -29 &nbsp; >|  -9 &nbsp; >|  9 &nbsp; >|  29 &nbsp;
+^|          3       >|  -42 &nbsp; >| -13 &nbsp; >| 13 &nbsp; >|  42 &nbsp;
+^|          4       >|  -60 &nbsp; >| -18 &nbsp; >| 18 &nbsp; >|  60 &nbsp;
+^|          5       >|  -80 &nbsp; >| -24 &nbsp; >| 24 &nbsp; >|  80 &nbsp;
+^|          6       >| -106 &nbsp; >| -33 &nbsp; >| 33 &nbsp; >| 106 &nbsp;
+^|          7       >| -183 &nbsp; >| -47 &nbsp; >| 47 &nbsp; >| 183 &nbsp;
+|====
+
+[[Table-etc2-pixelindices]]
+.Mapping from pixel index values to modifier values for RGB ETC2 compressed textures
+[cols="1,1,3",width="50%"]
+|====
+2+^.^| *_Pixel index_ value* .2+^.^| *Resulting _modifier_ value*
+^| *MSB* ^| *LSB*
+^| 1 ^| 1 | &nbsp; -b (large negative value)
+^| 1 ^| 0 | &nbsp; -a (small negative value)
+^| 0 ^| 0 | &nbsp; {plus}a (small positive value)
+^| 0 ^| 1 | &nbsp; {plus}b (large positive value)
+|====
+
+Next, we identify which _modifier_ value to use from the modifier table
+using the two _pixel index_ bits. The _pixel index_ bits are unique for
+each pixel. For instance, the _pixel index_ for pixel _d_ (see
+<<Figure-etc2-pixellayout>>) can be found in bits 19 (most
+significant bit, MSB), and 3 (least significant bit, LSB), see
+<<ETC2LowBits,section f>> of <<Table-etc2-dataformat>>.
+Note that the pixel index for a particular texel is always stored in
+the same bit position,
+irrespectively of bits _diff bit_ and _flip bit_. The _pixel index_ bits
+are decoded using <<Table-etc2-pixelindices>>.
+If, for instance, the _pixel index_ bits are 01 binary = 1, and the
+modifier table [-29,&nbsp;-9,&nbsp;9,&nbsp;29] is used, then the _modifier_
+value selected for that pixel is 29 (see <<Table-etc2-pixelindices>>).
+This _modifier_ value is now used to additively modify the _base color_.
+For example, if we have the _base color_ (231,&nbsp;8,&nbsp;16), we should add
+the _modifier_ value 29 to all three components: (231+29,&nbsp;8+29,&nbsp;16+29)
+resulting in (260,&nbsp;37,&nbsp;45).
+These values are then clamped to [0..255], resulting in the color
+(255,&nbsp;37,&nbsp;45), and we are finished decoding the texel.
+
+[NOTE]
+====
+[[etc2-individual-example]]
+<<Figure-etc2-individual>> shows an example `individual mode' ETC2 block.
+The two _base colors_ are shown as circles, and _modifiers_ are applied
+to each channel to give the `paint colors' selectable by each _pixel index_,
+shown as small diamonds.
+Since the same _modifier_ is applied to each channel, each _paint color_
+for a subblock falls on a line (shown dashed) parallel to the grayscale
+(0,&nbsp;0,&nbsp;0) to (255,&nbsp;255,&nbsp;255) axis, unless the
+channels are modified by clamping to the range [0..255].
+
+[[Figure-etc2-individual]]
+.ETC2 `individual' mode
+image::{images}/ETC1Ind.svg[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
+
+In this example, one _base color_ is encoded as the 4-bit triple
+(4,&nbsp;11,&nbsp;9), which is expanded by _extend4to8bits_ to
+(68,&nbsp;187,&nbsp;153).
+Modifier table 4 [-60,&nbsp;-18,&nbsp;18,&nbsp;60] is selected for this subblock,
+giving the following _paint colors_:
+
+[options="header",width="25%",cols="2,1,1,1"]
+|====
+^| Modifier ^| _R_ ^| _G_ ^| _B_
+^| -60 &nbsp; >|   8 &nbsp; >| 127 &nbsp; >|  93 &nbsp;
+^| -18 &nbsp; >|  58 &nbsp; >| 169 &nbsp; >| 135 &nbsp;
+^|  18 &nbsp; >|  86 &nbsp; >| 205 &nbsp; >| 171 &nbsp;
+^|  60 &nbsp; >| 128 &nbsp; >| 247 &nbsp; >| 213 &nbsp;
+|====
+
+The other _base color_ is encoded as the 4-bit triple
+(14,&nbsp;3,&nbsp;8), which is expanded by _extend4to8bits_ to
+(238,&nbsp;51,&nbsp;136).
+Modifier table 0 [-8,&nbsp;-2,&nbsp;2,&nbsp;8] is selected for this
+subblock, giving the following _paint colors_ for the subblock:
+
+[options="header",width="25%",cols="2,1,1,1"]
+|====
+^| Modifier ^| _R_ ^| _G_ ^| _B_
+^| -8 >| 230 &nbsp; >| 43 &nbsp; >| 128 &nbsp;
+^| -2 >| 236 &nbsp; >| 49 &nbsp; >| 134 &nbsp;
+^|  2 >| 240 &nbsp; >| 53 &nbsp; >| 138 &nbsp;
+^|  8 >| 246 &nbsp; >| 59 &nbsp; >| 144 &nbsp;
+|====
+
+In this example, none of the _paint colors_ are modified by the process of
+clipping the channels to the range [0..255].
+Since there is no difference in the way the _base colors_ are encoded
+in `individual mode', either _base color_ could correspond to either
+subblock.
+
+====
+
+[NOTE]
+====
+[[etc2-differential-example]]
+<<Figure-etc2-differential>> shows an example `differential mode' ETC2 block.
+The two _base colors_ are shown as circles; an arrow shows the _base color_
+of the second subblock (the upper left circle) derived from the first
+subblock's _base color_ (lower right circle).
+_Modifiers_ to the _base colors_ give `paint colors' selectable by each
+_pixel index_, shown as small diamonds.
+Since the same _modifier_ is applied to each channel, each _paint color_
+for a subblock falls on a line (shown dashed) parallel to the grayscale
+(0,&nbsp;0,&nbsp;0) to (255,&nbsp;255,&nbsp;255) axis, unless channels are
+modified by clamping to [0..255].
+
+[[Figure-etc2-differential]]
+.ETC2 `differential' mode
+image::{images}/ETC1Diff.svg[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
+
+Here the first subblock's _base color_ is encoded as the 5-bit triple
+(29,&nbsp;26,&nbsp;8), and expanded by _extend5to8bits_ to
+(239,&nbsp;214,&nbsp;66).
+Note that not every color representable in `individual mode', exists
+in `differential mode', or vice-versa.
+
+&nbsp;
+
+The _base color_ of subblock 2 is the five-bit representation of the
+_base color_ of subblock 1 (29,&nbsp;26,&nbsp;8) plus a
+(_R_~d~,_&nbsp;G_~d~,_&nbsp;B_~d~) offset of (-4,&nbsp;-3,&nbsp;{plus}3),
+for a new _base color_ of (25,&nbsp;23,&nbsp;11) - expanded by
+_extend5to8bits_ to (206,&nbsp;189,&nbsp;90).
+The offset cannot exceed the range [0..31] (expanded to [0..255]):
+this would select the `T', `H' or `planar' modes.
+For `differential mode', the _base colors_ must be similar in each
+channel.
+The two's complement offset gives an asymmetry: we could not swap the
+subblocks of this example, since a _R_~d~ offset of {plus}4 is unrepresentable.
+
+&nbsp;
+
+In this example, modifier table 2 [-29,&nbsp;-9,&nbsp;9,&nbsp;29] is
+applied to subblock 1's _base color_ of (239,&nbsp;214,&nbsp;66):
+
+[options="header",width="25%",cols="2,1,1,1"]
+|====
+^| Modifier ^| _R_ ^| _G_ ^| _B_
+^| -29 >| 210 &nbsp; >| 185 &nbsp; >| 37 &nbsp;
+^|  -9 >| 230 &nbsp; >| 205 &nbsp; >| 57 &nbsp;
+^|   9 >| 248 &nbsp; >| 223 &nbsp; >| 75 &nbsp;
+^|  29 >| 268 &nbsp; >| 243 &nbsp; >| 95 &nbsp;
+|====
+
+The last row is clamped to  (255,&nbsp;243,&nbsp;95), so subblock 1's
+_paint colors_ are not colinear in this example.
+With _modifiers_, all grays [0..255] are representable.
+Similarly, modifier table 3 [-42,&nbsp;-13,&nbsp;13,&nbsp;42] is applied to
+the _base color_ of subblock 2, (206,&nbsp;189,&nbsp;90):
+
+[options="header",width="25%",cols="2,1,1,1"]
+|====
+^| Modifier ^| _R_ ^| _G_ ^| _B_
+^| -42 >| 164 &nbsp; >| 147 &nbsp; >|  48 &nbsp;
+^| -13 >| 193 &nbsp; >| 176 &nbsp; >|  77 &nbsp;
+^|  13 >| 219 &nbsp; >| 202 &nbsp; >| 103 &nbsp;
+^|  42 >| 248 &nbsp; >| 231 &nbsp; >| 132 &nbsp;
+|====
+
+====
+
+<<<
+
+The `T' and `H' compression modes also share some characteristics:
+both use two _base colors_ stored using 4 bits per channel decoded as in
+the individual mode. Unlike the `individual' mode however, these bits
+are not stored sequentially, but in the layout shown in
+<<ETC2TLayout,section d>> and <<ETCHLayout,section e>> of
+<<Table-etc2-dataformat>>. To clarify, in the `T' mode, the two
+colors are constructed as follows:
+
+[latexmath]
+++++
+\begin{align*}
+\mathit{base\ color\ 1} & = \mathit{extend4to8bits}(\: (\mathit{R}^{3..2} \ll 2)\: | \: \mathit{R}^{1..0}, \: \mathit{G}, \: \mathit{B}) \\
+\mathit{base\ color\ 2} & = \mathit{extend4to8bits}(\mathit{R}_2, \: \mathit{G}_2, \: \mathit{B}_2)
+\end{align*}
+++++
+
+Here, latexmath:[\ll] denotes bit-wise left shift and latexmath:[|]
+denotes bit-wise OR.
+In the `H' mode, the two colors are constructed as follows:
+
+[latexmath]
+++++
+\begin{align*}
+\mathit{base\ color\ 1} & = \mathit{extend4to8bits}(\mathit{R}, \: (\mathit{G}^{3..1} \ll 1) \: | \: \mathit{G}^0, \: (\mathit{B}^3 \ll 3) \: | \: \mathit{B}^{2..0}) \\
+\mathit{base\ color\ 2} & = \mathit{extend4to8bits}(\mathit{R}_2, \: \mathit{G}_2, \: \mathit{B}_2)
+\end{align*}
+++++
+
+Both the `T' and `H' modes have four _paint colors_ which are the
+colors that will be used in the decompressed block, but they are
+assigned in a different manner.
+In the `T' mode, _paint color 0_ is simply the first _base color_,
+and _paint color 2_ is the second _base color_.
+To obtain the other _paint colors_, a `distance' is first
+determined, which will be used to modify the luminance of one of the
+_base colors_.
+This is done by combining the values _d~a~_ and _d~b~_ shown
+in <<ETC2TLayout,section d>> of <<Table-etc2-dataformat>> by
+(_d~a~_ latexmath:[\ll] 1) | _d~b~_,
+and then using this value as an index into the small look-up table shown
+in <<Table-etc2-distancetable>>.
+For example, if _d~a~_ is 10 binary and _d~b~_ is 1 binary, the _distance index_
+is 101 binary and the selected `distance' _d_ will be 32.
+_Paint color 1_ is then equal to the second _base color_ with the `distance' _d_
+added to each channel, and _paint color 3_ is the second _base color_ with
+the `distance' _d_ subtracted.
+
+[[Table-etc2-distancetable]]
+.Distance table for ETC2 `T' and `H' modes
+[options="header",width="25%"]
+|====
+^.^| Distance index ^.^| Distance _d_
+^| 0 ^| 3
+^| 1 ^| 6
+^| 2 ^| 11
+^| 3 ^| 16
+^| 4 ^| 23
+^| 5 ^| 32
+^| 6 ^| 41
+^| 7 ^| 64
+|====
+
+In summary, to determine the four _paint colors_ for a `T' block:
+
+[latexmath]
+++++
+\begin{align*}
+\mathit{paint\ color\ 0} & = \mathit{base\ color\ 1} \\
+\mathit{paint\ color\ 1} & = \mathit{base\ color\ 2 + (d, d, d)} \\
+\mathit{paint\ color\ 2} & = \mathit{base\ color\ 2} \\
+\mathit{paint\ color\ 3} & = \mathit{base\ color\ 2 - (d, d, d)}
+\end{align*}
+++++
+
+In both cases, the value of each channel is clamped to within [0..255].
+
+[NOTE]
+====
+
+<<Figure-etc2-T>> shows an example `T-mode' ETC2 block.
+The two _base colors_ are shown as circles, and _modifiers_ are applied
+to _base color 2_ to give the other two `paint colors', shown as small
+diamonds.
+Since the same _modifier_ is applied to each channel, _base color 2_ and the
+two _paint colors_ derived from it fall on a line (shown dashed) parallel
+to the grayscale (0,&nbsp;0,&nbsp;0) to (255,&nbsp;255,&nbsp;255) axis, unless
+channels are modified by clamping to [0..255].
+
+[[Figure-etc2-T]]
+.ETC2 `T' mode
+image::{images}/ETC2T.svg[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
+
+In this example, the first _base color_ is defined as the triple of 4-bit
+_RGB_ values (13,&nbsp;1,&nbsp;8), which is expanded by _extend4to8bits_ to
+(221,&nbsp;17,&nbsp;136).
+This becomes _paint color 0_.
+
+&nbsp;
+
+The second _base color_ is encoded as the triple of 4-bit _RGB_ values
+(4,&nbsp;12,&nbsp;13), which is expanded by _extend4to8bits_ to
+(68,&nbsp;204,&nbsp;221).
+
+&nbsp;
+
+_Distance index_ 5 is used to select a distance value _d_ of 32, which
+is added to and subtracted from the second base color, giving
+(100,&nbsp;236,&nbsp;253) as _paint color 1_ and (36,&nbsp;172,&nbsp;189)
+as _paint color 3_.
+On this occasion, the channels of these _paint colors_ are not modified
+by the process of clamping them to [0..255].
+
+====
+
+A `distance' value is computed for the `H' mode as well, but doing so
+is slightly more complex. In order to construct the three-bit index
+into the distance table shown in <<Table-etc2-distancetable>>, _d~a~_
+and _d~b~_ shown in <<ETC2HLayout,section e>> of <<Table-etc2-dataformat>> are used as the
+most significant bit and middle bit, respectively, but the least
+significant bit is computed as (_base color 1_ value latexmath:[\geq] _base color 2_
+value), the `value' of a color for the comparison being equal to
+(_R_&nbsp;latexmath:[\ll]&nbsp;16)&nbsp;{plus}&nbsp;(_G_&nbsp;latexmath:[\ll]&nbsp;8)&nbsp;+_&nbsp;B_.
+Once the `distance' _d_ has been determined for an `H' block, the four
+_paint colors_ will be:
+
+[latexmath]
+++++
+\begin{align*}
+\mathit{paint\ color\ 0} & = \mathit{base\ color\ 1 + (d, d, d)} \\
+\mathit{paint\ color\ 1} & = \mathit{base\ color\ 1 - (d, d, d)} \\
+\mathit{paint\ color\ 2} & = \mathit{base\ color\ 2 + (d, d, d)} \\
+\mathit{paint\ color\ 3} & = \mathit{base\ color\ 2 - (d, d, d)}
+\end{align*}
+++++
+
+Again, all color components are clamped to within [0..255].
+
+[NOTE]
+====
+<<Figure-etc2-H>> shows an example `H mode' ETC2 block.
+The two _base colors_ are shown as circles, and _modifiers_ are applied
+to each channel to give the `paint colors' selectable by each _pixel index_,
+shown as small diamonds.
+Since the same _modifier_ is applied to each channel, each _paint color_
+falls on a line through the _base color_ from which it is derived (shown
+dashed) parallel to the grayscale (0,&nbsp;0,&nbsp;0) to
+(255,&nbsp;255,&nbsp;255) axis, unless the channels are modified by clamping
+to the range [0..255].
+
+[[Figure-etc2-H]]
+.ETC2 `H' mode
+image::{images}/ETC2H.svg[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
+
+In this example, the first _base color_ is defined as the triple of 4-bit
+_RGB_ values (13,&nbsp;1,&nbsp;8), as in the `T mode' case above.
+This is expanded by _extend4to8bits_ to (221,&nbsp;17,&nbsp;136).
+
+&nbsp;
+
+The second _base color_ is defined as the 4-bit triple (4,&nbsp;12,&nbsp;13),
+which expands to (68,&nbsp;204,&nbsp;221).
+
+&nbsp;
+
+The block encodes a _distance index_ of 5 (this means that _base color 1_
+must be greater than _base color 2_), corresponding to a distance _d_
+of 32. This leads to the following _paint colors_:
+
+[width="50%",cols="2,1,1,1,2,1,1,1"]
+|====
+.2+^.^| *_Paint color_ id* 3+^| *_Base color_* ^| *Distance* 3+^| *_Paint color_*
+^| *_R_* ^| *_G_* ^| *_B_* ^| *_d_* ^| *_R_* ^| *_G_* ^| *_B_*
+^| 0 .2+>.^| 221 .2+>.^| 17 .2+>.^| 136 ^| {plus}32 >| 253 &nbsp; >| 49 &nbsp; >| 168 &nbsp;
+^| 1 ^| -32 >| 189 &nbsp; >| -15 &nbsp; >| 104 &nbsp;
+^| 2 .2+>.^| 68 .2+>.^| 204 .2+>.^| 221 ^| {plus}32 >| 100 &nbsp; >| 236 &nbsp; >| 253 &nbsp;
+^| 3 ^| -32 >| 36 &nbsp; >| 172 &nbsp; >| 189 &nbsp;
+|====
+
+The _G_ channel of _paint color 1_ is clamped to 0, giving
+(189,&nbsp;0,&nbsp;104). This stops _paint color_ 1 being
+colinear with _paint color 0_ and _base color 1_.
+
+====
+
+Finally, in both the `T' and `H' modes, every pixel is assigned one of the four
+_paint colors_ in the same way the four _modifier_ values are
+distributed in `individual' or `differential' blocks. For example, to
+choose a _paint color_ for pixel _d_, an index is constructed using bit 19
+as most significant bit and bit 3 as least significant bit. Then, if a
+pixel has index 2, for example, it will be assigned _paint color 2_.
+
+<<<
+
+The final mode possible in an RGB ETC2-compressed block is the
+`planar' mode.  Here, three _base colors_ are supplied and used to form
+a color plane used to determine the color of the individual pixels in
+the block.
+
+All three _base colors_ are stored in _RGB_:676 format, and stored in the
+manner shown in <<ETC2Planar,section g>> of <<Table-etc2-dataformat>>.
+The two secondary colors are given the suffix `h' and `v', so that the
+red component of the three colors are _R_, _R_~h~ and _R_~v~, for example.
+Some color channels are split into non-consecutive bit-ranges; for
+example _B_ is reconstructed using _B_^5^ as the most-significant bit,
+_B_^4..3^ as the two following bits, and _B_^2..0^ as the three
+least-significant bits.
+
+Once the bits for the _base colors_ have been extracted, they must be
+extended to 8 bits per channel in a manner analogous to the method
+used for the _base colors_ in other modes. For example, the 6-bit blue
+and red channels are extended by replicating the two most significant
+of the six bits to the two least significant of the final 8 bits.
+
+With three _base colors_ in _RGB_:888 format, the color of each pixel can
+then be determined as:
+
+[latexmath]
+++++
+\begin{align*}
+\mathit{R}(x,y) & = {x\times (\mathit{R}_\mathrm{h}-\mathit{R})\over 4.0} + {y\times (\mathit{R}_\mathrm{v}-\mathit{R})\over 4.0} + \mathit{R} \\
+\mathit{G}(x,y) & = {x\times (\mathit{G}_\mathrm{h}-\mathit{G})\over 4.0} + {y\times (\mathit{G}_\mathrm{v}-\mathit{G})\over 4.0} + \mathit{G} \\
+\mathit{B}(x,y) & = {x\times (\mathit{B}_\mathrm{h}-\mathit{B})\over 4.0} + {y\times (\mathit{B}_\mathrm{v}-\mathit{B})\over 4.0} + \mathit{B}
+\end{align*}
+++++
+
+where _x_ and _y_ are values from 0 to 3 corresponding
+to the pixels coordinates within the block, _x_ being in the
+_u_ direction and _y_ in the _v_ direction.
+For example, the pixel _g_ in <<Figure-etc2-pixellayout>> would have
+_x&nbsp;_=&nbsp;1 and _y&nbsp;_=&nbsp;2.
+
+These values are then rounded to the nearest integer (to the larger
+integer if there is a tie) and then clamped to a value between 0 and 255.
+Note that this is equivalent to
+
+[latexmath]
+++++
+\begin{align*}
+\mathit{R}(x,y) & = \mathit{clamp255}((x\times (\mathit{R}_\mathrm{h}-\mathit{R}) + y\times (\mathit{R}_\mathrm{v}-\mathit{R}) + 4\times \mathit{R} + 2) \gg 2) \\
+\mathit{G}(x,y) & = \mathit{clamp255}((x\times (\mathit{G}_\mathrm{h}-\mathit{G}) + y\times (\mathit{G}_\mathrm{v}-\mathit{G}) + 4\times \mathit{G} + 2) \gg 2) \\
+\mathit{B}(x,y) & = \mathit{clamp255}((x\times (\mathit{B}_\mathrm{h}-\mathit{B}) + y\times (\mathit{B}_\mathrm{v}-\mathit{B}) + 4\times \mathit{B} + 2) \gg 2)
+\end{align*}
+++++
+
+where _clamp255_({cdot}) clamps the value to a number in the range
+[0..255] and where latexmath:[\gg] performs bit-wise right shift.
+
+This specification gives the output for each compression mode in 8-bit
+integer colors between 0 and 255, and these values all need to be
+divided by 255 for the final floating point representation.
+
+[NOTE]
+====
+<<Figure-etc2-planar>> shows an example `planar mode' ETC2 block.
+The three _base colors_ are shown as circles, and the interpolated
+values are shown as small diamonds.
+
+[[Figure-etc2-planar]]
+.ETC2 `planar' mode
+image::{images}/ETC2P.svg[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
+
+In this example, the origin (_R_,_&nbsp;G_,_&nbsp;B_) is encoded as the 6-7-6-bit
+value (12,&nbsp;64,&nbsp;62), which is expanded to (48,&nbsp;129,&nbsp;251).
+The `horizontal' (interpolated by _x_) _base color_
+(_R_~h~,_&nbsp;G_~h~,_&nbsp;B_~h~) = (50,&nbsp;5,&nbsp;37) and `vertical'
+(interpolated by _y_) _base color_ (_R_~v~,_&nbsp;G_~v~,_&nbsp;B_~v~) =
+(40,&nbsp;112,&nbsp;45) expand to (203,&nbsp;10,&nbsp;150) and
+(162,&nbsp;225,&nbsp;182) respectively.
+
+&nbsp;
+
+The resulting texel colors are then:
+
+[options="header",width="25%",cols="1,1,1,1,1"]
+|====
+^| _x_ ^| _y_ ^| _R_ ^| _G_ ^| _B_
+^| 0 ^| 0 >|  48 &nbsp; >| 129 &nbsp; >| 251 &nbsp;
+^| 1 ^| 0 >|  87 &nbsp; >|  99 &nbsp; >| 226 &nbsp;
+^| 2 ^| 0 >| 126 &nbsp; >|  70 &nbsp; >| 201 &nbsp;
+^| 3 ^| 0 >| 164 &nbsp; >|  40 &nbsp; >| 175 &nbsp;
+^| 0 ^| 1 >|  77 &nbsp; >| 153 &nbsp; >| 234 &nbsp;
+^| 1 ^| 1 >| 115 &nbsp; >| 123 &nbsp; >| 209 &nbsp;
+^| 2 ^| 1 >| 154 &nbsp; >|  94 &nbsp; >| 183 &nbsp;
+^| 3 ^| 1 >| 193 &nbsp; >|  64 &nbsp; >| 158 &nbsp;
+^| 0 ^| 2 >| 105 &nbsp; >| 177 &nbsp; >| 217 &nbsp;
+^| 1 ^| 2 >| 144 &nbsp; >| 147 &nbsp; >| 191 &nbsp;
+^| 2 ^| 2 >| 183 &nbsp; >| 118 &nbsp; >| 166 &nbsp;
+^| 3 ^| 2 >| 221 &nbsp; >|  88 &nbsp; >| 141 &nbsp;
+^| 0 ^| 3 >| 134 &nbsp; >| 201 &nbsp; >| 199 &nbsp;
+^| 1 ^| 3 >| 172 &nbsp; >| 171 &nbsp; >| 174 &nbsp;
+^| 2 ^| 3 >| 211 &nbsp; >| 142 &nbsp; >| 149 &nbsp;
+^| 3 ^| 3 >| 250 &nbsp; >| 112 &nbsp; >| 124 &nbsp;
+|====
+
+====
+
+=== Format RGB ETC2 with sRGB encoding
+
+Decompression of floating point sRGB values in RGB ETC2 with sRGB encoding
+follows that of floating point _RGB_ values of linear RGB ETC2.
+The result is sRGB-encoded values between 0.0 and 1.0.
+The further conversion from an sRGB encoded component _cs_
+to a linear component _cl_ is done according to the formulae
+in <<TRANSFER_SRGB>>.
+Assume _cs_ is the sRGB component in the range [0,&nbsp;1].
+
+<<<
+[[RGBAETC2]]
+=== Format RGBA ETC2
+
+Each 4{times}4 block of _RGBA_:8888 information is compressed to 128
+bits.
+To decode a block, the two 64-bit integers _int64bit~Alpha~_ and
+_int64bit~Color~_ are calculated as described in
+<<RGBETC2>>.
+The _RGB_ component is then decoded the same way as for RGB ETC2
+(see <<RGBETC2>>), using _int64bit~Color~_ as the _int64bit_ codeword.
+
+[[Table-etc2eac-dataformat]]
+.Texel Data format for alpha part of RGBA ETC2 compressed textures
+ifdef::a2xhtml[]
+[width="60%"]
+endif::[]
+ifndef::a2xhtml[]
+[width="60%"]
+endif::[]
+|====
+16+| &nbsp; *a) Bit layout in bits 63 through 48*
+^| ~63~ ^| ~62~ ^| ~61~ ^| ~60~ ^| ~59~ ^| ~58~ ^| ~57~ ^| ~56~ ^| ~55~ ^| ~54~ ^| ~53~ ^| ~52~ ^| ~51~ ^| ~50~ ^| ~49~ ^| ~48~
+8+^| _base codeword_ 4+^| _multiplier_ 4+^| _table index_
+16+| &nbsp; *b) Bit layout in bits 47 through 0, with pixels as name in <<Figure-etc2-pixellayout>>,*
+
+&nbsp; *bits labeled from 0 being the LSB to 47 being the MSB*
+^| ~47~ ^| ~46~ ^| ~45~ ^| ~44~ ^| ~43~ ^| ~42~ ^| ~41~ ^| ~40~ ^| ~39~ ^| ~38~ ^| ~37~ ^| ~36~ ^| ~35~ ^| ~34~ ^| ~33~ ^| ~32~
+^| _a_~{alpha}~^2^ ^| _a_~{alpha}~^1^ ^| _a_~{alpha}~^0^ ^| _b_~{alpha}~^2^ ^| _b_~{alpha}~^1^ ^| _b_~{alpha}~^0^ ^| _c_~{alpha}~^2^ ^| _c_~{alpha}~^1^ ^| _c_~{alpha}~^0^ ^| _d_~{alpha}~^2^ ^| _d_~{alpha}~^1^ ^| _d_~{alpha}~^0^ ^| _e_~{alpha}~^2^ ^| _e_~{alpha}~^1^ ^| _e_~{alpha}~^0^ ^| _f_~{alpha}~^2^
+^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~
+^| _f_~{alpha}~^1^ ^| _f_~{alpha}~^0^ ^| _g_~{alpha}~^2^ ^| _g_~{alpha}~^1^ ^| _g_~{alpha}~^0^ ^| _h_~{alpha}~^2^ ^| _h_~{alpha}~^1^ ^| _h_~{alpha}~^0^ ^| _i_~{alpha}~^2^ ^| _i_~{alpha}~^1^ ^| _i_~{alpha}~^0^ ^| _j_~{alpha}~^2^ ^| _j_~{alpha}~^1^ ^| _j_~{alpha}~^0^ ^| _k_~{alpha}~^2^ ^| _k_~{alpha}~^1^
+^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
+^| _k_~{alpha}~^0^ ^| _l_~{alpha}~^2^ ^| _l_~{alpha}~^1^ ^| _l_~{alpha}~^0^ ^| _m_~{alpha}~^2^ ^| _m_~{alpha}~^1^ ^| _m_~{alpha}~^0^ ^| _n_~{alpha}~^2^ ^| _n_~{alpha}~^1^ ^| _n_~{alpha}~^0^ ^| _o_~{alpha}~^2^ ^| _o_~{alpha}~^1^ ^| _o_~{alpha}~^0^ ^| _p_~{alpha}~^2^ ^| _p_~{alpha}~^1^ ^| _p_~{alpha}~^0^
+|====
+
+The 64-bits in _int64bit~Alpha~_ used to decompress the alpha channel
+are laid out as shown in <<Table-etc2eac-dataformat>>. The information
+is split into two parts. The first 16 bits comprise a _base codeword_,
+a _table codeword_ and a _multiplier_, which are used together to compute
+8 pixel values to be used in the block. The remaining 48 bits are
+divided into 16 3-bit indices, which are used to select one of these 8
+possible values for each pixel in the block.
+
+[NOTE]
+====
+The color pixel indices are stored in _a_.._p_ order in increasing bit
+order in a big-endian word representation, with the low bit stored
+separately from the high bit.
+However, the alpha indices are stored in _p_.._a_ order in increasing
+bit order in a big-endian word representation, with each bit of each
+alpha index stored consecutively.
+====
+
+The decoded value of a pixel is a value between 0 and 255 and is
+calculated the following way:
+
+[[Equation-etc2eac-eqn-base]]
+.ETC2 base
+[latexmath]
+++++
+\begin{align*}
+\mathit{clamp255}(\mathit{base\ codeword} + \mathit{modifier}\times \mathit{multiplier})
+\end{align*}
+++++
+
+where _clamp255_({cdot}) maps values outside the range
+[0..255] to 0.0 or 255.0.
+
+The _base codeword_ is stored in the first 8 bits (bits 63..56) as
+shown in <<Table-etc2eac-dataformat>> part (a).
+This is the first term in <<Equation-etc2eac-eqn-base>>.
+
+<<<
+Next, we want to obtain the _modifier_. Bits 51..48 in
+<<Table-etc2eac-dataformat>> part (a) form a 4-bit index used to select
+one of 16 pre-determined `modifier tables', shown in
+<<Table-etc2eac-modifiers>>.
+
+[[Table-etc2eac-modifiers]]
+.Intensity modifier sets for RGBA ETC2 alpha component
+[cols="20%,10%,10%,10%,10%,10%,10%,10%,10%",width="60%",options="header"]
+|====
+^| _Table index_ 8+^| Modifier table
+>|  0 &nbsp; >| -3 &nbsp; >| -6 &nbsp; >| -9 &nbsp;  >| -15 &nbsp; >| 2 &nbsp; >| 5 &nbsp; >| 8 &nbsp; >| 14 &nbsp;
+>|  1 &nbsp; >| -3 &nbsp; >| -7 &nbsp; >| -10 &nbsp; >| -13 &nbsp; >| 2 &nbsp; >| 6 &nbsp; >| 9 &nbsp; >| 12 &nbsp;
+>|  2 &nbsp; >| -2 &nbsp; >| -5 &nbsp; >| -8 &nbsp;  >| -13 &nbsp; >| 1 &nbsp; >| 4 &nbsp; >| 7 &nbsp; >| 12 &nbsp;
+>|  3 &nbsp; >| -2 &nbsp; >| -4 &nbsp; >| -6 &nbsp;  >| -13 &nbsp; >| 1 &nbsp; >| 3 &nbsp; >| 5 &nbsp; >| 12 &nbsp;
+>|  4 &nbsp; >| -3 &nbsp; >| -6 &nbsp; >| -8 &nbsp;  >| -12 &nbsp; >| 2 &nbsp; >| 5 &nbsp; >| 7 &nbsp; >| 11 &nbsp;
+>|  5 &nbsp; >| -3 &nbsp; >| -7 &nbsp; >| -9 &nbsp;  >| -11 &nbsp; >| 2 &nbsp; >| 6 &nbsp; >| 8 &nbsp; >| 10 &nbsp;
+>|  6 &nbsp; >| -4 &nbsp; >| -7 &nbsp; >| -8 &nbsp;  >| -11 &nbsp; >| 3 &nbsp; >| 6 &nbsp; >| 7 &nbsp; >| 10 &nbsp;
+>|  7 &nbsp; >| -3 &nbsp; >| -5 &nbsp; >| -8 &nbsp;  >| -11 &nbsp; >| 2 &nbsp; >| 4 &nbsp; >| 7 &nbsp; >| 10 &nbsp;
+>|  8 &nbsp; >| -2 &nbsp; >| -6 &nbsp; >| -8 &nbsp;  >| -10 &nbsp; >| 1 &nbsp; >| 5 &nbsp; >| 7 &nbsp; >|  9 &nbsp;
+>|  9 &nbsp; >| -2 &nbsp; >| -5 &nbsp; >| -8 &nbsp;  >| -10 &nbsp; >| 1 &nbsp; >| 4 &nbsp; >| 7 &nbsp; >|  9 &nbsp;
+>| 10 &nbsp; >| -2 &nbsp; >| -4 &nbsp; >| -8 &nbsp;  >| -10 &nbsp; >| 1 &nbsp; >| 3 &nbsp; >| 7 &nbsp; >|  9 &nbsp;
+>| 11 &nbsp; >| -2 &nbsp; >| -5 &nbsp; >| -7 &nbsp;  >| -10 &nbsp; >| 1 &nbsp; >| 4 &nbsp; >| 6 &nbsp; >|  9 &nbsp;
+>| 12 &nbsp; >| -3 &nbsp; >| -4 &nbsp; >| -7 &nbsp;  >| -10 &nbsp; >| 2 &nbsp; >| 3 &nbsp; >| 6 &nbsp; >|  9 &nbsp;
+>| 13 &nbsp; >| -1 &nbsp; >| -2 &nbsp; >| -3 &nbsp;  >| -10 &nbsp; >| 0 &nbsp; >| 1 &nbsp; >| 2 &nbsp; >|  9 &nbsp;
+>| 14 &nbsp; >| -4 &nbsp; >| -6 &nbsp; >| -8 &nbsp;  >|  -9 &nbsp; >| 3 &nbsp; >| 5 &nbsp; >| 7 &nbsp; >|  8 &nbsp;
+>| 15 &nbsp; >| -3 &nbsp; >| -5 &nbsp; >| -7 &nbsp;  >|  -9 &nbsp; >| 2 &nbsp; >| 4 &nbsp; >| 6 &nbsp; >|  8 &nbsp;
+|====
+
+For example, a _table index_ of 13 (1101 binary) means that we should
+use table [-1,&nbsp;-2&nbsp;-3,&nbsp;-10,&nbsp;0,&nbsp;1,&nbsp;2,&nbsp;9].
+To select which of these values we should use, we consult the _pixel index_ of the
+pixel we want to decode.
+As shown in <<Table-etc2eac-dataformat>> part (b), bits 47..0 are used to store
+a 3-bit index for each pixel in the block, selecting one of the 8
+possible values.
+Assume we are interested in pixel _b_.
+Its pixel index is stored in bits 44..42, with the most significant bit stored
+in 44 and the least significant bit stored in 42.
+If the _pixel index_ is 011 binary = 3, this means we should take the value 3 from the
+left in the table, which is -10.
+This is now our _modifier_, which is the starting point of our second term in the addition.
+
+In the next step we obtain the _multiplier_ value; bits 55..52 form a
+four-bit _multiplier_ between 0 and 15. This value should be
+multiplied with the _modifier_.
+An encoder is not allowed to produce a _multiplier_ of zero, but the decoder should
+still be able to handle this case (and produce 0&nbsp;{times} _modifier_ =&nbsp;0 in that case).
+
+The _modifier_ times the _multiplier_ now provides the third and final
+term in the sum in <<Equation-etc2eac-eqn-base>>. The sum is
+calculated and the value is clamped to the interval [0..255]. The
+resulting value is the 8-bit output value.
+
+For example, assume a _base codeword_ of 103, a _table index_ of 13, a
+_pixel index_ of 3 and a _multiplier_ of 2.
+We will then start with the _base codeword_ 103 (01100111 binary).
+Next, a _table index_ of 13 selects table
+[-1,&nbsp;-2,&nbsp;-3,&nbsp;-10,&nbsp;0,&nbsp;1,&nbsp;2,&nbsp;9],
+and using a _pixel index_ of 3 will result in a _modifier_ of -10.
+The _multiplier_ is 2, forming -10&nbsp;{times}&nbsp;2&nbsp;=&nbsp;-20.
+We now add this to the base value and get 103&nbsp;-&nbsp;20&nbsp;=&nbsp;83.
+After clamping we still get 83&nbsp;=&nbsp;01010011 binary.
+This is our 8-bit output value.
+
+This specification gives the output for each channel in 8-bit integer
+values between 0 and 255, and these values all need to be divided by
+255 to obtain the final floating point representation.
+
+Note that hardware can be effectively shared between the alpha
+decoding part of this format and that of R11 EAC texture. For
+details on how to reuse hardware, see <<Section-r11eac>>.
+
+=== Format RGBA ETC2 with sRGB encoding
+
+Decompression of floating point sRGB values in RGBA ETC2 with sRGB encoding
+follows that of floating point _RGB_ values of linear RGBA ETC2. The
+result is sRGB values between 0.0 and 1.0.
+The further conversion from an sRGB encoded component _cs_ to a linear
+component _cl_ is according to the formula in <<TRANSFER_SRGB>>. Assume
+_cs_ is the sRGB component in the range [0,&nbsp;1].
+
+The alpha component of RGBA ETC2 with sRGB encoding is done in the
+same way as for linear RGBA ETC2.
+
+<<<
+
+[[Section-r11eac]]
+=== Format Unsigned R11 EAC
+
+The number of bits to represent a 4{times}4 texel block is 64 bits.
+if format is R11 EAC. In that case the
+data for a block is stored as a number of bytes,
+{_q_~0~, _q_~1~, _q_~2~, _q_~3~, _q_~4~, _q_~5~, _q_~6~, _q_~7~},
+where byte _q_~0~ is located at the lowest memory address and _q_~7~ at
+the highest. The red component of the 4{times}4 block is then represented
+by the following 64-bit integer:
+
+[latexmath]
+++++
+\begin{align*}
+\mathit{int64bit} & = 256\times (256\times (256\times (256\times (256\times (256\times (256\times q_0+q_1)+q_2)+q_3)+q_4)+q_5)+q_6)+q_7
+\end{align*}
+++++
+
+This 64-bit word contains information about a single-channel 4{times}4
+pixel block as shown in <<Figure-etc2-pixellayout>>. The 64-bit word
+is split into two parts.
+The first 16 bits comprise a _base codeword_, a _table
+codeword_ and a _multiplier_.
+The remaining 48 bits are divided into 16 3-bit indices, which are used
+to select one of the 8 possible values for each pixel in the block, as
+shown in <<Table-etc2eac-dataformat>>.
+
+The decoded value is calculated as:
+
+[[Equation-r11eac-eqn-start]]
+.Unsigned R11 EAC start
+[latexmath]
+++++
+\begin{align*}
+\mathit{clamp1}\left((\mathit{base\ codeword}+0.5)\times \frac{1}{255.875} + \mathit{modifier}\times\mathit{multiplier}\times\frac{1}{255.875}\right)
+\end{align*}
+++++
+where _clamp1_({cdot}) maps values outside the range [0.0, 1.0] to 0.0
+or 1.0.
+
+We will now go into detail how the decoding is done. The result will
+be an 11-bit fixed point number where 0 represents 0.0 and 2047
+represents 1.0. This is the exact representation for the decoded
+value. However, some implementations may use, e.g., 16-bits of
+accuracy for filtering. In such a case the 11-bit value will be
+extended to 16 bits in a predefined way, which we will describe later.
+
+To get a value between 0 and 2047 we must multiply
+<<Equation-r11eac-eqn-start>> by 2047.0:
+
+[latexmath]
+++++
+\begin{align*}
+\mathit{clamp2}\left((\mathit{base\ codeword}+0.5)\times \frac{2047.0}{255.875} + \mathit{modifier}\times\mathit{multiplier}\times\frac{2047.0}{255.875}\right)
+\end{align*}
+++++
+
+where _clamp2_({cdot}) clamps to the range [0.0,&nbsp;2047.0].
+
+Since latexmath:[2047.0 \over 255.875] is exactly 8.0, the above equation can be written as
+
+[[Equation-r11eac-eqn-simple]]
+.Unsigned R11 EAC simple
+[latexmath]
+++++
+\begin{align*}
+\mathit{clamp2}(\mathit{base\ codeword}\times 8 + 4 + \mathit{modifier} \times \mathit{multiplier} \times 8)
+\end{align*}
+++++
+
+The _base codeword_ is stored in the first 8 bits as shown in
+<<Table-etc2eac-dataformat>> part (a). Bits 63..56 in each block
+represent an eight-bit integer (_base codeword_) which is multiplied by
+8 by shifting three steps to the left. We can add 4 to this value
+without addition logic by just inserting 100 binary in the last three
+bits after the shift.
+For example, if _base codeword_ is 129 = 10000001
+binary (or 10000001b for short), the shifted value is 10000001000b and
+the shifted value including the {plus}4 term is
+10000001100b&nbsp;=&nbsp;1036&nbsp;=&nbsp;129{times}8{plus}4.
+Hence we have summed together the first two terms of the
+sum in <<Equation-r11eac-eqn-simple>>.
+
+Next, we want to obtain the _modifier_. Bits 51..48 form a 4-bit index
+used to select one of 16 pre-determined `modifier tables', shown in
+<<Table-etc2eac-modifiers>>.
+For example, a _table index_ of 13&nbsp;(1101&nbsp;binary) means that we should use table
+[-1,&nbsp;-2,&nbsp;-3,&nbsp;-10,&nbsp;0,&nbsp;1,&nbsp;2,&nbsp;9].
+To select which of these values we should use, we consult the
+_pixel index_ of the pixel we want to decode. Bits 47..0 are used to
+store a 3-bit index for each pixel in the block, selecting one of the
+8 possible values.
+Assume we are interested in pixel _b_.
+Its pixel indices are stored in bit 44..42, with the most significant bit stored
+in 44 and the least significant bit stored in 42.
+If the _pixel index_ is 011&nbsp;binary&nbsp;=&nbsp;3, this means we should take the value
+3 from the left in the table, which is -10.
+This is now our _modifier_, which is the starting point of our second term in the sum.
+
+In the next step we obtain the _multiplier_ value; bits 55..52 form a
+four-bit _multiplier_ between 0 and 15.
+We will later treat what happens if the _multiplier_ value is zero, but if it
+is nonzero, it should be multiplied with the _modifier_.
+This product should then be shifted three steps to the left to implement
+the {times}8 multiplication.
+The result now provides the third and final term in
+the sum in <<Equation-r11eac-eqn-simple>>.
+The sum is calculated and the result is clamped to a value in the interval [0..2047].
+The resulting value is the 11-bit output value.
+
+For example, assume a _base codeword_ of 103, a _table index_ of 13, a
+_pixel index_ of 3 and a _multiplier_ of 2.
+We will then first multiply the _base codeword_ 103&nbsp;(01100111b) by
+8 by left-shifting it (0110111000b) and then add 4 resulting in
+0110111100b&nbsp;=&nbsp;828&nbsp;=&nbsp;103&nbsp;{times}&nbsp;8&nbsp;+&nbsp;4.
+Next, a _table index_ of 13 selects table
+[-1,&nbsp;-2,&nbsp;-3,&nbsp;-10,&nbsp;0,&nbsp;1,&nbsp;2,&nbsp;9],
+and using a _pixel index_ of 3 will result in a _modifier_ of -10.
+The _multiplier_ is nonzero, which means that we should multiply it with the _modifier_,
+forming -10&nbsp;{times}&nbsp;2&nbsp;=&nbsp;-20&nbsp;=&nbsp;111111101100b.
+This value should in turn be multiplied by 8 by left-shifting it three steps:
+111101100000b&nbsp;=&nbsp;-160.
+We now add this to the base value and get 828&nbsp;-&nbsp;160&nbsp;=&nbsp;668.
+After clamping we still get 668&nbsp;=&nbsp;01010011100b.
+This is our 11-bit output value, which represents the
+value latexmath:[{668 \over 2047} = 0.32633121 \ldots]
+
+If the _multiplier_ value is zero (i.e., the _multiplier_ bits 55..52 are
+all zero), we should set the _multiplier_ to latexmath:[1.0\over 8.0].
+<<Equation-r11eac-eqn-simple>> can then be simplified to
+
+[[Equation-r11eac-eqn-simpler]]
+.Unsigned R11 EAC simpler
+[latexmath]
+++++
+\begin{align*}
+\mathit{clamp2}(\mathit{base\ codeword}\times 8 + 4 + \mathit{modifier})
+\end{align*}
+++++
+
+As an example, assume a _base codeword_ of 103, a _table index_ of 13, a
+_pixel index_ of 3 and a _multiplier_ value of 0. We treat the
+_base codeword_ the same way, getting 828&nbsp;=&nbsp;103{times}8{plus}4. The
+_modifier_ is still -10.
+But the _multiplier_ should now be latexmath:[1 \over 8], which
+means that third term becomes
+latexmath:[-10\times \left({1\over 8}\right)\times 8 = -10].
+The sum therefore becomes 828-10 = 818. After clamping we still get
+818&nbsp;=&nbsp;01100110010b, and this is our 11-bit output value, and it represents
+latexmath:[{818 \over 2047} = 0.39960918 \ldots]
+
+Some OpenGL ES implementations may find it convenient to use 16-bit
+values for further processing. In this case, the 11-bit value should
+be extended using bit replication. An 11-bit value _x_ is extended to 16
+bits through latexmath:[(x\ll 5) + (x \gg 6)]. For example, the value
+668&nbsp;=&nbsp;01010011100b should be extended to
+0101001110001010b&nbsp;=&nbsp;21386.
+
+In general, the implementation may extend the value to any number of
+bits that is convenient for further processing, e.g., 32 bits. In
+these cases, bit replication should be used. On the other hand, an
+implementation is not allowed to truncate the 11-bit value to less
+than 11 bits.
+
+Note that the method does not have the same reconstruction levels as
+the alpha part in the RGBA ETC2 format. For instance, for a
+_base codeword_ of 255 and a _table value_ of 0, the alpha part of the
+RGBA ETC2 format will represent a value of latexmath:[{(255+0)\over 255.0} = 1.0]
+exactly.
+In R11 EAC  the same _base codeword_ and _table value_ will
+instead represent latexmath:[{(255.5+0)\over 255.875} = 0.99853444 \ldots]
+That said, it is still possible to decode the alpha part of the
+RGBA ETC2-format using R11 EAC hardware.
+This is done by truncating the 11-bit number to 8 bits.
+As an example, if _base codeword_&nbsp;=&nbsp;255 and _table value_&nbsp;=&nbsp;0, we get the 11-bit value
+(255{times}8{plus}4{plus}0)&nbsp;=&nbsp;2044&nbsp;=&nbsp;1111111100b, which after truncation
+becomes the 8-bit value 11111111b&nbsp;=&nbsp;255 which is exactly the correct
+value according to RGBA ETC2.
+Clamping has to be done to [0,&nbsp;255] after truncation for RGBA ETC2 decoding.
+Care must also be taken to handle the case when the _multiplier_ value is
+zero. In the 11-bit version, this means multiplying by latexmath:[1 \over 8], but in
+the 8-bit version, it really means multiplication by 0.
+Thus, the decoder will have to know if it is an
+RGBA ETC2 texture or an R11 EAC texture to decode
+correctly, but the hardware can be 100% shared.
+
+<<<
+As stated above, a _base codeword_ of 255 and a _table value_ of 0 will
+represent a value of latexmath:[{(255.5+0) \over 255.875} = 0.99853444 \ldots], and this
+does not reach 1.0 even though 255 is the highest possible _base codeword_.
+However, it is still possible to reach a pixel value of 1.0 since a _modifier_ other
+than 0 can be used.
+Indeed, half of the _modifiers_ will often produce a value of 1.0.
+As an example, assume we choose the _base codeword_ 255, a _multiplier_ of 1 and the modifier table
+[-3,&nbsp;-5,&nbsp;-7,&nbsp;-9,&nbsp;2,&nbsp;4,&nbsp;6,&nbsp;8]. Starting with
+<<Equation-r11eac-eqn-simple>>,
+
+[latexmath]
+++++
+\begin{align*}
+\mathit{clamp1}\left((\mathit{base\ codeword}+0.5)\times \frac{1}{255.875} + \mathit{table\ value} \times \mathit{multiplier} \times \frac{1}{255.875}\right)
+\end{align*}
+++++
+
+we get
+
+[latexmath]
+++++
+\begin{align*}
+\mathit{clamp1}\left((255+0.5)\times \frac{1}{255.875} + \left[ \begin{array}{cccccccc} -3 & -5 & -7 &-9 & 2 & 4 & 6 & 8 \end{array}\right] \times \frac{1}{255.875}\right)
+\end{align*}
+++++
+
+which equals
+
+[latexmath]
+++++
+\begin{align*}
+\mathit{clamp1}\left(\left[ \begin{array}{cccccccc} 0.987 & 0.979 & 0.971 & 0.963 & 1.00 & 1.01 & 1.02 & 1.03 \end{array}\right]\right)
+\end{align*}
+++++
+
+or after clamping
+
+[latexmath]
+++++
+\begin{align*}
+\left[ \begin{array}{cccccccc} 0.987 & 0.979 & 0.971 & 0.963 & 1.00 & 1.00 & 1.00 & 1.00\end{array}\right]
+\end{align*}
+++++
+
+which shows that several values can be 1.0, even though the base value
+does not reach 1.0. The same reasoning goes for 0.0.
+
+[[Section-rg11eac]]
+=== Format Unsigned RG11 EAC
+
+The number of bits to represent a 4{times}4 texel block is 128 bits
+if the format is RG11 EAC. In that case
+the data for a block is stored as a number of bytes,
+{_q_~0~, _q_~1~, _q_~2~, _q_~3~, _q_~4~, _q_~5~, _q_~6~, _q_~7~,
+_p_~0~, _p_~1~, _p_~2~, _p_~3~, _p_~4~, _p_~5~, _p_~6~, _p_~7~} where byte
+_q_~0~ is located at the lowest memory address and _p_~7~ at the highest.
+The 128 bits specifying the block are then represented by the following
+two 64 bit integers:
+
+[latexmath]
+++++
+\begin{align*}
+\mathit{int64bit}_0 & = 256\times (256\times (256\times (256\times (256\times (256\times (256\times q_0+q_1)+q_2)+q_3)+q_4)+q_5)+q_6)+q_7 \\
+\mathit{int64bit}_1 & = 256\times (256\times (256\times (256\times (256\times (256\times (256\times p_0+p_1)+p_2)+p_3)+p_4)+p_5)+p_6)+p_7
+\end{align*}
+++++
+
+The 64-bit word _int64bit_~0~ contains information about the red component
+of a two-channel 4{times}4 pixel block as shown in
+<<Figure-etc2-pixellayout>>, and the word _int64bit_~1~ contains
+information about the green component.
+Both 64-bit integers are decoded in the same way as R11 EAC described in
+<<Section-r11eac>>.
+
+=== Format Signed R11 EAC
+
+The number of bits to represent a 4{times}4 texel block is 64 bits
+if the format is signed R11 EAC. In that case
+the data for a block is stored as a number of bytes,
+{_q_~0~, _q_~1~, _q_~2~, _q_~3~, _q_~4~, _q_~5~, _q_~6~, _q_~7~}, where
+byte _q_~0~ is located at the lowest memory address and _q_~7~ at the highest.
+The red component of the 4{times}4 block is then represented by the following
+64 bit integer:
+
+[latexmath]
+++++
+\begin{align*}
+\mathit{int64bit} & = 256\times(256\times(256\times(256\times(256\times(256\times(256\times q_0+q_1)+q_2)+q_3)+q_4)+q_5)+q_6)+q_7
+\end{align*}
+++++
+
+This 64-bit word contains information about a single-channel 4{times}4
+pixel block as shown in <<Figure-etc2-pixellayout>>.
+The 64-bit word is split into two parts.
+The first 16 bits comprise a _base codeword_, a _table codeword_ and a
+_multiplier_.
+The remaining 48 bits are divided into 16 3-bit indices, which are used
+to select one of the 8 possible values for each pixel in the block, as
+shown in <<Table-etc2eac-dataformat>>.
+
+The decoded value is calculated as
+
+[[Equation-signedr11eac-eqn-start]]
+.Signed R11 EAC start
+[latexmath]
+++++
+\begin{align*}
+\mathit{clamp1}\left(\mathit{base\ codeword}\times \frac{1}{127.875} + \mathit{modifier}\times \mathit{multiplier}\times \frac{1}{127.875}\right)
+\end{align*}
+++++
+
+where _clamp1_({cdot}) maps values outside the range [-1.0,&nbsp;1.0] to
+-1.0 or 1.0.
+We will now go into detail how the decoding is done. The result will
+be an 11-bit two's-complement fixed point number where -1023 represents
+-1.0 and 1023 represents 1.0. This is the exact representation for the
+decoded value. However, some implementations may use, e.g., 16-bits of
+accuracy for filtering. In such a case the 11-bit value will be
+extended to 16 bits in a predefined way, which we will describe later.
+
+To get a value between -1023 and 1023 we must multiply
+<<Equation-signedr11eac-eqn-start>> by 1023.0:
+
+[latexmath]
+++++
+\begin{align*}
+\mathit{clamp2}\left(\mathit{base\ codeword}\times \frac{1023.0}{127.875} + \mathit{modifier}\times \mathit{multiplier}\times \frac{1023.0}{127.875}\right)
+\end{align*}
+++++
+
+where _clamp2_({cdot}) clamps to the range [-1023.0,&nbsp;1023.0]. Since
+latexmath:[1023.0\over 127.875] is exactly 8, the above formula can be written as:
+
+[[Equation-signedr11eac-eqn-simple]]
+.Signed R11 EAC simple
+[latexmath]
+++++
+\begin{align*}
+\mathit{clamp2}(\mathit{base\ codeword}\times 8 + \mathit{modifier}\times \mathit{multiplier} \times 8)
+\end{align*}
+++++
+
+The _base codeword_ is stored in the first 8 bits as shown in
+<<Table-etc2eac-dataformat>> part (a). It is a two's-complement value
+in the range [-127,&nbsp;127], and where the value -128 is not allowed;
+however, if it should occur anyway it must be treated as -127.
+The _base codeword_ is then multiplied by 8 by shifting it left three
+steps.
+For example the value 65&nbsp;=&nbsp;01000001 binary (or 01000001b for
+short) is shifted to 01000001000b&nbsp;=&nbsp;520&nbsp;=&nbsp;65{times}8.
+
+Next, we want to obtain the _modifier_. Bits 51..48 form a 4-bit index
+used to select one of 16 pre-determined `modifier tables', shown in
+<<Table-etc2eac-modifiers>>. For example, a _table index_ of 13 (1101 binary) means that
+we should use table [-1,&nbsp;-2,&nbsp;-3,&nbsp;-10,&nbsp;0,&nbsp;1,&nbsp;2,&nbsp;9].
+To select which of these values we should use, we consult the
+_pixel index_ of the pixel we want to decode. Bits 47..0 are used to
+store a 3-bit index for each pixel in the block, selecting one of the
+8 possible values. Assume we are interested in pixel _b_. Its pixel
+indices are stored in bit 44..42, with the most significant bit stored
+in 44 and the least significant bit stored in 42. If the _pixel index_
+is 011&nbsp;binary&nbsp;=&nbsp;3, this means we should take the value 3 from the left
+in the table, which is -10. This is now our _modifier_, which is the
+starting point of our second term in the sum.
+
+In the next step we obtain the _multiplier_ value; bits 55..52 form a
+four-bit _multiplier_ between 0 and 15. We will later treat what
+happens if the _multiplier_ value is zero, but if it is nonzero, it
+should be multiplied with the _modifier_. This product should then be
+shifted three steps to the left to implement the {times}8
+multiplication. The result now provides the third and final term in
+the sum in <<Equation-signedr11eac-eqn-simple>>. The sum is
+calculated and the result is clamped to a value in the interval
+[-1023..1023]. The resulting value is the 11-bit output value.
+
+For example, assume a a _base codeword_ of 60, a _table index_ of 13, a
+_pixel index_ of 3 and a _multiplier_ of 2.
+We start by multiplying the _base codeword_ (00111100b) by 8 using bit shift,
+resulting in (00111100000b)&nbsp;=&nbsp;480&nbsp;=&nbsp;60&nbsp;{times}&nbsp;8.
+Next, a _table index_ of 13 selects table
+[-1,&nbsp;-2,&nbsp;-3,&nbsp;-10,&nbsp;0,&nbsp;1,&nbsp;2,&nbsp;9], and using a
+_pixel index_ of 3 will result in a _modifier_ of -10.
+The _multiplier_ is nonzero, which means that we should multiply it with the
+_modifier_, forming -10{times}2&nbsp;=&nbsp;-20&nbsp;=&nbsp;111111101100b.
+This value should in turn be multiplied by 8 by left-shifting it three steps:
+111101100000b&nbsp;=&nbsp;-160.
+We now add this to the base value and get 480-160&nbsp;=&nbsp;320.
+After clamping we still get 320&nbsp;=&nbsp;00101000000b.
+This is our 11-bit output value, which represents the value
+latexmath:[{320\over 1023} = 0.31280547\ldots].
+
+If the _multiplier_ value is zero (i.e., the _multiplier_ bits 55..52 are
+all zero), we should set the _multiplier_ to latexmath:[1.0 \over 8.0].
+<<Equation-signedr11eac-eqn-simple>> can then be simplified to:
+
+[[Equation-signedr11eac-eqn-simpler]]
+.Signed R11 EAC simpler
+[latexmath]
+++++
+\begin{align*}
+\mathit{clamp2}(\mathit{base\ codeword} \times 8 + \mathit{modifier})
+\end{align*}
+++++
+
+As an example, assume a _base codeword_ of 65, a _table index_ of 13, a
+_pixel index_ of 3 and a _multiplier_ value of 0.
+We treat the _base codeword_ the same way, getting 480&nbsp;=&nbsp;60{times}8.
+The _modifier_ is still -10.
+But the _multiplier_ should now be latexmath:[1 \over 8], which means
+that third term becomes latexmath:[-10\times\left({1 \over 8}\right)\times 8 = -10].
+The sum therefore becomes 480-10&nbsp;=&nbsp;470.
+Clamping does not affect the value since it is already in the range [-1023,&nbsp;1023],
+and the 11-bit output value is therefore 470&nbsp;=&nbsp;00111010110b.
+This represents latexmath:[{470\over 1023} = 0.45943304 \dots]
+
+Some OpenGL ES implementations may find it convenient to use
+two's-complement 16-bit values for further processing. In this case, a
+positive 11-bit value should be extended using bit replication on all
+the bits except the sign bit. An 11-bit value x is extended to 16 bits through
+(_x_&nbsp;latexmath:[\ll]&nbsp;5)&nbsp;{plus}&nbsp;(_x_&nbsp;latexmath:[\gg]&nbsp;5).
+Since the sign bit is zero for a positive value, no addition logic is needed for the bit
+replication in this case.
+For example, the value 470&nbsp;=&nbsp;00111010110b in the above example should be
+expanded to 0011101011001110b&nbsp;=&nbsp;15054.
+A negative 11-bit value must first be made positive before bit replication, and
+then made negative again:
+
+[source]
+----
+if (result11bit >= 0) {
+  result16bit = (result11bit << 5) + (result11bit >> 5);
+} else {
+  result11bit = -result11bit;
+  result16bit = (result11bit << 5) + (result11bit >> 5);
+  result16bit = -result16bit;
+}
+----
+
+Simply bit replicating a negative number without first making it
+positive will not give a correct result.
+
+In general, the implementation may extend the value to any number of
+bits that is convenient for further processing, e.g., 32 bits. In
+these cases, bit replication according to the above should be used. On
+the other hand, an implementation is not allowed to truncate the
+11-bit value to less than 11 bits.
+
+Note that it is not possible to specify a base value of 1.0 or
+-1.0. The largest possible _base codeword_ is {plus}127, which represents
+latexmath:[{127 \over 127.875} = 0.993\ldots].
+However, it is still possible to reach a pixel value of 1.0 or -1.0, since
+the base value is modified by the table before the pixel value is calculated.
+Indeed, half of the _modifiers_ will often produce a value of 1.0. As an example,
+assume the _base codeword_ is {plus}127, the modifier table is
+[-3,&nbsp;-5,&nbsp;-7,&nbsp;-9,&nbsp;2,&nbsp;4,&nbsp;6,&nbsp;8] and
+the _multiplier_ is one.
+Starting with <<Equation-signedr11eac-eqn-start>>,
+
+[latexmath]
+++++
+\begin{align*}
+\mathit{base\ codeword}\times \frac{1}{127.875} + \mathit{modifier}\times \mathit{multiplier}\times \frac{1}{127.875}
+\end{align*}
+++++
+
+we get
+
+[latexmath]
+++++
+\begin{align*}
+\frac{127}{127.875} + \left[\begin{array}{cccccccc} -3 & -5 & -7 & -9 & 2 & 4 & 6 & 8 \end{array}\right] \times \frac{1}{127.875}
+\end{align*}
+++++
+
+which equals
+
+[latexmath]
+++++
+\begin{align*}
+\left[ \begin{array}{cccccccc} 0.970 & 0.954 & 0.938 & 0.923 & 1.01 & 1.02 & 1.04 &1.06\end{array}\right]
+\end{align*}
+++++
+
+or after clamping
+
+[latexmath]
+++++
+\begin{align*}
+\left[ \begin{array}{cccccccc} 0.970 & 0.954 & 0.938 & 0.923 & 1.00 & 1.00 & 1.00 & 1.00 \end{array}\right]
+\end{align*}
+++++
+
+This shows that it is indeed possible to arrive at the value 1.0. The
+same reasoning goes for -1.0.
+
+Note also that
+<<Equation-signedr11eac-eqn-simple>>/<<Equation-signedr11eac-eqn-simpler>>
+are very similar to
+<<Equation-r11eac-eqn-simple>>/<<Equation-r11eac-eqn-simpler>> in the
+unsigned version EAC_R11.
+Apart from the {plus}4, the clamping and the extension to bit sizes other than 11,
+the same decoding hardware can be shared between the two codecs.
+
+[[Section-signedr11eac-signedr11eac]]
+=== Format Signed RG11 EAC
+
+The number of bits to represent a 4{times}4 texel block is 128 bits
+if the format is signed RG11 EAC. In that case
+the data for a block is stored as a number of bytes, \{_q_~0~, _q_~1~, _q_~2~, _q_~3~, _q_~4~,
+_q_~5~, _q_~6~, _q_~7~, _p_~0~, _p_~1~, _p_~2~, _p_~3~, _p_~4~, _p_~5~, _p_~6~, _p_~7~\}
+where byte _q_~0~ is located at the lowest memory address and _p_~7~ at the highest. The
+128 bits specifying the block are then represented by the following
+two 64 bit integers:
+
+[latexmath]
+++++
+\begin{align*}
+\mathit{int64bit}_0 & = 256\times (256\times (256\times (256\times (256\times (256\times (256\times q_0+q_1)+q_2)+q_3)+q_4)+q_5)+q_6)+q_7 \\
+\mathit{int64bit}_1 & = 256\times (256\times (256\times (256\times (256\times (256\times (256\times p_0+p_1)+p_2)+p_3)+p_4)+p_5)+p_6)+p_7
+\end{align*}
+++++
+
+The 64-bit word _int64bit_~0~ contains information about the red component
+of a two-channel 4{times}4 pixel block as shown in
+<<Figure-etc2-pixellayout>>, and the word _int64bit_~1~ contains
+information about the green component. Both 64-bit integers are
+decoded in the same way as signed R11 EAC described in
+<<Section-signedr11eac-signedr11eac>>.
+
+<<<
+[[RGBETC2_PUNCHTHROUGH]]
+=== Format RGB ETC2 with punchthrough alpha
+
+For RGB ETC2 with punchthrough alpha, each 64-bit word contains
+information about a four-channel 4{times}4 pixel block as shown in
+<<Figure-etc2-pixellayout>>.
+
+The blocks are compressed using one of four different `modes'.
+<<Table-etc2punch-dataformat>> part (a) shows the bits used for
+determining the mode used in a given block.
+
+[[Table-etc2punch-dataformat]]
+.Texel Data format for punchthrough alpha ETC2 compressed texture formats
+[cols="1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1",width="97%"]
+|====
+32+| &nbsp; *a) Location of bits for mode selection*
+^| ~63~ ^| ~62~ ^| ~61~ ^| ~60~ ^| ~59~ ^| ~58~ ^| ~57~ ^| ~56~ ^| ~55~ ^| ~54~ ^| ~53~ ^| ~52~ ^| ~51~ ^| ~50~ ^| ~49~ ^| ~48~ ^| ~47~ ^| ~46~ ^| ~45~ ^| ~44~ ^| ~43~ ^| ~42~ ^| ~41~ ^| ~40~ ^| ~39~ ^| ~38~ ^| ~37~ ^| ~36~ ^| ~35~ ^| ~34~ ^| ~33~ ^| ~32~
+5+^| _R_ 3+^| _R_~d~ 5+^| _G_ 3+^| _G_~d~ 5+^| _B_ 3+^| _B_~d~ 6+^| ...... ^| _Op_ ^| .
+32+| &nbsp; *b) Bit layout for bits 63 through 32 for `differential' mode*
+^| ~63~ ^| ~62~ ^| ~61~ ^| ~60~ ^| ~59~ ^| ~58~ ^| ~57~ ^| ~56~ ^| ~55~ ^| ~54~ ^| ~53~ ^| ~52~ ^| ~51~ ^| ~50~ ^| ~49~ ^| ~48~ ^| ~47~ ^| ~46~ ^| ~45~ ^| ~44~ ^| ~43~ ^| ~42~ ^| ~41~ ^| ~40~ ^| ~39~ ^| ~38~ ^| ~37~ ^| ~36~ ^| ~35~ ^| ~34~ ^| ~33~ ^| ~32~
+5+^| _R_ 3+^| _R_~d~ 5+^| _G_ 3+^| _G_~d~ 5+^| _B_ 3+^| _B_~d~ 3+^| _table_~1~ 3+^| _table_~2~ ^| _Op_ ^| _F~B~_
+32+| &nbsp; *c) Bit layout for bits 63 through 32 for `T' mode*
+^| ~63~ ^| ~62~ ^| ~61~ ^| ~60~ ^| ~59~ ^| ~58~ ^| ~57~ ^| ~56~ ^| ~55~ ^| ~54~ ^| ~53~ ^| ~52~ ^| ~51~ ^| ~50~ ^| ~49~ ^| ~48~ ^| ~47~ ^| ~46~ ^| ~45~ ^| ~44~ ^| ~43~ ^| ~42~ ^| ~41~ ^| ~40~ ^| ~39~ ^| ~38~ ^| ~37~ ^| ~36~ ^| ~35~ ^| ~34~ ^| ~33~ ^| ~32~
+3+^| ... 2+^| _R_^3..2^ ^| . 2+^| _R_^1..0^ 4+^| _G_ 4+^| _B_ 4+^| _R_~2~ 4+^| _G_~2~ 4+^| _B_~2~ 2+^| _d~a~_ ^| _Op_ ^| _d~b~_
+32+| &nbsp; *d) Bit layout for bits 63 through 32 for `H' mode*
+^| ~63~ ^| ~62~ ^| ~61~ ^| ~60~ ^| ~59~ ^| ~58~ ^| ~57~ ^| ~56~ ^| ~55~ ^| ~54~ ^| ~53~ ^| ~52~ ^| ~51~ ^| ~50~ ^| ~49~ ^| ~48~ ^| ~47~ ^| ~46~ ^| ~45~ ^| ~44~ ^| ~43~ ^| ~42~ ^| ~41~ ^| ~40~ ^| ~39~ ^| ~38~ ^| ~37~ ^| ~36~ ^| ~35~ ^| ~34~ ^| ~33~ ^| ~32~
+^| . 4+^| _R_ 3+^| _G_^3..1^ 3+^| ... ^| _G_^0^ ^| _B_^3^ ^| . 3+^| _B_^2..0^ 4+^| _R_~2~ 4+^| _G_~2~ 4+^| _B_~2~ ^| _d~a~_ ^| _Op_ ^| _d~b~_
+32+| &nbsp; *e) Bit layout for bits 31 through 0 for `differential', `T' and `H' modes*
+^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
+^| _p_^1^ ^| _o_^1^ ^| _n_^1^ ^| _m_^1^ ^| _l_^1^ ^| _k_^1^ ^| _j_^1^ ^| _i_^1^ ^| _h_^1^ ^| _g_^1^ ^| _f_^1^ ^| _e_^1^ ^| _d_^1^ ^| _c_^1^ ^| _b_^1^ ^| _a_^1^ ^| _p_^0^ ^| _o_^0^ ^| _n_^0^ ^| _m_^0^ ^| _l_^0^ ^| _k_^0^ ^| _j_^0^ ^| _i_^0^ ^| _h_^0^ ^| _g_^0^ ^| _f_^0^ ^| _e_^0^ ^| _d_^0^ ^| _c_^0^ ^| _b_^0^ ^| _a_^0^
+32+| &nbsp; *f) Bit layout for bits 63 through 0 for `planar' mode*
+^| ~63~ ^| ~62~ ^| ~61~ ^| ~60~ ^| ~59~ ^| ~58~ ^| ~57~ ^| ~56~ ^| ~55~ ^| ~54~ ^| ~53~ ^| ~52~ ^| ~51~ ^| ~50~ ^| ~49~ ^| ~48~ ^| ~47~ ^| ~46~ ^| ~45~ ^| ~44~ ^| ~43~ ^| ~42~ ^| ~41~ ^| ~40~ ^| ~39~ ^| ~38~ ^| ~37~ ^| ~36~ ^| ~35~ ^| ~34~ ^| ~33~ ^| ~32~
+^| . 6+^| _R_ ^| _G_^6^ ^| . 6+^| _G_^5..0^ ^| _B_^5^ 3+^| ... 2+^| _B_^4..3^ ^| . 3+^| _B_^2..0^ 5+^| _R_~h~^5..1^ ^| 1 ^| _R_~h~^0^
+^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
+7+^| _G_~h~ 6+^| _B_~h~ 6+^| _R_~v~ 7+^| _G_~v~ 6+^| _B_~v~
+|====
+
+To determine the mode, the three 5-bit values _R_, _G_ and _B_, and the
+three 3-bit values _R_~d~, _G_~d~ and _B_~d~ are examined.
+_R_, _G_ and _B_ are treated as integers between 0 and 31 and _R_~d~, _G_~d~ and
+_B_~d~ as two's-complement integers between -4 and {plus}3.
+First, _R_ and _R_~d~ are added, and if the sum is not within the interval
+[0..31], the `T' mode is selected.
+Otherwise, if the sum of _G_ and _G_~d~ is outside the interval [0..31],
+the `H' mode is selected.
+Otherwise, if the sum of _B_ and _B_~d~ is outside of the interval [0..31],
+the `planar' mode is selected.
+Finally, if all of the aforementioned sums lie between 0 and 31, the
+`differential' mode is selected.
+
+The layout of the bits used to decode the `differential' mode is shown
+in <<Table-etc2punch-dataformat>> part (b). In this mode, the 4{times}4
+block is split into two subblocks of either size 2{times}4 or 4{times}2.
+This is controlled by bit 32, which we dub the _flip bit_ (_F~B~_ in
+<<Table-etc2punch-dataformat>> (b) and (c)).
+If the _flip bit_ is 0, the block is divided into two 2{times}4
+subblocks side-by-side, as shown in <<Table-etc2-sidebyside>>. If
+the _flip bit_ is 1, the block is divided into two 4{times}2
+subblocks on top of each other, as shown in <<Table-etc2-ontop>>. For each
+subblock, a _base color_ is stored.
+
+In the `differential' mode, following the layout shown in
+<<Table-etc2punch-dataformat>> part (b), the _base color_ for subblock
+1 is derived from the five-bit codewords _R_, _G_ and _B_.
+These five-bit codewords are extended to eight bits by replicating the
+top three highest-order bits to the three lowest-order bits.
+For instance, if _R_&nbsp;=&nbsp;28&nbsp;=&nbsp;11100&nbsp;binary (11100b
+for short), the resulting eight-bit red color component becomes
+11100111b&nbsp;=&nbsp;231.
+Likewise, if _G_&nbsp;=&nbsp;4&nbsp;=&nbsp;00100b and
+_B_&nbsp;=&nbsp;3&nbsp;=&nbsp;00011b, the green and blue components become
+00100001b&nbsp;=&nbsp;33 and 00011000b&nbsp;=&nbsp;24 respectively.
+Thus, in this example, the _base color_ for subblock 1 is
+(231,&nbsp;33,&nbsp;24).
+The five bit representation for the _base color_ of subblock 2 is obtained by
+modifying the 5-bit codewords _R_, _G_ and _B_ by the codewords _R_~d~, _G_~d~ and _B_~d~.
+Each of _R_~d~, _G_~d~ and _B_~d~ is a 3-bit two's-complement number that can hold
+values between -4 and {plus}3.
+For instance, if _R_&nbsp;=&nbsp;28 as above, and
+_R_~d~&nbsp;=&nbsp;100b&nbsp;=&nbsp;-4, then the five bit representation for
+the red color component is 28{plus}(-4)=24&nbsp;=&nbsp;11000b, which is then
+extended to eight bits to 11000110b&nbsp;=&nbsp;198.
+Likewise, if _G_&nbsp;=&nbsp;4, _G_~d~&nbsp;=&nbsp;2, _B_&nbsp;=&nbsp;3 and
+_B_~d~&nbsp;=&nbsp;0, the _base color_ of subblock 2 will be
+_RGB&nbsp;_=&nbsp;(198,&nbsp;49,&nbsp;24).
+In summary, the _base colors_ for the subblocks in the differential mode
+are:
+
+[latexmath]
+++++
+\begin{align*}
+\mathit{base\ color_{subblock1}} & = \mathit{extend5to8bits}(\mathit{R}, \mathit{G}, \mathit{B}) \\
+\mathit{base\ color_{subblock2}} & = \mathit{extend5to8bits}(\mathit{R}+\mathit{R}_\mathrm{d}, \mathit{G}+\mathit{G}_\mathrm{d}, \mathit{B}+\mathit{B}_\mathrm{d})
+\end{align*}
+++++
+
+Note that these additions will not under- or overflow, or one of the
+alternative decompression modes would have been chosen instead of the
+`differential' mode.
+
+[[Table-etc2punch-modifiers-a]]
+.ETC2 intensity modifier sets for the `differential' if `opaque' (_Op_) is set
+[cols="3,1,1,1,1",options="header",width="40%"]
+|====
+^| _Table codeword_  4+^| Modifier table
+^|         0           >|   -8 &nbsp; >| -2 &nbsp; >|  2 &nbsp; >|  8 &nbsp;
+^|         1           >|  -17 &nbsp; >| -5 &nbsp; >|  5 &nbsp; >| 17 &nbsp;
+^|         2           >|  -29 &nbsp; >| -9 &nbsp; >|  9 &nbsp; >| 29 &nbsp;
+^|         3           >|  -42 &nbsp; >|-13 &nbsp; >| 13 &nbsp; >| 42 &nbsp;
+^|         4           >|  -60 &nbsp; >|-18 &nbsp; >| 18 &nbsp; >| 60 &nbsp;
+^|         5           >|  -80 &nbsp; >|-24 &nbsp; >| 24 &nbsp; >| 80 &nbsp;
+^|         6           >| -106 &nbsp; >|-33 &nbsp; >| 33 &nbsp; >|106 &nbsp;
+^|         7           >| -183 &nbsp; >|-47 &nbsp; >| 47 &nbsp; >|183 &nbsp;
+|====
+
+[[Table-etc2punch-modifiers-b]]
+.ETC2 intensity modifier sets for the `differential' if `opaque' (_Op_) is unset
+[cols="3,1,1,1,1",options="header",width="40%"]
+|====
+^| _Table codeword_  4+^| Modifier table
+^|         0           >|   -8 &nbsp; >| 0 &nbsp; >| 0 &nbsp; >|   8 &nbsp;
+^|         1           >|  -17 &nbsp; >| 0 &nbsp; >| 0 &nbsp; >|  17 &nbsp;
+^|         2           >|  -29 &nbsp; >| 0 &nbsp; >| 0 &nbsp; >|  29 &nbsp;
+^|         3           >|  -42 &nbsp; >| 0 &nbsp; >| 0 &nbsp; >|  42 &nbsp;
+^|         4           >|  -60 &nbsp; >| 0 &nbsp; >| 0 &nbsp; >|  60 &nbsp;
+^|         5           >|  -80 &nbsp; >| 0 &nbsp; >| 0 &nbsp; >|  80 &nbsp;
+^|         6           >| -106 &nbsp; >| 0 &nbsp; >| 0 &nbsp; >| 106 &nbsp;
+^|         7           >| -183 &nbsp; >| 0 &nbsp; >| 0 &nbsp; >| 183 &nbsp;
+|====
+
+After obtaining the _base color_, a table is chosen using the _table
+codewords_: For subblock 1, _table codeword 1_ is used (bits 39..37), and
+for subblock 2, _table codeword 2_ is used (bits 36..34), see
+<<Table-etc2punch-dataformat>> part (b).
+The _table codeword_ is used to select one of eight modifier tables.
+If the `opaque'-bit (bit 33) is set, <<Table-etc2punch-modifiers-a>> is used.
+If it is unset, <<Table-etc2punch-modifiers-b>> is used.
+For instance, if the `opaque'-bit is 1 and the _table codeword_ is 010
+binary = 2, then the modifier table [-29,&nbsp;-9,&nbsp;9,&nbsp;29] is selected for
+the corresponding sub-block.
+Note that the values in <<Table-etc2punch-modifiers-a>> and
+<<Table-etc2punch-modifiers-b>> are valid for all textures and can
+therefore be hardcoded into the decompression unit.
+
+Next, we identify which _modifier_ value to use from the modifier table
+using the two _pixel index_ bits. The _pixel index_ bits are unique for
+each pixel. For instance, the _pixel index_ for pixel _d_ (see
+<<Figure-etc2-pixellayout>>) can be found in bits 19 (most
+significant bit, MSB), and 3 (least significant bit, LSB), see
+<<Table-etc2punch-dataformat>> part (e). Note that the _pixel index_
+for a particular texel is always stored in the same bit position,
+irrespectively of the _flip bit_.
+
+<<<
+
+If the `opaque'-bit (bit 33) is set, the _pixel index_ bits are decoded
+using <<Table-etc2punch-pixelindices-a>>. If the
+`opaque'-bit is unset, <<Table-etc2punch-pixelindices-b>>
+will be used instead. If, for instance, the `opaque'-bit is 1, and the
+_pixel index_ bits are 01 binary&nbsp;=&nbsp;1, and the modifier table
+[-29,&nbsp;-9,&nbsp;9,&nbsp;29] is used, then the _modifier_ value
+selected for that pixel is 29 (see <<Table-etc2punch-pixelindices-a>>).
+This _modifier_ value is now used to additively modify the _base color_.
+For example, if we have the _base color_ (231,&nbsp;8,&nbsp;16), we should
+add the _modifier_ value 29 to all three components:
+(231{plus}29,&nbsp;8{plus}29,&nbsp;16{plus}29) resulting in
+(260,&nbsp;37,&nbsp;45).
+These values are then clamped to [0..255], resulting in the
+color (255,&nbsp;37,&nbsp;45).
+
+[[Table-etc2punch-pixelindices-a]]
+.ETC2 mapping from pixel index values to modifier values when `opaque' bit is set
+[cols="1,1,3",width="50%"]
+|====
+2+^| *_Pixel index_ value* .2+^.^| *Resulting _modifier_ value*
+^| *msb* ^| *lsb*
+^| 1 ^| 1 | &nbsp; -b (large negative value)
+^| 1 ^| 0 | &nbsp; -a (small negative value)
+^| 0 ^| 0 | &nbsp; {plus}a (small positive value)
+^| 0 ^| 1 | &nbsp; {plus}b (large positive value)
+|====
+
+[[Table-etc2punch-pixelindices-b]]
+.ETC2 mapping from pixel index values to modifier values when `opaque' bit is unset
+[cols="1,1,3",width="50%"]
+|====
+2+^| *_Pixel index_ value* .2+^.^| *Resulting _modifier_ value*
+^| *msb* ^| *lsb*
+^| 1 ^| 1 | &nbsp; -b (large negative value)
+^| 1 ^| 0 | &nbsp; 0 (zero)
+^| 0 ^| 0 | &nbsp; 0 (zero)
+^| 0 ^| 1 | &nbsp; {plus}b (large positive value)
+|====
+
+The alpha component is decoded using the `opaque'-bit, which is
+positioned in bit 33 (see
+<<Table-etc2punch-dataformat>> part (b)). If the `opaque'-bit is
+set, alpha is always 255.
+However, if the `opaque'-bit is zero, the alpha-value depends on the pixel indices;
+if MSB==1 and LSB==0, the alpha value will be zero, otherwise it will be 255.
+Finally, if the alpha value equals 0, the red, green and blue components will also
+be zero.
+
+[source]
+----
+if (opaque == 0 && MSB == 1 && LSB == 0) {
+  red = 0;
+  green = 0;
+  blue = 0;
+  alpha = 0;
+} else {
+  alpha = 255;
+}
+----
+
+Hence _paint color 2_ will equal _RGBA_ = (0,&nbsp;0,&nbsp;0,&nbsp;0) if opaque = 0.
+
+In the example above, assume that the `opaque'-bit was instead
+0. Then, since the MSB = 0 and LSB 1, alpha will be 255, and the final
+decoded _RGBA_-tuple will be (255,&nbsp;37,&nbsp;45,&nbsp;255).
+
+The `T' and `H' compression modes share some characteristics: both use
+two _base colors_ stored using 4 bits per channel. These bits are not
+stored sequentially, but in the layout shown in
+<<Table-etc2punch-dataformat>> part (c) and
+<<Table-etc2punch-dataformat>> part (d).
+To clarify, in the `T' mode, the two colors are constructed as follows:
+
+[latexmath]
+++++
+\begin{align*}
+\mathit{base\ color\ 1} & = \mathit{extend4to8bits}(\: (\mathit{R}^{3..2} \ll 2)\: | \: \mathit{R}^{1..0}, \: \mathit{G}, \: \mathit{B}) \\
+\mathit{base\ color\ 2} & = \mathit{extend4to8bits}(\mathit{R}_2, \: \mathit{G}_2, \: \mathit{B}_2)
+\end{align*}
+++++
+
+In the `H' mode, the two colors are constructed as follows:
+
+[latexmath]
+++++
+\begin{align*}
+\mathit{base\ color\ 1} & = \mathit{extend4to8bits}(\mathit{R}, \: (\mathit{G}^{3..1} \ll 1) \: | \: \mathit{G}^0, \: (\mathit{B}^3 \ll 3) \: | \: \mathit{B}^{2..0}) \\
+\mathit{base\ color\ 2} & = \mathit{extend4to8bits}(\mathit{R}_2, \: \mathit{G}_2, \: \mathit{B}_2)
+\end{align*}
+++++
+
+The function _extend4to8bits_({cdot}) just replicates the four bits
+twice. This is equivalent to multiplying by 17. As an example,
+_extend4to8bits_(1101b) equals 11011101b&nbsp;=&nbsp;221.
+
+Both the `T' and `H' modes have four _paint colors_ which are the
+colors that will be used in the decompressed block, but they are
+assigned in a different manner. In the `T' mode, _paint color 0_ is
+simply the first _base color_, and _paint color 2_ is the second _base
+color_. To obtain the other _paint colors_, a `distance' is first
+determined, which will be used to modify the luminance of one of the
+_base colors_. This is done by combining the values _d~a~_ and _d~b~_ shown
+in <<Table-etc2punch-dataformat>> part (c) by
+(_d~a~_ latexmath:[\ll] 1) | _d~b~_, and
+then using this value as an index into the small look-up table shown
+in <<Table-etc2-distancetable>>. For example, if _d~a~_ is 10 binary and
+_d~b~_ is 1 binary, the index is 101 binary and the selected distance _d_
+will be 32. _Paint color 1_ is then equal to the second _base color_ with
+the `distance' _d_ added to each channel, and _paint color 3_ is the
+second _base color_ with the `distance' _d_ subtracted. In summary, to
+determine the four _paint colors_ for a `T' block:
+
+[latexmath]
+++++
+\begin{align*}
+\mathit{paint\ color\ 0} & = \mathit{base\ color\ 1} \\
+\mathit{paint\ color\ 1} & = \mathit{base\ color\ 2 + (d, d, d)} \\
+\mathit{paint\ color\ 2} & = \mathit{base\ color\ 2} \\
+\mathit{paint\ color\ 3} & = \mathit{base\ color\ 2 - (d, d, d)}
+\end{align*}
+++++
+
+In both cases, the value of each channel is clamped to within [0..255].
+
+Just as for the differential mode, the _RGB_ channels are set to zero if
+alpha is zero, and the alpha component is calculated the same way:
+
+[source]
+----
+if (opaque == 0 && MSB == 1 && LSB == 0) {
+  red = 0;
+  green = 0;
+  blue = 0;
+  alpha = 0;
+} else {
+  alpha = 255;
+}
+----
+
+A `distance' value is computed for the `H' mode as well, but doing so
+is slightly more complex. In order to construct the three-bit index
+into the distance table shown in <<Table-etc2-distancetable>>, _d~a~_
+and _d~b~_ shown in <<Table-etc2punch-dataformat>> part (d) are used
+as the most significant bit and middle bit, respectively, but the
+least significant bit is computed as (_base color 1_ value latexmath:[\geq]
+_base color 2_ value), the `value' of a color for the comparison being equal to
+(_R_&nbsp;latexmath:[\ll]&nbsp;16)&nbsp;{plus}&nbsp;(_G_&nbsp;latexmath:[\ll]&nbsp;8)_&nbsp;{plus}&nbsp;B_.
+Once the `distance' _d_ has been determined for an `H' block, the four
+_paint colors_ will be:
+
+[latexmath]
+++++
+\begin{align*}
+\mathit{paint\ color\ 0} & = \mathit{base\ color\ 1 + (d, d, d)} \\
+\mathit{paint\ color\ 1} & = \mathit{base\ color\ 1 - (d, d, d)} \\
+\mathit{paint\ color\ 2} & = \mathit{base\ color\ 2 + (d, d, d)} \\
+\mathit{paint\ color\ 3} & = \mathit{base\ color\ 2 - (d, d, d)}
+\end{align*}
+++++
+
+Yet again, _RGB_ is zeroed if alpha is 0 and the alpha component is
+determined the same way:
+
+[source]
+----
+if (opaque == 0 && MSB == 1 && LSB == 0) {
+  red = 0;
+  green = 0;
+  blue = 0;
+  alpha = 0;
+} else {
+  alpha = 255;
+}
+----
+
+Hence _paint color 2_ will have _R_&nbsp;=_&nbsp;G&nbsp;_=_&nbsp;B&nbsp;_=&nbsp;alpha&nbsp;=&nbsp;0
+if opaque = 0.
+
+Again, all color components are clamped to within [0..255]. Finally, in
+both the `T' and `H' modes, every pixel is assigned one of the four
+_paint colors_ in the same way the four _modifier_ values are
+distributed in `individual' or `differential' blocks. For example, to
+choose a _paint color_ for pixel _d_, an index is constructed using bit 19
+as most significant bit and bit 3 as least significant bit. Then, if a
+pixel has index 2, for example, it will be assigned _paint color 2_.
+
+The final mode possible in an RGB ETC2 with punchthrough alpha --
+compressed block is the `planar' mode. In this mode, the `opaque'-bit
+must be 1 (a valid encoder should not produce an `opaque'-bit equal to
+0 in the planar mode), but should the `opaque'-bit anyway be 0 the
+decoder should treat it as if it were 1. In the `planar' mode, three
+_base colors_ are supplied and used to form a color plane used to
+determine the color of the individual pixels in the block.
+
+All three _base colors_ are stored in _RGB_:676 format, and stored in the
+manner shown in <<Table-etc2punch-dataformat>> part (f).
+The two secondary colors are given the suffix `h' and `v', so that the
+red component of the three colors are _R_, _R_~h~ and _R_~v~, for example.
+Some color channels are split into non-consecutive bit-ranges; for
+example _B_ is reconstructed using _B_^5^ as the most-significant bit,
+_B_^4..3^ as the two following bits, and _B_^2..0^ as the three
+least-significant bits.
+
+Once the bits for the _base colors_ have been extracted, they must be
+extended to 8 bits per channel in a manner analogous to the method
+used for the _base colors_ in other modes. For example, the 6-bit blue
+and red channels are extended by replicating the two most significant
+of the six bits to the two least significant of the final 8 bits.
+
+With three _base colors_ in _RGB_:888 format, the color of each pixel can
+then be determined as:
+
+[latexmath]
+++++
+\begin{align*}
+\mathit{R}(x,y) & = {x\times (\mathit{R}_\mathrm{h}-\mathit{R})\over 4.0} + {y\times (\mathit{R}_\mathrm{v}-\mathit{R})\over 4.0} + \mathit{R} \\
+\mathit{G}(x,y) & = {x\times (\mathit{G}_\mathrm{h}-\mathit{G})\over 4.0} + {y\times (\mathit{G}_\mathrm{v}-\mathit{G})\over 4.0} + \mathit{G} \\
+\mathit{B}(x,y) & = {x\times (\mathit{B}_\mathrm{h}-\mathit{B})\over 4.0} + {y\times (\mathit{B}_\mathrm{v}-\mathit{B})\over 4.0} + \mathit{B} \\
+A(x,y) & = 255
+\end{align*}
+++++
+
+where _x_ and _y_ are values from 0 to 3 corresponding to the pixels
+coordinates within the block, _x_ being in the _u_ direction and _y_ in the
+_v_ direction. For example, the pixel _g_ in <<Figure-etc2-pixellayout>>
+would have _x&nbsp;_=&nbsp;1 and _y&nbsp;_=&nbsp;2.
+
+These values are then rounded to the nearest integer (to the larger
+integer if there is a tie) and then clamped to a value between 0 and
+255. Note that this is equivalent to
+
+[latexmath]
+++++
+\begin{align*}
+\mathit{R}(x,y) & = \mathit{clamp255}((x\times (\mathit{R}_\mathrm{h}-\mathit{R}) + y\times (\mathit{R}_\mathrm{v}-\mathit{R}) + 4\times \mathit{R} + 2) \gg 2) \\
+\mathit{G}(x,y) & = \mathit{clamp255}((x\times (\mathit{G}_\mathrm{h}-\mathit{G}) + y\times (\mathit{G}_\mathrm{v}-\mathit{G}) + 4\times \mathit{G} + 2) \gg 2) \\
+\mathit{B}(x,y) & = \mathit{clamp255}((x\times (\mathit{B}_\mathrm{h}-\mathit{B}) + y\times (\mathit{B}_\mathrm{v}-\mathit{B}) + 4\times \mathit{B} + 2) \gg 2) \\
+A(x,y) & = 255
+\end{align*}
+++++
+
+where _clamp255_({cdot}) clamps the value to a number in the range [0..255].
+
+Note that the alpha component is always 255 in the planar mode.
+
+This specification gives the output for each compression mode in 8-bit
+integer colors between 0 and 255, and these values all need to be
+divided by 255 for the final floating point representation.
+
+=== Format RGB ETC2 with punchthrough alpha and sRGB encoding
+
+Decompression of floating point sRGB values in
+RGB ETC2 with sRGB encoding and punchthrough alpha follows that of floating point
+_RGB_ values of RGB ETC2 with punchthrough alpha. The result is
+sRGB values between 0.0 and 1.0. The further conversion from an sRGB
+encoded component, _cs_, to a linear component, _cl_, is according to
+the formula in <<TRANSFER_SRGB>>. Assume _cs_ is the sRGB component in the range
+[0,&nbsp;1]. Note that the alpha component is not gamma corrected,
+and hence does not use this formula.

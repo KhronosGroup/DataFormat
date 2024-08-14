@@ -1,13 +1,18 @@
-Khronos^(TM)^ Data Format Specification
-=======================================
+// Copyright 2014-2024 The Khronos Group Inc.
+// SPDX-License-Identifier: CC-BY-4.0
 
-This repository contains source for the Khronos Data Format Specification.
+ifdef::env-github[]
+:note-caption: :information_source:
+endif::[]
+
+= Khronos^(TM)^ Data Format Specification
 
 The Khronos Data Format Specification describes a portable mechanism
 for describing a wide range of image/texture formats and other forms
 of data.
 It solely describes the format of what may be considered to be a single
-"pixel" or a repeating group of pixels considered to be a "texture block".
+"`pixel`" or a repeating group of pixels considered to be a "`texture
+block`".
 
 A wide variety of incompatible mechanisms exist in the industry for
 describing formats that may be supported by an API.
@@ -25,38 +30,71 @@ This specification also contains a detailed description of the
 in-memory representation of a number of compressed texture formats,
 and describes some common color spaces.
 
-Building the Specification
-==========================
 
-The build system relies on
-link:http://www.methods.co.nz/asciidoc/index.html[asciidoc], which is
-available as part of many Linux distributions.
-The PDF build subsequently depends on
-link:http://dblatex.sourceforge.net[dblatex].
+== Repository Structure
 
-All forms of the specification may be built with a simple "make"
-or "make all" command, with an output into the "out" directory.
+The link:https://github.com/KhronosGroup/DataFormat[DataFormat] repository,
+and the equivalent internal Khronos tracking repository, contain sources for
+the formal documentation of the Khronos Data Format Specification.
+These include:
 
-Use "make pdf" to build just the PDF specification.
+[options="compact"]
+  * The Data Format Specification
+  * The `khr_df.h` C header file
+  * Related tools and scripts
 
-Use "make html" to build the HTML version of the specification
-without inline images, which are accessed from the "out" directory;
-this is smaller than the "inlinehtml" version.
+The repository hosts a public issue tracker, and outside developers can file
+proposed changes (Pull Requests) against the Specification, subject to
+approval by Khronos.
 
-Use "make inlinehtml" to create the HTML and then generate a version
-with inlined images, allowing it to be transferred as a single
-file; note that the HTML still relies on access to
-link:http://www.mathjax.org[MathJax] and is therefore not completely
-stand-alone.
-This build option requires PERL.
-Since the inline HTML file is very large, "make compressedinlinehtml"
-produces a gzip-compressed version of the output.
 
-"make header" copies the header file into the "out/headers" directory.
+== External Contributions
 
-"make clean" removes the contents out "out" and temporary files.
+Khronos welcomes feedback in GitHub Issues, and proposed changes in GitHub
+Pull Requests (PRs), but will not necessarily accept all such changes.
 
-Default Branch Renaming
-=======================
+Please keep your issues and pull requests focused on solving a single
+problem. Broader feedback that tries to solve multiple problems, or touches
+many parts of the Specification at once, is difficult for Khronos to review
+in a timely fashion.
 
-The default branch of this repository was renamed from "master" to "main" on 2024-02-01.
+
+== Branch Structure
+
+The current Specification (Data Format 1.3) is maintained in the default
+branch (currently `main`) of the repository.
+
+
+== Directory Structure
+
+The directory structure is as follows:
+
+```
+README.adoc           This file
+BUILD.adoc            Documents how to build the specifications
+CONTRIBUTING.adoc     Requirements for external contributions to the repository
+COPYING.adoc          Copyright and licensing information
+CODE_OF_CONDUCT.adoc  Code of Conduct
+LICENSE.adoc          Summary of licenses used by files in the repository
+Makefile              Makefile (see BUILD.adoc)
+appendices/           Specification appendices
+chapters/             Specification chapters
+config/               Asciidoctor configuration, CSS, and index generator
+images/               Images (figures, diagrams, icons)
+out/                  Default directory for the generated documents
+scripts/              Helper scripts used in specification, header, and reference page generation
+```
+
+
+== Building the Specification and Reference Pages
+
+The document sources are marked up in Asciidoc format, and we use
+`asciidoctor` and related toolchain components to generate output documents.
+See link:BUILD.adoc[BUILD.adoc] for more information on installing the
+toolchain and building the Specification.
+
+
+== Generating Headers and Related Files
+
+The `khr_df.h` C header file defines structures and enums for specifying the
+layout of images in memory.

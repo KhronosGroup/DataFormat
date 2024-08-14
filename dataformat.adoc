@@ -1,0 +1,40 @@
+// Copyright 2014-2024 The Khronos Group Inc.
+// SPDX-License-Identifier: CC-BY-4.0
+
+// :regtitle: is explained in
+// https://discuss.asciidoctor.org/How-to-add-markup-to-author-information-in-document-title-td6488.html
+
+= Khronos Data Format Specification v1.3.1
+:regtitle: pass:q,r[^®^]
+Andrew Garrard
+:data-uri:
+:!icons:
+:toc2:
+:toclevels: 2
+:numbered:
+:source-highlighter: rouge
+:rouge-style: github
+:docinfo: shared-header
+:docinfodir: {config}/dataformat
+:title-logo-image: image:{images}/Khronos_RGB_June18.svg[top="25%"]
+:attribute-missing: warn
+
+// Various special / math symbols. This is easier to edit with than Unicode.
+include::{config}/attribs.adoc[]
+
+// Table of contents is inserted here
+toc::[]
+
+// TODO restore this when chapters are split into separate files for Antora
+// :leveloffset: 1
+
+<<<<
+
+// Chapters
+
+include::{chapters}/df.adoc[]
+
+// Appendices
+// :numbered!:
+//
+// include::{appendices}/spirvenv.adoc[]

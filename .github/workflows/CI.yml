@@ -1,0 +1,291 @@
+# Copyright 2021-2024 The Khronos Group Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+# GitHub CI file for vulkan spec and header generation
+# See .gitlab-ci.yml for non-Actions comments and step dependencies.
+
+name: CI
+
+# Controls when the action will run.
+on:
+  # Triggers the workflow on push or manual dispatch
+  push:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  # When a pull request is opened from a local branch or fork
+  pull_request:
+
+jobs:
+  license-check:
+    name: Verify repository license compliance
+    runs-on: ubuntu-latest
+    # We now refer to the container by its SHA instead of the name, to prevent
+    # caching problems when updating the image.
+    # container: khronosgroup/docker-images:asciidoctor-spec.20240726
+    container: khronosgroup/docker-images@sha256:089687083ceb36483a3917389e4278718ab19c594099634f5dd80e22540c960f
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: REUSE license checker
+        run: reuse lint
+
+  terminology-check:
+    name: Run various checker scripts on the spec and XML sources
+    runs-on: ubuntu-latest
+    container: khronosgroup/docker-images@sha256:089687083ceb36483a3917389e4278718ab19c594099634f5dd80e22540c960f
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Internal self-test of the check_spec_links script
+        run: pytest test*.py
+        working-directory: scripts
+      - name: Generate a summary of problems for CI logs (if any)
+        run: |
+          mkdir -p gen/out/checks
+          scripts/check_spec_links.py --html=gen/out/checks/problems.html > /dev/null || true
+          make CHECK_XREFS= allchecks
+
+  spec-toolchain:
+    name: Build a test spec and check against expectation, to make sure the spec toolchain works as expected
+    runs-on: ubuntu-latest
+    container: khronosgroup/docker-images@sha256:089687083ceb36483a3917389e4278718ab19c594099634f5dd80e22540c960f
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./testBuild
+
+  spec-core:
+    name: Build the core-only spec, to try and catch ifdef errors in extension markup
+    runs-on: ubuntu-latest
+    container: khronosgroup/docker-images@sha256:089687083ceb36483a3917389e4278718ab19c594099634f5dd80e22540c960f
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./makeSpec -clean -spec core -genpath gencore QUIET= -j${nproc} -Otarget chunked html
+
+  spec-generate:
+    name: Build the vulkan specification and generate any associated files (such as vulkan.h)
+    runs-on: ubuntu-latest
+    container: khronosgroup/docker-images@sha256:089687083ceb36483a3917389e4278718ab19c594099634f5dd80e22540c960f
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the actual spec (both chunked and single-page HTML), and other common targets
+        run: ./makeSpec -clean -spec all QUIET= -j${nproc} -Otarget manhtmlpages validusage styleguide registry chunked html
+      - name: Check consistency of internal xrefs and anchors in the output, now that an HTML output is available
+        run: make check-xrefs
+      - name: Build headers, for use by all later stages
+        run: make validate install test
+        working-directory: xml
+      - name: Package generated spec
+        # https://github.com/actions/upload-artifact#limitations
+        # upload-artifact would upload all of almost 10k files individually
+        # to GitHub, taking an inordinate amount of time. Tar it to upload
+        # just one large file:
+        run: tar -cvf spec-outputs.tar gen/
+      - name: Archive generated spec
+        uses: actions/upload-artifact@v4
+        with:
+          name: spec-outputs
+          path: spec-outputs.tar
+
+  hpp-generate:
+    name: Generate the vulkan C++ header (vulkan.hpp)
+    runs-on: ubuntu-latest
+    needs: spec-generate
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v4
+      # Generate the vulkan C++ header (vulkan.hpp)
+      # Failure (should be) allowed, for now
+      - name: Download generated spec
+        uses: actions/download-artifact@v4
+        with:
+          name: spec-outputs
+      - name: Unpack generated spec
+        run: tar -xvf spec-outputs.tar
+      - run: |
+          SPEC_DIR="${PWD}"
+          #  Unfortunately, asciidoctor-pdf gets pathname-specific errors
+          # building under the usual $GITHUB_WORKSPACE (/__w). As a workaround,
+          # generate the outputs in /tmp.
+          cd /tmp
+          rm -rf Vulkan-Hpp
+          git clone https://github.com/KhronosGroup/Vulkan-Hpp.git
+          cd Vulkan-Hpp
+          git submodule update --init --recursive -- tinyxml2
+          rm -rf Vulkan-Docs
+          ln -s "${SPEC_DIR}" Vulkan-Docs
+          ##cp -r "${SPEC_DIR}" Vulkan-Docs
+          # Copy Vulkan C headers into subdir copy used by Vulkan-Hpp
+          ##cp -p ${SPEC_DIR}/include/vulkan/*.h Vulkan-Docs/include/vulkan/
+          echo "Files in Vulkan-Docs:"
+          find Vulkan-Docs -type f
+          # cd /tmp/Vulkan-Hpp
+          cmake -H. -Bbuild
+          make -C build
+          cd build
+          ./VulkanHppGenerator -f "${SPEC_DIR}"/xml/vk.xml
+          cp /tmp/Vulkan-Hpp/vulkan/*.hpp ${SPEC_DIR}/gen/include/vulkan/
+      - name: Upload generated hpp
+        uses: actions/upload-artifact@v4
+        with:
+          name: hpp-outputs
+          path: gen/include/
+
+  ash-generate:
+    name: Generate Rust bindings (Ash crate)
+    runs-on: ubuntu-latest
+    needs: spec-generate
+    continue-on-error: true
+    env:
+      # Cached folder outside of git repo
+      CARGO_TARGET_DIR: ${{ github.workspace }}/ash-target
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: ash-rs/ash
+          path: ash
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            ash-target/
+          key: ${{ runner.os }}-cargo-ash-generator-${{ hashFiles('**/Cargo.toml', '.github/workflows/CI.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-ash-generator-
+      - name: Download generated spec
+        uses: actions/download-artifact@v4
+        with:
+          name: spec-outputs
+      - name: Unpack generated spec
+        run: tar -xvf spec-outputs.tar
+      - name: Prepare environment
+        working-directory: ash
+        run: |
+          # Piece together minimal Vulkan-Headers - Ash only needs headers and vk.xml
+          rm -rf generator/Vulkan-Headers/* # Should already be empty, just in case
+          ln -s ${{ github.workspace }}/gen/include generator/Vulkan-Headers/ # Complete headers come from spec-generate
+          ln -s ${{ github.workspace }}/xml generator/Vulkan-Headers/registry # vk.xml sits in the root of this spec repo
+
+      - name: Generate Ash crate
+        working-directory: ash
+        run: |
+          cargo run -p generator
+          cargo fmt --all
+
+      - name: Package generated Ash crate
+        # https://github.com/actions/upload-artifact#limitations, see above
+        run: tar -cvf ash-outputs.tar ash/
+      - name: Upload generated ash
+        uses: actions/upload-artifact@v4
+        with:
+          name: ash-outputs
+          path: ash-outputs.tar
+
+  # Run the CTS Vulkan framework tests, to make sure XML changes will not
+  # cause problems there.
+  cts-framework-tests:
+    name: Run Vulkan CTS framework tests to validate against XML changes
+    runs-on: ubuntu-latest
+    container: khronosgroup/docker-images@sha256:089687083ceb36483a3917389e4278718ab19c594099634f5dd80e22540c960f
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sparse/shallow clone of CTS GitHub repository to pull only relevant parts
+        run: |
+          git clone --sparse --depth 1 --single-branch --branch main https://github.com/KhronosGroup/VK-GL-CTS.git
+          cd VK-GL-CTS
+          # Add sparse checkout paths for required directories
+          git sparse-checkout add scripts external/vulkancts/framework external/vulkancts/scripts
+          # Link the spec project into CTS hierarchy, instead of cloning it
+          mkdir external/vulkan-docs
+          ln -s `cd .. ; pwd` external/vulkan-docs/src
+      - name: Run the Vulkan-specific tests (from scripts/check_build_sanity.py) # codespell:allow sanity
+        run: |
+          cd VK-GL-CTS
+          python3 external/vulkancts/scripts/gen_framework.py
+          python3 external/vulkancts/scripts/gen_framework_c.py
+          python3 external/vulkancts/scripts/gen_framework.py --api SC
+          python3 external/vulkancts/scripts/gen_framework_c.py --api SC
+
+  h-compile:
+    name: Compile a simple test program that uses vulkan.h
+    runs-on: ubuntu-latest
+    needs: spec-generate
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download generated files
+        uses: actions/download-artifact@v4
+        with:
+          name: spec-outputs
+      - name: Unpack generated spec
+        run: tar -xvf spec-outputs.tar
+      # Compile a simple test program that uses vulkan.h
+      # The fake platform headers in tests/ allow compiling with all Vulkan
+      # platforms at once.
+      - run: |
+          gcc -c -std=c11 -Igen/include -Itests -Wall -Wextra -Werror tests/htest.c
+          clang -c -std=c11 -Igen/include -Itests -Wall -Wextra -Werror tests/htest.c
+
+  hpp-compile:
+    name: Compile a simple test program that uses vulkan.hpp
+    runs-on: ubuntu-latest
+    needs: [spec-generate, hpp-generate]
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download generated spec
+        uses: actions/download-artifact@v4
+        with:
+          name: spec-outputs
+      - name: Unpack generated spec
+        run: tar -xvf spec-outputs.tar
+      - name: Download generated hpp
+        uses: actions/download-artifact@v4
+        with:
+          name: hpp-outputs
+          path: gen/include/
+      # Compile a simple test program that uses vulkan.hpp
+      # Depends on spec-generate and hpp-generate
+      # Failure (should be) allowed, for now
+      - run: |
+          g++ -c -std=c++11 -Igen/include -IVulkan-Hpp -Wall -Wextra -Werror tests/hpptest.cpp
+          clang++ -c -std=c++11 -Igen/include -IVulkan-Hpp -Wall -Wextra -Werror tests/hpptest.cpp
+
+  ash-compile:
+    name: Build-test Rust bindings (Ash crate)
+    runs-on: ubuntu-latest
+    needs: ash-generate
+    continue-on-error: true
+
+    steps:
+      - name: Download generated files
+        uses: actions/download-artifact@v4
+        with:
+          name: ash-outputs
+      - name: Unpack generated Ash crate
+        run: tar -xvf ash-outputs.tar
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            ash/target/
+          key: ${{ runner.os }}-cargo-ash-compile-${{ hashFiles('**/Cargo.toml', '.github/workflows/CI.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-ash-compile-
+      - name: Build-test ash crate
+        working-directory: ash
+        run: cargo clippy --all --all-targets

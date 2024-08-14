@@ -1,6 +1,6 @@
 #!/usr/bin/perl
-# Copyright (c) 2014-2017 The Khronos Group Inc.
-# Copyright notice at https://www.khronos.org/registry/speccopyright.html
+# Copyright 2014-2024 The Khronos Group Inc.
+# SPDX-License-Identifier: Apache-2.0
 
 # Determine if base64 needs -w 0 to prevent wrapping. Versions without
 # -w default to no wrapping.

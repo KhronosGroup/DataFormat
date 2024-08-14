@@ -1,6 +1,6 @@
 /* The Khronos Data Format Specification (version 1.3) */
 /*
-** Copyright 2015-2020 The Khronos Group Inc.
+** Copyright 2015-2024 The Khronos Group Inc.
 ** SPDX-License-Identifier: Apache-2.0
 */
 
