@@ -41,8 +41,8 @@ primaries.
 NOTE: Many color standards use the CIE D65 standard illuminant as a white
 point. D65 is intended to represent average daylight, and has a color
 temperature of approximately 6500K. In <<ciexyz,CIE 1931>> terms, this
-white point is defined in ITU standards as latexmath:[$x=0.3127,\ y=0.3290$],
-but elsewhere given as latexmath:[$x=0.312713,\ y=0.329016$].
+white point is defined in ITU standards as latexmath:[x=0.3127,\ y=0.3290],
+but elsewhere given as latexmath:[x=0.312713,\ y=0.329016].
 Different coordinates will affect the conversion matrices given below.
 The definition of the D65 white point is complicated by the constants in
 Planck's Law (which is a component in calculating the white point from
@@ -50,7 +50,7 @@ the color temperature) having been revised since D65 was standardized, such
 that the standard formula for calculating CIE coordinates from the color
 temperature do not agree with the D65 standard.
 The actual color temperature of D65 is nearer to
-latexmath:[$6500\times {1.4388\over 1.438} \approx 6503.6\textrm{K}$].
+latexmath:[6500\times {1.4388\over 1.438} \approx 6503.6\textrm{K}].
 
 Assuming an arbitrary white luminance (_Y_ value) of 1.0, it is possible
 to express the following identity for the _X_, _Y_ and _Z_ coordinates
@@ -63,8 +63,8 @@ W_X &= R_X + G_X + B_X &W_Y &= R_Y + G_Y + B_Y = 1.0 &W_Z &= R_Z + G_Z + B_Z
 \end{align*}
 ++++
 
-The identities latexmath:[$X = Y{x\over{y}}$] and
-latexmath:[$Z = Y{{(1-x-y)}\over{y}}$] can be used to
+The identities latexmath:[X = Y{x\over{y}}] and
+latexmath:[Z = Y{{(1-x-y)}\over{y}}] can be used to
 re-express the above terms in the _xyY_ space:
 
 [latexmath]
@@ -97,7 +97,7 @@ B_Y\left({1-B_x\over{B_y}}-1\right) &
 \end{align*}
 ++++
 
-Since latexmath:[$R_Y + G_Y + B_Y = W_Y = 1$], this further
+Since latexmath:[R_Y + G_Y + B_Y = W_Y = 1], this further
 simplifies to:
 
 [latexmath]
@@ -110,71 +110,71 @@ B_Y\left({1-B_x\over{B_y}}\right) &
 \end{align*}
 ++++
 
-The latexmath:[$R_Y+G_Y+B_Y$] term for _W~Y~_ can be multiplied by
-latexmath:[$R_x\over{R_y}$] and subtracted from the equation for _W~X~_:
+The latexmath:[R_Y+G_Y+B_Y] term for _W~Y~_ can be multiplied by
+latexmath:[R_x\over{R_y}] and subtracted from the equation for _W~X~_:
 
 [latexmath]
 ++++
-$$ G_Y\left({G_x\over{G_y}}-{R_x\over{R_y}}\right) +
-   B_Y\left({B_x\over{B_y}}-{R_x\over{R_y}}\right) =
-   {W_x\over{W_y}}-{R_x\over{R_y}}$$
+G_Y\left({G_x\over{G_y}}-{R_x\over{R_y}}\right) +
+B_Y\left({B_x\over{B_y}}-{R_x\over{R_y}}\right) =
+{W_x\over{W_y}}-{R_x\over{R_y}}
 ++++
 
-Similarly, the latexmath:[$R_Y+G_Y+B_Y$] term can be multiplied by
-latexmath:[$1-R_x\over{R_y}$] and subtracted from the simplified
+Similarly, the latexmath:[R_Y+G_Y+B_Y] term can be multiplied by
+latexmath:[1-R_x\over{R_y}] and subtracted from the simplified
 _W~Z~_ line:
 
 [latexmath]
 ++++
-$$ G_Y\left({1-G_x\over{G_y}}-{1-R_x\over{R_y}}\right) +
-   B_Y\left({1-B_x\over{B_y}}-{1-R_x\over{R_y}}\right) =
-   {1-W_x\over{W_y}}-{1-R_x\over{R_y}}$$
+G_Y\left({1-G_x\over{G_y}}-{1-R_x\over{R_y}}\right) +
+B_Y\left({1-B_x\over{B_y}}-{1-R_x\over{R_y}}\right) =
+{1-W_x\over{W_y}}-{1-R_x\over{R_y}}
 ++++
 
 Finally, the _G~Y~_ term can be eliminated by multiplying the former of these
-two equations by latexmath:[${1-G_x\over{G_y}}-{1-R_x\over{R_y}}$] and subtracting it
-from the latter multiplied by latexmath:[${G_x\over{G_y}}-{R_x\over{R_y}}$], giving:
+two equations by latexmath:[{1-G_x\over{G_y}}-{1-R_x\over{R_y}}] and subtracting it
+from the latter multiplied by latexmath:[{G_x\over{G_y}}-{R_x\over{R_y}}], giving:
 
 [latexmath]
 ++++
-$$ B_Y\left(\left({1-B_x\over{B_y}}-{1-R_x\over{R_y}}\right)
-   \left({G_x\over{G_y}}-{R_x\over{R_y}}\right) -
-   \left({B_x\over{B_y}}-{R_x\over{R_y}}\right)
-   \left({1-G_x\over{G_y}}-{1-R_x\over{R_y}}\right)\right)$$
-$$ = \left({1-W_x\over{W_y}}-{1-R_x\over{R_y}}\right)
-   \left({G_x\over{G_y}}-{R_x\over{R_y}}\right) -
-   \left({W_x\over{W_y}}-{R_x\over{R_y}}\right)
-   \left({1-G_x\over{G_y}}-{1-R_x\over{R_y}}\right)$$
+B_Y\left(\left({1-B_x\over{B_y}}-{1-R_x\over{R_y}}\right)
+\left({G_x\over{G_y}}-{R_x\over{R_y}}\right) -
+\left({B_x\over{B_y}}-{R_x\over{R_y}}\right)
+\left({1-G_x\over{G_y}}-{1-R_x\over{R_y}}\right)\right) \\
+= \left({1-W_x\over{W_y}}-{1-R_x\over{R_y}}\right)
+\left({G_x\over{G_y}}-{R_x\over{R_y}}\right) -
+\left({W_x\over{W_y}}-{R_x\over{R_y}}\right)
+\left({1-G_x\over{G_y}}-{1-R_x\over{R_y}}\right)
 ++++
 
 Thus:
 
 [latexmath]
 ++++
-$$ B_Y = {{\left({1-W_x\over{W_y}}-{1-R_x\over{R_y}}\right)
-   \left({G_x\over{G_y}}-{R_x\over{R_y}}\right) -
-   \left({W_x\over{W_y}}-{R_x\over{R_y}}\right)
-   \left({1-G_x\over{G_y}}-{1-R_x\over{R_y}}\right)}
-   \over{\left({1-B_x\over{B_y}}-{1-R_x\over{R_y}}\right)
-   \left({G_x\over{G_y}}-{R_x\over{R_y}}\right) -
-   \left({B_x\over{B_y}}-{R_x\over{R_y}}\right)
-   \left({1-G_x\over{G_y}}-{1-R_x\over{R_y}}\right)}}$$
+B_Y = {{\left({1-W_x\over{W_y}}-{1-R_x\over{R_y}}\right)
+\left({G_x\over{G_y}}-{R_x\over{R_y}}\right) -
+\left({W_x\over{W_y}}-{R_x\over{R_y}}\right)
+\left({1-G_x\over{G_y}}-{1-R_x\over{R_y}}\right)}
+\over{\left({1-B_x\over{B_y}}-{1-R_x\over{R_y}}\right)
+\left({G_x\over{G_y}}-{R_x\over{R_y}}\right) -
+\left({B_x\over{B_y}}-{R_x\over{R_y}}\right)
+\left({1-G_x\over{G_y}}-{1-R_x\over{R_y}}\right)}}
 ++++
 
 This allows _G~Y~_ to be calculated by rearranging an earlier equation:
 
 [latexmath]
 ++++
-$$ G_Y =
-   {{W_x\over{W_y}}-{R_x\over{R_y}}
-   -B_Y\left({B_x\over{B_y}}-{R_x\over{R_y}}\right)
-   \over{{G_x\over{G_y}}-{R_x\over{R_y}}}}$$
+G_Y =
+{{W_x\over{W_y}}-{R_x\over{R_y}}
+-B_Y\left({B_x\over{B_y}}-{R_x\over{R_y}}\right)
+\over{{G_x\over{G_y}}-{R_x\over{R_y}}}}
 ++++
 
 And finally:
 [latexmath]
 ++++
-$$ R_Y = 1 - G_Y - B_Y $$
+R_Y = 1 - G_Y - B_Y
 ++++
 
 These relative magnitudes allow the definition of vectors representing
@@ -188,7 +188,7 @@ The transform from the defined color primaries to _XYZ_ space is:
 
 [latexmath]
 ++++
-$$ \left(\begin{array}{c}X\\
+\left(\begin{array}{c}X\\
 Y\\
 Z\end{array}\right) =
 \left(\begin{array}{ccc}R_X, & G_X, & B_X \\
@@ -202,14 +202,14 @@ R_Y, & G_Y, & B_Y \\
 {R_Y\over{R_y}}(1-R_x-R_y), & {G_Y\over{G_y}}(1-G_x-G_y), & {B_Y\over{B_y}}(1-B_x-B_y)
 \end{array}\right)\left(\begin{array}{c}R\\
 G\\
-B\end{array}\right)$$
+B\end{array}\right)
 ++++
 
 The transform from _XYZ_ space to the defined color primaries is therefore:
 
 [latexmath]
 ++++
-$$ \left(\begin{array}{c}R\\
+\left(\begin{array}{c}R\\
 G\\
 B\end{array}\right) =
 \left(\begin{array}{ccc}R_X, & G_X, & B_X \\
@@ -223,14 +223,14 @@ R_Y, & G_Y, & B_Y \\
 {R_Y\over{R_y}}(1-R_x-R_y), & {G_Y\over{G_y}}(1-G_x-G_y), & {B_Y\over{B_y}}(1-B_x-B_y)
 \end{array}\right)^{-1}\left(\begin{array}{c}X\\
 Y\\
-Z\end{array}\right)$$
+Z\end{array}\right)
 ++++
 
 NOTE: These transforms assume that the black point for the color space
-is at latexmath:[$(X, Y, Z) = (0, 0, 0)$]. If the black point is non-zero,
+is at latexmath:[(X, Y, Z) = (0, 0, 0)]. If the black point is non-zero,
 these transforms require a translational component. In some color spaces the
 black point has the same color as the white point, in which case it is also
-possible to adjust the latexmath:[$(R, G, B)$] values outside the matrix.
+possible to adjust the latexmath:[(R, G, B)] values outside the matrix.
 
 [NOTE]
 ====
@@ -342,7 +342,7 @@ primaries to _XYZ_ space the formulae in <<PRIMARY_CONVERSION>> result
 in the following matrix:
 [latexmath]
 ++++
-$$\left(\begin{array}{c}X \\
+\left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right) \approx
 \left(\begin{array}{ccc}
@@ -351,7 +351,7 @@ Z\end{array}\right) \approx
 0.019331, & 0.119195, & 0.950532\end{array}\right)
 \left(\begin{array}{c} R_{709} \\
 G_{709} \\
-B_{709}\end{array}\right)$$
+B_{709}\end{array}\right)
 ++++
 
 The inverse transformation, from the _XYZ_ space to a color defined
@@ -359,7 +359,7 @@ in terms of BT.709 color primaries, is:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{709} \\
+\left(\begin{array}{c} R_{709} \\
 G_{709} \\
 B_{709}\end{array}\right) \approx
 \left(\begin{array}{r@{}lr@{}lr@{}l}
@@ -369,13 +369,12 @@ B_{709}\end{array}\right) \approx
 \left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right)
-$$
 ++++
 endif::[]
 ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{709} \\
+\left(\begin{array}{c} R_{709} \\
 G_{709} \\
 B_{709}\end{array}\right) \approx
 \left(\begin{array}{ccc}
@@ -385,7 +384,6 @@ B_{709}\end{array}\right) \approx
 \left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right)
-$$
 ++++
 endif::[]
 
@@ -411,14 +409,14 @@ W_x &= 0.3127 & W_y &= 0.3290
 ++++
 
 NOTE: <<bt470,BT.470-6>>, which also describes these constants in a legacy
-context, approximates D65 as latexmath:[$x = 0.313,\ y = 0.329$].
+context, approximates D65 as latexmath:[x = 0.313,\ y = 0.329].
 
 Therefore to convert from linear color values defined in terms of BT.601 color
 primaries for 625-line systems to _XYZ_ space the formulae in
 <<PRIMARY_CONVERSION>> result in the following matrix:
 [latexmath]
 ++++
-$$\left(\begin{array}{c}X \\
+\left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right) \approx
 \left(\begin{array}{ccc}
@@ -427,7 +425,7 @@ Z\end{array}\right) \approx
 0.020182, & 0.129553, & 0.939322\end{array}\right)
 \left(\begin{array}{c} R_{601\textrm{EBU}} \\
 G_{601\textrm{EBU}} \\
-B_{601\textrm{EBU}}\end{array}\right)$$
+B_{601\textrm{EBU}}\end{array}\right)
 ++++
 
 The inverse transformation, from the _XYZ_ space to a color defined
@@ -435,7 +433,7 @@ in terms of BT.601 ``EBU'' 625-line color primaries, is:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{601\textrm{EBU}} \\
+\left(\begin{array}{c} R_{601\textrm{EBU}} \\
 G_{601\textrm{EBU}} \\
 B_{601\textrm{EBU}}\end{array}\right) \approx
 \left(\begin{array}{r@{}lr@{}lr@{}l}
@@ -445,13 +443,12 @@ B_{601\textrm{EBU}}\end{array}\right) \approx
 \left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right)
-$$
 ++++
 endif::[]
 ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{601\textrm{EBU}} \\
+\left(\begin{array}{c} R_{601\textrm{EBU}} \\
 G_{601\textrm{EBU}} \\
 B_{601\textrm{EBU}}\end{array}\right) \approx
 \left(\begin{array}{ccc}
@@ -461,7 +458,6 @@ B_{601\textrm{EBU}}\end{array}\right) \approx
 \left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right)
-$$
 ++++
 endif::[]
 
@@ -490,7 +486,7 @@ primaries for 525-line systems to _XYZ_ space the formulae in
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c}X \\
+\left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right) \approx
 \left(\begin{array}{ccc}
@@ -499,13 +495,13 @@ Z\end{array}\right) \approx
 0.018739, & 0.111934, & 0.958385\end{array}\right)
 \left(\begin{array}{c} R_{601\textrm{SMPTE}} \\
 G_{601\textrm{SMPTE}} \\
-B_{601\textrm{SMPTE}}\end{array}\right)$$
+B_{601\textrm{SMPTE}}\end{array}\right)
 ++++
 endif::[]
 ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c}X \\
+\left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right) \approx
 \left(\begin{array}{ccc}
@@ -514,7 +510,7 @@ Z\end{array}\right) \approx
 0.018739, & 0.111934, & 0.958385\end{array}\right)
 \left(\begin{array}{c} R_{601\textrm{SMPTE}} \\
 G_{601\textrm{SMPTE}} \\
-B_{601\textrm{SMPTE}}\end{array}\right)$$
+B_{601\textrm{SMPTE}}\end{array}\right)
 ++++
 endif::[]
 
@@ -523,7 +519,7 @@ in terms of BT.601 525-line color primaries, is:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{601\textrm{SMPTE}} \\
+\left(\begin{array}{c} R_{601\textrm{SMPTE}} \\
 G_{601\textrm{SMPTE}} \\
 B_{601\textrm{SMPTE}}\end{array}\right) \approx
 \left(\begin{array}{r@{}lr@{}lr@{}l}
@@ -533,13 +529,12 @@ B_{601\textrm{SMPTE}}\end{array}\right) \approx
 \left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right)
-$$
 ++++
 endif::[]
 ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{601\textrm{SMPTE}} \\
+\left(\begin{array}{c} R_{601\textrm{SMPTE}} \\
 G_{601\textrm{SMPTE}} \\
 B_{601\textrm{SMPTE}}\end{array}\right) \approx
 \left(\begin{array}{ccc}
@@ -549,7 +544,6 @@ B_{601\textrm{SMPTE}}\end{array}\right) \approx
 \left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right)
-$$
 ++++
 endif::[]
 
@@ -579,7 +573,7 @@ in the following matrix:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c}X \\
+\left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right) \approx
 \left(\begin{array}{r@{}lr@{}lr@{}l}
@@ -588,13 +582,13 @@ Z\end{array}\right) \approx
 0.&000000, & 0.&028073, & 1.&060985\end{array}\right)
 \left(\begin{array}{c} R_{2020} \\
 G_{2020} \\
-B_{2020}\end{array}\right)$$
+B_{2020}\end{array}\right)
 ++++
 endif::[]
 ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c}X \\
+\left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right) \approx
 \left(\begin{array}{ccc}
@@ -603,7 +597,7 @@ Z\end{array}\right) \approx
 0.000000, & 0.028073, & 1.060985\end{array}\right)
 \left(\begin{array}{c} R_{2020} \\
 G_{2020} \\
-B_{2020}\end{array}\right)$$
+B_{2020}\end{array}\right)
 ++++
 endif::[]
 
@@ -612,7 +606,7 @@ defined in terms of BT.2020 color primaries, is:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{2020} \\
+\left(\begin{array}{c} R_{2020} \\
 G_{2020} \\
 B_{2020}\end{array}\right) \approx
 \left(\begin{array}{r@{}lr@{}lr@{}l}
@@ -622,13 +616,12 @@ B_{2020}\end{array}\right) \approx
 \left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right)
-$$
 ++++
 endif::[]
 ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{2020} \\
+\left(\begin{array}{c} R_{2020} \\
 G_{2020} \\
 B_{2020}\end{array}\right) \approx
 \left(\begin{array}{ccc}
@@ -638,7 +631,6 @@ B_{2020}\end{array}\right) \approx
 \left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right)
-$$
 ++++
 endif::[]
 
@@ -677,7 +669,7 @@ in the following matrix:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c}X \\
+\left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right) \approx
 \left(\begin{array}{r@{}lr@{}lr@{}l}
@@ -686,13 +678,13 @@ Z\end{array}\right) \approx
 0.&000000, & 0.&066076, & 1.&117469\end{array}\right)
 \left(\begin{array}{c} R_{\textrm{NTSC}} \\
 G_{\textrm{NTSC}} \\
-B_{\textrm{NTSC}}\end{array}\right)$$
+B_{\textrm{NTSC}}\end{array}\right)
 ++++
 endif::[]
 ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c}X \\
+\left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right) \approx
 \left(\begin{array}{ccc}
@@ -701,7 +693,7 @@ Z\end{array}\right) \approx
 0.000000, & 0.066076, & 1.117469\end{array}\right)
 \left(\begin{array}{c} R_{\textrm{NTSC}} \\
 G_{\textrm{NTSC}} \\
-B_{\textrm{NTSC}}\end{array}\right)$$
+B_{\textrm{NTSC}}\end{array}\right)
 ++++
 endif::[]
 
@@ -710,7 +702,7 @@ defined in terms of NTSC 1953 color primaries, is:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{\textrm{NTSC}} \\
+\left(\begin{array}{c} R_{\textrm{NTSC}} \\
 G_{\textrm{NTSC}} \\
 B_{\textrm{NTSC}}\end{array}\right) \approx
 \left(\begin{array}{r@{}lr@{}lr@{}l}
@@ -720,13 +712,12 @@ B_{\textrm{NTSC}}\end{array}\right) \approx
 \left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right)
-$$
 ++++
 endif::[]
 ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{\textrm{NTSC}} \\
+\left(\begin{array}{c} R_{\textrm{NTSC}} \\
 G_{\textrm{NTSC}} \\
 B_{\textrm{NTSC}}\end{array}\right) \approx
 \left(\begin{array}{ccc}
@@ -736,7 +727,6 @@ B_{\textrm{NTSC}}\end{array}\right) \approx
 \left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right)
-$$
 ++++
 endif::[]
 
@@ -766,7 +756,7 @@ in the following matrix:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c}X \\
+\left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right) \approx
 \left(\begin{array}{r@{}lr@{}lr@{}l}
@@ -775,13 +765,13 @@ Z\end{array}\right) \approx
 0.&019781, & 0.&108679, & 1.&053387\end{array}\right)
 \left(\begin{array}{c} R_{\textrm{PAL525}} \\
 G_{\textrm{PAL525}} \\
-B_{\textrm{PAL525}}\end{array}\right)$$
+B_{\textrm{PAL525}}\end{array}\right)
 ++++
 endif::[]
 ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c}X \\
+\left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right) \approx
 \left(\begin{array}{ccc}
@@ -790,7 +780,7 @@ Z\end{array}\right) \approx
 0.019781, & 0.108679, & 1.053387\end{array}\right)
 \left(\begin{array}{c} R_{\textrm{PAL525}} \\
 G_{\textrm{PAL525}} \\
-B_{\textrm{PAL525}}\end{array}\right)$$
+B_{\textrm{PAL525}}\end{array}\right)
 ++++
 endif::[]
 
@@ -799,7 +789,7 @@ defined in terms of PAL 525-line 1953 color primaries, is:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{\textrm{PAL525}} \\
+\left(\begin{array}{c} R_{\textrm{PAL525}} \\
 G_{\textrm{PAL525}} \\
 B_{\textrm{PAL525}}\end{array}\right) \approx
 \left(\begin{array}{r@{}lr@{}lr@{}l}
@@ -809,13 +799,12 @@ B_{\textrm{PAL525}}\end{array}\right) \approx
 \left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right)
-$$
 ++++
 endif::[]
 ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{\textrm{PAL525}} \\
+\left(\begin{array}{c} R_{\textrm{PAL525}} \\
 G_{\textrm{PAL525}} \\
 B_{\textrm{PAL525}}\end{array}\right) \approx
 \left(\begin{array}{ccc}
@@ -825,7 +814,6 @@ B_{\textrm{PAL525}}\end{array}\right) \approx
 \left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right)
-$$
 ++++
 endif::[]
 
@@ -849,7 +837,7 @@ in the following matrix:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c}X \\
+\left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right) \approx
 \left(\begin{array}{r@{}lr@{}lr@{}l}
@@ -858,13 +846,13 @@ Z\end{array}\right) \approx
 0.&0,          & 0.&0,          &  1.&0088251844\end{array}\right)
 \left(\begin{array}{c} R_{\textrm{ACES}} \\
 G_{\textrm{ACES}} \\
-B_{\textrm{ACES}}\end{array}\right)$$
+B_{\textrm{ACES}}\end{array}\right)
 ++++
 endif::[]
 ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c}X \\
+\left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right) \approx
 \left(\begin{array}{ccc}
@@ -873,7 +861,7 @@ Z\end{array}\right) \approx
 0.0,          & 0.0,          &  1.0088251844\end{array}\right)
 \left(\begin{array}{c} R_{\textrm{ACES}} \\
 G_{\textrm{ACES}} \\
-B_{\textrm{ACES}}\end{array}\right)$$
+B_{\textrm{ACES}}\end{array}\right)
 ++++
 endif::[]
 The inverse transformation, from the _XYZ_ space to a color
@@ -881,7 +869,7 @@ defined in terms of ACES color primaries, is:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{\textrm{ACES}} \\
+\left(\begin{array}{c} R_{\textrm{ACES}} \\
 G_{\textrm{ACES}} \\
 B_{\textrm{ACES}}\end{array}\right) \approx
 \left(\begin{array}{r@{}lr@{}lr@{}l}
@@ -891,13 +879,12 @@ B_{\textrm{ACES}}\end{array}\right) \approx
 \left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right)
-$$
 ++++
 endif::[]
 ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{\textrm{ACES}} \\
+\left(\begin{array}{c} R_{\textrm{ACES}} \\
 G_{\textrm{ACES}} \\
 B_{\textrm{ACES}}\end{array}\right) \approx
 \left(\begin{array}{ccc}
@@ -907,7 +894,6 @@ B_{\textrm{ACES}}\end{array}\right) \approx
 \left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right)
-$$
 ++++
 endif::[]
 
@@ -932,7 +918,7 @@ result in the following matrix:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c}X \\
+\left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right) \approx
 \left(\begin{array}{r@{}lr@{}lr@{}l}
@@ -941,13 +927,13 @@ Z\end{array}\right) \approx
 -0.&0055746495, & 0.&0040607335, & 1.&0103391003\end{array}\right)
 \left(\begin{array}{c} R_{\textrm{ACEScct}} \\
 G_{\textrm{ACEScct}} \\
-B_{\textrm{ACEScct}}\end{array}\right)$$
+B_{\textrm{ACEScct}}\end{array}\right)
 ++++
 endif::[]
 ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c}X \\
+\left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right) \approx
 \left(\begin{array}{ccc}
@@ -956,7 +942,7 @@ Z\end{array}\right) \approx
 -0.0055746495, & 0.0040607335, & 1.0103391003\end{array}\right)
 \left(\begin{array}{c} R_{\textrm{ACEScct}} \\
 G_{\textrm{ACEScct}} \\
-B_{\textrm{ACEScct}}\end{array}\right)$$
+B_{\textrm{ACEScct}}\end{array}\right)
 ++++
 endif::[]
 The inverse transformation, from the _XYZ_ space to a color
@@ -964,7 +950,7 @@ defined in terms of ACEScc/ACEScct color primaries, is:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{\textrm{ACEScc}} \\
+\left(\begin{array}{c} R_{\textrm{ACEScc}} \\
 G_{\textrm{ACEScc}} \\
 B_{\textrm{ACEScc}}\end{array}\right) \approx
 \left(\begin{array}{r@{}lr@{}lr@{}l}
@@ -974,13 +960,12 @@ B_{\textrm{ACEScc}}\end{array}\right) \approx
 \left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right)
-$$
 ++++
 endif::[]
 ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{\textrm{ACEScc}} \\
+\left(\begin{array}{c} R_{\textrm{ACEScc}} \\
 G_{\textrm{ACEScc}} \\
 B_{\textrm{ACEScc}}\end{array}\right) \approx
 \left(\begin{array}{ccc}
@@ -990,7 +975,6 @@ B_{\textrm{ACEScc}}\end{array}\right) \approx
 \left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right)
-$$
 ++++
 endif::[]
 
@@ -1021,7 +1005,7 @@ result in the following matrix:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c}X \\
+\left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right) \approx
 \left(\begin{array}{r@{}lr@{}lr@{}l}
@@ -1030,13 +1014,13 @@ Z\end{array}\right) \approx
 0.&0000000000, & 0.&0451133819, & 1.&0439443689\end{array}\right) =
 \left(\begin{array}{c} R_{\textrm{DisplayP3}} \\
 G_{\textrm{DisplayP3}} \\
-B_{\textrm{DisplayP3}}\end{array}\right)$$
+B_{\textrm{DisplayP3}}\end{array}\right)
 ++++
 endif::[]
 ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c}X \\
+\left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right) \approx
 \left(\begin{array}{ccc}
@@ -1045,7 +1029,7 @@ Z\end{array}\right) \approx
 0.0000000000, & 0.0451133819, & 1.0439443689\end{array}\right) =
 \left(\begin{array}{c} R_{\textrm{DisplayP3}} \\
 G_{\textrm{DisplayP3}} \\
-B_{\textrm{DisplayP3}}\end{array}\right)$$
+B_{\textrm{DisplayP3}}\end{array}\right)
 ++++
 endif::[]
 The inverse transformation, from the _XYZ_ space to a color
@@ -1053,7 +1037,7 @@ defined in terms of DisplayP3 color primaries, is:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{\textrm{DisplayP3}} \\
+\left(\begin{array}{c} R_{\textrm{DisplayP3}} \\
 G_{\textrm{DisplayP3}} \\
 B_{\textrm{DisplayP3}}\end{array}\right) \approx
 \left(\begin{array}{r@{}lr@{}lr@{}l}
@@ -1063,12 +1047,11 @@ B_{\textrm{DisplayP3}}\end{array}\right) \approx
 \left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right)
-$$
 ++++
 endif::[]
 ifeval::["{svgpdf}"=="svg"]
 ++++
-$$\left(\begin{array}{c} R_{\textrm{DisplayP3}} \\
+\left(\begin{array}{c} R_{\textrm{DisplayP3}} \\
 G_{\textrm{DisplayP3}} \\
 B_{\textrm{DisplayP3}}\end{array}\right) \approx
 \left(\begin{array}{ccc}
@@ -1078,14 +1061,13 @@ B_{\textrm{DisplayP3}}\end{array}\right) \approx
 \left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right)
-$$
 ++++
 endif::[]
 
 NOTE: These matrices differ from those given in <<dcip3,SMPTE EG 432-1>>
 due to the choice of a D65 white point in Display P3.
 The matrices in 432-1 can be reproduced by applying a white point
-of latexmath:[$W_x = 0.314,\ W_y = 0.351$] to the above primaries.
+of latexmath:[W_x = 0.314,\ W_y = 0.351] to the above primaries.
 
 <<<
 [[PRIMARIES_ADOBERGB]]
@@ -1108,7 +1090,7 @@ Therefore to convert from linear color values defined in terms of Adobe RGB
 <<PRIMARY_CONVERSION>> result in the following matrix:
 [latexmath]
 ++++
-$$\left(\begin{array}{c}X \\
+\left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right) \approx
 \left(\begin{array}{ccc}
@@ -1117,14 +1099,14 @@ Z\end{array}\right) \approx
 0.0270313614, & 0.0706888525, & 0.9913375368\end{array}\right) =
 \left(\begin{array}{c} R_{\textrm{AdobeRGB}} \\
 G_{\textrm{AdobeRGB}} \\
-B_{\textrm{AdobeRGB}}\end{array}\right)$$
+B_{\textrm{AdobeRGB}}\end{array}\right)
 ++++
 The inverse transformation, from the _XYZ_ space to a color
 defined in terms of Adobe RGB (1998) color primaries, is:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{\textrm{AdobeRGB}} \\
+\left(\begin{array}{c} R_{\textrm{AdobeRGB}} \\
 G_{\textrm{AdobeRGB}} \\
 B_{\textrm{AdobeRGB}}\end{array}\right) \approx
 \left(\begin{array}{r@{}lr@{}lr@{}l}
@@ -1134,13 +1116,12 @@ B_{\textrm{AdobeRGB}}\end{array}\right) \approx
 \left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right)
-$$
 ++++
 endif::[]
 ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{\textrm{AdobeRGB}} \\
+\left(\begin{array}{c} R_{\textrm{AdobeRGB}} \\
 G_{\textrm{AdobeRGB}} \\
 B_{\textrm{AdobeRGB}}\end{array}\right) \approx
 \left(\begin{array}{ccc}
@@ -1150,7 +1131,6 @@ B_{\textrm{AdobeRGB}}\end{array}\right) \approx
 \left(\begin{array}{c}X \\
 Y \\
 Z\end{array}\right)
-$$
 ++++
 endif::[]
 
@@ -1170,7 +1150,7 @@ as follows:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{601\textrm{EBU}} \\
+\left(\begin{array}{c} R_{601\textrm{EBU}} \\
 G_{601\textrm{EBU}} \\
 B_{601\textrm{EBU}}\end{array}\right) \approx
 \left(\begin{array}{r@{}lr@{}lr@{}l}
@@ -1183,13 +1163,13 @@ B_{601\textrm{EBU}}\end{array}\right) \approx
 0.019331, & 0.119195, & 0.950532\end{array}\right)
 \left(\begin{array}{c} R_{709} \\
 G_{709} \\
-B_{709}\end{array}\right)$$
+B_{709}\end{array}\right)
 ++++
 endif::[]
 ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{601\textrm{EBU}} \\
+\left(\begin{array}{c} R_{601\textrm{EBU}} \\
 G_{601\textrm{EBU}} \\
 B_{601\textrm{EBU}}\end{array}\right) \approx
 \left(\begin{array}{ccc}
@@ -1202,14 +1182,14 @@ B_{601\textrm{EBU}}\end{array}\right) \approx
 0.019331, & 0.119195, & 0.950532\end{array}\right)
 \left(\begin{array}{c} R_{709} \\
 G_{709} \\
-B_{709}\end{array}\right)$$
+B_{709}\end{array}\right)
 ++++
 endif::[]
 
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{601\textrm{EBU}} \\
+\left(\begin{array}{c} R_{601\textrm{EBU}} \\
 G_{601\textrm{EBU}} \\
 B_{601\textrm{EBU}}\end{array}\right) \approx
 \left(\begin{array}{r@{}lr@{}lr@{}l}
@@ -1218,13 +1198,13 @@ B_{601\textrm{EBU}}\end{array}\right) \approx
 0.&0,      & -0.&011934, & 1.&011934\end{array}\right)
 \left(\begin{array}{c} R_{709} \\
 G_{709} \\
-B_{709}\end{array}\right)$$
+B_{709}\end{array}\right)
 ++++
 endif::[]
 ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{601\textrm{EBU}} \\
+\left(\begin{array}{c} R_{601\textrm{EBU}} \\
 G_{601\textrm{EBU}} \\
 B_{601\textrm{EBU}}\end{array}\right) \approx
 \left(\begin{array}{ccc}
@@ -1233,7 +1213,7 @@ B_{601\textrm{EBU}}\end{array}\right) \approx
 0.0,      & -0.011934, & 1.011934\end{array}\right)
 \left(\begin{array}{c} R_{709} \\
 G_{709} \\
-B_{709}\end{array}\right)$$
+B_{709}\end{array}\right)
 ++++
 endif::[]
 
@@ -1243,7 +1223,7 @@ using these matrices:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{709} \\
+\left(\begin{array}{c} R_{709} \\
 G_{709} \\
 B_{709}\end{array}\right) \approx
 \left(\begin{array}{r@{}lr@{}lr@{}l}
@@ -1256,13 +1236,13 @@ B_{709}\end{array}\right) \approx
 0.020182, & 0.129553, & 0.939322\end{array}\right)
 \left(\begin{array}{c} R_{601\textrm{EBU}} \\
 G_{601\textrm{EBU}} \\
-B_{601\textrm{EBU}}\end{array}\right)$$
+B_{601\textrm{EBU}}\end{array}\right)
 ++++
 endif::[]
 ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{709} \\
+\left(\begin{array}{c} R_{709} \\
 G_{709} \\
 B_{709}\end{array}\right) \approx
 \left(\begin{array}{ccc}
@@ -1275,14 +1255,14 @@ B_{709}\end{array}\right) \approx
 0.020182, & 0.129553, & 0.939322\end{array}\right)
 \left(\begin{array}{c} R_{601\textrm{EBU}} \\
 G_{601\textrm{EBU}} \\
-B_{601\textrm{EBU}}\end{array}\right)$$
+B_{601\textrm{EBU}}\end{array}\right)
 ++++
 endif::[]
 
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{709} \\
+\left(\begin{array}{c} R_{709} \\
 G_{709} \\
 B_{709}\end{array}\right) \approx
 \left(\begin{array}{r@{}lr@{}lr@{}l}
@@ -1291,13 +1271,13 @@ B_{709}\end{array}\right) \approx
 0.&0,      &  0.&011793, & 0.&988207\end{array}\right)
 \left(\begin{array}{c} R_{601\textrm{EBU}} \\
 G_{601\textrm{EBU}} \\
-B_{601\textrm{EBU}}\end{array}\right)$$
+B_{601\textrm{EBU}}\end{array}\right)
 ++++
 endif::[]
 ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{709} \\
+\left(\begin{array}{c} R_{709} \\
 G_{709} \\
 B_{709}\end{array}\right) \approx
 \left(\begin{array}{ccc}
@@ -1306,7 +1286,7 @@ B_{709}\end{array}\right) \approx
 0.0,      &  0.011793, & 0.988207\end{array}\right)
 \left(\begin{array}{c} R_{601\textrm{EBU}} \\
 G_{601\textrm{EBU}} \\
-B_{601\textrm{EBU}}\end{array}\right)$$
+B_{601\textrm{EBU}}\end{array}\right)
 ++++
 endif::[]
 
@@ -1319,7 +1299,7 @@ as follows:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{2020} \\
+\left(\begin{array}{c} R_{2020} \\
 G_{2020} \\
 B_{2020}\end{array}\right) \approx
 \left(\begin{array}{r@{}lr@{}lr@{}l}
@@ -1332,13 +1312,13 @@ B_{2020}\end{array}\right) \approx
 0.019331, & 0.119195, & 0.950532\end{array}\right)
 \left(\begin{array}{c} R_{709} \\
 G_{709} \\
-B_{709}\end{array}\right)$$
+B_{709}\end{array}\right)
 ++++
 endif::[]
 ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{2020} \\
+\left(\begin{array}{c} R_{2020} \\
 G_{2020} \\
 B_{2020}\end{array}\right) \approx
 \left(\begin{array}{ccc}
@@ -1351,13 +1331,13 @@ B_{2020}\end{array}\right) \approx
 0.019331, & 0.119195, & 0.950532\end{array}\right)
 \left(\begin{array}{c} R_{709} \\
 G_{709} \\
-B_{709}\end{array}\right)$$
+B_{709}\end{array}\right)
 ++++
 endif::[]
 
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{2020} \\
+\left(\begin{array}{c} R_{2020} \\
 G_{2020} \\
 B_{2020}\end{array}\right) \approx
 \left(\begin{array}{ccc}
@@ -1366,7 +1346,7 @@ B_{2020}\end{array}\right) \approx
 0.016392, & 0.088013, & 0.895595\end{array}\right)
 \left(\begin{array}{c} R_{709} \\
 G_{709} \\
-B_{709}\end{array}\right)$$
+B_{709}\end{array}\right)
 ++++
 
 Conversion from BT.2020 primaries to BT.709 primaries can be
@@ -1375,7 +1355,7 @@ performed with the following matrices:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{709} \\
+\left(\begin{array}{c} R_{709} \\
 G_{709} \\
 B_{709}\end{array}\right) \approx
 \left(\begin{array}{r@{}lr@{}lr@{}l}
@@ -1388,13 +1368,13 @@ B_{709}\end{array}\right) \approx
 0.&000000, & 0.&028073, & 1.&060985\end{array}\right)
 \left(\begin{array}{c} R_{2020} \\
 G_{2020} \\
-B_{2020}\end{array}\right)$$
+B_{2020}\end{array}\right)
 ++++
 endif::[]
 ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{709} \\
+\left(\begin{array}{c} R_{709} \\
 G_{709} \\
 B_{709}\end{array}\right) \approx
 \left(\begin{array}{ccc}
@@ -1407,14 +1387,14 @@ B_{709}\end{array}\right) \approx
 0.000000, & 0.028073, & 1.060985\end{array}\right)
 \left(\begin{array}{c} R_{2020} \\
 G_{2020} \\
-B_{2020}\end{array}\right)$$
+B_{2020}\end{array}\right)
 ++++
 endif::[]
 
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{709} \\
+\left(\begin{array}{c} R_{709} \\
 G_{709} \\
 B_{709}\end{array}\right) \approx
 \left(\begin{array}{r@{}lr@{}lr@{}l}
@@ -1424,13 +1404,13 @@ B_{709}\end{array}\right) \approx
 \end{array}\right)
 \left(\begin{array}{c} R_{2020} \\
 G_{2020} \\
-B_{2020}\end{array}\right)$$
+B_{2020}\end{array}\right)
 ++++
 endif::[]
 ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
-$$\left(\begin{array}{c} R_{709} \\
+\left(\begin{array}{c} R_{709} \\
 G_{709} \\
 B_{709}\end{array}\right) \approx
 \left(\begin{array}{ccc}
@@ -1440,6 +1420,6 @@ B_{709}\end{array}\right) \approx
 \end{array}\right)
 \left(\begin{array}{c} R_{2020} \\
 G_{2020} \\
-B_{2020}\end{array}\right)$$
+B_{2020}\end{array}\right)
 ++++
 endif::[]

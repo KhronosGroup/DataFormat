@@ -122,11 +122,11 @@ in <<BC1blocks>>.
 ^| Texel value ^| Condition
 ^.^| _RGB_~0~ ^.^| _color_~0~ > _color_~1~ and _code_(_x_, _y_) = 0
 ^.^| _RGB_~1~ ^.^| _color_~0~ > _color_~1~ and _code_(_x_, _y_) = 1
-^| latexmath:[$(2\times \mathit{RGB}_0 + \mathit{RGB}_1)\over 3$] ^.^| _color_~0~ > _color_~1~ and _code_(_x_, _y_) = 2
-^| latexmath:[$(\mathit{RGB}_0 + 2\times RGB_1)\over 3$] ^.^| _color_~0~ > _color_~1~ and _code_(_x_, _y_) = 3
+^| latexmath:[(2\times \mathit{RGB}_0 + \mathit{RGB}_1)\over 3] ^.^| _color_~0~ > _color_~1~ and _code_(_x_, _y_) = 2
+^| latexmath:[(\mathit{RGB}_0 + 2\times RGB_1)\over 3] ^.^| _color_~0~ > _color_~1~ and _code_(_x_, _y_) = 3
 ^.^| _RGB_~0~ ^.^| _color_~0~ {leq} _color_~1~ and _code_(_x_, _y_) = 0
 ^.^| _RGB_~1~ ^.^| _color_~0~ {leq} _color_~1~ and _code_(_x_, _y_) = 1
-^| latexmath:[$(\mathit{RGB}_0+\mathit{RGB}_1)\over 2$] ^.^| _color_~0~ {leq} _color_~1~ and _code_(_x_, _y_) = 2
+^| latexmath:[(\mathit{RGB}_0+\mathit{RGB}_1)\over 2] ^.^| _color_~0~ {leq} _color_~1~ and _code_(_x_, _y_) = 2
 ^.^| BLACK ^.^| _color_~0~ {leq} _color_~1~ and _code_(_x_, _y_) = 3
 |====
 
@@ -177,8 +177,8 @@ of 0 should be encoded as zero (black).
 [NOTE]
 ====
 <<Figure-bc1>> shows an example BC1 texel block:
-_color_~0~, encoded as latexmath:[$\left({{29}\over{31}}, {{60}\over{63}}, {{1}\over{31}}\right)$],
-and _color_~1~, encoded as latexmath:[$\left({{20}\over{31}}, {{2}\over{63}}, {{30}\over{31}}\right)$],
+_color_~0~, encoded as latexmath:[\left({{29}\over{31}}, {{60}\over{63}}, {{1}\over{31}}\right)],
+and _color_~1~, encoded as latexmath:[\left({{20}\over{31}}, {{2}\over{63}}, {{30}\over{31}}\right)],
 are shown as circles. The interpolated values are shown as small diamonds.
 Since 29 > 20, there are two interpolated values, accessed when
 _code_(_x_, _y_) = 2 and _code_(_x_, _y_) = 3.
@@ -188,8 +188,8 @@ _code_(_x_, _y_) = 2 and _code_(_x_, _y_) = 3.
 image::{images}/bc1.svg[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
 
 <<Figure-bc1a>> shows the example BC1 texel block with the colors swapped:
-_color_~0~, encoded as latexmath:[$\left({{20}\over{31}}, {{2}\over{63}}, {{30}\over{31}}\right)$],
-and _color_~1~, encoded as latexmath:[$\left({{29}\over{31}}, {{60}\over{63}}, {{1}\over{31}}\right)$],
+_color_~0~, encoded as latexmath:[\left({{20}\over{31}}, {{2}\over{63}}, {{30}\over{31}}\right)],
+and _color_~1~, encoded as latexmath:[\left({{29}\over{31}}, {{60}\over{63}}, {{1}\over{31}}\right)],
 are shown as circles. The interpolated value is shown as a small diamonds.
 Since 20 {leq} 29, there is one interpolated value for
 _code_(_x_, _y_) = 2, and _code_(_x_, _y_) = 3 represents
@@ -254,7 +254,7 @@ where _bits_[63] is the most significant and _bits_[0] is the least
 significant bit.
 
 The alpha component for a texel at location (_x_, _y_) in the block is
-given by latexmath:[$\mathit{alpha}(x,y)\over 15$].
+given by latexmath:[\mathit{alpha}(x,y)\over 15].
 
 [[s3tc_bc3]]
 === BC3
@@ -279,7 +279,7 @@ Each alpha image data block is encoded as a sequence of 8 bytes, called
 ++++
 
 The _alpha_~0~ and _alpha_~1~ are 8-bit unsigned bytes converted to alpha
-components by multiplying by latexmath:[$1\over 255$].
+components by multiplying by latexmath:[1\over 255].
 
 The 6 _bits_ bytes of the block are decoded into one 48-bit integer:
 
@@ -315,16 +315,16 @@ given by <<BC3alpha>>.
 ^| Alpha value ^| Condition
 ^.^| _alpha_~0~                   ^.^| _code_(_x_, _y_) = 0
 ^.^| _alpha_~1~                   ^.^| _code_(_x_, _y_) = 1
-^| latexmath:[$(6\times\mathit{alpha}_0 + 1\times\mathit{alpha}_1)\over 7$]  ^.^| _alpha_~0~ > _alpha_~1~ and _code_(_x_, _y_) = 2
-^| latexmath:[$(5\times\mathit{alpha}_0 + 2\times\mathit{alpha}_1)\over 7$]  ^.^| _alpha_~0~ > _alpha_~1~ and _code_(_x_, _y_) = 3
-^| latexmath:[$(4\times\mathit{alpha}_0 + 3\times\mathit{alpha}_1)\over 7$]  ^.^| _alpha_~0~ > _alpha_~1~ and _code_(_x_, _y_) = 4
-^| latexmath:[$(3\times\mathit{alpha}_0 + 4\times\mathit{alpha}_1)\over 7$]  ^.^| _alpha_~0~ > _alpha_~1~ and _code_(_x_, _y_) = 5
-^| latexmath:[$(2\times\mathit{alpha}_0 + 5\times\mathit{alpha}_1)\over 7$]  ^.^| _alpha_~0~ > _alpha_~1~ and _code_(_x_, _y_) = 6
-^| latexmath:[$(1\times\mathit{alpha}_0 + 6\times\mathit{alpha}_1)\over 7$]  ^.^| _alpha_~0~ > _alpha_~1~ and _code_(_x_, _y_) = 7
-^| latexmath:[$(4\times\mathit{alpha}_0 + 1\times\mathit{alpha}_1)\over 5$]  ^.^| _alpha_~0~ {leq} _alpha_~1~ and _code_(_x_, _y_) = 2
-^| latexmath:[$(3\times\mathit{alpha}_0 + 2\times\mathit{alpha}_1)\over 5$]  ^.^| _alpha_~0~ {leq} _alpha_~1~ and _code_(_x_, _y_) = 3
-^| latexmath:[$(2\times\mathit{alpha}_0 + 3\times\mathit{alpha}_1)\over 5$]  ^.^| _alpha_~0~ {leq} _alpha_~1~ and _code_(_x_, _y_) = 4
-^| latexmath:[$(1\times\mathit{alpha}_0 + 4\times\mathit{alpha}_1)\over 5$]  ^.^| _alpha_~0~ {leq} _alpha_~1~ and _code_(_x_, _y_) = 5
+^| latexmath:[(6\times\mathit{alpha}_0 + 1\times\mathit{alpha}_1)\over 7]  ^.^| _alpha_~0~ > _alpha_~1~ and _code_(_x_, _y_) = 2
+^| latexmath:[(5\times\mathit{alpha}_0 + 2\times\mathit{alpha}_1)\over 7]  ^.^| _alpha_~0~ > _alpha_~1~ and _code_(_x_, _y_) = 3
+^| latexmath:[(4\times\mathit{alpha}_0 + 3\times\mathit{alpha}_1)\over 7]  ^.^| _alpha_~0~ > _alpha_~1~ and _code_(_x_, _y_) = 4
+^| latexmath:[(3\times\mathit{alpha}_0 + 4\times\mathit{alpha}_1)\over 7]  ^.^| _alpha_~0~ > _alpha_~1~ and _code_(_x_, _y_) = 5
+^| latexmath:[(2\times\mathit{alpha}_0 + 5\times\mathit{alpha}_1)\over 7]  ^.^| _alpha_~0~ > _alpha_~1~ and _code_(_x_, _y_) = 6
+^| latexmath:[(1\times\mathit{alpha}_0 + 6\times\mathit{alpha}_1)\over 7]  ^.^| _alpha_~0~ > _alpha_~1~ and _code_(_x_, _y_) = 7
+^| latexmath:[(4\times\mathit{alpha}_0 + 1\times\mathit{alpha}_1)\over 5]  ^.^| _alpha_~0~ {leq} _alpha_~1~ and _code_(_x_, _y_) = 2
+^| latexmath:[(3\times\mathit{alpha}_0 + 2\times\mathit{alpha}_1)\over 5]  ^.^| _alpha_~0~ {leq} _alpha_~1~ and _code_(_x_, _y_) = 3
+^| latexmath:[(2\times\mathit{alpha}_0 + 3\times\mathit{alpha}_1)\over 5]  ^.^| _alpha_~0~ {leq} _alpha_~1~ and _code_(_x_, _y_) = 4
+^| latexmath:[(1\times\mathit{alpha}_0 + 4\times\mathit{alpha}_1)\over 5]  ^.^| _alpha_~0~ {leq} _alpha_~1~ and _code_(_x_, _y_) = 5
 ^.^| 0.0                      ^.^| _alpha_~0~ {leq} _alpha_~1~ and _code_(_x_, _y_) = 6
 ^.^| 1.0                      ^.^| _alpha_~0~ {leq} _alpha_~1~ and _code_(_x_, _y_) = 7
 |====

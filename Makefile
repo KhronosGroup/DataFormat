@@ -165,6 +165,7 @@ html: $(HTMLDIR)/dataformat.html $(SPECSRC) $(COMMONDOCS)
 #@TODO $(HTMLDIR)/dataformat.html: $(SPECSRC) $(COMMONDOCS) $(KATEXINSTDIR)
 $(HTMLDIR)/dataformat.html: $(SPECSRC) $(COMMONDOCS)
 	$(QUIET)$(ASCIIDOC) -b html5 $(ADOCOPTS) $(ADOCHTMLOPTS) -o $@ $(SPECSRC)
+	cp $@ `basename $@`.unproc.html
 	$(QUIET)$(TRANSLATEMATH) $@
 
 # PDF optimizer - usage $(OPTIMIZEPDF) in.pdf out.pdf

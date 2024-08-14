@@ -34,7 +34,7 @@ to reconstruct the original image.
 If combined with this encoding scheme, the <<TRANSFER_SRGB,sRGB EOTF>>
 is applied to the unquantized version of the _R&prime;_, _G&prime;_ and
 _B&prime;_ channels (that is,
-latexmath:[$\textit{R}_\textit{out} = \textit{EOTF}_{\textit{sRGB}}\left({\textit{R}'\over 255}\right)$],
+latexmath:[\textit{R}_\textit{out} = \textit{EOTF}_{\textit{sRGB}}\left({\textit{R}'\over 255}\right)],
 etc.) at the end of the texel decode process, but the _A_ channel is
 interpreted linearly.
 
@@ -44,10 +44,10 @@ interpreted linearly.
 
 For PVRTC1 4bpp, each 64-bit word _W_~_X_,_Y_~ at block coordinates (_X_,_Y_)
 contains the modulation information for a 4{times}4 block of texels beginning
-at image pixels latexmath:[$(4\times\mathit{X}, 4\times\mathit{Y})$], and a
+at image pixels latexmath:[(4\times\mathit{X}, 4\times\mathit{Y})], and a
 color sample for each low-resolution image which influences an overlapping
 7{times}7 texel region of the final output, with each sample centered on
-output pixel latexmath:[$((4\times\mathit{X})+2, (4\times\mathit{Y})+2)$].
+output pixel latexmath:[((4\times\mathit{X})+2, (4\times\mathit{Y})+2)].
 Nearly every texel location requires data from a set of 2{times}2 data words
 in order to be decoded: the low-resolution encoded images are bilinearly interpolated
 to, in effect, generate a pair of full-resolution images prior to modulation, and this
@@ -92,9 +92,9 @@ Expressing each of the _X_ and _Y_ indices as an array of bits, the index of a
 particular PVRTC word can be found by interleaving the bits of the _X_ and _Y_
 indices as follows:
 
-Let _Xb_ be the number of bits used to express _X_ -- i.e. latexmath:[$\mathit{Xb} = \mathrm{log}_2\left(\left\lceil{\mathit{width}\over 4}\right\rceil\right)$].
+Let _Xb_ be the number of bits used to express _X_ -- i.e. latexmath:[\mathit{Xb} = \mathrm{log}_2\left(\left\lceil{\mathit{width}\over 4}\right\rceil\right)].
 
-Let _Yb_ be the number of bits used to express _Y_ -- i.e. latexmath:[$\mathit{Yb} = \mathrm{log}_2\left(\left\lceil{\mathit{height}\over 4}\right\rceil\right)$].
+Let _Yb_ be the number of bits used to express _Y_ -- i.e. latexmath:[\mathit{Yb} = \mathrm{log}_2\left(\left\lceil{\mathit{height}\over 4}\right\rceil\right)].
 
 Then:
 
@@ -119,8 +119,8 @@ larger, are appended to the offset bit pattern.
 For example, <<Morton>> represents a 64{times}16-texel image represented
 by 16{times}4 = 64 words of 64 bits.
 The largest possible _X_ value in this example is
-latexmath:[${64\over 4} - 1$] = 15; the largest possible
-_Y_ value in this example is latexmath:[${16\over 4} - 1$] = 3.
+latexmath:[{64\over 4} - 1] = 15; the largest possible
+_Y_ value in this example is latexmath:[{16\over 4} - 1] = 3.
 The bottom four bits of the word offset are composed by interleaving the
 bottom two bits of _Y_ and the bottom two bits of _X_ (with _Y_ in the
 lowest bit).
@@ -150,8 +150,8 @@ units of 4{times}4 areas encoded by words:
 ++++
 
 the word offset for
-latexmath:[$\mathit{X} = \left\lfloor{\mathit{x}\over 4}\right\rfloor$] and
-latexmath:[$\mathit{Y} = \left\lfloor{\mathit{y}\over 4}\right\rfloor$] can
+latexmath:[\mathit{X} = \left\lfloor{\mathit{x}\over 4}\right\rfloor] and
+latexmath:[\mathit{Y} = \left\lfloor{\mathit{y}\over 4}\right\rfloor] can
 be calculated iteratively as follows:
 
 [source]
@@ -194,10 +194,10 @@ corresponding to the (_X~Low~_, _Y~Low~_) location of the colors in
 the low-resolution images.
 The image colors for a given pixel location (_x_, _y_) are reconstructed
 using the words containing the four nearest color samples:
-latexmath:[$W_{X_\textit{Low},Y_\textit{Low}}$],
-latexmath:[$W_{X_\textit{Low}+1,Y_\textit{Low}}$],
-latexmath:[$W_{X_\textit{Low},Y_\textit{Low}+1}$] and
-latexmath:[$W_{X_\textit{Low}+1,Y_\textit{Low}+1}$],
+latexmath:[W_{X_\textit{Low},Y_\textit{Low}}],
+latexmath:[W_{X_\textit{Low}+1,Y_\textit{Low}}],
+latexmath:[W_{X_\textit{Low},Y_\textit{Low}+1}] and
+latexmath:[W_{X_\textit{Low}+1,Y_\textit{Low}+1}],
 where _X~Low~_ and _Y~Low~_ are derived as follows:
 
 [latexmath]
@@ -211,28 +211,28 @@ Y_\textit{Low}=&\left\lfloor{{y - 2}\over 4}\right\rfloor
 [NOTE]
 ====
 <<PVRTCrecon>> shows a grid of pixels with (_x_ = 0, _y_ = 0) at top left.
-Each word latexmath:[$W_{X_\mathit{Mod},Y_\mathit{Mod}}$] holds modulation
+Each word latexmath:[W_{X_\mathit{Mod},Y_\mathit{Mod}}] holds modulation
 values for a 4{times}4 texel region
-latexmath:[$\mathbf{M}_{\mathbf{X}_\mathbf{Mod},\mathbf{Y}_\mathbf{Mod}}$],
+latexmath:[\mathbf{M}_{\mathbf{X}_\mathbf{Mod},\mathbf{Y}_\mathbf{Mod}}],
 as described in <<PVRTC4bpp_modulation>>, where
-latexmath:[$X_\mathit{Mod} = \left\lfloor{x\over 4}\right\rfloor$]
-and latexmath:[$Y_\mathit{Mod} = \left\lfloor{y\over 4}\right\rfloor$].
+latexmath:[X_\mathit{Mod} = \left\lfloor{x\over 4}\right\rfloor]
+and latexmath:[Y_\mathit{Mod} = \left\lfloor{y\over 4}\right\rfloor].
 
-For latexmath:[$X_\mathit{Low} = \left\lfloor{{x - 2}\over 4}\right\rfloor$]
-and latexmath:[$Y_\mathit{Low} = \left\lfloor{{y - 2}\over 4}\right\rfloor$],
+For latexmath:[X_\mathit{Low} = \left\lfloor{{x - 2}\over 4}\right\rfloor]
+and latexmath:[Y_\mathit{Low} = \left\lfloor{{y - 2}\over 4}\right\rfloor],
 color reconstruction for the pixels shaded in <<PVRTCrecon>> requires data
-from the words latexmath:[$W_{X_\mathit{Low},Y_\mathit{Low}}$] through
-latexmath:[$W_{X_\mathit{Low}+1,Y_\mathit{Low}+1}$]; the pixels for
+from the words latexmath:[W_{X_\mathit{Low},Y_\mathit{Low}}] through
+latexmath:[W_{X_\mathit{Low}+1,Y_\mathit{Low}+1}]; the pixels for
 which these these words hold modulation values are shown as
-latexmath:[$\mathbf{M}_{\mathbf{X}_\mathbf{Mod},\mathbf{Y}_\mathbf{Mod}}$]
+latexmath:[\mathbf{M}_{\mathbf{X}_\mathbf{Mod},\mathbf{Y}_\mathbf{Mod}}]
 through
-latexmath:[$\mathbf{M}_{\mathbf{X}_\mathbf{Mod}+1,\mathbf{Y}_\mathbf{Mod}+1}$],
+latexmath:[\mathbf{M}_{\mathbf{X}_\mathbf{Mod}+1,\mathbf{Y}_\mathbf{Mod}+1}],
 outlined in red.
 
 All pixels within the region contained by the dashed outline have the same
-values for latexmath:[$X_\mathit{Low}$] and latexmath:[$Y_\mathit{Low}$].
+values for latexmath:[X_\mathit{Low}] and latexmath:[Y_\mathit{Low}].
 The remaining shaded pixels have different calculated
-latexmath:[$X_\mathit{Low}$] and/or latexmath:[$Y_\mathit{Low}$] values, but
+latexmath:[X_\mathit{Low}] and/or latexmath:[Y_\mathit{Low}] values, but
 due to <<PVRTC1_4bpp_interpolation>>, no contribution is required from
 additional words.
 
@@ -253,16 +253,16 @@ words in all four corners being examined -- or sampling a pixel at the
 bottom of the image will result in words from the top of the image
 being examined, as shown in <<PVRTCwraprecon>>.
 In this example, the nearest samples ``below'' the shaded pixels in regions
-latexmath:[$\mathbf{M}_{\mathbf{X}_\mathbf{Mod},\mathbf{Y}_\mathbf{Mod}}$]
+latexmath:[\mathbf{M}_{\mathbf{X}_\mathbf{Mod},\mathbf{Y}_\mathbf{Mod}}]
 and
-latexmath:[$\mathbf{M}_{\mathbf{X}_\mathbf{Mod}+1,\mathbf{Y}_\mathbf{Mod}}$]
+latexmath:[\mathbf{M}_{\mathbf{X}_\mathbf{Mod}+1,\mathbf{Y}_\mathbf{Mod}}]
 the row of words at the top of the image, and the nearest samples
 ``above'' the shaded pixels in regions
-latexmath:[$\mathbf{M}_{\mathbf{X}_\mathbf{Mod},\mathbf{Y}_\mathbf{Mod}+1}$]
+latexmath:[\mathbf{M}_{\mathbf{X}_\mathbf{Mod},\mathbf{Y}_\mathbf{Mod}+1}]
 and
-latexmath:[$\mathbf{M}_{\mathbf{X}_\mathbf{Mod}+1,\mathbf{Y}_\mathbf{Mod}+1}$]
-are in words latexmath:[$W_{X_\mathit{Low},Y_\mathit{Low}}$] and
-latexmath:[$W_{X_\mathit{Low}+1,Y_\mathit{Low}}$] at the bottom of the image.
+latexmath:[\mathbf{M}_{\mathbf{X}_\mathbf{Mod}+1,\mathbf{Y}_\mathbf{Mod}+1}]
+are in words latexmath:[W_{X_\mathit{Low},Y_\mathit{Low}}] and
+latexmath:[W_{X_\mathit{Low}+1,Y_\mathit{Low}}] at the bottom of the image.
 
 [[PVRTCwraprecon]]
 .PVRTC1 image reconstruction (wrapping)
@@ -319,20 +319,20 @@ For each channel _C_ of each color (*Color A* and *Color B*), the
 interpolation proceeds as follows:
 
 * For low-resolution image color channel
-latexmath:[$\textbf{C}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}$]
+latexmath:[\textbf{C}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
 stored in word
-latexmath:[$\textit{W}_{\textit{X}_\textit{Low},\textit{Y}_\textit{Low}}$]:
-** _X~Low~_ = latexmath:[$\left\lfloor{{x-2}\over 4}\right\rfloor$],
+latexmath:[\textit{W}_{\textit{X}_\textit{Low},\textit{Y}_\textit{Low}}]:
+** _X~Low~_ = latexmath:[\left\lfloor{{x-2}\over 4}\right\rfloor],
 as described above.
-** _Y~Low~_ = latexmath:[$\left\lfloor{{y-2}\over 4}\right\rfloor$],
+** _Y~Low~_ = latexmath:[\left\lfloor{{y-2}\over 4}\right\rfloor],
 as described above.
 * Using relative coordinates:
-** latexmath:[$x_r
+** latexmath:[x_r
 = (x - 2) - \left(4\times\left\lfloor{{x - 2}\over 4}\right\rfloor\right)
-= (x - 2) - (4 \times X_\textit{Low})$]
-** latexmath:[$y_r
+= (x - 2) - (4 \times X_\textit{Low})]
+** latexmath:[y_r
 = (y - 2) - \left(4\times\left\lfloor{{y - 2}\over 4}\right\rfloor\right)
-= (y - 2) - (4 \times Y_\textit{Low})$]
+= (y - 2) - (4 \times Y_\textit{Low})]
 * Coordinates wrap at the edges of the image.
 * An interpolation is performed which is mathematically equivalent to  <<PVRTC1_4bpp_interpolation>>.
 
@@ -357,21 +357,21 @@ as described above.
 [NOTE]
 ====
 The colors of **Image A** and **Image B** at
-(latexmath:[$x = (4 \times X_\mathit{Low} + 2)$],
-latexmath:[$y = (4 \times Y_\mathit{Low} + 2)$]) are exactly the
+(latexmath:[x = (4 \times X_\mathit{Low} + 2)],
+latexmath:[y = (4 \times Y_\mathit{Low} + 2)]) are exactly the
 corresponding colors that word
-latexmath:[$W_{X_\mathit{Low}, Y_\mathit{Low}}$] encodes.
-Texels in the same column as a texel block such that latexmath:[$x_r = 0$]
+latexmath:[W_{X_\mathit{Low}, Y_\mathit{Low}}] encodes.
+Texels in the same column as a texel block such that latexmath:[x_r = 0]
 are not influenced by the color samples from words
-latexmath:[$W_{X_\mathit{Low}+1, Y_\mathit{Low}}$] and
-latexmath:[$W_{X_\mathit{Low}+1, Y_\mathit{Low}+1}$].
-Texels in the same row as a texel block such that latexmath:[$y_r = 0$]
+latexmath:[W_{X_\mathit{Low}+1, Y_\mathit{Low}}] and
+latexmath:[W_{X_\mathit{Low}+1, Y_\mathit{Low}+1}].
+Texels in the same row as a texel block such that latexmath:[y_r = 0]
 are not influenced by the color samples from words
-latexmath:[$W_{X_\mathit{Low}, Y_\mathit{Low}+1}$] and
-latexmath:[$W_{X_\mathit{Low}+1, Y_\mathit{Low}+1}$].
-Therefore a single color sample at latexmath:[$C_{x,y}$] influences the
+latexmath:[W_{X_\mathit{Low}, Y_\mathit{Low}+1}] and
+latexmath:[W_{X_\mathit{Low}+1, Y_\mathit{Low}+1}].
+Therefore a single color sample at latexmath:[C_{x,y}] influences the
 interpolated color of all texels in the 7{times}7 region
-from latexmath:[$C_{x-3,y-3}$] to latexmath:[$C_{x+3,y+3}$] centered on
+from latexmath:[C_{x-3,y-3}] to latexmath:[C_{x+3,y+3}] centered on
 the color sample.
 
 &nbsp;
@@ -387,11 +387,11 @@ self-contained texel blocks of other schemes.
 For the red, green and blue channels, _C~x,y~_ is a 5.4-bit fixed-point
 value whose bit pattern can be converted to an 8-bit normalized
 value, i.e. UNORM, as
-latexmath:[$\textbf{Image \{A,B\}}\{\textit{R,G,B}\}_{x,y} = \left\lfloor{{C_{x,y}}\over 2}\right\rfloor+\left\lfloor{{C_{x,y}}\over 64}\right\rfloor$].
+latexmath:[\textbf{Image \{A,B\}}\{\textit{R,G,B}\}_{x,y} = \left\lfloor{{C_{x,y}}\over 2}\right\rfloor+\left\lfloor{{C_{x,y}}\over 64}\right\rfloor].
 
 For the alpha channel, _C~x,y~_ is a 4.4-bit fixed-point value
 whose bit pattern can be converted to an 8-bit normalized value as
-latexmath:[$\textbf{Image \{A,B\}}\{\textit{A}\}_{x,y} = C_{x,y}+\left\lfloor{{C_{x,y}}\over 16}\right\rfloor$].
+latexmath:[\textbf{Image \{A,B\}}\{\textit{A}\}_{x,y} = C_{x,y}+\left\lfloor{{C_{x,y}}\over 16}\right\rfloor].
 
 <<<
 
@@ -402,9 +402,9 @@ The final image is created by linearly interpolating between the
 *Image A* and *Image B* texels, using the modulation data for each
 pixel to determine the weighting.
 The modulation information is retrieved from word
-latexmath:[$W_{X_\textit{Mod},Y_\textit{Mod}}$]
-where latexmath:[$X_\textit{Mod} = \left\lfloor{x\over 4}\right\rfloor$]
-and latexmath:[$Y_\textit{Mod} = \left\lfloor{y\over 4}\right\rfloor$].
+latexmath:[W_{X_\textit{Mod},Y_\textit{Mod}}]
+where latexmath:[X_\textit{Mod} = \left\lfloor{x\over 4}\right\rfloor]
+and latexmath:[Y_\textit{Mod} = \left\lfloor{y\over 4}\right\rfloor].
 The weight for the interpolation is derived from the 2 bits of
 the modulation data corresponding to the relevant pixel offset
 (_x~offset~_ = _x_ - (4 {times} _X~Mod~_),
@@ -459,9 +459,9 @@ uses an 8{times}4 bilinear upscale.
 
 The inputs to the Morton order encoding for 2bpp mode are:
 
-Let _Xb_ be the number of bits used to express _X_ -- i.e. latexmath:[$\mathit{Xb} = \mathrm{log}_2\left(\left\lceil{\mathit{width}\over 8}\right\rceil\right)$].
+Let _Xb_ be the number of bits used to express _X_ -- i.e. latexmath:[\mathit{Xb} = \mathrm{log}_2\left(\left\lceil{\mathit{width}\over 8}\right\rceil\right)].
 
-Let _Yb_ be the number of bits used to express _Y_ -- i.e. latexmath:[$\mathit{Yb} = \mathrm{log}_2\left(\left\lceil{\mathit{height}\over 4}\right\rceil\right)$].
+Let _Yb_ be the number of bits used to express _Y_ -- i.e. latexmath:[\mathit{Yb} = \mathrm{log}_2\left(\left\lceil{\mathit{height}\over 4}\right\rceil\right)].
 
 
 ==== PVRTC1 2bpp image reconstruction
@@ -470,18 +470,18 @@ For each channel _C_ of each color (*Color A* and *Color B*), the
 interpolation proceeds as follows:
 
 * For low-resolution image color channel
-latexmath:[$\textbf{C}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}$]
+latexmath:[\textbf{C}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
 stored in word
-latexmath:[$\textit{W}_{\textit{X}_\textit{Low},\textit{Y}_\textit{Low}}$]:
-** _X~Low~_ = latexmath:[$\left\lfloor{{x-4}\over 8}\right\rfloor$]
-** _Y~Low~_ = latexmath:[$\left\lfloor{{y-2}\over 4}\right\rfloor$]
+latexmath:[\textit{W}_{\textit{X}_\textit{Low},\textit{Y}_\textit{Low}}]:
+** _X~Low~_ = latexmath:[\left\lfloor{{x-4}\over 8}\right\rfloor]
+** _Y~Low~_ = latexmath:[\left\lfloor{{y-2}\over 4}\right\rfloor]
 * Using relative coordinates:
-** latexmath:[$x_r
+** latexmath:[x_r
 = (x - 4) - \left(8\times\left\lfloor{{x - 4}\over 8}\right\rfloor\right)
-= (x - 4) - (8 \times X_\textit{Low})$]
-** latexmath:[$y_r
+= (x - 4) - (8 \times X_\textit{Low})]
+** latexmath:[y_r
 = (y - 2) - \left(4\times\left\lfloor{{y - 2}\over 4}\right\rfloor\right)
-= (y - 2) - (4 \times Y_\textit{Low})$]
+= (y - 2) - (4 \times Y_\textit{Low})]
 * Coordinates wrap at the edges of the image.
 * An interpolation is performed which is mathematically equivalent to  <<PVRTC1_2bpp_interpolation>>.
 
@@ -506,18 +506,18 @@ latexmath:[$\textit{W}_{\textit{X}_\textit{Low},\textit{Y}_\textit{Low}}$]:
 For the red, green and blue channels, _C~x,y~_ is a 5.5-bit fixed-point
 value whose bit pattern can be converted to an 8-bit normalized
 value as
-latexmath:[$\textbf{Image \{A,B\}}\{\textit{R,G,B}\}_{x,y} = \left\lfloor{{C_{x,y}}\over 4}\right\rfloor+\left\lfloor{{C_{x,y}}\over 128}\right\rfloor$].
+latexmath:[\textbf{Image \{A,B\}}\{\textit{R,G,B}\}_{x,y} = \left\lfloor{{C_{x,y}}\over 4}\right\rfloor+\left\lfloor{{C_{x,y}}\over 128}\right\rfloor].
 
 For the alpha channel, _C~x,y~_ is a 4.5-bit fixed-point value
 whose bit pattern can be converted to an 8-bit normalized value as
-latexmath:[$\textbf{Image \{A,B\}}\{\textit{A}\}_{x,y} = \left\lfloor{{C_{x,y}}\over 2}\right\rfloor+\left\lfloor{{C_{x,y}}\over 32}\right\rfloor$].
+latexmath:[\textbf{Image \{A,B\}}\{\textit{A}\}_{x,y} = \left\lfloor{{C_{x,y}}\over 2}\right\rfloor+\left\lfloor{{C_{x,y}}\over 32}\right\rfloor].
 
 <<<
 
 ==== PVRTC1 2bpp color modulation
 The modulation data, retrieved from word _W~X,Y~_ where
-latexmath:[$X_\mathit{Mod} = \left\lfloor{x\over 8}\right\rfloor$] and
-latexmath:[$Y_\mathit{Mod} = \left\lfloor{y\over 4}\right\rfloor$], are
+latexmath:[X_\mathit{Mod} = \left\lfloor{x\over 8}\right\rfloor] and
+latexmath:[Y_\mathit{Mod} = \left\lfloor{y\over 4}\right\rfloor], are
 interpreted differently in order to accommodate the additional pixels.
 Each word holds the modulation data which corresponds to pixels that
 have offsets (_x~offset~_ = _x_ - 8 {times} _X~Mod~_,
@@ -573,17 +573,17 @@ in bit 20 determine how they are reconstructed:
 * If bit~0~ is 0, the value is the mean of the weights of the four
 horizontally- and vertically-adjacent pixels, rounded to the nearest
 integer:
-latexmath:[$\textit{weight}_{x,y} = \left\lfloor{{w(\textit{md}(x-1,y))+w(\textit{md}(x,y-1))+w(\textit{md}(x+1,y))+w(\textit{md}(x,y+1))+2}\over 4}\right\rfloor$].
+latexmath:[\textit{weight}_{x,y} = \left\lfloor{{w(\textit{md}(x-1,y))+w(\textit{md}(x,y-1))+w(\textit{md}(x+1,y))+w(\textit{md}(x,y+1))+2}\over 4}\right\rfloor].
 
 * If bit~0~ is 1, and flag _F_ is 1, the value is the mean of the
 weights of the two vertically-adjacent pixels, rounded to the
 nearest integer:
-latexmath:[$\textit{weight}_{x,y} = \left\lfloor{{w(\textit{md}(x,y-1))+w(\textit{md}(x,y+1))+1}\over 2}\right\rfloor$].
+latexmath:[\textit{weight}_{x,y} = \left\lfloor{{w(\textit{md}(x,y-1))+w(\textit{md}(x,y+1))+1}\over 2}\right\rfloor].
 
 * If bit~0~ is 1, and flag _F_ is 0, the value is the mean of the
 weights from the horizontally-adjacent pixels, rounded to the
 nearest integer:
-latexmath:[$\textit{weight}_{x,y} = \left\lfloor{{w(\textit{md}(x-1,y))+w(\textit{md}(x+1,y))+1}\over 2}\right\rfloor$].
+latexmath:[\textit{weight}_{x,y} = \left\lfloor{{w(\textit{md}(x-1,y))+w(\textit{md}(x+1,y))+1}\over 2}\right\rfloor].
 
 where _md(x,y)_ is the modulation data for texel offset (_x_, _y_) and
 _w_() is the weighting described in <<PVRTC1ModulationWeights>>
@@ -669,14 +669,14 @@ centered on boundaries of multiples of 4{times}4 texel regions, the hard
 transition flag _H_ changes the behavior of the entire red-dotted region
 shown in <<PVRTC2HardTransition>>.
 This is a subset of the logical 4{times}4 pixel regions
-latexmath:[$\textbf{M}_{\textbf{X}_\textbf{Mod},\textbf{Y}_\textbf{Mod}}$]
+latexmath:[\textbf{M}_{\textbf{X}_\textbf{Mod},\textbf{Y}_\textbf{Mod}}]
 through
-latexmath:[$\textbf{M}_{\textbf{X}_\textbf{Mod}+1,\textbf{Y}_\textbf{Mod}+1}$]
+latexmath:[\textbf{M}_{\textbf{X}_\textbf{Mod}+1,\textbf{Y}_\textbf{Mod}+1}]
 that correspond to the modulation data stored in 64-bit data words
-latexmath:[$W_{X_\mathit{Mod},Y_\mathit{Mod}}$] through
-latexmath:[$W_{X_\mathit{Mod}+1,Y_\mathit{Mod}+1}$].
+latexmath:[W_{X_\mathit{Mod},Y_\mathit{Mod}}] through
+latexmath:[W_{X_\mathit{Mod}+1,Y_\mathit{Mod}+1}].
 The flag _H_ for this hard transition region is stored in
-latexmath:[$W_{X_\mathit{Mod},Y_\mathit{Mod}}^{47}$].
+latexmath:[W_{X_\mathit{Mod},Y_\mathit{Mod}}^{47}].
 
 [[PVRTC2HardTransition]]
 .PVRTC2 hard transition subsets
@@ -685,9 +685,9 @@ image::{images}/PVRTC2_hard_transition.svg[title="PVRTC2 hard transition subsets
 The hard transition region is further subdivided into four smaller
 subregions, shown with the dotted 2{times}2 texel outlines in
 <<PVRTC2HardTransition>>, where it intersects the pixel regions
-latexmath:[$\textbf{M}_{\textbf{X}_\textbf{Mod},\textbf{Y}_\textbf{Mod}}$]
+latexmath:[\textbf{M}_{\textbf{X}_\textbf{Mod},\textbf{Y}_\textbf{Mod}}]
 through
-latexmath:[$\textbf{M}_{\textbf{X}_\textbf{Mod}+1,\textbf{Y}_\textbf{Mod}+1}$].
+latexmath:[\textbf{M}_{\textbf{X}_\textbf{Mod}+1,\textbf{Y}_\textbf{Mod}+1}].
 The hard transition flag _H_, coupled with the relevant modulation flag _M_
 for the texel subregion, determines how the colors for each reconstructed
 pixel in the subregion are evaluated, as summarized in the table below.
@@ -734,24 +734,24 @@ Instead, the eight distinct colors from each surrounding word make up a local
 palette from which colors are selected.
 
 Denoting *Color B* and *Color A* from words
-latexmath:[$W_{X_\textit{Low},Y_\textit{Low}}$] through
-latexmath:[$W_{X_\textit{Low}+1,Y_\textit{Low}+1}$] as described
+latexmath:[W_{X_\textit{Low},Y_\textit{Low}}] through
+latexmath:[W_{X_\textit{Low}+1,Y_\textit{Low}+1}] as described
 above, the following colors are available:
-latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}$],
-latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}$],
-latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}$],
-latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}$],
-latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}$],
-latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}$],
-latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}$]
+latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}],
+latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}],
+latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}],
+latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}],
+latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}],
+latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}],
+latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}]
 and
-latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}$].
+latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}].
 
 Whilst 8 distinct colors exist in each of those four words, only two bits of
 modulation data are available for each pixel.
 Subsequently, each pixel at offset
-latexmath:[$(x_r = (x - 2) - (4 \times X_\textit{Low}),
-y_r = (y - 2) - (4 \times Y_\textit{Low}))$] relative to
+latexmath:[(x_r = (x - 2) - (4 \times X_\textit{Low}),
+y_r = (y - 2) - (4 \times Y_\textit{Low}))] relative to
 start of the hard transition region has access to a subset of the
 palette as follows:
 
@@ -760,105 +760,105 @@ palette as follows:
 |====
 | *~Modulation bits~* | *~0,0~* | *~1,0~* | *~2,0~* | *~3,0~*
 | 0
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}$]
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}$]
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}$]
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}$]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
 | 1
-| latexmath:[$\left\lfloor{{5\times \textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}+3\times \textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}}\over 8}\right\rfloor$]
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}$]
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}$]
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}$]
+| latexmath:[\left\lfloor{{5\times \textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}+3\times \textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}}\over 8}\right\rfloor]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
 | 2
-| latexmath:[$\left\lfloor{{3\times \textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}+5\times \textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}}\over 8}\right\rfloor$]
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}$]
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}$]
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}$]
+| latexmath:[\left\lfloor{{3\times \textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}+5\times \textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}}\over 8}\right\rfloor]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
 | 3
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}$]
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}$]
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}$]
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}$]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
 | *~Modulation bits~* | *~0,1~* | *~1,1~* | *~2,1~* | *~3,1~*
 | 0
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}$]
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}$]
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}$]
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}$]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}]
 | 1
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}$]
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}$]
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}$]
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}$]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
 | 2
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}$]
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}$]
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}$]
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}$]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
 | 3
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}$]
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}$]
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}$]
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}$]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
 | *~Modulation bits~* |*~0,2~* | *~1,2~* | *~2,2~* | *~3,2~*
 | 0
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}$]
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}$]
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}$]
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}$]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}]
 | 1
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}$]
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}$]
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}$]
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}$]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}]
 | 2
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}$]
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}$]
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}$]
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}$]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
 | 3
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}$]
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}$]
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}$]
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}$]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
 | *~Modulation bits~* | *~0,3~* | *~1,3~* | *~2,3~* | *~3,3~*
 | 0
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}$]
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}$]
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}$]
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}$]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}]
 | 1
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}$]
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}$]
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}$]
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}$]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}+1}]
 | 2
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}$]
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}$]
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}$]
-| latexmath:[$\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}$]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
 | 3
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}$]
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}$]
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}$]
-| latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}$]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
+| latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
 |====
 
 [NOTE]
 ====
 The entry for offset 0,0 is interpolated as per PVRTC's standard
 bilinear filtering mode. It will thus only use colors from word
-latexmath:[$W_{X_\textit{Low},Y_\textit{Low}}$].
+latexmath:[W_{X_\textit{Low},Y_\textit{Low}}].
 
 &nbsp;
 
 The local palette mode shares with the other modes of PVRTC2 the property
-that the column latexmath:[$x_r = 0$] has no contribution from words
-latexmath:[$W_{X_\mathit{Low}+1, Y_\mathit{Low}}$] and
-latexmath:[$W_{X_\mathit{Low}+1, Y_\mathit{Low}+1}$],
-and that row latexmath:[$y_r = 0$] has no contribution from words
-latexmath:[$W_{X_\mathit{Low}, Y_\mathit{Low}+1}$] and
-latexmath:[$W_{X_\mathit{Low}+1, Y_\mathit{Low}+1}$].
+that the column latexmath:[x_r = 0] has no contribution from words
+latexmath:[W_{X_\mathit{Low}+1, Y_\mathit{Low}}] and
+latexmath:[W_{X_\mathit{Low}+1, Y_\mathit{Low}+1}],
+and that row latexmath:[y_r = 0] has no contribution from words
+latexmath:[W_{X_\mathit{Low}, Y_\mathit{Low}+1}] and
+latexmath:[W_{X_\mathit{Low}+1, Y_\mathit{Low}+1}].
 Therefore any 2{times}2 quad of texel values, required for example by
 bilinear filtering, can be evaluated from a single set of four adjacent
 texel blocks.
@@ -868,7 +868,7 @@ texel blocks.
   pixel above.
   For instance, a modulation value of 3 (bit pattern 11) for pixel location
   0,1 (which is offset 2,3 relative to the top left of block P) would
-  correspond to color latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}$] being selected.
+  correspond to color latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}] being selected.
 
 * The stored color values are first expanded, _where necessary_, to
   _ARGB_:4555 (via bit replication for _R_, _G_, or _B_ and via padding

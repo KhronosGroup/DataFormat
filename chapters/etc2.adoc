@@ -498,7 +498,7 @@ colors are constructed as follows:
 \end{align*}
 ++++
 
-Here, latexmath:[$\ll$] denotes bit-wise left shift and latexmath:[$|$]
+Here, latexmath:[\ll] denotes bit-wise left shift and latexmath:[|]
 denotes bit-wise OR.
 In the `H' mode, the two colors are constructed as follows:
 
@@ -520,7 +520,7 @@ determined, which will be used to modify the luminance of one of the
 _base colors_.
 This is done by combining the values _d~a~_ and _d~b~_ shown
 in <<ETC2TLayout,section d>> of <<Table-etc2-dataformat>> by
-(_d~a~_ latexmath:[$\ll$] 1) | _d~b~_,
+(_d~a~_ latexmath:[\ll] 1) | _d~b~_,
 and then using this value as an index into the small look-up table shown
 in <<Table-etc2-distancetable>>.
 For example, if _d~a~_ is 10 binary and _d~b~_ is 1 binary, the _distance index_
@@ -601,9 +601,9 @@ is slightly more complex. In order to construct the three-bit index
 into the distance table shown in <<Table-etc2-distancetable>>, _d~a~_
 and _d~b~_ shown in <<ETC2HLayout,section e>> of <<Table-etc2-dataformat>> are used as the
 most significant bit and middle bit, respectively, but the least
-significant bit is computed as (_base color 1_ value latexmath:[$\geq$] _base color 2_
+significant bit is computed as (_base color 1_ value latexmath:[\geq] _base color 2_
 value), the `value' of a color for the comparison being equal to
-(_R_&nbsp;latexmath:[$\ll$]&nbsp;16)&nbsp;{plus}&nbsp;(_G_&nbsp;latexmath:[$\ll$]&nbsp;8)&nbsp;+_&nbsp;B_.
+(_R_&nbsp;latexmath:[\ll]&nbsp;16)&nbsp;{plus}&nbsp;(_G_&nbsp;latexmath:[\ll]&nbsp;8)&nbsp;+_&nbsp;B_.
 Once the `distance' _d_ has been determined for an `H' block, the four
 _paint colors_ will be:
 
@@ -727,7 +727,7 @@ Note that this is equivalent to
 ++++
 
 where _clamp255_({cdot}) clamps the value to a number in the range
-[0..255] and where latexmath:[$\gg$] performs bit-wise right shift.
+[0..255] and where latexmath:[\gg] performs bit-wise right shift.
 
 This specification gives the output for each compression mode in 8-bit
 integer colors between 0 and 255, and these values all need to be
@@ -1006,7 +1006,7 @@ To get a value between 0 and 2047 we must multiply
 
 where _clamp2_({cdot}) clamps to the range [0.0,&nbsp;2047.0].
 
-Since latexmath:[$2047.0 \over 255.875$] is exactly 8.0, the above equation can be written as
+Since latexmath:[2047.0 \over 255.875] is exactly 8.0, the above equation can be written as
 
 [[Equation-r11eac-eqn-simple]]
 .Unsigned R11 EAC simple
@@ -1072,10 +1072,10 @@ This value should in turn be multiplied by 8 by left-shifting it three steps:
 We now add this to the base value and get 828&nbsp;-&nbsp;160&nbsp;=&nbsp;668.
 After clamping we still get 668&nbsp;=&nbsp;01010011100b.
 This is our 11-bit output value, which represents the
-value latexmath:[${668 \over 2047} = 0.32633121 \ldots$]
+value latexmath:[{668 \over 2047} = 0.32633121 \ldots]
 
 If the _multiplier_ value is zero (i.e., the _multiplier_ bits 55..52 are
-all zero), we should set the _multiplier_ to latexmath:[$1.0\over 8.0$].
+all zero), we should set the _multiplier_ to latexmath:[1.0\over 8.0].
 <<Equation-r11eac-eqn-simple>> can then be simplified to
 
 [[Equation-r11eac-eqn-simpler]]
@@ -1091,17 +1091,17 @@ As an example, assume a _base codeword_ of 103, a _table index_ of 13, a
 _pixel index_ of 3 and a _multiplier_ value of 0. We treat the
 _base codeword_ the same way, getting 828&nbsp;=&nbsp;103{times}8{plus}4. The
 _modifier_ is still -10.
-But the _multiplier_ should now be latexmath:[$1 \over 8$], which
+But the _multiplier_ should now be latexmath:[1 \over 8], which
 means that third term becomes
-latexmath:[$-10\times \left({1\over 8}\right)\times 8 = -10$].
+latexmath:[-10\times \left({1\over 8}\right)\times 8 = -10].
 The sum therefore becomes 828-10 = 818. After clamping we still get
 818&nbsp;=&nbsp;01100110010b, and this is our 11-bit output value, and it represents
-latexmath:[${818 \over 2047} = 0.39960918 \ldots$]
+latexmath:[{818 \over 2047} = 0.39960918 \ldots]
 
 Some OpenGL ES implementations may find it convenient to use 16-bit
 values for further processing. In this case, the 11-bit value should
 be extended using bit replication. An 11-bit value _x_ is extended to 16
-bits through latexmath:[$(x\ll 5) + (x \gg 6)$]. For example, the value
+bits through latexmath:[(x\ll 5) + (x \gg 6)]. For example, the value
 668&nbsp;=&nbsp;01010011100b should be extended to
 0101001110001010b&nbsp;=&nbsp;21386.
 
@@ -1114,10 +1114,10 @@ than 11 bits.
 Note that the method does not have the same reconstruction levels as
 the alpha part in the RGBA ETC2 format. For instance, for a
 _base codeword_ of 255 and a _table value_ of 0, the alpha part of the
-RGBA ETC2 format will represent a value of latexmath:[${(255+0)\over 255.0} = 1.0$]
+RGBA ETC2 format will represent a value of latexmath:[{(255+0)\over 255.0} = 1.0]
 exactly.
 In R11 EAC  the same _base codeword_ and _table value_ will
-instead represent latexmath:[${(255.5+0)\over 255.875} = 0.99853444 \ldots$]
+instead represent latexmath:[{(255.5+0)\over 255.875} = 0.99853444 \ldots]
 That said, it is still possible to decode the alpha part of the
 RGBA ETC2-format using R11 EAC hardware.
 This is done by truncating the 11-bit number to 8 bits.
@@ -1127,7 +1127,7 @@ becomes the 8-bit value 11111111b&nbsp;=&nbsp;255 which is exactly the correct
 value according to RGBA ETC2.
 Clamping has to be done to [0,&nbsp;255] after truncation for RGBA ETC2 decoding.
 Care must also be taken to handle the case when the _multiplier_ value is
-zero. In the 11-bit version, this means multiplying by latexmath:[$1 \over 8$], but in
+zero. In the 11-bit version, this means multiplying by latexmath:[1 \over 8], but in
 the 8-bit version, it really means multiplication by 0.
 Thus, the decoder will have to know if it is an
 RGBA ETC2 texture or an R11 EAC texture to decode
@@ -1135,7 +1135,7 @@ correctly, but the hardware can be 100% shared.
 
 <<<
 As stated above, a _base codeword_ of 255 and a _table value_ of 0 will
-represent a value of latexmath:[${(255.5+0) \over 255.875} = 0.99853444 \ldots$], and this
+represent a value of latexmath:[{(255.5+0) \over 255.875} = 0.99853444 \ldots], and this
 does not reach 1.0 even though 255 is the highest possible _base codeword_.
 However, it is still possible to reach a pixel value of 1.0 since a _modifier_ other
 than 0 can be used.
@@ -1265,7 +1265,7 @@ To get a value between -1023 and 1023 we must multiply
 ++++
 
 where _clamp2_({cdot}) clamps to the range [-1023.0,&nbsp;1023.0]. Since
-latexmath:[$1023.0\over 127.875$] is exactly 8, the above formula can be written as:
+latexmath:[1023.0\over 127.875] is exactly 8, the above formula can be written as:
 
 [[Equation-signedr11eac-eqn-simple]]
 .Signed R11 EAC simple
@@ -1323,10 +1323,10 @@ This value should in turn be multiplied by 8 by left-shifting it three steps:
 We now add this to the base value and get 480-160&nbsp;=&nbsp;320.
 After clamping we still get 320&nbsp;=&nbsp;00101000000b.
 This is our 11-bit output value, which represents the value
-latexmath:[${320\over 1023} = 0.31280547\ldots$].
+latexmath:[{320\over 1023} = 0.31280547\ldots].
 
 If the _multiplier_ value is zero (i.e., the _multiplier_ bits 55..52 are
-all zero), we should set the _multiplier_ to latexmath:[$1.0 \over 8.0$].
+all zero), we should set the _multiplier_ to latexmath:[1.0 \over 8.0].
 <<Equation-signedr11eac-eqn-simple>> can then be simplified to:
 
 [[Equation-signedr11eac-eqn-simpler]]
@@ -1342,18 +1342,18 @@ As an example, assume a _base codeword_ of 65, a _table index_ of 13, a
 _pixel index_ of 3 and a _multiplier_ value of 0.
 We treat the _base codeword_ the same way, getting 480&nbsp;=&nbsp;60{times}8.
 The _modifier_ is still -10.
-But the _multiplier_ should now be latexmath:[$1 \over 8$], which means
-that third term becomes latexmath:[$-10\times\left({1 \over 8}\right)\times 8 = -10$].
+But the _multiplier_ should now be latexmath:[1 \over 8], which means
+that third term becomes latexmath:[-10\times\left({1 \over 8}\right)\times 8 = -10].
 The sum therefore becomes 480-10&nbsp;=&nbsp;470.
 Clamping does not affect the value since it is already in the range [-1023,&nbsp;1023],
 and the 11-bit output value is therefore 470&nbsp;=&nbsp;00111010110b.
-This represents latexmath:[${470\over 1023} = 0.45943304 \dots$]
+This represents latexmath:[{470\over 1023} = 0.45943304 \dots]
 
 Some OpenGL ES implementations may find it convenient to use
 two's-complement 16-bit values for further processing. In this case, a
 positive 11-bit value should be extended using bit replication on all
 the bits except the sign bit. An 11-bit value x is extended to 16 bits through
-(_x_&nbsp;latexmath:[$\ll$]&nbsp;5)&nbsp;{plus}&nbsp;(_x_&nbsp;latexmath:[$\gg$]&nbsp;5).
+(_x_&nbsp;latexmath:[\ll]&nbsp;5)&nbsp;{plus}&nbsp;(_x_&nbsp;latexmath:[\gg]&nbsp;5).
 Since the sign bit is zero for a positive value, no addition logic is needed for the bit
 replication in this case.
 For example, the value 470&nbsp;=&nbsp;00111010110b in the above example should be
@@ -1383,7 +1383,7 @@ the other hand, an implementation is not allowed to truncate the
 
 Note that it is not possible to specify a base value of 1.0 or
 -1.0. The largest possible _base codeword_ is {plus}127, which represents
-latexmath:[${127 \over 127.875} = 0.993\ldots$].
+latexmath:[{127 \over 127.875} = 0.993\ldots].
 However, it is still possible to reach a pixel value of 1.0 or -1.0, since
 the base value is modified by the table before the pixel value is calculated.
 Indeed, half of the _modifiers_ will often produce a value of 1.0. As an example,
@@ -1722,7 +1722,7 @@ color_. To obtain the other _paint colors_, a `distance' is first
 determined, which will be used to modify the luminance of one of the
 _base colors_. This is done by combining the values _d~a~_ and _d~b~_ shown
 in <<Table-etc2punch-dataformat>> part (c) by
-(_d~a~_ latexmath:[$\ll$] 1) | _d~b~_, and
+(_d~a~_ latexmath:[\ll] 1) | _d~b~_, and
 then using this value as an index into the small look-up table shown
 in <<Table-etc2-distancetable>>. For example, if _d~a~_ is 10 binary and
 _d~b~_ is 1 binary, the index is 101 binary and the selected distance _d_
@@ -1763,9 +1763,9 @@ is slightly more complex. In order to construct the three-bit index
 into the distance table shown in <<Table-etc2-distancetable>>, _d~a~_
 and _d~b~_ shown in <<Table-etc2punch-dataformat>> part (d) are used
 as the most significant bit and middle bit, respectively, but the
-least significant bit is computed as (_base color 1_ value latexmath:[$\geq$]
+least significant bit is computed as (_base color 1_ value latexmath:[\geq]
 _base color 2_ value), the `value' of a color for the comparison being equal to
-(_R_&nbsp;latexmath:[$\ll$]&nbsp;16)&nbsp;{plus}&nbsp;(_G_&nbsp;latexmath:[$\ll$]&nbsp;8)_&nbsp;{plus}&nbsp;B_.
+(_R_&nbsp;latexmath:[\ll]&nbsp;16)&nbsp;{plus}&nbsp;(_G_&nbsp;latexmath:[\ll]&nbsp;8)_&nbsp;{plus}&nbsp;B_.
 Once the `distance' _d_ has been determined for an `H' block, the four
 _paint colors_ will be:
 

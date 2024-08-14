@@ -120,7 +120,7 @@ link:https://webstore.iec.ch/preview/info_iec61966-2-2%7Bed1.0%7Den.pdf[https://
 
 A working draft is freely available at link:https://web.archive.org/web/20110725185444/http://www.colour.org/tc8-05/Docs/colorspace/61966-2-2NPa.pdf[https://web.archive.org/web/20110725185444/http://www.colour.org/tc8-05/Docs/colorspace/61966-2-2NPa.pdf].
 
-link:http://www.color.org/sycc.pdf[http://www.color.org/sycc.pdf] - sYCC (the latexmath:[$Y'C_BC_R$] variant of sRGB)
+link:http://www.color.org/sycc.pdf[http://www.color.org/sycc.pdf] - sYCC (the latexmath:[Y'C_BC_R] variant of sRGB)
 
 link:https://webstore.iec.ch/corrigenda/iec61966-2-2-cor1%7Bed1.0%7Den.pdf[https://webstore.iec.ch/corrigenda/iec61966-2-2-cor1%7Bed1.0%7Den.pdf]
 - Annex B: Non-linear encoding for scRGB : scRGB-nl and its YCC Transformation: scYCC-nl +

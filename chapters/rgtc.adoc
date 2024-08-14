@@ -29,7 +29,7 @@ size (in bytes) is:
 ++++
 
 When decoding an RGTC image, the block containing the texel at offset
-latexmath:[$(x,y)$] begins at an offset (in bytes) relative to the base of the image of:
+latexmath:[(x,y)] begins at an offset (in bytes) relative to the base of the image of:
 
 [latexmath]
 ++++
@@ -91,7 +91,7 @@ The 6 _bits_~{0..5}~ bytes of the block are decoded into a 48-bit bit vector:
 ++++
 
 _red_~0~ and _red_~1~ are 8-bit unsigned integers that are unpacked to red
-values _RED_~0~ and _RED_~1~ by multiplying by latexmath:[$1\over 255$].
+values _RED_~0~ and _RED_~1~ by multiplying by latexmath:[1\over 255].
 
 _bits_ is a 48-bit unsigned integer, from which a three-bit control code is
 extracted for a texel at location (_x_, _y_) in the block using:
@@ -118,18 +118,18 @@ the block is given by <<BC4blocks>>.
 ^| _R_ value ^| Condition
 ^| _RED_~0~                         ^.^| _red_~0~ > _red_~1~, _code_(_x_, _y_) = 0
 ^| _RED_~1~                         ^.^| _red_~0~ > _red_~1~, _code_(_x_, _y_) = 1
-^| latexmath:[${ 6 \times \mathit{RED}_0 + \mathit{RED}_1 } \over 7$] ^.^| _red_~0~ > _red_~1~, _code_(_x_, _y_) = 2
-^| latexmath:[${ 5 \times \mathit{RED}_0 + 2 \times \mathit{RED}_1 } \over 7$] ^.^| _red_~0~ > _red_~1~, _code_(_x_, _y_) = 3
-^| latexmath:[${ 4 \times \mathit{RED}_0 + 3 \times \mathit{RED}_1 } \over 7$] ^.^| _red_~0~ > _red_~1~, _code_(_x_, _y_) = 4
-^| latexmath:[${ 3 \times \mathit{RED}_0 + 4 \times \mathit{RED}_1 } \over 7$] ^.^| _red_~0~ > _red_~1~, _code_(_x_, _y_) = 5
-^| latexmath:[${ 2 \times \mathit{RED}_0 + 5 \times \mathit{RED}_1 } \over 7$] ^.^| _red_~0~ > _red_~1~, _code_(_x_, _y_) = 6
-^| latexmath:[${ \mathit{RED}_0 + 6 \times \mathit{RED}_1 } \over 7$] ^.^| _red_~0~ > _red_~1~, _code_(_x_, _y_) = 7
+^| latexmath:[{ 6 \times \mathit{RED}_0 + \mathit{RED}_1 } \over 7] ^.^| _red_~0~ > _red_~1~, _code_(_x_, _y_) = 2
+^| latexmath:[{ 5 \times \mathit{RED}_0 + 2 \times \mathit{RED}_1 } \over 7] ^.^| _red_~0~ > _red_~1~, _code_(_x_, _y_) = 3
+^| latexmath:[{ 4 \times \mathit{RED}_0 + 3 \times \mathit{RED}_1 } \over 7] ^.^| _red_~0~ > _red_~1~, _code_(_x_, _y_) = 4
+^| latexmath:[{ 3 \times \mathit{RED}_0 + 4 \times \mathit{RED}_1 } \over 7] ^.^| _red_~0~ > _red_~1~, _code_(_x_, _y_) = 5
+^| latexmath:[{ 2 \times \mathit{RED}_0 + 5 \times \mathit{RED}_1 } \over 7] ^.^| _red_~0~ > _red_~1~, _code_(_x_, _y_) = 6
+^| latexmath:[{ \mathit{RED}_0 + 6 \times \mathit{RED}_1 } \over 7] ^.^| _red_~0~ > _red_~1~, _code_(_x_, _y_) = 7
 ^| _RED_~0~                         ^.^| _red_~0~ {leq} _red_~1~, _code_(_x_, _y_) = 0
 ^| _RED_~1~                         ^.^| _red_~0~ {leq} _red_~1~, _code_(_x_, _y_) = 1
-^| latexmath:[${ 4 \times \mathit{RED}_0 +   \mathit{RED}_1 } \over 5$] ^.^| _red_~0~ {leq} _red_~1~, _code_(_x_, _y_) = 2
-^| latexmath:[${ 3 \times \mathit{RED}_0 + 2 \times \mathit{RED}_1 } \over 5$] ^.^| _red_~0~ {leq} _red_~1~, _code_(_x_, _y_) = 3
-^| latexmath:[${ 2 \times \mathit{RED}_0 + 3 \times \mathit{RED}_1 } \over 5$] ^.^| _red_~0~ {leq} _red_~1~, _code_(_x_, _y_) = 4
-^| latexmath:[${   \mathit{RED}_0 + 4 \times \mathit{RED}_1 } \over 5$] ^.^| _red_~0~ {leq} _red_~1~, _code_(_x_, _y_) = 5
+^| latexmath:[{ 4 \times \mathit{RED}_0 +   \mathit{RED}_1 } \over 5] ^.^| _red_~0~ {leq} _red_~1~, _code_(_x_, _y_) = 2
+^| latexmath:[{ 3 \times \mathit{RED}_0 + 2 \times \mathit{RED}_1 } \over 5] ^.^| _red_~0~ {leq} _red_~1~, _code_(_x_, _y_) = 3
+^| latexmath:[{ 2 \times \mathit{RED}_0 + 3 \times \mathit{RED}_1 } \over 5] ^.^| _red_~0~ {leq} _red_~1~, _code_(_x_, _y_) = 4
+^| latexmath:[{   \mathit{RED}_0 + 4 \times \mathit{RED}_1 } \over 5] ^.^| _red_~0~ {leq} _red_~1~, _code_(_x_, _y_) = 5
 ^| _RED~min~_                     ^.^| _red_~0~ {leq} _red_~1~, _code_(_x_, _y_) = 6
 ^| _RED~max~_                     ^.^| _red_~0~ {leq} _red_~1~, _code_(_x_, _y_) = 7
 |====

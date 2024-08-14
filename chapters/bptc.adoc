@@ -736,7 +736,7 @@ as an unsigned integer interpolation factor from <<BPTCInterpolation>>:
 \end{align*}
 ++++
 
-where latexmath:[$\gg$] performs a (truncating) bitwise right-shift, and
+where latexmath:[\gg] performs a (truncating) bitwise right-shift, and
 _interpolated value_ is an (unsigned) integer in the range [0..255].
 The interpolation results in an _RGBA_ color. If rotation bits are present,
 this interpolated color is remapped according to <<BPTCRotation>>.
@@ -752,7 +752,7 @@ this interpolated color is remapped according to <<BPTCRotation>>.
 |====
 
 These 8-bit values should be interpreted as _RGBA_ 8-bit normalized channels,
-either linearly encoded (by multiplying by latexmath:[$1\over 255$]) or
+either linearly encoded (by multiplying by latexmath:[1\over 255]) or
 with the <<TRANSFER_SRGB,sRGB transfer function>>.
 
 <<<
@@ -1024,7 +1024,7 @@ sign-extended if the format of the texture is signed or if the block mode
 has transformed endpoints.
 If the mode has transformed endpoints, the values from _E_~0~ are used as a
 base to offset all other endpoints, wrapped at the number of endpoint bits.
-For example, _R_~1~ = (_R_~0~ {plus} _R_~1~) & latexmath:[$((1 \ll \mathrm{EPB})-1)$].
+For example, _R_~1~ = (_R_~0~ {plus} _R_~1~) & latexmath:[((1 \ll \mathrm{EPB})-1)].
 
 [NOTE]
 ====
@@ -1103,7 +1103,7 @@ represent [0.0..65504.0], where 65504.0 is the largest finite value
 representable in a half float.
 The bit pattern that represents 65504.0 is integer 0x7BFF, so the integer
 input range 0..0xFFFF can be mapped to this range by scaling the
-interpolated integer i by latexmath:[$31\over 64$]:
+interpolated integer i by latexmath:[31\over 64]:
 
 [source]
 ----
@@ -1112,12 +1112,12 @@ out = (i * 31) >> 6;
 
 For the signed format, the final unquantization step limits the range of
 the integer representation to the bit sequences which, when interpreted as
-a 16-bit half float, represent the range [latexmath:[$-\infty$]..65504.0],
-where latexmath:[$-\infty$] is represented in half float as the bit
+a 16-bit half float, represent the range [latexmath:[-\infty]..65504.0],
+where latexmath:[-\infty] is represented in half float as the bit
 pattern 0xFC00.
 The signed 16-bit integer range [-0x8000..0x7FFF] is remapped to this
 float representation by taking the absolute value of the interpolated
-value i, scaling it by latexmath:[$31\over 32$], and restoring the sign bit:
+value i, scaling it by latexmath:[31\over 32], and restoring the sign bit:
 
 [source]
 ----
@@ -1128,14 +1128,14 @@ The resultant bit pattern should be interpreted as a 16-bit half float.
 
 [NOTE]
 ====
-The ability to support latexmath:[$-\infty$] is considered ``accidental''
+The ability to support latexmath:[-\infty] is considered ``accidental''
 due to the asymmetry of two's complement representation: in order to
 map integer 0x7FFF to 65504.0 and 0x0000 to 0.0, -0x7FFF maps to the
 largest finite negative value, -65504.0, represented as 0xFBFF.
 A two's complement signed integer can also represent -0x8000; it
 happens that the same unquantization formula maps 0x8000 to 0xFC00,
-which is the half float bit pattern for latexmath:[$-\infty$].
+which is the half float bit pattern for latexmath:[-\infty].
 Although decoders for BC6H should be bit-exact, encoders for this format
-are encouraged to map latexmath:[$-\infty$] to -65504.0 (and to map
-latexmath:[$\infty$] to 65504.0 and NaN values to 0.0) prior to encoding.
+are encouraged to map latexmath:[-\infty] to -65504.0 (and to map
+latexmath:[\infty] to 65504.0 and NaN values to 0.0) prior to encoding.
 ====

@@ -359,7 +359,7 @@ If ++twb++ = log~2~(_tw_) and ++thb++ = log~2~(_th_):
 [source]
 ----
 pixelOffset = (x & ((1 << twb) - 1)) | ((y & ((1 << thb) - 1)) << twb)
-            | ((x & ~((1 << twb) - 1)) << thb) | ((y & ~((1 << thb)-1)) * lineStride);
+	    | ((x & ~((1 << twb) - 1)) << thb) | ((y & ~((1 << thb)-1)) * lineStride);
 ----
 
 For example, if a linear 16{times}12 image calculates a pixel offset
@@ -388,7 +388,7 @@ size require padding.
 <<<
 For so long as the size of a tile fits into an on-chip cache and can
 be filled efficiently by the memory subsystem, this approach has the
-benefit that only one in latexmath:[$1\over n$] transitions between
+benefit that only one in latexmath:[1\over n] transitions between
 vertically-adjacent lines requires accessing outside a tile of height
 _n_.
 The larger the tile, the greater the probability that vertically-adjacent
@@ -410,7 +410,7 @@ image::{images}/2DMortonOffsets.svg[width="{svgpdf@pdf:350pt:575}",align="center
 [source]
 ----
 uint32_t mortonOffset(uint32_t x, uint32_t y,
-                      uint32_t width, uint32_t height) {
+		      uint32_t width, uint32_t height) {
 
     const uint32_t minDim = (width <= height) ? width : height;
     uint32_t offset = 0, shift = 0, mask;
@@ -425,8 +425,8 @@ uint32_t mortonOffset(uint32_t x, uint32_t y,
     assert(width % minDim == 0 && height % minDim == 0);
 
     for (mask = 1; mask < minDim; mask <<= 1) {
-        offset |= (((y & mask) << 1) | (x & mask)) << shift;
-        shift++;
+	offset |= (((y & mask) << 1) | (x & mask)) << shift;
+	shift++;
     }
 
     // At least one of width and height will have run out of most-significant bits
@@ -456,10 +456,10 @@ uint32_t h(uint32_t size, uint32_t x, uint32_t y) {
     uint32_t offset = 0;
 
     while (size >>= 1) { // Iterate in decreasing block size order
-        // Accumulate preceding blocks of size * size
-        offset += size * (((size & x) << 1) + (size & z));
-        y = z ^ x; // Transpose x and y
-        if (!(size & y)) x = (size & x) ? ~y : y; // Conditionally swap/mirror
+	// Accumulate preceding blocks of size * size
+	offset += size * (((size & x) << 1) + (size & z));
+	y = z ^ x; // Transpose x and y
+	if (!(size & y)) x = (size & x) ? ~y : y; // Conditionally swap/mirror
     }
     return offset;
 }
@@ -529,31 +529,31 @@ between storage address and coordinates.
 [source]
 ----
 uint32_t tileOffset3D(uint32_t x, uint32_t y, uint32_t z,
-                      uint32_t twb, uint32_t thb, uint32_t tdb,
-                      uint32_t lineStride, uint32_t planeStride) {
+		      uint32_t twb, uint32_t thb, uint32_t tdb,
+		      uint32_t lineStride, uint32_t planeStride) {
   // twb = tile width bits (log2 of tile width)
   // thb = tile height bits (log2 of tile height)
   // tdb = tile depth bits (log2 of tile depth)
   return (x & ((1 << twb) - 1)) |
-         ((y & ((1 << thb) - 1)) << twb) |
-         ((z & ((1 << tdb) - 1)) << (twb + thb)) |
-         ((x & ~((1 << twb) - 1)) << (thb + tdb)) |
-         ((y & ~((1 << thb) - 1)) << tdb) * lineStride |
-         ((z & ~((1 << tdb) - 1)) * planeStride);
+	 ((y & ((1 << thb) - 1)) << twb) |
+	 ((z & ((1 << tdb) - 1)) << (twb + thb)) |
+	 ((x & ~((1 << twb) - 1)) << (thb + tdb)) |
+	 ((y & ~((1 << thb) - 1)) << tdb) * lineStride |
+	 ((z & ~((1 << tdb) - 1)) * planeStride);
 }
 ----
 
 [source]
 ----
 uint32_t mortonOffset3D(uint32_t x, uint32_t y, uint32_t z,
-                        uint32_t width, uint32_t height, uint32_t depth) {
+			uint32_t width, uint32_t height, uint32_t depth) {
     const uint32_t max = width | height | depth;
     uint32_t offset = 0, shift = 0, mask;
     for (mask = 1; max > mask; mask <<= 1) {
-        if (width > mask)  offset |= (x & mask) << shift++;
-        if (height > mask) offset |= (y & mask) << shift++;
-        if (depth > mask)  offset |= (z & mask) << shift++;
-        --shift;
+	if (width > mask)  offset |= (x & mask) << shift++;
+	if (height > mask) offset |= (y & mask) << shift++;
+	if (depth > mask)  offset |= (z & mask) << shift++;
+	--shift;
     }
     return offset;
 }
@@ -568,18 +568,18 @@ uint32_t hilbertOffset3D(uint32_t x, uint32_t y, uint32_t z, uint32_t size) {
     // http://herman.haverkort.net/recursive_tilings_and_space-filling_curves
     uint32_t offset = 0;
     while (size >>= 1) {
-        uint32_t tx = (size & x) > 0, ty = (size & y) > 0, tz = (size & z) > 0;
-        switch (tx + 2 * ty + 4 * tz) {
-        case 0: tx =  z; ty =  y; tz =  x; break;
-        case 1: tx =  x; ty =  z; tz =  y; offset += size * size * size; break;
-        case 2: tx = ~y; ty = ~x; tz =  z; offset += size * size * size * 3; break;
-        case 3: tx =  z; ty =  x; tz =  y; offset += size * size * size * 2; break;
-        case 4: tx = ~z; ty =  y; tz = ~x; offset += size * size * size * 7; break;
-        case 5: tx =  x; ty = ~z; tz = ~y; offset += size * size * size * 6; break;
-        case 6: tx = ~y; ty = ~x; tz =  z; offset += size * size * size * 4; break;
-        case 7: tx = ~z; ty =  x; tz = ~y; offset += size * size * size * 5; break;
-        }
-        x = tx; y = ty; z = tz;
+	uint32_t tx = (size & x) > 0, ty = (size & y) > 0, tz = (size & z) > 0;
+	switch (tx + 2 * ty + 4 * tz) {
+	case 0: tx =  z; ty =  y; tz =	x; break;
+	case 1: tx =  x; ty =  z; tz =	y; offset += size * size * size; break;
+	case 2: tx = ~y; ty = ~x; tz =	z; offset += size * size * size * 3; break;
+	case 3: tx =  z; ty =  x; tz =	y; offset += size * size * size * 2; break;
+	case 4: tx = ~z; ty =  y; tz = ~x; offset += size * size * size * 7; break;
+	case 5: tx =  x; ty = ~z; tz = ~y; offset += size * size * size * 6; break;
+	case 6: tx = ~y; ty = ~x; tz =	z; offset += size * size * size * 4; break;
+	case 7: tx = ~z; ty =  x; tz = ~y; offset += size * size * size * 5; break;
+	}
+	x = tx; y = ty; z = tz;
     }
     return offset;
 }
@@ -733,7 +733,7 @@ In the Bayer representation, the red and blue channels can be considered
 to be downsampled by a factor of two in each dimension.
 The two green channels per 2{times}2 repeating block mean that the
 ``downsampling factor'' for the green channel is effectively
-latexmath:[$\sqrt{2}$] in each direction.
+latexmath:[\sqrt{2}] in each direction.
 
 <<<
 More complex layouts are not uncommon.
@@ -741,8 +741,8 @@ For example, the X-Trans sample arrangement developed by Fujifilm for
 their digital camera range, shown in <<XTrans>>, consists of 6{times}6 texel
 blocks, with each sample, as in Bayer, corresponding to a single channel.
 In X-Trans, each block contains eight red, eight blue and twenty green
-samples; red and blue are ``downsampled'' by latexmath:[$\sqrt{3\over 2}$]
-and green is ``downsampled'' by latexmath:[$3\over\sqrt{5}$].
+samples; red and blue are ``downsampled'' by latexmath:[\sqrt{3\over 2}]
+and green is ``downsampled'' by latexmath:[3\over\sqrt{5}].
 
 [[XTrans]]
 .An 18{times}12 X-Trans image (repeating 6{times}6 pattern outlined in yellow)
@@ -1034,7 +1034,7 @@ The precision to which sample coordinates are specified depends
 on the size of the texel block: coordinates in a 256{times}256 texel
 block can be specified only to integer-coordinate granularity, but
 offsets within a texel block that is only a single coordinate wide
-are specified to the precision of latexmath:[$1\over 256$] of a
+are specified to the precision of latexmath:[1\over 256] of a
 coordinate; this approach allows large texel blocks, half-texel offsets
 for representations such as _Y&prime;C~B~C~R~_ 4:2:0, and precise
 fractional offsets for recording multisampled pattern locations.
@@ -1979,7 +1979,7 @@ supplemented by a channel for alpha, as shown in <<YCoCgAChannels>>.
 ==== *++KHR_DF_MODEL_YCCBCCRC++* (= 12)
 
 This color model represents the ``Constant luminance''
-latexmath:[$Y'_CC'_\mathit{BC}C'_\mathit{RC}$] color model defined as an
+latexmath:[Y'_CC'_\mathit{BC}C'_\mathit{RC}] color model defined as an
 optional representation in ITU-T BT.2020 and described in <<MODEL_YCCBCCRC>>.
 
 [[YCBCCRCChannels]]
@@ -1987,9 +1987,9 @@ optional representation in ITU-T BT.2020 and described in <<MODEL_YCCBCCRC>>.
 [width="100%",options="header"]
 |====
 ^| Channel number 2+| &nbsp; Name | &nbsp; Description
-^| 0 2+| &nbsp; *++KHR_DF_CHANNEL_YCCBCCRC_YC++* | &nbsp; latexmath:[$Y'_C$] (luminance)
-^| 1 2+| &nbsp; *++KHR_DF_CHANNEL_YCCBCCRC_CBC++* | &nbsp; latexmath:[$C'_\mathit{BC}$]
-^| 2 2+| &nbsp; *++KHR_DF_CHANNEL_YCCBCCRC_CRC++* | &nbsp; latexmath:[$C'_\mathit{RC}$]
+^| 0 2+| &nbsp; *++KHR_DF_CHANNEL_YCCBCCRC_YC++* | &nbsp; latexmath:[Y'_C] (luminance)
+^| 1 2+| &nbsp; *++KHR_DF_CHANNEL_YCCBCCRC_CBC++* | &nbsp; latexmath:[C'_\mathit{BC}]
+^| 2 2+| &nbsp; *++KHR_DF_CHANNEL_YCCBCCRC_CRC++* | &nbsp; latexmath:[C'_\mathit{RC}]
 ^| 13 2+| &nbsp; *++KHR_DF_CHANNEL_YCCBCCRC_STENCIL++* | &nbsp; Stencil
 ^| 14 2+| &nbsp; *++KHR_DF_CHANNEL_YCCBCCRC_DEPTH++* | &nbsp; Depth
 ^| 15 2+| &nbsp; *++KHR_DF_CHANNEL_YCCBCCRC_ALPHA++* | &nbsp; Alpha (opacity)
@@ -3401,14 +3401,14 @@ and is described in <<TRANSFER_SLOG2>>.
 
 ==== *++KHR_DF_TRANSFER_BT1886++* (= 7)
 
-This value represents the nonlinear latexmath:[$\gamma = 2.4$]
+This value represents the nonlinear latexmath:[\gamma = 2.4]
 EOTF between encoded pixel values and linear image intensity defined
 in <<bt1886,BT.1886>> and described in <<TRANSFER_BT1886>>.
 
 [width="70%",cols="^8,^2,^5"]
 |====
-| Mapping from linear intensity to encoding | EOTF^&nbsp;-1^ | latexmath:[$\{R',G',B'\} = \{R,G,B\}^{2.4}$]
-| Mapping from encoding to linear intensity | EOTF | latexmath:[$\{R,G,B\} = \{R',G',B'\}^{1\over{2.4}}$]
+| Mapping from linear intensity to encoding | EOTF^&nbsp;-1^ | latexmath:[\{R',G',B'\} = \{R,G,B\}^{2.4}]
+| Mapping from encoding to linear intensity | EOTF | latexmath:[\{R,G,B\} = \{R',G',B'\}^{1\over{2.4}}]
 |====
 
 <<<
@@ -4009,10 +4009,10 @@ channel, as shown in <<exampledescriptor_r9g9b9e5>>.
 [cols="^1,^1,^1,4,^5", width="50%"]
 |====
 | *_E_* | *_L_* | *_F_* |&nbsp; *Interpretation* | *Formula*
-| 1 | 0 | 0 |&nbsp; Exponent | latexmath:[$\mathit{base\ value}\times 2^\mathit{modifier}$]
-| 1 | 0 | 1 |&nbsp; Multiplier | latexmath:[$\mathit{base\ value}\times\mathit{modifier}$]
-| 1 | 1 | 0 |&nbsp; Divisor | latexmath:[$\mathit{base\ value}\over\mathit{modifier}$]
-| 1 | 1 | 1 |&nbsp; Power | latexmath:[$\mathit{base\ value}^\mathit{modifier}$]
+| 1 | 0 | 0 |&nbsp; Exponent | latexmath:[\mathit{base\ value}\times 2^\mathit{modifier}]
+| 1 | 0 | 1 |&nbsp; Multiplier | latexmath:[\mathit{base\ value}\times\mathit{modifier}]
+| 1 | 1 | 0 |&nbsp; Divisor | latexmath:[\mathit{base\ value}\over\mathit{modifier}]
+| 1 | 1 | 1 |&nbsp; Power | latexmath:[\mathit{base\ value}^\mathit{modifier}]
 |====
 
 For samples in which the *++KHR_DF_SAMPLE_DATATYPE_EXPONENT++* bit is set:
@@ -4125,12 +4125,12 @@ endif::[]
 
 For example, if *_texelBlockDimension0_* is 1 (indicating a texel block
 width of two units) *_samplePosition0_* is described in units of
-latexmath:[${2\over 256} = {1\over 128}$].
+latexmath:[{2\over 256} = {1\over 128}].
 That is, a *_samplePosition0_* of 128 would encode an offset of ``1.0''
 and a *_samplePosition0_* of 64 would encode an offset of ``0.5''.
 If *_texelBlockDimension0_* is 5 (indicating a texel block width of
 six units), *_samplePosition0_* is described in units of
-latexmath:[${8\over 256} = {1\over 32}$].
+latexmath:[{8\over 256} = {1\over 32}].
 That is, a *_samplePosition0_* of 64 would encode an offset of ``2.0''
 and a *_samplePosition0_* of 24 would encode an offset of ``0.75''.
 
@@ -4637,7 +4637,7 @@ cannot represent the format without extension.
 
 The basic descriptor block allows texel blocks of up to four non-trivial
 dimensions, and with a texel block size of up to 256 coordinate units,
-with sample positions described in precision up to latexmath:[$1\over 256$]
+with sample positions described in precision up to latexmath:[1\over 256]
 of a coordinate.
 Under rare circumstances, this may provide insufficient flexibility.
 An extension descriptor block, with *_vendorId_* = *++KHR_DF_VENDORID_KHRONOS++*
@@ -4675,7 +4675,7 @@ are ignored.
 
 For each sample, the *_samplePos_* and *_samplePosDivisor_* fields store
 a numerator and denominator pair for the coordinate
-latexmath:[$\textit{offset} = {\textit{numerator}\over\textit{denominator}}$]
+latexmath:[\textit{offset} = {\textit{numerator}\over\textit{denominator}}]
 for each dimension, with all dimensions for a sample described before
 describing the next sample.
 *_samplePos_* and *_samplePosDivisor_* should be minimized, leaving an
@@ -4799,18 +4799,18 @@ following:
 
 [latexmath]
 ++++
-\[
+\begin{aligned}
 V =
   \begin{cases}
-    (-1)^S \times 0.0,                      & E = 0, M = 0     \\
+    (-1)^S \times 0.0,			    & E = 0, M = 0     \\
     (-1)^S \times 2^{-14} \times { M \over 2^{10} },
-                                            & E = 0,  M \neq 0 \\
+					    & E = 0,  M \neq 0 \\
     (-1)^S \times 2^{E-15} \times { \left( 1 + { M \over 2^{10} } \right) },
-                                            & 0 < E < 31       \\
-    (-1)^S \times \mathit{Inf},             & E = 31, M = 0             \\
-    \mathit{NaN},                           & E = 31, M \neq 0
+					    & 0 < E < 31       \\
+    (-1)^S \times \mathit{Inf},		    & E = 31, M = 0		\\
+    \mathit{NaN},			    & E = 31, M \neq 0
   \end{cases}
-\]
+\end{aligned}
 ++++
 
 If the floating-point number is interpreted as an unsigned 16-bit integer
@@ -4818,9 +4818,9 @@ _N_, then
 
 [latexmath]
 ++++
-    $$S = \left\lfloor { { N \bmod 65536 } \over 32768 } \right\rfloor$$
-    $$E = \left\lfloor { { N \bmod 32768 } \over  1024 } \right\rfloor$$
-    $$M = N \bmod 1024.$$
+S = \left\lfloor { { N \bmod 65536 } \over 32768 } \right\rfloor \\
+E = \left\lfloor { { N \bmod 32768 } \over  1024 } \right\rfloor \\
+M = N \bmod 1024.
 ++++
 
 [[11bitfp]]
@@ -4833,17 +4833,17 @@ the following:
 
 [latexmath]
 ++++
-\[
+\begin{aligned}
 V =
   \begin{cases}
-    0.0,                                    & E = 0, M = 0    \\
-    2^{-14} \times { M \over 64 },          & E = 0, M \neq 0 \\
+    0.0,				    & E = 0, M = 0    \\
+    2^{-14} \times { M \over 64 },	    & E = 0, M \neq 0 \\
     2^{E-15} \times { \left( 1 + { M \over 64 } \right) },
-                                            & 0 < E < 31      \\
-    \mathit{Inf},                           & E = 31, M = 0            \\
-    \mathit{NaN},                           & E = 31, M \neq 0
+					    & 0 < E < 31      \\
+    \mathit{Inf},			    & E = 31, M = 0	       \\
+    \mathit{NaN},			    & E = 31, M \neq 0
   \end{cases}
-\]
+\end{aligned}
 ++++
 
 If the floating-point number is interpreted as an unsigned 11-bit integer
@@ -4851,8 +4851,8 @@ _N_, then
 
 [latexmath]
 ++++
-    $$E = \left\lfloor { N \over 64 } \right\rfloor$$
-    $$M = N \bmod 64.$$
+E = \left\lfloor { N \over 64 } \right\rfloor \\
+M = N \bmod 64.
 ++++
 
 [[10bitfp]]
@@ -4865,17 +4865,17 @@ determined by the following:
 
 [latexmath]
 ++++
-\[
+\begin{aligned}
 V =
   \begin{cases}
-    0.0,                                    & E = 0, M = 0    \\
-    2^{-14} \times { M \over 32 },          & E = 0, M \neq 0 \\
+    0.0,				    & E = 0, M = 0    \\
+    2^{-14} \times { M \over 32 },	    & E = 0, M \neq 0 \\
     2^{E-15} \times { \left( 1 + { M \over 32 } \right) },
-                                            & 0 < E < 31      \\
-    \mathit{Inf},                           & E = 31, M = 0   \\
-    \mathit{NaN},                           & E = 31, M \neq 0
+					    & 0 < E < 31      \\
+    \mathit{Inf},			    & E = 31, M = 0   \\
+    \mathit{NaN},			    & E = 31, M \neq 0
   \end{cases}
-\]
+\end{aligned}
 ++++
 
 If the floating-point number is interpreted as an unsigned 10-bit integer
@@ -4883,8 +4883,8 @@ _N_, then
 
 [latexmath]
 ++++
-    $$E = \left\lfloor { N \over 32 } \right\rfloor$$
-    $$M = N \bmod 32.$$
+E = \left\lfloor { N \over 32 } \right\rfloor \\
+M = N \bmod 32.
 ++++
 
 [[customfp]]
@@ -4985,17 +4985,17 @@ be converted from its representation to a real value as follows:
 
 [latexmath]
 ++++
-\[
+\begin{aligned}
 V =
   \begin{cases}
-    (-1)^S \times 0.0,             & E = 0, M = 0    \\
+    (-1)^S \times 0.0,		   & E = 0, M = 0    \\
     (-1)^S \times 2^{-(E_\mathit{sampleLower}-1)} \times { M \over M_\mathit{sampleUpper} },  & E = 0, M \neq 0 \\
     (-1)^S \times 2^{E-E_\mathit{sampleLower}} \times { \left( 1 + { M \over M_\mathit{sampleUpper} } \right) },
-                                   & 0 < E \leq E_\mathit{sampleUpper}   \\
-    (-1)^S \times \mathit{Inf},    & E > E_\mathit{sampleUpper}, M = 0   \\
-    \mathit{NaN},                  & E > E_\mathit{sampleUpper}, M \neq 0.
+				   & 0 < E \leq E_\mathit{sampleUpper}	 \\
+    (-1)^S \times \mathit{Inf},    & E > E_\mathit{sampleUpper}, M = 0	 \\
+    \mathit{NaN},		   & E > E_\mathit{sampleUpper}, M \neq 0.
   \end{cases}
-\]
+\end{aligned}
 ++++
 
 If there is no implicit ``1'' bit (that is, the *_sampleUpper_* value
@@ -5004,15 +5004,15 @@ mantissa), the value can be converted to a real value as follows:
 
 [latexmath]
 ++++
-\[
+\begin{aligned}
 V =
   \begin{cases}
     (-1)^S \times 2^{E-E_{\mathit{sampleUower}}} \times { \left( { M \over M_\mathit{sampleUpper} } \right) },
-                                   & 0 < E \leq E_\mathit{sampleUpper}   \\
-    (-1)^S \times \mathit{Inf},    & E > E_\mathit{sampleUpper}, M = 0   \\
-    \mathit{NaN},                  & E > E_\mathit{sampleUpper}, M \neq 0.
+				   & 0 < E \leq E_\mathit{sampleUpper}	 \\
+    (-1)^S \times \mathit{Inf},    & E > E_\mathit{sampleUpper}, M = 0	 \\
+    \mathit{NaN},		   & E > E_\mathit{sampleUpper}, M \neq 0.
   \end{cases}
-\]
+\end{aligned}
 ++++
 
 A descriptor block for a format without an implicit ``1'' (and with the
@@ -5023,17 +5023,17 @@ equations simplify to:
 
 [latexmath]
 ++++
-    $$red   = \mathit{red}_\mathrm{shared}\times 2^{(\mathit{exp}_\mathrm{shared}-B-N)}$$
-    $$green = \mathit{green}_\mathrm{shared}\times 2^{(\mathit{exp}_\mathrm{shared}-B-N)}$$
-    $$blue  = \mathit{blue}_\mathrm{shared}\times 2^{(\mathit{exp}_\mathrm{shared}-B-N)}$$
+red   = \mathit{red}_\mathrm{shared}\times 2^{(\mathit{exp}_\mathrm{shared}-B-N)} \\
+green = \mathit{green}_\mathrm{shared}\times 2^{(\mathit{exp}_\mathrm{shared}-B-N)} \\
+blue  = \mathit{blue}_\mathrm{shared}\times 2^{(\mathit{exp}_\mathrm{shared}-B-N)}
 ++++
 
 Where:
 
 [latexmath]
 ++++
-   $$N = 9  \textrm{ (= number of mantissa bits per component)}$$
-   $$B = 15 \textrm{ (= exponent bias)}$$
+N = 9  \textrm{ (= number of mantissa bits per component)} \\
+B = 15 \textrm{ (= exponent bias)}
 ++++
 
 Note that in general conversion from a real number _to_ any representation

@@ -337,11 +337,11 @@ to be a simple <<MODEL_YUV,model conversion>> (to
 using the ``<<TRANSFER_ITU,ITU>>'' OETF), since sRGB shares the BT.709
 color primaries and is defined as a complementary <<TRANSFER_SRGB,EOTF>>
 intended to be combined with BT.709's OETF.
-This interpretation imposes a latexmath:[$\gamma \approx$] 1.1
+This interpretation imposes a latexmath:[\gamma \approx] 1.1
 OOTF.
 Matching the OOTF of a
 <<TRANSFER_ITU,BT.709>>-<<TRANSFER_BT1886,BT.1886>> system,
-for which latexmath:[$\gamma \approx$] 1.2, implies using the
+for which latexmath:[\gamma \approx] 1.2, implies using the
 <<TRANSFER_BT1886,BT.1886>> EOTF to convert to linear light,
 then the <<TRANSFER_SRGB,sRGB>> EOTF^&#160;-1^ to convert back
 to sRGB non-linear space.
@@ -353,7 +353,7 @@ _B&prime;~sRGB~_} should be calculated as:
 
 [latexmath]
 ++++
-$$\{\mathit{R}'_\mathit{sRGB},\mathit{G}'_\mathit{sRGB},\mathit{B}'_\mathit{sRGB}\} =
+\{\mathit{R}'_\mathit{sRGB},\mathit{G}'_\mathit{sRGB},\mathit{B}'_\mathit{sRGB}\} =
 \textrm{EOTF}^{-1}_{sRGB}(\textrm{OETF}^{-1}_{\mathit{BT}.709}
-(\{\mathit{R}'_{\mathit{BT}.709},\mathit{G}'_{\mathit{BT}.709},\mathit{B}'_{\mathit{BT}.709}\}))$$
+(\{\mathit{R}'_{\mathit{BT}.709},\mathit{G}'_{\mathit{BT}.709},\mathit{B}'_{\mathit{BT}.709}\}))
 ++++
