@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2019 The Khronos Group Inc. All Rights Reserved.
+// Copyright (C) 2008-2025 The Khronos Group Inc. All Rights Reserved.
 // Copyright notice at https://www.khronos.org/registry/speccopyright.html
 [[S3TC]]
 == S3TC Compressed Texture Image Formats
@@ -55,6 +55,13 @@ The data corresponding to a specific texel (_x_, _y_) are extracted from a
 \end{align*}
 ++++++++++++++
 
+[NOTE]
+====
+There is an analysis of the precise conversions performed by a
+range of real-world GPU hardware in
+link:https://fgiesen.wordpress.com/2021/10/04/gpu-bcn-decoding/[Fabian ``ryg'' Giesen's blog].
+====
+
 There are four distinct S3TC image formats:
 
 [[s3tc_bc1_noalpha]]
@@ -99,7 +106,7 @@ next 6 bits and _B_ in the low 5 bits:
 ++++++
 
 _bits_ is a 32-bit unsigned integer, from which a two-bit control code
-is extracted for a texel at location (_x_, _y_) in the block using:
+is extracted for a texel at position (_x_, _y_) in the block using:
 
 [latexmath]
 ++++++
@@ -111,7 +118,7 @@ is extracted for a texel at location (_x_, _y_) in the block using:
 where _bits_[31] is the most significant and _bits_[0] is the least
 significant bit.
 
-The _RGB_ color for a texel at location (_x_, _y_) in the block is given
+The _RGB_ color for a texel at position (_x_, _y_) in the block is given
 in <<BC1blocks>>.
 
 [[BC1blocks]]
@@ -143,7 +150,7 @@ bits of _RGB_ image data and minimal alpha information.
 The _RGB_ components of a texel are extracted in the same way as BC1
 with no alpha.
 
-The alpha component for a texel at location (_x_, _y_) in the block is
+The alpha component for a texel at position (_x_, _y_) in the block is
 given by <<BC1alpha>>.
 
 [[BC1alpha]]
@@ -240,7 +247,7 @@ The 8 bytes of the block are decoded into one 64-bit integer:
 ++++++
 
 _alpha_ is a 64-bit unsigned integer, from which a four-bit alpha value
-is extracted for a texel at location (_x_, _y_) in the block using:
+is extracted for a texel at position (_x_, _y_) in the block using:
 
 [latexmath]
 ++++++
@@ -252,7 +259,7 @@ is extracted for a texel at location (_x_, _y_) in the block using:
 where _bits_[63] is the most significant and _bits_[0] is the least
 significant bit.
 
-The alpha component for a texel at location (_x_, _y_) in the block is
+The alpha component for a texel at position (_x_, _y_) in the block is
 given by latexmath:[$\mathit{alpha}(x,y)\over 15$].
 
 [[s3tc_bc3]]
@@ -291,7 +298,7 @@ The 6 _bits_ bytes of the block are decoded into one 48-bit integer:
 ++++++
 
 _bits_ is a 48-bit unsigned integer, from which a three-bit control code
-is extracted for a texel at location (_x_, _y_) in the block using:
+is extracted for a texel at position (_x_, _y_) in the block using:
 
 [latexmath]
 ++++++
@@ -304,7 +311,7 @@ where _bits_[47] is the most-significant and _bits_[0] is the least-significant 
 
 <<<
 
-The alpha component for a texel at location (_x_, _y_) in the block is
+The alpha component for a texel at position (_x_, _y_) in the block is
 given by <<BC3alpha>>.
 
 [[BC3alpha]]

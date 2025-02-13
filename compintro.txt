@@ -1,3 +1,6 @@
+// Copyright (c) 2017-2025 The Khronos Group Inc.
+// Copyright notice at https://www.khronos.org/registry/speccopyright.html
+
 == Compressed Texture Image Formats
 
 For computer graphics, a number of texture compression schemes exist
@@ -18,7 +21,7 @@ relying on similarities between nearby texel regions to describe
   allow each texel to specify an interpolation point between
   these endpoints.
   Alpha channels, if present, may be described similarly or
-  with an explict per-texel alpha value.
+  with an explicit per-texel alpha value.
 * ``<<RGTC,RGTC>>'' provides one- and two-channel schemes for
   interpolating between two ``endpoints'' per 4{times}4 texel
   block, and are intended to provide efficient schemes for
@@ -42,8 +45,10 @@ relying on similarities between nearby texel regions to describe
 * ``<<PVRTC,PVRTC>>'' describes several encoding schemes with two colors
   per block of 4{times}4 or 8{times}4 texels, interpolated between
   adjacent texel blocks, and means of modulating between them.
+* ``<<UASTC,UASTC>>'' describes a compressed format designed for
+  efficient transcoding to ASTC, BC7 and other compressed formats.
 
-NOTE: Example data format descriptors for compressed formats can
+Example data format descriptors for compressed formats can
 be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 
 === Terminology

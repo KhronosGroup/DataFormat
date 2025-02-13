@@ -1,5 +1,5 @@
 <!--
-Copyright (c) 2014-2019 The Khronos Group Inc.
+Copyright (c) 2014-2025 The Khronos Group Inc.
 Copyright notice at https://www.khronos.org/registry/speccopyright.html
  -->
 
@@ -27,7 +27,7 @@ Copyright notice at https://www.khronos.org/registry/speccopyright.html
 Khronos Data Format Specification License Information
 </title>
 <simpara>
-Copyright (C) 2014-2019  The Khronos Group Inc. All Rights Reserved.
+Copyright (C) 2014-2025  The Khronos Group Inc. All Rights Reserved.
 </simpara>
 <simpara>
 This specification is protected by copyright laws and contains material proprietary to the Khronos Group, Inc. It or any components may not be reproduced, republished, distributed, transmitted, displayed, broadcast, or otherwise exploited in any manner without the express prior written permission of Khronos Group. You may use this specification for implementing the functionality therein, without altering or removing any trademark, copyright or other notice from the specification, but the receipt or possession of this specification does not convey any rights to reproduce, disclose, or distribute its contents, or to manufacture, use, or sell anything that it may describe, in whole or in part.
@@ -221,7 +221,7 @@ Khronos, SYCL, SPIR, WebGL, EGL, COLLADA, StreamInput, OpenVX, OpenKCam, glTF, O
 <date>&nbsp;Oct 2019&nbsp;</date>
 <authorinitials>AG/MC</authorinitials>
 <revremark>
-&nbsp;Updates for KTX2/glTF. BC6h and ASTC table fixes and typo fixes. More examples.&nbsp;
+&nbsp;Updates for KTX2/glTF. BC6h and ASTC table fixes and typo fixes, examples.&nbsp;
 </revremark>
 </revision>
 <revision>
@@ -229,7 +229,15 @@ Khronos, SYCL, SPIR, WebGL, EGL, COLLADA, StreamInput, OpenVX, OpenKCam, glTF, O
 <date>&nbsp;Mar 2020&nbsp;</date>
 <authorinitials>MC</authorinitials>
 <revremark>
-&nbsp;Fix swapped pre-multiplied alpha in DXT[2345] examples. Fix incorrect positions in BC7 bit layout table. Rewrite Unsized formats section.&nbsp;
+&nbsp;Unswapped DXT pre-multiplied &alpha;. BC7 bit layout fix. Unsized formats rewrite.&nbsp;
+</revremark>
+</revision>
+<revision>
+<revnumber>1.4.0</revnumber>
+<date>&nbsp;Feb 2025&nbsp;</date>
+<authorinitials>AG/AK/MC</authorinitials>
+<revremark>
+&nbsp;Added UASTC format spec/color model &amp; ETC1S color model. Fixed typos.&nbsp;
 </revremark>
 </revision>
 </revhistory>

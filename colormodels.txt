@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Khronos Group Inc.
+// Copyright (c) 2017-2025 The Khronos Group Inc.
 // Copyright notice at https://www.khronos.org/registry/speccopyright.html
 
 [[MODEL_CONVERSION]]
@@ -24,19 +24,37 @@ _YUV_.
 
 In the broadcast standards which define these models:
 
-* A prime mark (&prime;) is used to refer to the ``gamma
-  pre-corrected'' version of a value. That is, an approximation to a
-  perceptually linear mapping between value and intensity. The absence
-  of a prime mark indicates that the value is linear in intensity.
+* A prime mark (&prime;) is used to refer to what the ITU standards call
+  a ``gamma pre-corrected'' representation of a value; that is, the value
+  encoded with a nonlinear transfer function between physical light
+  intensity and representation.
+  The transfer function creates an approximately linear relationship
+  between the ``gamma pre-corrected'' value and perceived intensity;
+  the absence of a prime mark indicates that the value is linear with
+  respect to absolute light intensity.
+  The nonlinear transfer function resembles an exponentiation operation,
+  in many cases with a linear segment near zero for mathematical stability;
+  the exponent is conventionally referred to as ``gamma''.
+  The encoding reduces the required bandwidth by de-emphasising details
+  that are hard for humans to perceive.
+  Historical CRTs had a nonlinear response to (analog) input voltage,
+  which is approximately the inverse of the nonlinear response of the
+  human visual system, thus making the CRT an ideal decoder for this
+  encoded signal, converting the transmitted value back to linear intensity.
+  ``Gamma correction'' can be seen as compensating for the nonlinearity
+  of the display; thus ``gamma pre-correction'' is applying the compensation
+  before transmitting the signal (though noting that the OETF used to
+  encode video signals is often not the EOTF exhibited by the display).
+  The encoding efficiency benefits of nonlinearity persist despite modern
+  display technology and standards no longer exhibiting this inherent
+  nonlinear behavior.
+  See <<CONVERSION_INTRO>> for an introduction to transfer functions, and
+  <<TRANSFER_ITU>> for details of the transfer function typically used
+  with Y&prime;C~B~C~R~.
 * _R&prime;G&prime;B&prime;_ is used to refer to the red, green and blue
-  reference values in ``gamma pre-corrected'' form.
-  That is, _R&prime;_, _G&prime;_ and _B&prime;_ have a non-linear transfer
-  function, whereas _R_, _G_ and _B_ are linear with respect to light
-  intensity.
-  The transfer function used resembles an exponentiation ``gamma correction''
-  operation, with a linear segment near zero for mathematical stability.
-  See <<TRANSFER_ITU>> for details of the transfer function typically used
-  in these cases.
+  reference values in ``gamma pre-corrected'' form, whereas _R_, _G_ and
+  _B_ (without &prime; symbols) are represented linearly with respect to
+  physical light intensity, as explained above.
 * IEEE standards <<bt601,BT.601>> and <<bt709,BT.709>> use a prefix of _E_
   to refer to a continuous signal value in the range [0..1], mirroring the
   terminology in analog standards such as <<bt1700,BT.1700>> and
@@ -55,35 +73,32 @@ In the broadcast standards which define these models:
   <<bt2020,BT.2020>> and <<bt2100,BT.2100>> written as _DR&prime;_,
   _DG&prime;_ and _DB&prime;_.
 * _Y&prime;_ is a weighted sum of _R&prime;_, _G&prime;_
-  and _B&prime;_ values, and represents non-physically-linear
+  and _B&prime;_ values, and represents physically-nonlinear
   (but perceptually-linear) light intensity, as distinct from
   physically-linear light intensity.
   Note that the ITU broadcast standards use ``luminance'' for
   _Y&prime;_ despite some authorities reserving that term for a
   linear intensity representation.
-  Since this is a weighted sum of non-linear values, latexmath:[$Y'$] is
-  not mathematically equivalent to applying the non-linear transfer function
+  Since this is a weighted sum of nonlinear values, latexmath:[$Y'$] is
+  not mathematically equivalent to applying the nonlinear transfer function
   to a weighted sum of linear _R_, _G_ and _B_ values:
   latexmath:[$R^{\gamma}+G^{\gamma}+B^{\gamma} \neq (R + G + B)^{\gamma}$].
   The prime symbol is often omitted so that _Y&prime;_ is confusingly
   written _Y_.
-  <<bt601,BT.601>> and <<bt709,BT.709>> refers to the continuous non-linear
+  <<bt601,BT.601>> and <<bt709,BT.709>> refers to the continuous nonlinear
   ``luminance'' signal as latexmath:[$E'_Y$]; in <<bt2020,BT.2020>> and
   <<bt2100,BT.2100>> this value is just _Y&prime;_.
   The quantized digital representation is written as simply _Y&prime;_
   in <<bt601,BT.601>>, as latexmath:[$D'_Y$] in <<bt709,BT.709>>, and as
   _DY&prime;_ in <<bt2020,BT.2020>> and <<bt2100,BT.2100>>.
   In this standard, _Y&prime;_ refers to a continuous value.
-
-<<<
-
 * For the purposes of this section, we will refer to the weighting factor
   applied to _R&prime;_ as _K~R~_ and the weighting factor
   applied to _B&prime;_ as _K~B~_. The weighting factor of
   _G&prime;_ is therefore latexmath:[$1-K_R-K_B$]. Thus
   latexmath:[$Y' = K_R \times R' + (1-K_R-K_B) \times G' + Kb \times B'$].
 
-Color differences are calculated from the non-linear _Y&prime;_ and
+Color differences are calculated from the nonlinear _Y&prime;_ and
 color components as:
 [latexmath]
 ++++++
@@ -186,8 +201,28 @@ G'  = &\ Y' - {2(K_R(1-K_R)\times C'_R + K_B(1-K_B)\times C'_B)\over{1-K_R-K_B}}
 \end{align*}
 ++++++
 
-The values chosen for _K~R~_ and _K~B~_ vary
-between standards.
+The values chosen for _K~R~_ and _K~B~_ vary between standards.
+
+Since luma is logically a weighted sum of red, green and blue values
+(albeit not a linear one), in most standards _K~R~_ and _K~B~_ correspond
+to the _Y_ line of the corresponding (_R_, _G_, _B_) to (_X_, _Y_, _Z_)
+color primary conversion matrix, subject to rounding (the values stated
+below come directly from the corresponding standards).
+For example, for <<PRIMARIES_BT709,BT.709>> the _Y_ row of the color
+primary conversion matrix is shown as (0.212639, 0.715169, 0.072192),
+which are approximately the (0.2126, 0.7152, 0.0722) triple defined
+for (_K~R~_, (1-_K~R~_), _K~B~_) in the <<MODEL_BT709,corresponding>>
+color model version.
+Non-standard _Y&prime;C~B~C~R~_ representations could be derived for
+different color primaries using this observation.
+
+Note that the _K~R~_ and _K~B~_ used in the <<MODEL_BT601,BT.601>>
+_Y&prime;C~B~C~R~_ conversion correspond (approximately) to the
+<<PRIMARIES_NTSC,NTSC 1953>> color primaries.
+The <<PRIMARIES_BT601_EBU,BT.601 525-line>> primaries correspond to
+the _Y&prime;C~B~C~R~_ conversion from <<MODEL_ST240,ST-240>>, but there is
+no corresponding standard model conversion that corresponds to the
+<<PRIMARIES_BT601_EBU,BT.601 625-line>> color primaries.
 
 [NOTE]
 ====
@@ -257,6 +292,12 @@ Alternatively:
   0.5, & -{0.7152\over{1.5748}}, & -{0.0722\over{1.5748}}\end{array}\right)
   \left(\begin{array}{c}R'\\
   G'\\
+  B'\end{array}\right) \approx
+  \left(\begin{array}{ccc}0.2126, & 0.7152, & 0.0722 \\
+  -0.114572, & -0.385428, & 0.5 \\
+  0.5, & 0.454153, & -0.045847\end{array}\right)
+  \left(\begin{array}{c}R'\\
+  G'\\
   B'\end{array}\right)$$
 ++++++
 
@@ -268,6 +309,12 @@ For the inverse conversion:
   B'\end{array}\right) =
   \left(\begin{array}{ccc}1, & 0, & 1.5748\\
   1, & -{0.13397432\over{0.7152}}, & -{0.33480248\over{0.7152}}\\
+  1, & 1.8556, & 0\end{array}\right)
+  \left(\begin{array}{c}Y'\\
+  C'_B\\
+  C'_R\end{array}\right) \approx
+  \left(\begin{array}{ccc}1, & 0, & 1.5748\\
+  1, & -0.187324, & -0.468124\\
   1, & 1.8556, & 0\end{array}\right)
   \left(\begin{array}{c}Y'\\
   C'_B\\
@@ -303,6 +350,12 @@ Alternatively:
   0.5, & -{0.587\over{1.402}}, & -{0.114\over{1.402}}\end{array}\right)
   \left(\begin{array}{c}R'\\
   G'\\
+  B'\end{array}\right) \approx
+  \left(\begin{array}{ccc}0.299, & 0.587, & 0.114 \\
+  -0.168736, & -0.331264, & 0.5 \\
+  0.5, & -0.418688, & -0.081312\end{array}\right)
+  \left(\begin{array}{c}R'\\
+  G'\\
   B'\end{array}\right)$$
 ++++++
 
@@ -314,6 +367,12 @@ For the inverse conversion:
   B'\end{array}\right) =
   \left(\begin{array}{ccc}1, & 0, & 1.402\\
   1, & -{0.202008\over{0.587}}, & -{0.419198\over{0.587}}\\
+  1, & 1.772, & 0\end{array}\right)
+  \left(\begin{array}{c}Y'\\
+  C'_B\\
+  C'_R\end{array}\right) \approx
+  \left(\begin{array}{ccc}1, & 0, & 1.402\\
+  1, & -0.344136, & -0.714136\\
   1, & 1.772, & 0\end{array}\right)
   \left(\begin{array}{c}Y'\\
   C'_B\\
@@ -350,6 +409,12 @@ Alternatively:
   0.5, & -{0.6780\over{1.4746}}, & -{0.0593\over{1.4746}}\end{array}\right)
   \left(\begin{array}{c}R'\\
   G'\\
+  B'\end{array}\right) \approx
+  \left(\begin{array}{ccc}0.2627, & 0.6780, & 0.0593 \\
+  -0.139630, & -0.360370, & 0.5 \\
+  0.5, & -0.459786, & -0.040214\end{array}\right)
+  \left(\begin{array}{c}R'\\
+  G'\\
   B'\end{array}\right)$$
 ++++++
 
@@ -361,6 +426,12 @@ For the inverse conversion:
   B'\end{array}\right) =
   \left(\begin{array}{ccc}1, & 0, & 1.4746\\
   1, & -{0.11156702\over{0.6780}}, & -{0.38737742\over{0.6780}}\\
+  1, & 1.8814, & 0\end{array}\right)
+  \left(\begin{array}{c}Y'\\
+  C'_B\\
+  C'_R\end{array}\right) \approx
+  \left(\begin{array}{ccc}1, & 0, & 1.4746\\
+  1, & -0.164553, & -0.571353\\
   1, & 1.8814, & 0\end{array}\right)
   \left(\begin{array}{c}Y'\\
   C'_B\\
@@ -395,6 +466,12 @@ Alternatively:
   0.5, & -{0.701\over{1.576}}, & -{0.087\over{1.576}}\end{array}\right)
   \left(\begin{array}{c}R'\\
   G'\\
+  B'\end{array}\right) \approx
+  \left(\begin{array}{ccc}0.212, & 0.701, & 0.087 \\
+  -0.116101, & -0.383899, & 0.5 \\
+  0.5, & -0.444797, & -0.055203\end{array}\right)
+  \left(\begin{array}{c}R'\\
+  G'\\
   B'\end{array}\right)$$
 ++++++
 
@@ -405,7 +482,13 @@ For the inverse conversion:
   G'\\
   B'\end{array}\right) =
   \left(\begin{array}{ccc}1, & 0, & 1.576\\
-  1, & -{0.58862\over{0.701}}, & -{0.334112\over{0.701}}\\
+  1, & -{0.158862\over{0.701}}, & -{0.334112\over{0.701}}\\
+  1, & 1.826, & 0\end{array}\right)
+  \left(\begin{array}{c}Y'\\
+  C'_B\\
+  C'_R\end{array}\right) \approx
+  \left(\begin{array}{ccc}1, & 0, & 1.576\\
+  1, & -0.226622, & -0.476622\\
   1, & 1.826, & 0\end{array}\right)
   \left(\begin{array}{c}Y'\\
   C'_B\\
@@ -433,18 +516,18 @@ C'_\mathit{RC} & = \begin{cases}
 \end{align*}
 ++++++
 
-This terminology follow's BT.2020's convention of describing the
+This terminology follows BT.2020's convention of describing the
 continuous values as latexmath:[$Y'_C$], latexmath:[$C'_\mathit{BC}$] and
 latexmath:[$C'_\mathit{RC}$]; BT.2020 uses latexmath:[$\mathit{DY}'_C$],
 latexmath:[$\mathit{DC}'_\mathit{BC}$] and
 latexmath:[$\mathit{DC}'_\mathit{RC}$] to represent the
 quantized integer representations of the same values.
 
-NOTE: latexmath:[$Y'_C$] is derived from applying a non-linear transfer
+NOTE: latexmath:[$Y'_C$] is derived from applying a nonlinear transfer
 function to a combination of linear latexmath:[$\mathit{RGB}$] components
-and applying a non-linear transfer function to the result, but the
+and applying a nonlinear transfer function to the result, but the
 latexmath:[$C'_\mathit{BC}$] and latexmath:[$C'_\mathit{RC}$] color differences
-still encode differences between non-linear values.
+still encode differences between nonlinear values.
 
 The inverse transformation can be derived from the above:
 
@@ -462,7 +545,7 @@ G       & = Y_C - 0.2627R - 0.0593B
 ++++++
 
 NOTE: Performing these calculations requires conversion between
-a linear representation and a non-linear transfer function during
+a linear representation and a nonlinear transfer function during
 the transformation. This is distinct from the non-constant-luminance
 case, which is a simple matrix transform.
 

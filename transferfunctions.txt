@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2019 The Khronos Group Inc.
+// Copyright (c) 2017-2025 The Khronos Group Inc.
 // Copyright notice at https://www.khronos.org/registry/speccopyright.html
 
 [[TRANSFER_CONVERSION]]
@@ -7,20 +7,20 @@
 === About transfer functions (informative)
 
 The *transfer function* describes the mapping between a linear numerical
-representation and a non-linear encoding.
+representation and a nonlinear encoding.
 The eye is more sensitive to relative light levels than absolute light
 levels.
 That is, if one image region is twice as bright as another, this will
 be more visible than if one region is 10% brighter than another, even
 if the absolute difference in brightness is the same in both cases.
-To make use of the eye's non-linear response to light to provide better
+To make use of the eye's nonlinear response to light to provide better
 image quality with a limited number of quantization steps, it is common
-for color encodings to work with a non-linear representation which
+for color encodings to work with a nonlinear representation which
 dedicates a disproportionate number of bits to darker colors compared
 with lighter colors.
 The typical effect of this encoding is that mid-tones are stored with
 a larger (nearer-to-white) numerical value than their actual brightness
-would suggest, and that mid-values in the non-linear encoding typically
+would suggest, and that mid-values in the nonlinear encoding typically
 represent darker intensities than their fraction of the representation
 of white would suggest.
 
@@ -29,7 +29,7 @@ image::images/tf_curves.{svgpdf}[width="{svgpdf@pdf:350pt:576}",align="center"]
 
 The behavior has historically been approximated by a power function
 with an exponent conventionally called latexmath:[$\gamma$]: +
-{_R_,_G_,_B_}~non-linear~ = {_R_,_G_,_B_}~linear~^latexmath:[$\gamma$]^.
+{_R_,_G_,_B_}~nonlinear~ = {_R_,_G_,_B_}~linear~^latexmath:[$\gamma$]^.
 Hence this conversion is colloquially known as _gamma correction_.
 
 NOTE: Many practical transfer functions incorporate a small linear
@@ -43,9 +43,9 @@ exponent from the pure power function that best approximates the
 resulting curve.
 
 <<<
-A consequence of this non-linear encoding is that many image
+A consequence of this nonlinear encoding is that many image
 processing operations should not be applied directly to the raw
-non-linearly-encoded numbers, but require conversion back to a
+nonlinearly-encoded numbers, but require conversion back to a
 linear representation.
 For example, linear color gradients will appear distorted unless the
 encoding is adjusted to compensate for the encoding; CGI lighting
@@ -67,7 +67,7 @@ image::images/tf_sampling.{svgpdf}[width="{svgpdf@pdf:210pt:576}",align="center"
 
  * *In row 1* black (0.0) and white (1.0) texels are averaged to calculate
    a 0.5 value in the frame buffer.
-   Due to the sRGB non-linearity, the appearance of the value 0.5 is darker
+   Due to the sRGB nonlinearity, the appearance of the value 0.5 is darker
    than the average value of the black and white texels, so the gray box
    appears darker than the average intensity of the checker pattern.
  * *In row 2* the 0.5 average of the frame buffer is corrected using the
@@ -78,14 +78,14 @@ image::images/tf_sampling.{svgpdf}[width="{svgpdf@pdf:210pt:576}",align="center"
    75% of the light intensity (the average of which should be the same
    as the correct average of the black and white squares in the first two
    rows).
-   These checker values have been converted to their non-linear
+   These checker values have been converted to their nonlinear
    representations, as might be the case for a texture in this format:
    the darker squares are represented by &sim;0.54, and
    the lighter squares are represented by &sim;0.88.
    Averaging these two values to get a value of 0.71 results in the
    right-most square: this appears slightly too dark compared with the
    correct representation of mid-gray (&sim;0.74) because,
-   due to the non-linear encoding, the calculated value should not lie
+   due to the nonlinear encoding, the calculated value should not lie
    exactly half way between the two end points.
    Since the end points of the interpolation are less distant than the
    black and white case, the error is smaller than in the first example,
@@ -93,9 +93,9 @@ image::images/tf_sampling.{svgpdf}[width="{svgpdf@pdf:210pt:576}",align="center"
  * *In row 4* the checker values have been converted using the
    EOTF to a linear representation which can be correctly interpolated,
    but the resulting output represents linear light, which is therefore
-   interpreted as too dark by the non-linear display.
+   interpreted as too dark by the nonlinear display.
  * *In row 5* the results of row 4 have been converted back to the
-   non-linear representation using the EOTF^&#160;-1^.
+   nonlinear representation using the EOTF^&#160;-1^.
    The checker colors are restored to their correct values, and
    the interpolated value is now the correct average intensity of the
    two colors.
@@ -107,7 +107,7 @@ as demonstrated by the saturation change in the following examples:
 image::images/tf_colorshift_intensitylinearvalues.png[width="{svgpdf@pdf:150pt:256}",align="center"]
 
 
-._R&prime;_, _G&prime;_, _B&prime;_ channels and combined color gradient with non-linear sRGB encoding in each channel
+._R&prime;_, _G&prime;_, _B&prime;_ channels and combined color gradient with nonlinear sRGB encoding in each channel
 image::images/tf_colorshift_srgblinearvalues.png[width="{svgpdf@pdf:150pt:256}",align="center"]
 
 <<<
@@ -119,7 +119,7 @@ image::images/tf_scene_store_display.{svgpdf}[width="{svgpdf@pdf:450pt:800}",ali
 
  * An opto-electronic transfer function (OETF) defines the conversion
    between a normalized linear light intensity as recorded in the scene,
-   and a non-linear electronic representation.
+   and a nonlinear electronic representation.
    Note that there is no requirement that this directly correspond to
    actual captured light: the content creator or scene capture hardware
    may adjust the apparent intensity compared to reality for aesthetic
@@ -130,16 +130,16 @@ image::images/tf_scene_store_display.{svgpdf}[width="{svgpdf@pdf:450pt:800}",ali
    to preserve shadow detail in the created content, with these
    being logically recorded as if the scene was actually modified
    accordingly.
-   The inverse of the OETF (the conversion from the non-linear
+   The inverse of the OETF (the conversion from the nonlinear
    electronic representation to linear scene light) is written
    OETF^&#160;-1^(_n_).
  * An electro-optical transfer function (EOTF) converts between
-   a non-linear electronic representation and a linear light
+   a nonlinear electronic representation and a linear light
    normalized intensity as produced by the output display.
    The inverse of the EOTF (the conversion from linear display
-   light to the non-linear electronic representation) is written
+   light to the nonlinear electronic representation) is written
    EOTF^&#160;-1^(_n_).
-   Typical CRT technology has implicitly applied a non-linear EOTF
+   Typical CRT technology has implicitly applied a nonlinear EOTF
    which coincidentally offered an approximately perceptually linear
    gradient when supplied with a linear voltage; other display
    technologies must implement the EOTF explicitly.
@@ -152,26 +152,26 @@ image::images/tf_scene_store_display.{svgpdf}[width="{svgpdf@pdf:450pt:800}",ali
    content to the capabilities of the hardware.
 
 NOTE: Some color models derive chroma (color difference) channels
-wholly or partly from non-linear intensities.
+wholly or partly from nonlinear intensities.
 It is common for image representations which use these color models
 to use a reduced-resolution representation of the chroma channels,
 since the human eye is less sensitive to high resolution chroma
 errors than to errors in brightness.
-Despite the color shift introduced by interpolating non-linear values,
+Despite the color shift introduced by interpolating nonlinear values,
 these chroma channels are typically resampled directly in their
-native, non-linear representation.
+native, nonlinear representation.
 
 The opto-optical transfer function (OOTF) of a system is the relationship
 between linear input light intensity and displayed output light intensity:
 OOTF(_input_) = EOTF(OETF(_input_)).
-It is common for the OOTF to be non-linear.
+It is common for the OOTF to be nonlinear.
 For example, a brightly-lit scene rendered on a display that is viewed
 in a dimly-lit room will typically appear washed-out and lacking contrast,
 despite mapping the full range of scene brightness to the full range
 supported by the display.
-A non-linear OOTF can compensate for this by reducing the intensity of
+A nonlinear OOTF can compensate for this by reducing the intensity of
 mid-tones, which is why television standards typically assume a
-non-linear OOTF: logical scene light intensity is not proportional to
+nonlinear OOTF: logical scene light intensity is not proportional to
 logical display intensity.
 
 <<<
@@ -185,12 +185,12 @@ look similar.
 .Simultaneous contrast
 image::images/tf_surround_luminance.{svgpdf}[width="{svgpdf@pdf:450pt:800}",align="center"]
 
-In the context of a non-linear OOTF, an application should be aware of whether
+In the context of a nonlinear OOTF, an application should be aware of whether
 operations on the image are intended to reflect the representation of colors in
 the scene or whether the intent is to represent the output color accurately,
 at least when it comes to the transfer function applied.
 For example, an application could choose to convert lighting calculations
-from a linear to non-linear representation using the OETF (to match the
+from a linear to nonlinear representation using the OETF (to match the
 appearance of lighting in the scene), but to perform image scaling
 operations using the EOTF in order to avoid introducing intensity shifts
 due to filtering.
@@ -204,16 +204,16 @@ which would merit a linear OOTF, and since a lot of graphical content is
 inherently not photo-realistic (or of limited realism, so that the transfer
 functions are not the most important factor in suspending disbelief).
 For video and photographic content viewed in darker conditions, the
-non-linearity of the OOTF is significant.
-The effect of a non-linear OOTF is usually secondary to the benefits of using
-non-linear encoding to reduce quantization.
+nonlinearity of the OOTF is significant.
+The effect of a nonlinear OOTF is usually secondary to the benefits of using
+nonlinear encoding to reduce quantization.
 
-By convention, non-linearly-encoded values are distinguished from
+By convention, nonlinearly-encoded values are distinguished from
 linearly-encoded values by the addition of a prime (&prime;)
 symbol. For example, (_R_,_G_,_B_) may represent a linear set of
 red, green and blue components; (_R_&prime;,_G_&prime;,_B_&prime;)
-would represent the non-linear encoding of each value. Typically
-the non-linear encoding is applied to additive primary colors;
+would represent the nonlinear encoding of each value. Typically
+the nonlinear encoding is applied to additive primary colors;
 derived color differences may or may not retain the prime symbol.
 
 Charles Poynton provides a further discussion on ``Gamma'' in
@@ -242,7 +242,7 @@ specifications (for standard definition television, HDTV and UHDTV
 respectively), and <<smpte170m,SMPTE 170M>>, which defines NTSC
 broadcasts, define an opto-electrical transfer function.
 The (OETF) conversion from linear (_R_,_G_,_B_) encoding
-to non-linear (_R&prime;_,_G&prime;_,_B&prime;_) encoding is:
+to nonlinear (_R&prime;_,_G&prime;_,_B&prime;_) encoding is:
 
 [latexmath]
 ++++++
@@ -306,7 +306,7 @@ linear mapping of captured scene intensity to display intensity: the SMPTE
 170M-2004 OETF is described as being chosen to result in a linear OOTF
 on a typical display.
 This is distinct from the current ITU specifications, which assume a
-non-linear OOTF.
+nonlinear OOTF.
 SMPTE 170M-2004 also represents a change from the ``assumed gamma'' of
 2.2 associated with most NTSC display devices as described in
 <<bt470,ITU-T BT.470-6>> and <<bt2043,BT.2043>>, although these
@@ -319,7 +319,7 @@ approximated by a simple power function with an exponent of 2.0);
 the linear segment and offset mean that the best match is _not_ the
 exponent of 0.45 that forms part of the exact equation.
 ITU standards deliberately chose a different transfer curve from that of a
-typical CRT in order to introduce a non-linear OOTF, as a means to compensate
+typical CRT in order to introduce a nonlinear OOTF, as a means to compensate
 for the typically dim conditions in which a television is viewed.
 <<bt2087,ITU BT.2087>> refers to the approximation of the OETF with a
 square root latexmath:[$\left(\gamma = {1\over{2}}\right)$] function.
@@ -332,8 +332,8 @@ The largest difference between the curve values at the same point when
 quantized to 8 bits is 15, mostly due to the sharp vertical gradient
 near 0.
 
-.ITU OETF vs pure gamma ^1^/~2~
-image::images/tf_ituvsgamma2_0.png[width="{svgpdf@pdf:160pt:257}",align="center"]
+.ITU OETF (red) vs pure gamma ^1^/~2~ (blue)
+image::images/tf_ituvsgamma2_0.{svgpdf}[width="{svgpdf@pdf:160pt:300}",align="center"]
 
 [NOTE]
 ====
@@ -351,21 +351,21 @@ difference between the ITU OETF (shown in red) and a pure power function
 with latexmath:[$\gamma={1\over{2.2}}$] (in blue).
 The difference between the curves is shown in black.
 
-.ITU OETF vs pure gamma ^1^/~2.2~
-image::images/tf_ituvsgamma2_2.png[width="{svgpdf@pdf:160pt:257}",align="center"]
+.ITU OETF (red) vs pure gamma ^1^/~2.2~ (blue)
+image::images/tf_ituvsgamma2_2.{svgpdf}[width="{svgpdf@pdf:160pt:300}",align="center"]
 ====
 
 ==== Derivation of the ITU alpha and beta constants (informative)
 
 Using the 12-bit encoding values for _&alpha;_ and _&beta;_
-from <<bt2020,Rec.2020>>, there is an overlap around a non-linear value of 0.08145.
-In other cases, the conversion from linear to non-linear representation with
+from <<bt2020,Rec.2020>>, there is an overlap around a nonlinear value of 0.08145.
+In other cases, the conversion from linear to nonlinear representation with
 encoding introduces a discontinuity between
 (0.018&nbsp;{times}&nbsp;4.500)&nbsp;=&nbsp;0.081 and
 (1.099&nbsp;{times}&nbsp;0.018^0.45^&nbsp;-&nbsp;0.099)&nbsp;&#8776;&nbsp;0.0812,
 corresponding to roughly a single level in a 12-bit range.
 <<smpte170m,SMPTE 170M-2004>> provides formulae for both transformations and uses
-0.0812 as a case selector for the non-linear-to-linear transformation.
+0.0812 as a case selector for the nonlinear-to-linear transformation.
 
 The values of _&alpha;_ and _&beta;_ in the ITU function
 were apparently chosen such that the linear segment and power segment meet at the
@@ -373,7 +373,7 @@ same value and with the same derivative (that is, the linear segment meets the
 power segment at a tangent).
 The _&alpha;_ and _&beta;_ values can be derived as follows:
 
-At {_R_,_G_,_B_}&nbsp;= _&beta;_, the linear and non-linear segments of the curve
+At {_R_,_G_,_B_}&nbsp;= _&beta;_, the linear and nonlinear segments of the curve
 must calculate the same value:
 
 [latexmath]
@@ -381,7 +381,7 @@ must calculate the same value:
 $$4.5 \times \beta = \alpha \times \beta^{0.45} - (\alpha - 1)$$
 ++++++
 
-Additionally, the derivatives of the linear and non-linear segments of the curve
+Additionally, the derivatives of the linear and nonlinear segments of the curve
 must match:
 
 [latexmath]
@@ -432,7 +432,7 @@ and results in values of:
 ==== sRGB EOTF
 
 The <<srgb,sRGB specification>> defines an electro-optical transfer function.
-The EOTF conversion from non-linear latexmath:[$(R', G', B')$] encoding
+The EOTF conversion from nonlinear latexmath:[$(R', G', B')$] encoding
 to linear latexmath:[$(R, G, B)$] encoding is:
 
 [[srgbgamma]]
@@ -458,7 +458,7 @@ to linear latexmath:[$(R, G, B)$] encoding is:
 ==== sRGB EOTF^-1^
 
 The corresponding sRGB EOTF^&#160;-1^ conversion from linear
-latexmath:[$(R, G, B)$] encoding to non-linear latexmath:[$(R', G', B')$]
+latexmath:[$(R, G, B)$] encoding to nonlinear latexmath:[$(R', G', B')$]
 encoding is:
 
 [latexmath]
@@ -479,6 +479,7 @@ encoding is:
 \end{align*}
 ++++++
 
+<<<
 [[TRANSFER_SRGB_EOTFVSGAMMA]]
 ==== sRGB EOTF vs gamma 2.2
 
@@ -495,15 +496,14 @@ compared with 100cd/m^2^ for BT.1886.
 sRGB is also distinct from <<smpte170m,SMPTE 170M>>, which defines
 its EOTF as the inverse of its (and BT.709's) OETF.
 
-<<<
 The following graph compares the sRGB EOTF (in red) and a pure power
 function with latexmath:[$\gamma=2.2$] (in blue); the area between the
 two curves is shown in black.
-The largest non-linear difference at the same linear value when
+The largest nonlinear difference at the same linear value when
 quantized to 8 bits is 3.
 
-.sRGB EOTF vs pure gamma 2.2
-image::images/tf_srgbvsgamma.png[width="{svgpdf@pdf:192pt:257}",align="center"]
+.sRGB EOTF (red) vs pure gamma 2.2 (blue)
+image::images/tf_srgbvsgamma.{svgpdf}[width="{svgpdf@pdf:160pt:300}",align="center"]
 
 NOTE: The sRGB standard assumes a quantization scheme in which
 0.0 is represented by the value 0 and 1.0 is represented by 255.
@@ -513,16 +513,17 @@ defined in <<bt2100,ITU-T Rec. BT.2100>>, which represents 1.0 as
 a power of two (not latexmath:[$2^n-1$]) and therefore cannot exactly
 represent 1.0.
 
-The following graph shows the relationship between the sRGB EOTF (shown in red)
-and the <<TRANSFER_ITU,ITU OETF>> (shown in blue).
+The following graph shows the relationship between the sRGB EOTF (shown in red,
+with nonlinear encoded input horizontal) and the <<TRANSFER_ITU,ITU OETF>>
+(shown in blue, with nonlinear encoded output vertical).
 The result of applying the two functions in turn, resulting in the OOTF of a combined
 ITU-sRGB system, is shown in black. Since the sRGB EOTF approximates a power function
 with latexmath:[$\gamma=2.2$] and the ITU OETF approximates a power function with
 latexmath:[$\gamma=2.0$], also shown in green is the resulting OOTF corresponding to a
 power function with latexmath:[$\gamma={2.2\over{2.0}}=1.1$].
 
-.sRGB EOTF and ITU OETF
-image::images/tf_ituvssrgb256.png[width="{svgpdf@pdf:192pt:257}",align="center"]
+.sRGB EOTF (red) and ITU OETF (blue)
+image::images/tf_ituvssrgb256.{svgpdf}[width="{svgpdf@pdf:160pt:300}",align="center"]
 
 <<<
 [[TRANSFER_SCRGB_EOTF]]
@@ -593,7 +594,7 @@ formulae below are derived by extending the sRGB formulae.
 <<scrgb,sYCC>> includes a hint that a 1cd/m^2^ level of flare should
 be assumed for the reference 80cd/m^2^ output, and that the black level
 should therefore be assumed to be latexmath:[${1\over 80} = 0.0125$].
-It notes that the non-linear sRGB \{latexmath:[$R',G',B'$]\} values can
+It notes that the nonlinear sRGB \{latexmath:[$R',G',B'$]\} values can
 be corrected as follows:
 
 [latexmath]
@@ -611,7 +612,7 @@ E_{sYCC} &= \begin{cases}
   & E'_{sRGB} > 0.04045
   \end{cases}\\
 E_{sYCC} &= (\textrm{linear}) \{R_{sYCC},G_{sYCC},B_{sYCC}\} \\
-E'_{sRGB} &= (\textrm{non-linear}) \{R'_{sRGB},G'_{sRGB},B'_{sRGB}\}
+E'_{sRGB} &= (\textrm{nonlinear}) \{R'_{sRGB},G'_{sRGB},B'_{sRGB}\}
 \end{align*}
 ++++++
 
@@ -619,7 +620,7 @@ This is equivalent to applying
 latexmath:[$E_{sYCC} = 0.0125 + {1\over 1-0.0125} \times E_{sRGB}$]
 to linear latexmath:[$\{R,G,B\}$] values.
 The resulting linear latexmath:[$E_{sYCC}$] values then need to be
-non-linearly encoded with the EOTF.
+nonlinearly encoded with the EOTF.
 ====
 
 <<<
@@ -648,7 +649,7 @@ segment at a tangent).
 The latexmath:[$\alpha$] and latexmath:[$\beta$] values can be derived as
 follows:
 
-At latexmath:[$\{R',G',B'\} = \beta$], the linear and non-linear segments
+At latexmath:[$\{R',G',B'\} = \beta$], the linear and nonlinear segments
 of the function must calculate the same value:
 
 [latexmath]
@@ -656,7 +657,7 @@ of the function must calculate the same value:
 $$12.92 \times \beta = \alpha \times \beta^{1\over{2.4}} - (\alpha - 1)$$
 ++++++
 
-Additionally, the derivatives of the linear and non-linear segments of
+Additionally, the derivatives of the linear and nonlinear segments of
 the function must match:
 
 [latexmath]
@@ -866,15 +867,16 @@ The reference display described in BT.1886 has a maximum luminance level of
 100cd/m^2^ (brighter than the equivalent <<TRANSFER_SRGB,sRGB>> reference
 display).
 
-The following graph shows the relationship between the BT.1886 EOTF (shown in red)
-and the <<TRANSFER_ITU,ITU OETF>> such as used for <<bt709,BT.709>> (shown in blue).
+The following graph shows the relationship between the BT.1886 EOTF (shown in red,
+with nonlinear encoded input horizontal) and the <<TRANSFER_ITU,ITU OETF>> such as
+used for <<bt709,BT.709>> (shown in blue, with nonlinear encoded output vertical).
 The result of applying the two functions in turn, resulting in the OOTF of a combined
 BT.709-BT.1886 system, is shown in black. Since the ITU OETF approximates a power
 function with latexmath:[$\gamma=2.0$], also shown in green is the resulting OOTF
 corresponding to a power function with latexmath:[$\gamma={2.4\over{2.0}}=1.2$].
 
-.BT.1886 EOTF and BT.709 OETF
-image::images/tf_ituvsgamma256.png[width="{svgpdf@pdf:192pt:257}",align="center"]
+.BT.1886 EOTF (red) and BT.709 OETF (blue)
+image::images/tf_ituvsgamma256.{svgpdf}[width="{svgpdf@pdf:160pt:300}",align="center"]
 
 [NOTE]
 ====
@@ -929,7 +931,7 @@ OETF for linear scene light:
 [width="80%",grid="none",frame="none"]
 |============
 <|latexmath:[$E$] = the latexmath:[$R_S$], latexmath:[$G_S$] or latexmath:[$B_S$] color component of linear scene light, normalized to [0..1]
-<|latexmath:[$E'$] = the resulting non-linear latexmath:[$R_S'$], latexmath:[$G_S'$] or latexmath:[$B_S'$] non-linear scene light value in in the range [0..1]
+<|latexmath:[$E'$] = the resulting nonlinear latexmath:[$R_S'$], latexmath:[$G_S'$] or latexmath:[$B_S'$] nonlinear scene light value in in the range [0..1]
 <|_a_ = 0.17883277
 <|_b_ = latexmath:[$1 - 4\times a = 0.28466892$]
 <|_c_ = latexmath:[$0.5 - a\times ln(4\times a) \approx 0.55991073$]
@@ -1013,7 +1015,7 @@ versions of the specification, BT.2100-1 and BT.2100-2.
 [width="80%",grid="none",frame="none"]
 |============
 <|latexmath:[$E'$] = the latexmath:[$R_S$], latexmath:[$G_S$] or latexmath:[$B_S$] color component of linear scene light, normalized to [0..12]
-<|latexmath:[$E_S'$] = the resulting non-linear latexmath:[$R_S'$], latexmath:[$G_S'$] or latexmath:[$B_S'$] value in in the range [0..1]
+<|latexmath:[$E_S'$] = the resulting nonlinear latexmath:[$R_S'$], latexmath:[$G_S'$] or latexmath:[$B_S'$] value in in the range [0..1]
 <|_a_ = 0.17883277
 <|_b_ = 0.28466892
 <|_c_ = 0.55991073
@@ -1021,6 +1023,10 @@ versions of the specification, BT.2100-1 and BT.2100-2.
 
 Note that these constants are the same as those used in the BT.2100-1
 version of the <<TRANSFER_HLG_OETF_NORM,normalized formulae>>.
+
+Since this ``unnormalized'' representation refers to a scale factor between
+the scene light and the encoded nonlinear signal, there is no corresponding
+``unnormalized'' EOTF.
 
 [[TRANSFER_HLG_IOETF_UNNORM]]
 ==== Unnormalized HLG OETF^&#160;-1^
@@ -1333,9 +1339,8 @@ _L~B~_ is the display luminance of black in cd/m^2^.
 
 [NOTE]
 ======
-Versions of BT.2100 prior to BT.2100-2 incorporated the black level
-offset (display ``brightness'') latexmath:[$\beta$] into the definition
-of the OOTF, such that:
+Versions of BT.2100 prior to BT.2100-2 included the black level
+offset (display ``brightness'') latexmath:[$\beta$] into the OOTF:
 
 [latexmath]
 +++++
@@ -1360,15 +1365,22 @@ B_S' &= {{\textrm{OETF}\left(\textrm{OOTF}^{-1}\left(B_D'\right)\right) - \beta}
 
 [NOTE]
 ======
-Versions of BT.2100 prior to BT.2100-2 incorporated the black level
-offset (display ``brightness'') latexmath:[$\beta$] into the definition
-of the OOTF, such that:
+Versions of BT.2100 prior to BT.2100-2 included the black level
+offset (display ``brightness'') latexmath:[$\beta$] into the OOTF:
 
 [latexmath]
 +++++
 $$\{R_S',G_S',B_S'\} = \textrm{OETF}(\textrm{OOTF}^{-1}(\{R_D,G_D,B_D\}))$$
 +++++
 =====
+
+This graph shows the normalized HLG OETF (blue), OOTF (black) and
+EOTF (red) for latexmath:[$\beta = 0$] and white light.
+Linear scene light/nonlinear encoded EOTF input are on the x axis,
+with linear display output/nonlinear OETF output on y.
+
+.HLG normalized OETF (blue) and EOTF (red)
+image::images/tf_hlgeotfoetf.{svgpdf}[width="{svgpdf@pdf:160pt:300}",align="center"]
 
 <<<
 [[TRANSFER_PQ]]
@@ -1393,7 +1405,7 @@ Y &= \left(\textrm{max}(({E'}^{1\over{m_2}} - c_1),0)\over{c_2 - c_3\times {E'}^
 \end{align*}
 +++++
 
-latexmath:[$E'$] is a non-linear color channel latexmath:[$\{R',G',B'\}$] or
+latexmath:[$E'$] is a nonlinear color channel latexmath:[$\{R',G',B'\}$] or
 latexmath:[$\{L',M',S'\}$] encoded as PQ in the range [0..1]. +
 latexmath:[$F_D$] is the luminance of the displayed component in cd/m^2^
 (where the luminance of an latexmath:[$\{R_D,G_D,B_D\}$] or latexmath:[$Y_D$]
@@ -1557,6 +1569,17 @@ The PQ OETF^&#160;-1^ is described in terms of the OOTF^&#160;-1^:
 $$E = \textrm{OETF}^{-1}(E') = \textrm{OOTF}^{-1}(\textrm{EOTF}(E')) = \textrm{OOTF}^{-1}(F_D)$$
 +++++
 
+The following graph shows the relationship between the PQ
+EOTF (in red) and OETF (in blue), with the OOTF from which
+the OETF is derived in black.
+Linear scene light and nonlinear encoded input to the EOTF are on the
+horizontal axis, and linear display output and nonlinear output of
+the OETF are on the vertical axis.
+All values have been normalized to the range 0..1 for comparison.
+
+.PQ EOTF (red) and OETF (blue), normalized 0..1
+image::images/tf_hlgeotfoetf.{svgpdf}[width="{svgpdf@pdf:160pt:300}",align="center"]
+
 <<<
 [[TRANSFER_DCIP3]]
 === DCI P3 transfer functions
@@ -1582,7 +1605,7 @@ latexmath:[$Z = Z'^{2.6}\times 52.37$]
 This power function is applied directly to scaled CIE _XYZ_ color
 coordinates: the ``primaries'' in DCI define the bounds of the gamut,
 but the actual color encoding uses _XYZ_ coordinates.
-DCI scales the resulting non-linear values to the range [0..4095]
+DCI scales the resulting nonlinear values to the range [0..4095]
 prior to quantization, rounding to nearest.
 
 NOTE: ``Display P3'' uses the <<TRANSFER_SRGB,sRGB transfer function>>,
@@ -1692,8 +1715,9 @@ latexmath:[$B = B'^{2.8}$]
 NOTE: Poynton describes a latexmath:[$\gamma$] of 2.8 as being ``unrealistically
 high'' for actual CRT devices.
 
-Combined with the <<TRANSFER_LEGACY_PAL_EOTF,corresponding legacy EOTF>> with
-latexmath:[$\gamma_{\textrm{EOTF}} = 0.4$], the described system OOTF is:
+Combined with the <<TRANSFER_LEGACY_PAL_OETF,corresponding legacy OETF>>
+that specifies latexmath:[$\gamma_{\textrm{OETF}} = 0.4$], the described
+system OOTF is:
 
 [latexmath]
 +++++
@@ -1720,7 +1744,7 @@ The EOTF power function of latexmath:[$\gamma_{\textrm{EOTF}} = 2.2$] described 
 <<bt601,BT.601>> (which approximates latexmath:[$\gamma_{\textrm{OETF}} \approx 0.5$])
 to give a similar system latexmath:[$\gamma_{\textrm{OOTF}} \approx 1.1$].
 As described <<TRANSFER_BT1886,above>>, the <<TRANSFER_ITU,ITU OETF>>
-combined with the <<bt1886,BT.1886>> EOTF results in a more strongly non-linear
+combined with the <<bt1886,BT.1886>> EOTF results in a more strongly nonlinear
 latexmath:[$\gamma_{\textrm{OOTF}} \approx {2.4\over{2.0}} = 1.2$].
 ====
 
@@ -1771,8 +1795,8 @@ The EOTF, and also OETF^&#160;-1^, is:
 [[TRANSFER_ADOBERGB]]
 === Adobe RGB (1998) transfer functions
 
-The <<adobergb,Adobe RGB (1998) specification>> defines the following transfer
-function between nonlinear encoding and linear light intensity (notable for not
+The <<adobergb,Adobe RGB (1998) specification>> defines the following EOTF
+between nonlinear encoding and linear light intensity (notable for not
 including a linear component):
 
 [latexmath]
@@ -1785,8 +1809,7 @@ B &= B'^{2.19921875}
 +++++
 
 2.19921875 is obtained from latexmath:[$2{51\over{256}}$] or hexadecimal 2.33.
-Therefore the inverse transfer function between linear light intensity and
-nonlinear encoding is:
+Therefore the EOTF^&#160;-1^ between linear light intensity and nonlinear encoding is:
 
 [latexmath]
 +++++
@@ -1809,7 +1832,7 @@ $$y = (0.432699 \times \textrm{log}_{10}(t + 0.037584) + 0.616596) + 0.03$$
 +++++
 
 Linear camera input scaled by exposure _t_ ranges from 0 to 10.0;
-_y_ is the non-linear encoded value.
+_y_ is the nonlinear encoded value.
 
 The OETF^&#160;-1^ is:
 
@@ -1818,7 +1841,7 @@ The OETF^&#160;-1^ is:
 $$Y = 10.0^{t - 0.616596 - 0.03\over 0.432699} - 0.037584$$
 +++++
 
-The encoded non-linear value _t_ ranges from 0 to 1.09; _Y_ is the
+The encoded nonlinear value _t_ ranges from 0 to 1.09; _Y_ is the
 linear scene light.
 
 [[TRANSFER_SLOG2]]
@@ -1862,7 +1885,7 @@ A reflection is calculated by multiplying an IRE by 0.9.
 <<aces,ACES>> is scene-referred; therefore ACEScc defines an OETF.
 
 For each linear color channel _lin~AP1~_ transformed to the ACEScc primaries,
-the _ACEScc_ non-linear encoding is:
+the _ACEScc_ nonlinear encoding is:
 
 [latexmath]
 +++++
@@ -1879,7 +1902,7 @@ the _ACEScc_ non-linear encoding is:
 <<aces,ACES>> is scene-referred; therefore ACEScct defines an OETF.
 
 For each linear color channel _lin~AP1~_ transformed to the ACEScc
-primaries, the _ACEScct_ non-linear encoding is:
+primaries, the _ACEScct_ nonlinear encoding is:
 
 [latexmath]
 +++++

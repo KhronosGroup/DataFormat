@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2019 The Khronos Group Inc.
+// Copyright (c) 2017-2025 The Khronos Group Inc.
 // Copyright notice at https://www.khronos.org/registry/speccopyright.html
 
 [[CONVERSION_QUANTIZATION]]
@@ -36,6 +36,11 @@ for bit depth _n_ = {8,&nbsp;10,&nbsp;12}:
 &&\mathit{DC}'_P    & = \lfloor 0.5 + (224\times C'_P + 128)\times 2^{n-8}\rfloor
 \end{align*}
 ++++++
+
+Note that these scale factors correspond to 1.0 being encoded as
+latexmath:[$235 \times 2^{n-8}$] (for _R&prime;_, _G&prime;_,
+_B&prime;_ and _Y&prime;_), not latexmath:[$235 \times \left(2^{n-8} - 1\right)$]
+as might be expected for ``normalized'' representations.
 
 The dequantization formulae are therefore:
 [latexmath]
@@ -152,40 +157,39 @@ latexmath:[$128 \times 2^{n-8}$]
 |======
 
 If, instead of the quantized values, the input is interpreted as fixed-point
-values in the range 0.0..1.0, as might be the case if the values were treated
-as unsigned normalized quantities in a computer graphics API, the following
-conversions can be applied instead:
+_n_-bit values in the range 0.0..1.0, as might be the case if the values were
+treated as unsigned ``normalized'' quantities in a computer graphics API, the
+following conversions can be applied instead:
 
 [latexmath]
 ++++++
 \begin{align*}
-G'      & = {{{G'_{\mathit{norm}}\times{2^{n-1}}} - 16\times{2^{n-8}}}\over{219\times 2^{n-8}}} &
-B'      & = {{{B'_{\mathit{norm}}\times{2^{n-1}}} - 16\times{2^{n-8}}}\over{219\times 2^{n-8}}} \\
-&&R'      & = {{{R'_{\mathit{norm}}\times{2^{n-1}}} - 16\times{2^{n-8}}}\over{219\times 2^{n-8}}} \\
-Y'      & = {{{Y'_{\mathit{norm}}\times{2^{n-1}}} - 16\times{2^{n-8}}}\over{219\times 2^{n-8}}} &
-C'_B    & = {{{\mathit{DC}'_{\mathit{Bnorm}}\times{2^{n-1}}} - 128\times 2^{n-8}}\over{224\times 2^{n-8}}} \\
-&&C'_R    & = {{{\mathit{DC}'_{\mathit{Rnorm}}\times{2^{n-1}}} - 128\times 2^{n-8}}\over{224\times 2^{n-8}}} \\
-Y'_C    & = {{{Y'_{\mathit{Cnorm}}\times{2^{n-1}}} - 16\times{2^{n-8}}}\over{219\times 2^{n-8}}} &
-C'_\mathit{CB} & = {{{\mathit{DC}'_{CBnorm}\times{2^{n-1}}} - 128\times 2^{n-8}}\over{224\times 2^{n-8}}} \\
-&&C'_\mathit{CR} & = {{{\mathit{DC}'_{\mathit{CRnorm}}\times{2^{n-1}}} - 128\times 2^{n-8}}\over{224\times 2^{n-8}}} \\
-I       & = {{{I'_{\mathit{norm}}\times{2^{n-1}}} - 16\times{2^{n-8}}}\over{219\times 2^{n-8}}} &
-C'_T    & = {{{\mathit{DC}'_{\mathit{Tnorm}}\times{2^{n-1}}} - 128\times 2^{n-8}}\over{224\times 2^{n-8}}} \\
-&&C'_P    & = {{{\mathit{DC}'_{\mathit{Pnorm}}\times{2^{n-1}}} - 128\times 2^{n-8}}\over{224\times 2^{n-8}}} \\
-G'_\mathit{norm}    & = {{{G'\times{219\times 2^{n-8}}} + 16\times{2^{n-8}}}\over{2^{n-1}}} &
-B'_\mathit{norm}    & = {{{B'\times{219\times 2^{n-8}}} + 16\times{2^{n-8}}}\over{2^{n-1}}} \\
-&&R'_\mathit{norm}    & = {{{R'\times{219\times 2^{n-8}}} + 16\times{2^{n-8}}}\over{2^{n-1}}} \\
-Y'_\mathit{norm}    & = {{{Y'\times{219\times 2^{n-8}}} + 16\times{2^{n-8}}}\over{2^{n-1}}} &
-C'_\mathit{Bnorm}   & = {{{\mathit{DC}'_B\times{224\times ^{n-8}}} + 128\times 2^{n-8}}\over{2^{n-1}}} \\
-&&C'_\mathit{Rnorm}   & = {{{\mathit{DC}'_R\times{224\times ^{n-8}}} + 128\times 2^{n-8}}\over{2^{n-1}}} \\
-Y'_\mathit{Cnorm}   & = {{{Y'_C\times{219\times 2^{n-8}}} + 16\times{2^{n-8}}}\over{2^{n-1}}} &
-C'_\mathit{CBnorm}  & = {{{\mathit{DC}'_\mathit{CB}\times{224\times ^{n-8}}} + 128\times 2^{n-8}}\over{2^{n-1}}} \\
-&&C'_\mathit{CRnorm}  & = {{{\mathit{DC}'_\mathit{CR}\times{224\times ^{n-8}}} + 128\times 2^{n-8}}\over{2^{n-1}}} \\
-I_\mathit{norm}     & = {{{I\times{219\times 2^{n-8}}} + 16\times{2^{n-8}}}\over{2^{n-1}}} &
-C'_\mathit{Tnorm}   & = {{{\mathit{DC}'_{T}\times{224\times ^{n-8}}} + 128\times 2^{n-8}}\over{2^{n-1}}} \\
-&&C'_\mathit{Pnorm}   & = {{{\mathit{DC}'_{P}\times{224\times ^{n-8}}} + 128\times 2^{n-8}}\over{2^{n-1}}}
+G'      & = {{{G'_{\mathit{norm}}\times{\left(2^n-1\right)}} - 16\times{2^{n-8}}}\over{219\times 2^{n-8}}} &
+B'      & = {{{B'_{\mathit{norm}}\times{\left(2^n-1\right)}} - 16\times{2^{n-8}}}\over{219\times 2^{n-8}}} \\
+&&R'      & = {{{R'_{\mathit{norm}}\times{\left(2^n-1\right)}} - 16\times{2^{n-8}}}\over{219\times 2^{n-8}}} \\
+Y'      & = {{{Y'_{\mathit{norm}}\times{\left(2^n-1\right)}} - 16\times{2^{n-8}}}\over{219\times 2^{n-8}}} &
+C'_B    & = {{{\mathit{DC}'_{\mathit{Bnorm}}\times{\left(2^n-1\right)}} - 128\times 2^{n-8}}\over{224\times 2^{n-8}}} \\
+&&C'_R    & = {{{\mathit{DC}'_{\mathit{Rnorm}}\times{\left(2^n-1\right)}} - 128\times 2^{n-8}}\over{224\times 2^{n-8}}} \\
+Y'_C    & = {{{Y'_{\mathit{Cnorm}}\times{\left(2^n-1\right)}} - 16\times{2^{n-8}}}\over{219\times 2^{n-8}}} &
+C'_\mathit{CB} & = {{{\mathit{DC}'_{CBnorm}\times{\left(2^n-1\right)}} - 128\times 2^{n-8}}\over{224\times 2^{n-8}}} \\
+&&C'_\mathit{CR} & = {{{\mathit{DC}'_{\mathit{CRnorm}}\times{\left(2^n-1\right)}} - 128\times 2^{n-8}}\over{224\times 2^{n-8}}} \\
+I       & = {{{I'_{\mathit{norm}}\times{\left(2^n-1\right)}} - 16\times{2^{n-8}}}\over{219\times 2^{n-8}}} &
+C'_T    & = {{{\mathit{DC}'_{\mathit{Tnorm}}\times{\left(2^n-1\right)}} - 128\times 2^{n-8}}\over{224\times 2^{n-8}}} \\
+&&C'_P    & = {{{\mathit{DC}'_{\mathit{Pnorm}}\times{\left(2^n-1\right)}} - 128\times 2^{n-8}}\over{224\times 2^{n-8}}} \\
+G'_\mathit{norm}    & = {{{G'\times{219\times 2^{n-8}}} + 16\times{2^{n-8}}}\over{2^n-1}} &
+B'_\mathit{norm}    & = {{{B'\times{219\times 2^{n-8}}} + 16\times{2^{n-8}}}\over{2^n-1}} \\
+&&R'_\mathit{norm}    & = {{{R'\times{219\times 2^{n-8}}} + 16\times{2^{n-8}}}\over{2^n-1}} \\
+Y'_\mathit{norm}    & = {{{Y'\times{219\times 2^{n-8}}} + 16\times{2^{n-8}}}\over{2^n-1}} &
+C'_\mathit{Bnorm}   & = {{{\mathit{DC}'_B\times{224\times ^{n-8}}} + 128\times 2^{n-8}}\over{2^n-1}} \\
+&&C'_\mathit{Rnorm}   & = {{{\mathit{DC}'_R\times{224\times ^{n-8}}} + 128\times 2^{n-8}}\over{2^n-1}} \\
+Y'_\mathit{Cnorm}   & = {{{Y'_C\times{219\times 2^{n-8}}} + 16\times{2^{n-8}}}\over{2^n-1}} &
+C'_\mathit{CBnorm}  & = {{{\mathit{DC}'_\mathit{CB}\times{224\times ^{n-8}}} + 128\times 2^{n-8}}\over{2^n-1}} \\
+&&C'_\mathit{CRnorm}  & = {{{\mathit{DC}'_\mathit{CR}\times{224\times ^{n-8}}} + 128\times 2^{n-8}}\over{2^n-1}} \\
+I_\mathit{norm}     & = {{{I\times{219\times 2^{n-8}}} + 16\times{2^{n-8}}}\over{2^n-1}} &
+C'_\mathit{Tnorm}   & = {{{\mathit{DC}'_{T}\times{224\times ^{n-8}}} + 128\times 2^{n-8}}\over{2^n-1}} \\
+&&C'_\mathit{Pnorm}   & = {{{\mathit{DC}'_{P}\times{224\times ^{n-8}}} + 128\times 2^{n-8}}\over{2^n-1}}
 \end{align*}
 ++++++
-
 
 [[QUANTIZATION_FULL]]
 === ``Full range'' encoding
@@ -530,3 +534,266 @@ latexmath:[$255\over 256$] and offset by 0.5.
 After the model conversion matrix has been applied, the _R&prime;_,
 _G&prime;_ and _B&prime;_ values should be scaled by
 latexmath:[$256\over 255$], restoring the ability to represent pure white.
+
+[[QUANTIZATION_MODEL]]
+=== Combined dequantization and _Y&prime;C~B~C~R~_
+
+Since the above quantization/dequantization conversions are linear scale
+factors, they can practically be combined with the matrix transform of
+_Y&prime;C~B~C~R~_ color model conversion.
+A common conversion is between a narrow-range _Y&prime;C~B~C~R~_
+representation and full-range set of _R&prime;G&prime;B&prime;_ values.
+
+Simplifying by considering all values to be encoded in _n_ = 8 bits,
+the following combined matrices can be used for these transforms.
+
+==== BT.709
+
+[latexmath]
+++++++
+\begin{align*}
+  \left(\begin{array}{c}D_\mathit{narrow}Y'\\
+  D_\mathit{narrow}C'_B\\
+  D_\mathit{narrow}C'_R\end{array}\right) & =
+  {1\over 255} \times \left(\begin{array}{cccc}219, & 0, & 0, & 16\\
+  0, & 224, & 0, & 128\\
+  0, & 0, & 224, & 128\end{array}\right)
+  \left(\begin{array}{cccc}0.2126, & 0.7152, & 0.0722, & 0 \\
+  -{0.2126\over{1.8556}}, & -{0.7152\over{1.8556}}, & 0.5, & 0 \\
+  0.5, & -{0.7152\over{1.5748}}, & -{0.0722\over{1.5748}}, & 0\\
+  0, & 0, & 0, & 1\end{array}\right)
+  \left(\begin{array}{c}D_\mathit{full}R'\\
+  D_\mathit{full}G'\\
+  D_\mathit{full}B'\\
+  255\end{array}\right)\\
+  & \approx
+  \left(\begin{array}{cccc}0.182586, & 0.614231, & 0.062007, & 16 \\
+  -0.100644, & -0.338572, & 0.439216, & 128 \\
+  0.439216, & -0.398942, & -0.040274, & 128\end{array}\right)
+  \left(\begin{array}{c}D_\mathit{full}R'\\
+  D_\mathit{full}G'\\
+  D_\mathit{full}B'\\
+  1\end{array}\right)\\
+  \left(\begin{array}{c}D_\mathit{full}R'\\
+  D_\mathit{full}G'\\
+  D_\mathit{full}B'\end{array}\right) & = 255 \times
+  \left(\begin{array}{ccc}1, & 0, & 1.5748\\
+  1, & -{0.13397432\over{0.7152}}, & -{0.33480248\over{0.7152}}\\
+  1, & 1.8556, & 0\end{array}\right)
+  \left(\begin{array}{cccc}{1\over 219}, & 0, & 0, & -{16\over 219}\\
+  0, & {1\over 224}, & 0, & -{128\over 224}\\
+  0, & 0, & {1\over 224}, & -{128\over 224}\end{array}\right)
+  \left(\begin{array}{c}D_\mathit{narrow}Y'\\
+  D_\mathit{narrow}C'_B\\
+  D_\mathit{narrow}C'_R\\
+  1\end{array}\right) \\
+  & \approx
+  \left(\begin{array}{cccc}1.164384 & 0, & 1.792741, & -248.100994 \\
+  1.164384, & -0.213249, & -0.532909, & 76.878080 \\
+  1.164384, & 2.112402, & 0, & -289.017566\end{array}\right)
+  \left(\begin{array}{c}D_\mathit{narrow}Y'\\
+  D_\mathit{narrow}C'_B\\
+  D_\mathit{narrow}C'_R\\
+  1\end{array}\right) \\
+  & \approx
+  \left(\begin{array}{ccc}1.164384 & 0, & 1.792741 \\
+  1.164384, & -0.213249, & -0.532909 \\
+  1.164384, & 2.112402, & 0\end{array}\right)
+  \left(\begin{array}{c}D_\mathit{narrow}Y' - 16\\
+  D_\mathit{narrow}C'_B - 128\\
+  D_\mathit{narrow}C'_R - 128\end{array}\right) \\
+\end{align*}
+++++++
+
+==== BT.601
+
+[latexmath]
+++++++
+\begin{align*}
+  \left(\begin{array}{c}D_\mathit{narrow}Y'\\
+  D_\mathit{narrow}C'_B\\
+  D_\mathit{narrow}C'_R\end{array}\right) & =
+  {1\over 255} \times \left(\begin{array}{cccc}219, & 0, & 0, & 16\\
+  0, & 224, & 0, & 128\\
+  0, & 0, & 224, & 128\end{array}\right)
+  \left(\begin{array}{cccc}0.299, & 0.587, & 0.114, & 0 \\
+  -{0.299\over{1.772}}, & -{0.587\over{1.772}}, & 0.5, & 0 \\
+  0.5, & -{0.587\over{1.402}}, & -{0.114\over{1.402}}, & 0\\
+  0, & 0, & 0, & 1\end{array}\right)
+  \left(\begin{array}{c}D_\mathit{full}R'\\
+  D_\mathit{full}G'\\
+  D_\mathit{full}B'\\
+  255\end{array}\right)\\
+  & \approx
+  \left(\begin{array}{cccc}0.256788, & 0.504129, & 0.097906, & 16 \\
+  -0.148223, & -0.290993, & 0.439216, & 128 \\
+  0.439216, & -0.367788, & -0.071427, & 128\end{array}\right)
+  \left(\begin{array}{c}D_\mathit{full}R'\\
+  D_\mathit{full}G'\\
+  D_\mathit{full}B'\\
+  1\end{array}\right)\\
+  \left(\begin{array}{c}D_\mathit{full}R'\\
+  D_\mathit{full}G'\\
+  D_\mathit{full}B'\end{array}\right) & = 255 \times
+  \left(\begin{array}{ccc}1, & 0, & 1.402\\
+  1, & -{0.202008\over{0.587}}, & -{0.419198\over{0.587}}\\
+  1, & 1.772, & 0\end{array}\right)
+  \left(\begin{array}{cccc}{1\over 219}, & 0, & 0, & -{16\over 219}\\
+  0, & {1\over 224}, & 0, & -{128\over 224}\\
+  0, & 0, & {1\over 224}, & -{128\over 224}\end{array}\right)
+  \left(\begin{array}{c}D_\mathit{narrow}Y'\\
+  D_\mathit{narrow}C'_B\\
+  D_\mathit{narrow}C'_R\\
+  1\end{array}\right) \\
+  & \approx
+  \left(\begin{array}{cccc}1.164384 & 0, & 1.596027, & -222.921566 \\
+  1.164384, & -0.391762, & -0.812968, & 135.575295 \\
+  1.164384, & 2.017232, & 0, & -276.835851\end{array}\right)
+  \left(\begin{array}{c}D_\mathit{narrow}Y'\\
+  D_\mathit{narrow}C'_B\\
+  D_\mathit{narrow}C'_R\\
+  1\end{array}\right) \\
+  & \approx
+  \left(\begin{array}{ccc}1.164384 & 0, & 1.596027 \\
+  1.164384, & -0.391762, & -0.812968 \\
+  1.164384, & 2.017232, & 0\end{array}\right)
+  \left(\begin{array}{c}D_\mathit{narrow}Y' - 16\\
+  D_\mathit{narrow}C'_B - 128\\
+  D_\mathit{narrow}C'_R - 128\end{array}\right) \\
+\end{align*}
+++++++
+
+[NOTE]
+=====
+In <<microsoftyuv,their recommendations for 8-bit YUV>>, Microsoft
+suggests the following integer approximations to the above formulae
+for converting between 8-bit reduced-range _Y&prime;C~B~C~R~_ and 8-bit
+full-range _R&prime;G&prime;B&prime;_ in BT.601:
+
+-----
+Y  = ( (  66 * R' + 129 * G' +  25 * B' + 128 ) >> 8 ) + 16
+Cb = ( ( -38 * R' -  74 * G' + 112 * B' + 120 ) >> 8 ) + 128
+Cr = ( ( 112 * R' -  94 * G' -  18 * B' + 128 ) >> 8 ) + 128
+R' = ( 298 * (Y' - 16) + 409 * (Cr - 128) + 128 ) >> 8
+G' = ( 298 * (Y' - 16) + 100 * (Cb - 128) - 208 * (Cr - 128) + 128 ) >> 8
+B' = ( 298 * (Y' - 16) + 516 * (Cb - 128) + 128 ) >> 8
+-----
+
+The resulting values should be clamped to a [0..255] range.
+=====
+
+==== BT.2020
+
+[latexmath]
+++++++
+\begin{align*}
+  \left(\begin{array}{c}D_\mathit{narrow}Y'\\
+  D_\mathit{narrow}C'_B\\
+  D_\mathit{narrow}C'_R\end{array}\right) & =
+  {1\over 255} \times \left(\begin{array}{cccc}219, & 0, & 0, & 16\\
+  0, & 224, & 0, & 128\\
+  0, & 0, & 224, & 128\end{array}\right)
+  \left(\begin{array}{cccc}0.2627, & 0.6780, & 0.0539, & 0 \\
+  -{0.2627\over{1.8814}}, & -{0.678\over{1.8814}}, & 0.5, & 0 \\
+  0.5, & -{0.678\over{1.4746}}, & -{0.0593\over{1.4746}}, & 0\\
+  0, & 0, & 0, & 1\end{array}\right)
+  \left(\begin{array}{c}D_\mathit{full}R'\\
+  D_\mathit{full}G'\\
+  D_\mathit{full}B'\\
+  255\end{array}\right)\\
+  & \approx
+  \left(\begin{array}{cccc}0.225613, & 0.582282, & 0.050928, & 16 \\
+  -0.122655, & -0.316560, & 0.439216, & 128 \\
+  0.439216, & -0.403890, & -0.035325, & 128\end{array}\right)
+  \left(\begin{array}{c}D_\mathit{full}R'\\
+  D_\mathit{full}G'\\
+  D_\mathit{full}B'\\
+  1\end{array}\right)\\
+  \left(\begin{array}{c}D_\mathit{full}R'\\
+  D_\mathit{full}G'\\
+  D_\mathit{full}B'\end{array}\right) & = 255 \times
+  \left(\begin{array}{ccc}1, & 0, & 1.4746\\
+  1, & -{0.11156702\over{0.678}}, & -{0.38737742\over{0.678}}\\
+  1, & 1.8814, & 0\end{array}\right)
+  \left(\begin{array}{cccc}{1\over 219}, & 0, & 0, & -{16\over 219}\\
+  0, & {1\over 224}, & 0, & -{128\over 224}\\
+  0, & 0, & {1\over 224}, & -{128\over 224}\end{array}\right)
+  \left(\begin{array}{c}D_\mathit{narrow}Y'\\
+  D_\mathit{narrow}C'_B\\
+  D_\mathit{narrow}C'_R\\
+  1\end{array}\right) \\
+  & \approx
+  \left(\begin{array}{cccc}1.164384 & 0, & 1.678674, & -233.500423 \\
+  1.164384, & -0.187326, & -0.650424, & 88.601917 \\
+  1.164384, & 2.141772, & 0, & -292.776994\end{array}\right)
+  \left(\begin{array}{c}D_\mathit{narrow}Y'\\
+  D_\mathit{narrow}C'_B\\
+  D_\mathit{narrow}C'_R\\
+  1\end{array}\right) \\
+  & \approx
+  \left(\begin{array}{ccc}1.164384 & 0, & 1.678674 \\
+  1.164384, & -0.187326, & -0.650424 \\
+  1.164384, & 2.141772, & 0\end{array}\right)
+  \left(\begin{array}{c}D_\mathit{narrow}Y' - 16\\
+  D_\mathit{narrow}C'_B - 128\\
+  D_\mathit{narrow}C'_R - 128\end{array}\right) \\
+\end{align*}
+++++++
+
+==== ST.240
+
+[latexmath]
+++++++
+\begin{align*}
+  \left(\begin{array}{c}D_\mathit{narrow}Y'\\
+  D_\mathit{narrow}C'_B\\
+  D_\mathit{narrow}C'_R\end{array}\right) & =
+  {1\over 255} \times \left(\begin{array}{cccc}219, & 0, & 0, & 16\\
+  0, & 224, & 0, & 128\\
+  0, & 0, & 224, & 128\end{array}\right)
+  \left(\begin{array}{cccc}0.212, & 0.701, & 0.087, & 0 \\
+  -{0.212\over{1.826}}, & -{0.701\over{1.826}}, & 0.5, & 0 \\
+  0.5, & -{0.701\over{1.576}}, & -{0.087\over{1.576}}, & 0\\
+  0, & 0, & 0, & 1\end{array}\right)
+  \left(\begin{array}{c}D_\mathit{full}R'\\
+  D_\mathit{full}G'\\
+  D_\mathit{full}B'\\
+  255\end{array}\right)\\
+  & \approx
+  \left(\begin{array}{cccc}0.182071, & 0.602035, & 0.074718, & 16 \\
+  -0.101987, & -0.337229, & 0.439216, & 128 \\
+  0.439216, & -0.390724, & -0.048492, & 128\end{array}\right)
+  \left(\begin{array}{c}D_\mathit{full}R'\\
+  D_\mathit{full}G'\\
+  D_\mathit{full}B'\\
+  1\end{array}\right)\\
+  \left(\begin{array}{c}D_\mathit{full}R'\\
+  D_\mathit{full}G'\\
+  D_\mathit{full}B'\end{array}\right) & = 255 \times
+  \left(\begin{array}{ccc}1, & 0, & 1.576\\
+  1, & -{0.158862\over{0.701}}, & -{0.334112\over{0.701}}\\
+  1, & 1.826, & 0\end{array}\right)
+  \left(\begin{array}{cccc}{1\over 219}, & 0, & 0, & -{16\over 219}\\
+  0, & {1\over 224}, & 0, & -{128\over 224}\\
+  0, & 0, & {1\over 224}, & -{128\over 224}\end{array}\right)
+  \left(\begin{array}{c}D_\mathit{narrow}Y'\\
+  D_\mathit{narrow}C'_B\\
+  D_\mathit{narrow}C'_R\\
+  1\end{array}\right) \\
+  & \approx
+  \left(\begin{array}{cccc}1.164384 & 0, & 1.794107, & -248.275851 \\
+  1.164384, & -0.257985, & -0.542583, & 83.842551 \\
+  1.164384, & 2.078705, & 0, & -284.704423\end{array}\right)
+  \left(\begin{array}{c}D_\mathit{narrow}Y'\\
+  D_\mathit{narrow}C'_B\\
+  D_\mathit{narrow}C'_R\\
+  1\end{array}\right) \\
+  & \approx
+  \left(\begin{array}{ccc}1.164384 & 0, & 1.794107 \\
+  1.164384, & -0.257985, & -0.542583 \\
+  1.164384, & 2.078705, & 0\end{array}\right)
+  \left(\begin{array}{c}D_\mathit{narrow}Y' - 16\\
+  D_\mathit{narrow}C'_B - 128\\
+  D_\mathit{narrow}C'_R - 128\end{array}\right) \\
+\end{align*}
+++++++

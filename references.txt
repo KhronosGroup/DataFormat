@@ -1,17 +1,21 @@
-// Copyright (c) 2019 The Khronos Group Inc.
+// Copyright (c) 2017-2025 The Khronos Group Inc.
 // Copyright notice at https://www.khronos.org/registry/speccopyright.html
 
 == External references ==
 
 *[[IEEE 754]]IEEE754-2008 - IEEE standard for floating-point arithmetic*
 
-IEEE Std 754-2008
-http://dx.doi.org/10.1109/IEEESTD.2008.4610935,
-August, 2008. +
+IEEE Std 754-2019
+link:https://doi.org/10.1109/IEEESTD.2019.8766229[https://doi.org/10.1109/IEEESTD.2019.8766229]
+July, 2019.
+
+ISO/IEC 60559:2020
+link:https://www.iso.org/standard/80985.html[https://www.iso.org/standard/80985.html]
 
 *[[ciexyz]]CIE Colorimetry - Part 3: CIE tristimulus values*
 
-link:http://cie.co.at/index.php?i_ca_id=823[http://cie.co.at/index.php?i_ca_id=823] +
+ISO/CIE 11664-3:2019
+link:https://www.iso.org/standard/74165.html[https://www.iso.org/standard/74165.html] +
 
 *[[bt601]]ITU-R BT.601 Studio encoding parameters of digital television for standard 4:3 and wide-screen 16:9 aspect ratios*
 
@@ -45,9 +49,9 @@ https://www.itu.int/rec/R-REC-BT.1886/en[https://www.itu.int/rec/R-REC-BT.1886/e
 
 link:http://www.itu.int/rec/R-REC-BT.2087/en[http://www.itu.int/rec/R-REC-BT.2087/en] +
 
-*[[bt2390]]ITU-R BT.2390-1 High dynamic range television for production and international programme exchange*
+*[[bt2390]]ITU-R BT.2390 High dynamic range television for production and international programme exchange*
 
-link:https://www.itu.int/pub/R-REP-BT.2390-5-2018[https://www.itu.int/pub/R-REP-BT.2390-5-2018] +
+link:https://www.itu.int/pub/R-REP-BT.2390-11-2023[https://www.itu.int/pub/R-REP-BT.2390-11-2023]+
 
 *[[bt470]]ITU-R BT.470 Conventional analogue television systems*
 
@@ -79,10 +83,7 @@ be listed in alphabetical order as they would have been written in French.
 
 *[[smpte170m]]SMPTE 170m Composite analog video signal — NTSC for studio applications*
 
-The latest version is available from link:https://www.smpte.org/[https://www.smpte.org/]
-and from the IEEE at:
-
-link:http://ieeexplore.ieee.org/document/7291416/[http://ieeexplore.ieee.org/document/7291416/].
+link:https://pub.smpte.org/pub/st170/st0170-2004_stable2010.pdf[https://pub.smpte.org/pub/st170/st0170-2004_stable2010.pdf]
 
 SMPTE 170m-2004 is freely available as part of ITU-R BT.1700 at:
 
@@ -90,16 +91,18 @@ link:https://www.itu.int/rec/R-REC-BT.1700/en[https://www.itu.int/rec/R-REC-BT.1
 
 *[[cfr]]FCC 73.682 - TV transmission standards*
 
-link:https://www.gpo.gov/fdsys/search/pagedetails.action?collectionCode=CFR&browsePath=Title+47%2FChapter+I%2FSubchapter+C%2FPart+73%2FSubpart+E%2FSection+73.682&granuleId=CFR-2001-title47-vol4-sec73-682&packageId=CFR-2001-title47-vol4&collapse=true&fromBrowse=true[https://www.gpo.gov/fdsys/search/pagedetails.action?collectionCode=CFR&browsePath=Title+47%2FChapter+I%2FSubchapter+C%2FPart+73%2FSubpart+E%2FSection+73.682&granuleId=CFR-2001-title47-vol4-sec73-682&packageId=CFR-2001-title47-vol4&collapse=true&fromBrowse=true] +
+link:https://www.govinfo.gov/app/details/CFR-2001-title47-vol4/CFR-2001-title47-vol4-sec73-682[https://www.govinfo.gov/app/details/CFR-2001-title47-vol4/CFR-2001-title47-vol4-sec73-682]
 
 *[[st240]]ST 240:1999 - SMPTE Standard - For Television — 1125-Line High-Definition Production Systems — Signal Parameters*
 
 Formerly known as SMPTE240M - interim HDTV standard prior to international
 agreement on BT.709.
 
-Available from the SMPTE and via IEEE:
+link:https://www.normsplash.com/SMPTE/146382533/SMPTE-ST-240[https://www.normsplash.com/SMPTE/146382533/SMPTE-ST-240]
 
-link:http://ieeexplore.ieee.org/document/7291461/[http://ieeexplore.ieee.org/document/7291461/] +
+(Apparently no longer available from SMPTE or IEEE.)
+
+(See also link:https://pub.smpte.org/pub/st260/st0260-1999_stable2004.pdf[https://pub.smpte.org/pub/st260/st0260-1999_stable2004.pdf].)
 
 <<<
 *[[srgb]]IEC/4WD 61966-2-1: Colour measurement and management in multimedia systems and equipment - part 2-1: default RGB colour space - sRGB*
@@ -112,29 +115,20 @@ link:http://www.w3.org/Graphics/Color/srgb[http://www.w3.org/Graphics/Color/srgb
 
 link:https://www.iso.org/standard/35876.html[https://www.iso.org/standard/35876.html]
 
-link:http://webstore.iec.ch/webstore/webstore.nsf/artnum/029678[http://webstore.iec.ch/webstore/webstore.nsf/artnum/029678]
-
 link:http://www.color.org/chardata/rgb/scrgb.xalter[http://www.color.org/chardata/rgb/scrgb.xalter]
-
-link:https://webstore.iec.ch/preview/info_iec61966-2-2%7Bed1.0%7Den.pdf[https://webstore.iec.ch/preview/info_iec61966-2-2%7Bed1.0%7Den.pdf]
 
 A working draft is freely available at link:https://web.archive.org/web/20110725185444/http://www.colour.org/tc8-05/Docs/colorspace/61966-2-2NPa.pdf[https://web.archive.org/web/20110725185444/http://www.colour.org/tc8-05/Docs/colorspace/61966-2-2NPa.pdf].
 
 link:http://www.color.org/sycc.pdf[http://www.color.org/sycc.pdf] - sYCC (the latexmath:[$Y'C_BC_R$] variant of sRGB)
 
-link:https://webstore.iec.ch/corrigenda/iec61966-2-2-cor1%7Bed1.0%7Den.pdf[https://webstore.iec.ch/corrigenda/iec61966-2-2-cor1%7Bed1.0%7Den.pdf]
-- Annex B: Non-linear encoding for scRGB : scRGB-nl and its YCC Transformation: scYCC-nl +
-
 *[[dcip3]]DCI P3 color space*
 
- * SMPTE 428-1: D-Cinema Distribution Master — Image Characteristics +
-   link:http://ieeexplore.ieee.org/document/7290876/[http://ieeexplore.ieee.org/document/7290876/]
- * SMPTE EG 432-1: Digital Source Processing — Color Processing for D-Cinema +
-   link:http://ieeexplore.ieee.org/document/7289763/[http://ieeexplore.ieee.org/document/7289763/]
- * SMPTE RP 431-2: D-Cinema Quality — Reference Projector and Environment +
-   link:http://ieeexplore.ieee.org/document/7290729/[http://ieeexplore.ieee.org/document/7290729/]
+ * SMPTE 428-1: D-Cinema Distribution Master — Image Characteristics
+ * SMPTE EG 432-1: Digital Source Processing — Color Processing for D-Cinema
+ * SMPTE RP 431-2: D-Cinema Quality — Reference Projector and Environment
+See link:https://www.smpte.org/blog/understanding-standards-digital-cinema-format[https://www.smpte.org/blog/understanding-standards-digital-cinema-format].
 
-The latest version is available from link:https://www.smpte.org/[https://www.smpte.org/]
+The latest versions are available from the link:https://my.smpte.org/s/[SMPTE store].
 
 link:https://developer.apple.com/reference/coregraphics/cgcolorspace/1408916-displayp3[
 https://developer.apple.com/reference/coregraphics/cgcolorspace/1408916-displayp3]
@@ -145,9 +139,8 @@ describes Apple's Display P3 color space. +
 link:http://www.oscars.org/science-technology/aces/aces-documentation[
 http://www.oscars.org/science-technology/sci-tech-projects/aces/aces-documentation]
 
-The international standard for ACES, link:https://www.smpte.org/store[SMPTE ST 2065-1:2012
-- Academy Color Encoding Specification (ACES)], is available from the SMPTE, and also
-from link:http://ieeexplore.ieee.org/document/7289895[the IEEE].
+The international standard for ACES, link:https://my.smpte.org/s/product-details?id=a1BVR0000007NdE2AU[SMPTE ST 2065-1:2012
+- Academy Color Encoding Specification (ACES)], is available from the SMPTE.
 
 link:http://j.mp/TB-2014-004[TB-2014-004: Informative Notes on SMPTE ST 2065-1 –
 Academy Color Encoding Specification (ACES)] is freely available and contains
@@ -161,14 +154,22 @@ for use within Color Grading Systems] +
 
 *[[slog]]Sony S-Log*
 
-link:https://pro.sony.com/bbsccms/assets/files/mkt/cinema/solutions/slog_manual.pdf[https://pro.sony.com/bbsccms/assets/files/mkt/cinema/solutions/slog_manual.pdf] - S-Log description
+link:https://web.archive.org/web/20180214162647/https://pro.sony.com/bbsccms/assets/files/mkt/cinema/solutions/slog_manual.pdf[S-Log description from archive.org]
 
-link:https://pro.sony.com/bbsccms/assets/files/micro/dmpc/training/S-Log2_Technical_PaperV1_0.pdf[https://pro.sony.com/bbsccms/assets/files/micro/dmpc/training/S-Log2_Technical_PaperV1_0.pdf] - S-Log2 description
+link:https://web.archive.org/web/20171026055124/https://pro.sony.com/bbsccms/assets/files/micro/dmpc/training/S-Log2_Technical_PaperV1_0.pdf[S-Log 2 description from archive.org]
 
-link:http://www.sony.co.uk/pro/support/attachment/1237494271390/1237494271406/technical-summary-for-s-gamut3-cine-s-log3-and-s-gamut3-s-log3.pdf[http://www.sony.co.uk/pro/support/attachment/1237494271390/1237494271406/technical-summary-for-s-gamut3-cine-s-log3-and-s-gamut3-s-log3.pdf] - S-Log3 description +
+link:https://www.scribd.com/document/458079500/1237494271406[S-Log3 description]
+
+(Sony no longer seems to host these public documents.) +
+
 
 *[[adobergb]]Adobe RGB (1998)*
 
 link:https://www.adobe.com/digitalimag/pdfs/AdobeRGB1998.pdf[https://www.adobe.com/digitalimag/pdfs/AdobeRGB1998.pdf]
 
-link:https://www.adobe.com/digitalimag/adobergb.html[https://www.adobe.com/digitalimag/adobergb.html]
+link:https://www.adobe.com/digitalimag/adobergb.html[https://www.adobe.com/digitalimag/adobergb.html] +
+
+
+*[[microsoftyuv]]Windows Media Foundation YUV*
+
+link:https://docs.microsoft.com/en-us/windows/win32/medfound/recommended-8-bit-yuv-formats-for-video-rendering[https://docs.microsoft.com/en-us/windows/win32/medfound/recommended-8-bit-yuv-formats-for-video-rendering]

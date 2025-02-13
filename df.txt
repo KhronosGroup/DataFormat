@@ -1,7 +1,7 @@
-// Copyright (c) 2014-2019 The Khronos Group Inc.
+// Copyright (c) 2014-2025 The Khronos Group Inc.
 // Copyright notice at https://www.khronos.org/registry/speccopyright.html
 ifdef::a2xhtml[]
-= Khronos Data Format Specification v1.3.1 =
+= Khronos Data Format Specification v1.4.0 =
 endif::[]
 [abstract]
 
@@ -28,6 +28,9 @@ color spaces.
 :leq: &#8804;
 :geq: &#8805;
 :cdot: &#183;
+:rarrow: &#8594;
+:isin: &#8712;
+:notin: &#8713;
 :asciidoc-numbered:
 
 ifndef::a2xhtml[]
@@ -217,6 +220,21 @@ be a whole number of bytes.
 For example, a C{plus}{plus} ++std::vector<bool>++ can be considered to be
 a 1-D bulk data structure of individual bits.
 
+An implementation may choose to combine these approaches -- storing more
+than one channel per plane, but still using multiple planes.
+This approach is particularly useful for <<DownsampledChannels,downsampled
+channels>>, as discussed below.
+Whether because different numbers of channels are stored in an array or
+because the underlying representation of the data requires a different
+number of bits, the mapping from offsets to addresses will vary per channel,
+and certainly per array.
+When the data are stored as separate arrays, note that the offsets between
+the arrays are not defined by the ``format'', although there may be a
+convention that is followed: different representations may place constraints
+on alignment and padding between texel arrays, or allow free-form allocation,
+but since any such constraint typically depends on the amount of data it is
+considered to be outside the conventional definition of a ``format''.
+
 === Simple 2-D texel addressing
 
 The simplest way to represent two-dimensional data is in consecutive rows,
@@ -274,7 +292,8 @@ orientation also varies between representations.
 Each contiguous region described in this way can be considered as a
 _plane_ of data.
 In the same way that 1-D data can be described in structure-of-arrays
-form, two-dimensional data can also be implemented as multiple _planes_.
+form, two-dimensional data can also be implemented as multiple _planes_,
+which each may have independent base addresses and strides.
 
 [[2DRGBplanes]]
 .2D _R_,_G_,_B_ plane offsets from coordinates for 8{times}4 texels
@@ -288,12 +307,12 @@ bytes holding a pixel vary by alignment; a planar layout needs simpler
 hardware.
 This hardware could often process a subset of the planes -- scrolling
 text may require blitting just one plane, and changes to the display
-controller start position for each plane independently provide
+controller start location for each plane independently provide
 cheap parallax effects.
 
-In modern architectures, planes are typically byte-aligned and
-hold separate channels.
-One motivation is avoiding padding.
+In modern architectures, planes are typically (at least) byte-aligned and
+contain the entirety of the data corresponding to one or more channels.
+One motivation of a multi-planar description is the avoidance of padding.
 Some common hardware can only access powers of two bytes for each pixel:
 for example, texels of three 1-byte channels may need padding to four
 bytes for alignment restrictions; separate planes of one byte per texel
@@ -303,11 +322,28 @@ Other benefits are supporting different downsampling of each channel
 channel: many common operations (such as filtering and image
 compression) treat channels separately.
 
+As with the 1-D case, the addressing for each plane is, at least in part,
+independent.
+In a linear representation, each plane still has its own base address,
+row stride and pixel stride -- and, as discussed in <<DownsampledChannels,
+downsampled channels>>, the coordinate dimensions of each plane may not
+always be the same.
+Commonly, but not universally, in a simple linear layout the pixel stride
+can be deduced from the image format, but line stride and row stride are
+dependent on the image dimensions and any implementation-imposed alignment
+limitations which fall outside the ``format''.
+Modern hardware may further complicate the relationship between coordinates
+and addresses by use of a memory management unit providing a mapping of
+logical address regions to physical (device) addresses; this is further
+complicated with the capability of ``sparse'' memory allocation, in which
+not all of the address space may be bound to physical addresses.
+
 Note that, once all the data from any contributing channels have been
 combined, the interpretation of the resulting values is again orthogonal
 to addressing the data.
 
 <<<
+[[complex_2d_addressing]]
 === More complex 2-D texel addressing
 
 In many applications, the simple ``linear'' layout of memory has
@@ -390,7 +426,7 @@ more distant in memory the larger the tile size, and tile sizes which do
 not conveniently fit the cache and bus sizes of the memory subsystem
 have inefficiencies; thus the tile size is an architectural trade-off.
 
-While any non-linear representation is typically referred to as ``tiling'',
+While any nonlinear representation is typically referred to as ``tiling'',
 some hardware implementations actually use a more complex layout in order
 to provide further locality of reference.
 One such scheme is Morton order:
@@ -512,9 +548,16 @@ Here, the _plane stride_ is the offset between the start of one contiguous
 2-D plane of data and the next.
 The _plane stride_ is therefore _height_ {times} _row stride_ plus
 any additional padding.
+This assumes a regular mapping between the addresses along the third
+dimension; 3-D texturing can also be implemented as an array of 2-D
+textures, with each 2-D image having a separate base address.
+Since the plane stride falls outside the remit of a ``format'', being
+dependent on the image size, this distinction is not otherwise considered
+in this specification.
 
-Again, non-linear approaches can be used to increase the correlation
-between storage address and coordinates.
+Again, nonlinear approaches can be used to increase the correlation
+between storage address and coordinates, which can be useful especially
+when filtering samples taken from fractional 3D coordinates.
 
 -----
 uint32_t tileOffset3D(uint32_t x, uint32_t y, uint32_t z,
@@ -547,6 +590,7 @@ uint32_t mortonOffset3D(uint32_t x, uint32_t y, uint32_t z,
 }
 -----
 
+<<<
 There are multiple 3D variations on the Hilbert curve; one such is this:
 
 -----
@@ -572,7 +616,25 @@ uint32_t hilbertOffset3D(uint32_t x, uint32_t y, uint32_t z, uint32_t size) {
 }
 -----
 
+A related concept to 3-D texturing is mip maps, in which the same image is
+stored at different levels of detail to simplify filtering operations.
+Mip maps are not directly considered as part of a ``format'' for the purposes
+of this specification, especially since the details of addressing may be
+complicated by hardware limitations when it comes to the tails of mip chains;
+an implementation would typically have to represent each mip level as a separate
+image, although there are representations which might interleave them in texel
+blocks, in which case they could be mapped to a third dimension for texel
+coordinates.
+
+Obviously 3-D texturing can be extended to additional dimensions.
+The basic representation in this specification directly supports 4-D texel
+blocks, which may for example represent an animated 3-D texture.
+Further dimensions are not uncommon for tensor representations, and these
+can be supported by extension, although it may be common for the texel blocks
+themselves to be unit-sized in some of the dimensions.
+
 <<<
+[[DownsampledChannels]]
 === Downsampled channels
 
 The examples provided so far have assumed that a unique value from each
@@ -617,28 +679,28 @@ value contained in the texel, how should the shared _C~B~_ and _C~R~_
 values relate to the coordinates of the _Y&prime;_ channel?
 Each texel coordinate represents a value in the coordinate space of
 the image or buffer, which can be considered as a _sample_ of the
-value of a continuous surface at that location.
+value of a continuous surface at that position.
 The preferred means of reconstructing this surface is left to the
 application: since this specification only defines the values in the
 image and not how they are used, it is concerned with the sample
 values rather than the reconstruction algorithm or means of access.
 For example, in graphics APIs the coordinates used to access a 2-D
-texture may offset the sample locations of a texture by half
+texture may offset the sample positions of a texture by half
 a coordinate relative to the origin of sample space, and filtering
 between samples is typically used to implement antialiasing.
 However, to interpret the data correctly, any application still needs
-to know the theoretical location associated with the samples, so
+to know the theoretical position associated with the samples, so
 that information is within the remit of this specification.
 
 Our _Y&prime;_ samples should fall naturally on our native coordinates.
-However, the _C~B~_ and _C~R~_ sample locations (which are typically
-at the same location as each other) could be considered as located
+However, the _C~B~_ and _C~R~_ sample positions (which are typically
+at the same position as each other) could be considered as located
 coincident with one or other of the _Y&prime;_ values as shown in
 <<1DYCbCr_cosited>>, or could be defined as falling at the mid-point
 between them as in <<1DYCbCr_midpoint>>.
 Different representations have chosen either of these alternatives --
 in some cases, choosing a different option for each coordinate axis.
-The application can choose how to treat these sample locations: in
+The application can choose how to treat these sample positions: in
 some cases it may suffice to duplicate _C~B~_ and _C~R~_ across the
 pair of _Y&prime;_ values, in others bilinear or bicubic filtering
 may be more appropriate.
@@ -695,7 +757,7 @@ common _Y&prime;C~B~C~R~_ layouts, but does not extend conveniently to all
 representations.
 For example, one common representation used in camera sensors is a _Bayer
 pattern_, in which there is only one of the red, green and blue channels
-at each sample location: one red and blue value per 2{times}2 texel
+at each sample position: one red and blue value per 2{times}2 texel
 block, and two green values offset diagonally, as in <<BayerOffsets>>.
 
 [[BayerOffsets]]
@@ -793,7 +855,7 @@ number of common compressed texture formats.
 
 Instead of an implicit representation, the descriptor specifies a
 _texel block_, which is described in terms of its finite extent in each
-of four dimensions, and which identifies the location of each sample
+of four dimensions, and which identifies the position of each sample
 within that region.
 The _texel block_ is therefore a self-contained, repeating, axis-aligned
 pattern in the coordinate space of the image.
@@ -809,10 +871,10 @@ and texel blocks, it can be convenient to record additional dimensions;
 for example, the ASTC compressed texture format described in <<ASTC>> can
 support compressed texel blocks with three dimensions.
 For convenience of encoding, this specification uses a four-dimensional
-space to define sample locations within a texel block -- there is no
+space to define sample positions within a texel block -- there is no
 meaning imposed on how those dimensions should be interpreted.
 
-In many formats, all color channels refer to the same location, and
+In many formats, all color channels refer to the same position, and
 the _texel block_ defines a 1{times}1{times}1{times}1 region --
 that is, a single texel.
 
@@ -963,7 +1025,7 @@ them are shown on the left, represented in this specification as four
 planes of contiguous bytes.
 These are concatenated into a 48-bit logical bit stream (shown in blue,
 in top-to-bottom order); these _samples_ then describe the contributions
-from these logical bits, with geometric location of the sample at the
+from these logical bits, with geometric position of the sample at the
 right.
 
 [[2DYCbCr420Encoding]]
@@ -971,7 +1033,7 @@ right.
 image::images/2DYCbCrKDFSEncoding.{svgpdf}[width="{svgpdf@pdf:475pt:800}",align="center"]
 
 <<<
-Consecutive samples with the same channel, location and flags may describe
+Consecutive samples with the same channel, position and flags may describe
 additional bits that contribute to the same final value, and appear in
 increasing order.
 For example, a 16-bit big-endian word in memory can be described by one
@@ -1024,7 +1086,7 @@ offsets within a texel block that is only a single coordinate wide
 are specified to the precision of latexmath:[$1\over 256$] of a
 coordinate; this approach allows large texel blocks, half-texel offsets
 for representations such as _Y&prime;C~B~C~R~_ 4:2:0, and precise
-fractional offsets for recording multisampled pattern locations.
+fractional offsets for recording multisampled pattern positions.
 
 The sequence of bits in the (virtual) sample defines a numerical range
 which may be interpreted as a fixed-point or floating-point value and
@@ -1087,9 +1149,9 @@ For example:
 
 The order of samples should be defined by the following rules:
 
-* Samples sharing a channel and location appear consecutively in
+* Samples sharing a channel and position appear consecutively in
   increasing order of bits contributed to the virtual sample.
-** For example, a big-endian 16-bit red channel at location
+** For example, a big-endian 16-bit red channel at position
    0,0 may be composed of two samples: one referencing the
    eight consecutive virtual bit stream bits from 0..7
    (*_bitOffset_* = 0, *_bitLength_* = 8) and the other
@@ -1118,7 +1180,7 @@ The order of samples should be defined by the following rules:
 * Samples that qualify an existing virtual sample immediately
   follow it.
 ** Specifically, in an explicitly-described floating-point
-   format, any sample describing a sign bit immediately
+   format, any sample describing an explicit sign bit immediately
    follows the unsigned mantissa, and any exponent follows
    thereafter, as seen in <<exampledescriptor_float16explicit>>.
 * Virtual samples are described in increasing order of the
@@ -1139,9 +1201,9 @@ The order of samples should be defined by the following rules:
    numbers 0, 1 and 2, the corresponding samples are described in
    this order. See, for example, <<exampledescriptor_AcornTint>>
    and <<exampledescriptor_intensity>>.
-* Virtual samples that share bits and channel number but not location
+* Virtual samples that share bits and channel number but not position
   would be extremely unusual, but would appear in increasing raster
-  order of the location (that is, sorted first by coordinate three,
+  order of the position (that is, sorted first by coordinate three,
   then two, then one, then zero).
 
 Finally:
@@ -1153,7 +1215,7 @@ Finally:
   function *++KHR_DF_TRANSFER_LINEAR++* for the descriptor
   as a whole if all samples are linear, or by
   setting the sample's *++KHR_DF_SAMPLE_DATATYPE_LINEAR++*
-  bit if other samples have multiple bits and a non-linear
+  bit if other samples have multiple bits and a nonlinear
   transfer function is needed.
 
 <<<
@@ -1217,7 +1279,7 @@ two dimensions.
 For formats that describe a single texel, ++coords++ can be considered
 to be an integer.
 Note that for more complex formats such as Bayer layouts, reconstructing
-an _R_,_G_,_B_ value at a location may require information from more than
+an _R_,_G_,_B_ value at a position may require information from more than
 one texel block, depending on the algorithm used, in a manner analogous
 to sampling using bilinear filtering.
 
@@ -1276,8 +1338,8 @@ same in-memory representation.
 
 _Data format:_
 The interpretation of individual elements in bulk data. Examples
-include the channel ordering and bit positions in pixel data or
-the configuration of samples in a Bayer image. The format describes
+include the channel ordering and bit locations in pixel data or
+the positions of samples in a Bayer image. The format describes
 the elements, not the bulk data itself: an image's size, stride, tiling,
 dimensionality, border control modes, and image reconstruction filter are
 not part of the format and are the responsibility of the application.
@@ -1336,14 +1398,14 @@ representation.
 _<<sample,Sample>>:_
 In this standard, texel blocks are considered to be composed of
 contiguous bit patterns with a single channel or component type and
-a single spatial location.
+a single spatial position.
 A typical _ARGB_ pixel has four samples, one for each channel, held at
 the same coordinate.
-A texel block from a Bayer sensor might have a different location for
+A texel block from a Bayer sensor might have a different position for
 different channels, and may have multiple samples representing the
-same channel at multiple locations.
+same channel at multiple positions.
 A _Y&prime;C~B~C~R~_ buffer with downsampled chroma may have more luma
-samples than chroma, each at different locations.
+samples than chroma, each at different positions.
 
 == [[dataformatdescriptor]]Khronos Data Format Descriptor ==
 
@@ -1683,7 +1745,7 @@ obligated to represent alpha in any way in channel number 15.
 The value of each enumerant is shown in parentheses following the enumerant
 name.
 
-==== *++KHR_DF_MODEL_UNSPECIFIED++* (= 0) ====
+==== [[KHR_DF_MODEL_UNSPECIFIED]]*++KHR_DF_MODEL_UNSPECIFIED++* (= 0) ====
 
 When the data format is unknown or does not fall into a predefined
 category, utilities which perform automatic conversion based on an
@@ -1708,7 +1770,7 @@ model, with an extension block describing the interpretation of
 each channel.
 
 <<<
-==== *++KHR_DF_MODEL_RGBSDA++* (= 1) ====
+==== [[KHR_DF_MODEL_RGBSDA]]*++KHR_DF_MODEL_RGBSDA++* (= 1) ====
 
 This color model represents additive colors of three channels,
 nominally red, green and blue, supplemented by channels for
@@ -1736,7 +1798,7 @@ primaries requires an extension to describe the full color space
 of the channels present. There is no practical way to do this
 portably without taking significantly more space.
 
-==== *++KHR_DF_MODEL_YUVSDA++* (= 2) ====
+==== [[KHR_DF_MODEL_YUVSDA]]*++KHR_DF_MODEL_YUVSDA++* (= 2) ====
 
 This color model represents color differences with three channels,
 nominally luma (_Y&prime;_) and two color-difference chroma channels,
@@ -1778,7 +1840,7 @@ derived, _Y&prime;C~B~C~R~_ is more formally used to describe the representation
 of these color differences. See <<MODEL_YUV>> for more detail.
 
 <<<
-==== *++KHR_DF_MODEL_YIQSDA++* (= 3) ====
+==== [[KHR_DF_MODEL_YIQSDA]]*++KHR_DF_MODEL_YIQSDA++* (= 3) ====
 
 This color model represents color differences with three channels,
 nominally luma (_Y_) and two color-difference chroma channels, _I_ and _Q_,
@@ -1800,7 +1862,7 @@ _I_ and _Q_ are derived from _C~B~_ and _C~R~_ by a 33-degree rotation.
 ^| 15 2+| &nbsp; *++KHR_DF_CHANNEL_YIQSDA_ALPHA++* | &nbsp; Alpha (opacity)
 |================================
 
-==== *++KHR_DF_MODEL_LABSDA++* (= 4) ====
+==== [[KHR_DF_MODEL_LABSDA]]*++KHR_DF_MODEL_LABSDA++* (= 4) ====
 
 This color model represents the ICC perceptually-uniform _L*a*b*_
 color space, combined with the option of an alpha channel, as
@@ -1819,7 +1881,7 @@ shown in <<LABSDAChannels>>.
 ^| 15 2+| &nbsp; *++KHR_DF_CHANNEL_LABSDA_ALPHA++* | &nbsp; Alpha (opacity)
 |================================
 
-==== *++KHR_DF_MODEL_CMYKA++* (= 5) ====
+==== [[KHR_DF_MODEL_CMYKA]]*++KHR_DF_MODEL_CMYKA++* (= 5) ====
 
 This color model represents secondary (subtractive) colors and
 the combined key (black) channel, along with alpha, as shown in
@@ -1838,7 +1900,7 @@ the combined key (black) channel, along with alpha, as shown in
 |================================
 
 <<<
-==== *++KHR_DF_MODEL_XYZW++* (= 6) ====
+==== [[KHR_DF_MODEL_XYZW]]*++KHR_DF_MODEL_XYZW++* (= 6) ====
 
 This ``color model'' represents channel data used for
 coordinate values, as shown in <<XYZWChannels>> --
@@ -1859,7 +1921,7 @@ of the *_channelType_* field.
 ^| 3 2+| &nbsp; *++KHR_DF_CHANNEL_XYZW_W++* | &nbsp; _W_
 |================================
 
-==== *++KHR_DF_MODEL_HSVA_ANG++* (= 7) ====
+==== [[KHR_DF_MODEL_HSVA_ANG]]*++KHR_DF_MODEL_HSVA_ANG++* (= 7) ====
 
 This color model represents color differences with three channels,
 _value_ (luminance or luma), _saturation_ (distance from monochrome)
@@ -1879,7 +1941,7 @@ wheel.
 ^| 15 2+| &nbsp; *++KHR_DF_CHANNEL_HSVA_ANG_ALPHA++* | &nbsp; Alpha (opacity)
 |================================
 
-==== *++KHR_DF_MODEL_HSLA_ANG++* (= 8) ====
+==== [[KHR_DF_MODEL_HSLA_ANG]]*++KHR_DF_MODEL_HSLA_ANG++* (= 8) ====
 
 This color model represents color differences with three channels,
 _lightness_ (maximum intensity), _saturation_ (distance from monochrome)
@@ -1900,7 +1962,7 @@ wheel.
 |================================
 
 <<<
-==== *++KHR_DF_MODEL_HSVA_HEX++* (= 9) ====
+==== [[KHR_DF_MODEL_HSVA_HEX]]*++KHR_DF_MODEL_HSVA_HEX++* (= 9) ====
 
 This color model represents color differences with three channels,
 _value_ (luminance or luma), _saturation_ (distance from monochrome)
@@ -1920,7 +1982,7 @@ extremes on a color hexagon.
 ^| 15 2+| &nbsp; *++KHR_DF_CHANNEL_HSVA_HEX_ALPHA++* | &nbsp; Alpha (opacity)
 |================================
 
-==== *++KHR_DF_MODEL_HSLA_HEX++* (= 10) ====
+==== [[KHR_DF_MODEL_HSLA_HEX]]*++KHR_DF_MODEL_HSLA_HEX++* (= 10) ====
 
 This color model represents color differences with three channels,
 _lightness_ (maximum intensity), _saturation_ (distance from monochrome)
@@ -1940,7 +2002,7 @@ extremes on a color hexagon.
 ^| 15 2+| &nbsp; *++KHR_DF_CHANNEL_HSLA_HEX_ALPHA++* | &nbsp; Alpha (opacity)
 |================================
 
-==== *++KHR_DF_MODEL_YCGCOA++* (= 11) ====
+==== [[KHR_DF_MODEL_YCGCOA]]*++KHR_DF_MODEL_YCGCOA++* (= 11) ====
 
 This color model represents low-cost approximate color differences with
 three channels, nominally luma (_Y_) and two color-difference chroma channels,
@@ -1959,7 +2021,7 @@ supplemented by a channel for alpha, as shown in <<YCoCgAChannels>>.
 |================================
 
 <<<
-==== *++KHR_DF_MODEL_YCCBCCRC++* (= 12) ====
+==== [[KHR_DF_MODEL_YCCBCCRC]]*++KHR_DF_MODEL_YCCBCCRC++* (= 12) ====
 
 This color model represents the ``Constant luminance''
 latexmath:[$Y'_CC'_\mathit{BC}C'_\mathit{RC}$] color model defined as an
@@ -1978,7 +2040,7 @@ optional representation in ITU-T BT.2020 and described in <<MODEL_YCCBCCRC>>.
 ^| 15 2+| &nbsp; *++KHR_DF_CHANNEL_YCCBCCRC_ALPHA++* | &nbsp; Alpha (opacity)
 |================================
 
-==== *++KHR_DF_MODEL_ICTCP++* (= 13) ====
+==== [[KHR_DF_MODEL_ICTCP]]*++KHR_DF_MODEL_ICTCP++* (= 13) ====
 
 This color model represents the ``Constant intensity
 _IC~T~C~P~_ color model'' defined as an optional
@@ -1998,7 +2060,7 @@ representation in ITU-T BT.2100 and described in <<MODEL_ICTCP>>.
 |================================
 
 <<<
-==== *++KHR_DF_MODEL_CIEXYZ++* (= 14) ====
+==== [[KHR_DF_MODEL_CIEXYZ]]*++KHR_DF_MODEL_CIEXYZ++* (= 14) ====
 
 This color model represents channel data used to describe
 color coordinates in the <<ciexyz,CIE 1931 XYZ>> coordinate
@@ -2014,7 +2076,7 @@ space, as shown in <<CIEXYZChannels>>.
 ^| 2 2+| &nbsp; *++KHR_DF_CHANNEL_CIEXYZ_Z++* | &nbsp; _Z_
 |================================
 
-==== *++KHR_DF_MODEL_CIEXYY++* (= 15) ====
+==== [[KHR_DF_MODEL_CIEXYY]]*++KHR_DF_MODEL_CIEXYY++* (= 15) ====
 
 This color model represents channel data used to describe
 chromaticity coordinates in the <<ciexyz,CIE 1931 xyY>> coordinate
@@ -2035,17 +2097,18 @@ space, as shown in <<CIEXYYChannels>>.
 === *_colorModel_* for compressed formats ===
 
 A number of compressed formats are supported as part of *++khr_df_model_e++*.
-In general, these formats will have the texel block dimensions of the
-compression block size. Most contain a single sample of channel type 0
-at offset 0,0 -- where further samples are required, they should also
-be sited at 0,0. By convention, models which have multiple channels that
-are disjoint in memory have these channel locations described
-independently as separate samples; this can simplify some decoders.
+Typically, these formats will have the texel block dimensions matching the
+compression block size. Most are represented by a single sample of channel
+type 0 at *_samplePosition_* 0,0,0,0 -- where further samples are required
+for the compression block, they should have matching *_samplePositions_*.
+By convention, models that have multiple channels that are disjoint in
+memory have these channel locations described independently as separate
+samples; this can simplify some decoders.
 
 The ASTC family of formats have a number of possible channels,
 and are distinguished by samples which reference some set of these
 channels. The *_texelBlockDimension_* fields determine the compression
-ratio for ASTC and PVRTC.
+ratio for single compressed texel blocks of ASTC and PVRTC.
 
 Compressed formats necessarily do not have an equivalent integer
 representation in which to describe the *_sampleLower_* and
@@ -2059,16 +2122,34 @@ Integer compressed formats with a lower and upper of 0 and *++UINT32_MAX++*
 formats) are assumed to map the full representable range to 0..1 or -1..1
 respectively.
 
-If a format has a non-linear transfer function, any samples with channel
+If a format has a nonlinear transfer function, any samples with channel
 ID 15 (that is, the format has separate alpha encoding, for example
 *++KHR_DF_BC2_ALPHA++*) should set the *++KHR_DF_SAMPLE_DATATYPE_LINEAR++*
 bit for that sample.
 
 Example descriptors for compressed formats are provided after each
 model in this section.
+Each of these examples contains a descriptor for a single compressed
+texel block, with the *_texelBlockDimensions_* corresponding to the
+addressable texel dimensions of that single compression block.
+
+Although the use case would be unusual, there is no reason that multiple
+compressed texel blocks may not fall within a single data format
+descriptor texel block, with appropriately offset *_samplePositions_*;
+each compressed texel block would be spatially coherent in this case.
+Such a situation may be used to describe a simple nonlinear layout
+of compressed texel blocks, although as <<complex_2d_addressing>>
+describes, more complex layouts are best handled explicitly.
+For most formats, the compressed texel block may be positioned
+arbitrarily within the data format descriptor texel block, and as
+such the *_texelBlockDimensions_* do not need to match the compressed
+texel block size; the exception is the constraints which are imposed
+on compressed texel formats (ASTC and PVRTC) which support multiple
+compression block sizes that are distinguished by the combination of
+*_texelBlockDimensions_* and *_samplePositions_*.
 
 <<<
-==== *++KHR_DF_MODEL_DXT1A++*/*++KHR_DF_MODEL_BC1A++* (= 128) ====
+==== [[KHR_DF_MODEL_DXT1A]]*++KHR_DF_MODEL_DXT1A++*/*++KHR_DF_MODEL_BC1A++* (= 128) ====
 
 This model represents the DXT1 or BC1 format, described in
 <<S3TC>>.
@@ -2144,7 +2225,7 @@ Enumerant names for these channel ids are listed in <<bc1_channels>>.
 |================================
 
 <<<
-==== *++KHR_DF_MODEL_DXT2++*/*++3++*/*++KHR_DF_MODEL_BC2++* (= 129) ====
+==== [[KHR_DF_MODEL_DXT2]]*++KHR_DF_MODEL_DXT2++*/*++3++*/*++KHR_DF_MODEL_BC2++* (= 129) ====
 
 This model represents the DXT2/3 format, also known as BC2,
 and described in <<s3tc_bc2>>.
@@ -2233,7 +2314,7 @@ requires the whole texel block.
 |================================
 
 <<<
-==== *++KHR_DF_MODEL_DXT4++*/*++5++*/*++KHR_DF_MODEL_BC3++* (= 130) ====
+==== [[KHR_DF_MODEL_DXT4]]*++KHR_DF_MODEL_DXT4++*/*++5++*/*++KHR_DF_MODEL_BC3++* (= 130) ====
 
 This model represents the DXT4/5 format, also known as BC3,
 and described in <<s3tc_bc3>>.
@@ -2322,11 +2403,10 @@ requires the whole texel block.
 |================================
 
 <<<
-==== *++KHR_DF_MODEL_BC4++* (= 131) ====
+==== [[KHR_MODEL_ATI1N]]*++KHR_MODEL_ATI1N++*/*++KHR_DF_MODEL_DXT5A++*/*++KHR_DF_MODEL_BC4++* (= 131) ====
 
-This model represents the Direct3D BC4 format for single-channel
-interpolated 8-bit data, as described in <<rgtc_bc4>>.
-
+This model represents the BC4 format, also known as ATI1n, DXT5A, or 3Dc+,
+for single-channel interpolated 8-bit data, as described in <<rgtc_bc4>>.
 Each compressed texel block consists of 4{times}4 texels in
 8 bytes.
 The model has a single channel of id 0 with offset 0 and length 64 bits.
@@ -2384,10 +2464,10 @@ The enumerant name for this channel id is listed in <<bc4_channel>>.
 |================================
 
 <<<
-==== *++KHR_DF_MODEL_BC5++* (= 132) ====
+==== [[KHR_DF_MODEL_ATI2N_XY]]*++KHR_DF_MODEL_ATI2N_XY++*/*++KHR_DF_MODEL_DXN++*/*++KHR_DF_MODEL_BC5++* (= 132) ====
 
-This model represents the Direct3D BC5 format for dual-channel
-interpolated 8-bit data, as described in <<rgtc_bc5>>.
+This model represents the BC5 format, also known as ATI2n_XY (A2XY), or DXN,
+for dual-channel interpolated 8-bit data, as described in <<rgtc_bc5>>.
 
 Each compressed texel block consists of 4{times}4 texels in
 16 bytes.
@@ -2395,6 +2475,12 @@ The model has two channels, 0 (red) and 1 (green),
 which should have their bit depths and offsets independently described:
 the red channel has offset 0 and length 64 bits and the green channel
 has offset 64 and length 64 bits.
+A single compression block is described by one sample of each channel
+at the same *_samplePosition_*.
+Either both samples should be signed, or none may be.
+
+For historical reasons, when this format is referred to as ATI2n or 3Dc,
+red channel has offset 64 bits and green channel has offset 0 bits.
 
 Enumerant names for these channel ids are listed in <<bc5_channels>>.
 
@@ -2464,6 +2550,7 @@ Enumerant names for these channel ids are listed in <<bc5_channels>>.
 32+^| *_sampleUpper:_* *++INT32_MAX++*
 |================================
 
+
 <<<
 A legacy variant of this format known as ``ATI2n'' or ``3Dc'' swaps
 the location of the two channels, and can be encoded as follows:
@@ -2495,10 +2582,11 @@ the location of the two channels, and can be encoded as follows:
 32+^| *_sampleUpper:_* *++UINT32_MAX++*
 |================================
 
-<<<
-==== *++KHR_DF_MODEL_BC6H++* (= 133) ====
 
-This model represents the Direct3D BC6H format for _RGB_ floating-point
+<<<
+==== [[KHR_DF_MODEL_BC6H]]*++KHR_DF_MODEL_BC6H++* (= 133) ====
+
+This model represents the BC6H format for _RGB_ floating-point
 data, as described in <<bptc_bc6h>>.
 
 Each compressed texel block consists of 4{times}4 texels in
@@ -2536,7 +2624,7 @@ The enumerant names for this channel id are listed in <<bc6h_channel>>.
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0xBF800000U -- -1.0f
-32+^| *_sampleUpper:_* 0x7F800000U -- 1.0f
+32+^| *_sampleUpper:_* 0x3F800000U -- 1.0f
 |================================
 
 <<<
@@ -2558,14 +2646,14 @@ The enumerant names for this channel id are listed in <<bc6h_channel>>.
 ^| 1 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 127 (= ``128'') 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
-32+^| *_sampleLower:_* 0xBF800000U -- -1.0f
-32+^| *_sampleUpper:_* 0x7F800000U -- 1.0f
+32+^| *_sampleLower:_* 0x00000000U -- 0.0f
+32+^| *_sampleUpper:_* 0x3F800000U -- 1.0f
 |================================
 
 <<<
-==== *++KHR_DF_MODEL_BC7++* (= 134) ====
+==== [[KHR_DF_MODEL_BC7]]*++KHR_DF_MODEL_BC7++* (= 134) ====
 
-This model represents the Direct3D BC7 format for _RGBA_ data, as
+This model represents the BC7 format for _RGBA_ data, as
 described in <<bptc_bc7>>.
 
 Each compressed texel block consists of 4{times}4 texels in
@@ -2607,7 +2695,7 @@ The enumerant names for this channel id are listed in <<bc7_channel>>.
 |================================
 
 <<<
-==== *++KHR_DF_MODEL_ETC1++* (= 160) ====
+==== [[KHR_DF_MODEL_ETC1]]*++KHR_DF_MODEL_ETC1++* (= 160) ====
 
 This model represents the original Ericsson Texture Compression format,
 described in <<ETC1>>, with a guarantee that the format does not rely
@@ -2652,7 +2740,7 @@ The enumerant names for this channel id are listed in <<etc1_channel>>.
 |================================
 
 <<<
-==== *++KHR_DF_MODEL_ETC2++* (= 161) ====
+==== [[KHR_DF_MODEL_ETC2]]*++KHR_DF_MODEL_ETC2++* (= 161) ====
 
 This model represents the updated Ericsson Texture Compression format,
 ETC2, and also the related R11 EAC and RG11 EAC formats.
@@ -2822,7 +2910,7 @@ co-sited, ``punch through'' alpha is supported as described in
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
 32+^| *_totalSize:_* 60
 15+^| *_descriptorType:_* 0 17+^| *_vendorId:_* 0
-16+^| *_descriptorBlockSize:_* 24 + (16 {times} 1) = 56 16+^| *_versionNumber:_* 2
+16+^| *_descriptorBlockSize:_* 24 + (16 {times} 2) = 56 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++ETC2++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
 8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
@@ -2855,7 +2943,7 @@ alpha is supported, as described in <<RGBAETC2>>.
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
 32+^| *_totalSize:_* 60
 15+^| *_descriptorType:_* 0 17+^| *_vendorId:_* 0
-16+^| *_descriptorBlockSize:_* 24 + (16 {times} 1) = 56 16+^| *_versionNumber:_* 2
+16+^| *_descriptorBlockSize:_* 24 + (16 {times} 2) = 56 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++ETC2++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
 8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
@@ -2876,7 +2964,7 @@ alpha is supported, as described in <<RGBAETC2>>.
 |================================
 
 <<<
-==== *++KHR_DF_MODEL_ASTC++* (= 162) ====
+==== [[KHR_DF_MODEL_ASTC]]*++KHR_DF_MODEL_ASTC++* (= 162) ====
 
 This model represents Adaptive Scalable Texture Compression as a single
 channel in a texel block of 16 bytes. ASTC HDR (high dynamic range) and
@@ -2886,9 +2974,17 @@ the user to contain only LDR-encoded blocks should have the *_channelId_*
 *++KHR_DF_SAMPLE_DATATYPE_FLOAT++* bit clear, and an ASTC texture that may include
 HDR-encoded blocks should have the *_channelId_* *++KHR_DF_SAMPLE_DATATYPE_FLOAT++*
 bit set to 1.
+
 ASTC supports a number of compression ratios defined by different texel block
-sizes; these are selected by changing the texel block size fields in the data
+sizes; for a texel block containing a single compression block, the compression
+ratio is selected by changing the *_texelBlockDimensions_* fields in the data
 format.
+
+If the data format texel blocks contains multiple compression blocks,
+the compression block dimensions are determined by the combination of the
+data format *_texelBlockDimensions_* and the *_samplePositions_* of the samples;
+all the samples must describe compression blocks of the same dimensions, and gaps
+between them are not supported.
 
 ASTC encoding is described in <<ASTC>>.
 
@@ -2947,34 +3043,39 @@ The enumerant name for this channel id is listed in <<astc_channels>>.
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0xBF800000U -- -1.0f
-32+^| *_sampleUpper:_* 0x7F800000U -- 1.0f
+32+^| *_sampleUpper:_* 0x3F800000U -- 1.0f
 |================================
 
 <<<
-==== *++KHR_DF_MODEL_ETC1S++* (= 163) ====
+==== [[KHR_DF_MODEL_ETC1S]]*++KHR_DF_MODEL_ETC1S++* (= 163) ====
 
-This model represents a subset of the original Ericsson Texture
-Compression format, described in <<ETC1S>>, which is restricted
-in order to facilitate image compression.
+This model, described in <<ETC1S>>, represents a subset of the original
+Ericsson Texture Compression format (itself described in <<ETC1>>)
+that is restricted in order to facilitate transcoding to GPU-specific
+compressed models.
 
-Each compressed texel block consists of 4{times}4 texels in
-8 bytes.
-The model has a single channel 0, representing all three channels, and
-occupying 64 bits.
+Each compressed texel block consists of 4{times}4 texels in 8 bytes.
+The model has a single channel, representing all three channels
+(RGB), and occupying 64 bits. A second plane in the same format can
+be used to hold, e.g., alpha in all three of its channels.
 
 The enumerant names for this channel id are listed in <<etc1s_channel>>.
+*++AAA++*, *++GGG++* and *++RRR++* can be used when the channel contains
+a specific channel replicated across all three channels of the block.
 
 [[etc1s_channel]]
 .ETC1S channel names
 [options="header"]
 |====================
 ^| Enumerant ^| Value
-^| *++KHR_DF_CHANNEL_ETC1S_COLOR++* 1.2+^.^| 0
-^| *++KHR_DF_CHANNEL_ETC1S_DATA++*
+^| *++KHR_DF_CHANNEL_ETC1S_RGB++* ^| 0
+^| *++KHR_DF_CHANNEL_ETC1S_RRR++* ^| 3
+^| *++KHR_DF_CHANNEL_ETC1S_GGG++* ^| 4
+^| *++KHR_DF_CHANNEL_ETC1S_AAA++* ^| 15
 |====================
 
 [[example_etc1s]]
-.Example ETC1S descriptor
+.Example ETC1S RGB descriptor
 [width="97%"]
 |================================
 32+^| *~++uint32_t++ bit~*
@@ -2988,7 +3089,38 @@ The enumerant names for this channel id are listed in <<etc1s_channel>>.
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 8
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RGB++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 0
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 0
+32+^| *_sampleUpper:_* *++UINT32_MAX++*
+|================================
+
+[[example_etc1s_plus]]
+.Example ETC1S RGB + alpha descriptor
+[width="97%"]
+|================================
+32+^| *~++uint32_t++ bit~*
+^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
+32+^| *_totalSize:_* 60
+15+^| *_descriptorType:_* 0 17+^| *_vendorId:_* 0
+16+^| *_descriptorBlockSize:_* 24 + (16 {times} 2) = 56 16+^| *_versionNumber:_* 2
+8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++ETC1S++*
+8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
+8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
+8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 8 8+^| *_bytesPlane0:_* 8
+8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^|
+~Color sample information~
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RGB++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 0
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 0
+32+^| *_sampleUpper:_* *++UINT32_MAX++*
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^|
+~Alpha sample information~
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++AAA++* 8+^| *_bitLength:_* 63 (= ``64'')
+16+^| *_bitOffset:_* 64
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
@@ -2996,14 +3128,16 @@ The enumerant names for this channel id are listed in <<etc1s_channel>>.
 |================================
 
 <<<
-==== *++KHR_DF_MODEL_PVRTC++* (= 164) ====
+==== [[KHR_DF_MODEL_PVRTC]]*++KHR_DF_MODEL_PVRTC++* (= 164) ====
 
 This model represents the first generation of PowerVR Texture Compression
 as a single channel in a texel block of 8 bytes. 4-bit-per-pixel mode
 represents a 4{times}4 texel block; 2-bit-per-pixel mode represents an
-8{times}4 texel block, and these can be distinguished by changing the texel
-block size fields in the data format. The single sample has a size of 64
-bits.
+8{times}4 texel block, and these can be distinguished by changing the
+*_texelBlockDimension_* fields in the data format, or by the combination
+of *_texelBlockDimensions_* and the spacing between *_samplePositions_*
+if there are multiple compression blocks within a single data format texel
+block. A single sample occupies 64 bits.
 
 The enumerant names for this channel id are listed in <<pvrtc_channel>>.
 
@@ -3062,14 +3196,16 @@ The enumerant names for this channel id are listed in <<pvrtc_channel>>.
 |================================
 
 <<<
-==== *++KHR_DF_MODEL_PVRTC2++* (= 165) ====
+==== [[KHR_DF_MODEL_PVRTC2]]*++KHR_DF_MODEL_PVRTC2++* (= 165) ====
 
 This model represents the second generation of PowerVR Texture Compression
 as a single channel in a texel block of 8 bytes. 4-bit-per-pixel mode
 represents a 4{times}4 texel block; 2-bit-per-pixel mode represents an
-8{times}4 texel block, and these can be distinguished by changing the texel
-block size fields in the data format. The single sample has a size of 64
-bits.
+8{times}4 texel block, and these can be distinguished by changing the
+*_texelBlockDimension_* fields in the data format, or by the combination
+of *_texelBlockDimensions_* and the spacing between *_samplePositions_*
+if there are multiple compression blocks within a single data format texel
+block. A single sample occupies 64 bits.
 
 The enumerant names for this channel id are listed in <<pvrtc2_channel>>.
 
@@ -3128,6 +3264,92 @@ The enumerant names for this channel id are listed in <<pvrtc2_channel>>.
 |================================
 
 <<<
+==== [[KHR_DF_MODEL_UASTC]]*++KHR_DF_MODEL_UASTC++* (= 166) ====
+
+This model represents Universal Adaptive Scalable Texture Compression
+(UASTC) as a single channel in a texel block of 16 bytes. UASTC
+supports only LDR (low dynamic range) modes so the *_qualifiers_*
+*++KHR_DF_SAMPLE_DATATYPE_FLOAT++* bit must be clear.  UASTC supports
+a single compression ratio with texel block dimensions of 4{times}4.
+
+UASTC encoding is described in <<UASTC>>. This model is designed to
+facilitate transcoding to GPU-specific compressed models.
+
+A single 128-bit sample with channel ID 0 indicates that the texture
+contains no alpha-mode blocks. A single sample with channel Id 4
+indicates the texture effectively contains R replicated in the G &
+B channels.  Similarly channel Id 5 indicates it contains R effectively
+replicated in the G & B channels and G in the alpha channel and it
+contains at least one alpha-mode block. Channel Id 6 indicates that the
+texture contains two channels, R & G. Finally channel Id 3
+indicates the texture contains at least one alpha-mode block. The
+non-zero channel Ids give helpful information for choosing a transcode
+target format and do not reflect and do not constrain the mode an
+encoder may select for any given block.
+
+The enumerant name for these channel ids are listed in <<uastc_channels>>.
+
+[[uastc_channels]]
+.UASTC channel names
+[options="header"]
+|====================
+^| Enumerant ^| Value
+^| *++KHR_DF_CHANNEL_UASTC_RGB++* ^| 0
+^| *++KHR_DF_CHANNEL_UASTC_RGBA++* ^| 3
+^| *++KHR_DF_CHANNEL_UASTC_RRR++* ^| 4
+^| *++KHR_DF_CHANNEL_UASTC_RRRG++* ^| 5
+^| *++KHR_DF_CHANNEL_UASTC_RG++* ^| 6
+|====================
+
+<<<
+
+[[example_uastc_noalpha]]
+.Example UASTC descriptor with no alpha
+[width="97%"]
+|================================
+32+^| *~++uint32_t++ bit~*
+^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
+32+^| *_totalSize:_* 44
+15+^| *_descriptorType:_* 0 17+^| *_vendorId:_* 0
+16+^| *_descriptorBlockSize:_* 24 + (16 {times} 1) = 40 16+^| *_versionNumber:_* 2
+8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_*
+*++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++UASTC++*
+8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
+8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
+8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 16
+8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RGB++* 8+^| *_bitLength:_* 127 (= ``128'') 16+^| *_bitOffset:_* 0
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 0
+32+^| *_sampleUpper:_* *++UINT32_MAX++*
+|================================
+
+[[example_uastc_alpha]]
+.Example UASTC descriptor with alpha
+[width="97%"]
+|================================
+32+^| *~++uint32_t++ bit~*
+^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
+32+^| *_totalSize:_* 44
+15+^| *_descriptorType:_* 0 17+^| *_vendorId:_* 0
+16+^| *_descriptorBlockSize:_* 24 + (16 {times} 1) = 40 16+^| *_versionNumber:_* 2
+8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_*
+*++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++UASTC++*
+8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
+8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
+8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 16
+8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RGBA++* 8+^| *_bitLength:_* 127 (= ``128'') 16+^| *_bitOffset:_* 0
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 0
+32+^| *_sampleUpper:_* *++UINT32_MAX++*
+|================================
+
+<<<
 === *_colorPrimaries_* ===
 
 It is not sufficient to define a buffer as containing, for example,
@@ -3152,7 +3374,7 @@ More information about color primaries is provided in <<PRIMARY_CONVERSION>>.
 *++khr_df_primaries_e++* *_colorPrimaries_* = *++KHR_DF_MASK_PRIMARIES++* & +
 (++bdb++[*++KHR_DF_WORD_PRIMARIES++*] >> *++KHR_DF_SHIFT_PRIMARIES++*);
 
-==== *++KHR_DF_PRIMARIES_UNSPECIFIED++* (= 0) ====
+==== [[KHR_DF_PRIMARIES_UNSPECIFIED]]*++KHR_DF_PRIMARIES_UNSPECIFIED++* (= 0) ====
 
 This ``set of primaries'' identifies a data representation whose color
 representation is unknown or which does not fit into this list of
@@ -3165,7 +3387,7 @@ indicate that samples represent ``red'', ``green'' and ``blue'', but should
 mark the primaries here as ``unspecified'' and provide a detailed
 description in an extension block.
 
-==== *++KHR_DF_PRIMARIES_BT709++* (= 1) ====
+==== [[KHR_DF_PRIMARIES_BT709]]*++KHR_DF_PRIMARIES_BT709++* (= 1) ====
 
 This value represents the Color Primaries defined by the
 <<bt709,ITU-R BT.709 specification>> and described in <<PRIMARIES_BT709>>,
@@ -3184,7 +3406,7 @@ a sensible default set of color primaries for common rendering operations.
 
 *++KHR_DF_PRIMARIES_SRGB++* is provided as a synonym for *++KHR_DF_PRIMARIES_BT709++*.
 
-==== *++KHR_DF_PRIMARIES_BT601_EBU++* (= 2) ====
+==== [[KHR_DF_PRIMARIES_BT601_EBU]]*++KHR_DF_PRIMARIES_BT601_EBU++* (= 2) ====
 
 This value represents the Color Primaries defined in the
 <<bt601,ITU-R BT.601 specification>> for standard-definition television,
@@ -3192,7 +3414,7 @@ particularly for 625-line signals, and described in <<PRIMARIES_BT601_EBU>>.
 Conversion to and from BT.601 _Y&prime;C~B~C~R~_ (_YUV_) typically uses the color conversion
 matrix defined in the BT.601 specification and described in <<MODEL_BT601>>.
 
-==== *++KHR_DF_PRIMARIES_BT601_SMPTE++* (= 3) ====
+==== [[KHR_DF_PRIMARIES_BT601_SMPTE]]*++KHR_DF_PRIMARIES_BT601_SMPTE++* (= 3) ====
 
 This value represents the Color Primaries defined in the
 <<bt601,ITU-R BT.601 specification>> for standard-definition television,
@@ -3200,7 +3422,7 @@ particularly for 525-line signals, and described in <<PRIMARIES_BT601_SMPTE>>.
 Conversion to and from BT.601 _Y&prime;C~B~C~R~_ (_YUV_) typically uses the color conversion
 matrix defined in the BT.601 specification and described in <<MODEL_BT601>>.
 
-==== *++KHR_DF_PRIMARIES_BT2020++* (= 4) ====
+==== [[KHR_DF_PRIMARIES_BT2020]]*++KHR_DF_PRIMARIES_BT2020++* (= 4) ====
 
 This value represents the Color Primaries defined in the
 <<bt2020,ITU-R BT.2020 specification>> for ultra-high-definition television
@@ -3208,41 +3430,41 @@ and described in <<PRIMARIES_BT2020>>. Conversion to and from BT.2020 _Y&prime;C
 (_YUV_ uses the color conversion matrix defined in the BT.2020 specification
 and described in <<MODEL_BT2020>>.
 
-==== *++KHR_DF_PRIMARIES_CIEXYZ++* (= 5) ====
+==== [[KHR_DF_PRIMARIES_CIEXYZ]]*++KHR_DF_PRIMARIES_CIEXYZ++* (= 5) ====
 
 This value represents the theoretical Color Primaries defined
 by the International Color Consortium for the <<ciexyz,ICC XYZ>> linear
 color space.
 
-==== *++KHR_DF_PRIMARIES_ACES++* (= 6) ====
+==== [[KHR_DF_PRIMARIES_ACES]]*++KHR_DF_PRIMARIES_ACES++* (= 6) ====
 
 This value represents the Color Primaries defined
 for the <<aces,Academy Color Encoding System>> and
 described in <<PRIMARIES_ACES>>.
 
-==== *++KHR_DF_PRIMARIES_ACESCC++* (= 7) ====
+==== [[KHR_DF_PRIMARIES_ACESCC]]*++KHR_DF_PRIMARIES_ACESCC++* (= 7) ====
 
 This value represents the Color Primaries defined
 for the <<aces,Academy Color Encoding System>>
 compositor and described in <<PRIMARIES_ACESCC>>.
 
-==== *++KHR_DF_PRIMARIES_NTSC1953++* (= 8) ====
+==== [[KHR_DF_PRIMARIES_NTSC1953]]*++KHR_DF_PRIMARIES_NTSC1953++* (= 8) ====
 
 This value represents the Color Primaries defined for the
 NTSC 1953 color television transmission standard and described
 in <<PRIMARIES_NTSC>>.
 
-==== *++KHR_DF_PRIMARIES_PAL525++* (= 9) ====
+==== [[KHR_DF_PRIMARIES_PAL525]]*++KHR_DF_PRIMARIES_PAL525++* (= 9) ====
 
 This value represents the Color Primaries defined for
 525-line PAL signals, described in <<PRIMARIES_PAL525>>.
 
-==== *++KHR_DF_PRIMARIES_DISPLAYP3++* (= 10) ====
+==== [[KHR_DF_PRIMARIES_DISPLAYP3]]*++KHR_DF_PRIMARIES_DISPLAYP3++* (= 10) ====
 
 This value represents the Color Primaries defined for
 the Display P3 color space, described in <<PRIMARIES_DISPLAYP3>>.
 
-==== *++KHR_DF_PRIMARIES_ADOBERGB++* (= 11) ====
+==== [[KHR_DF_PRIMARIES_ADOBERGB]]*++KHR_DF_PRIMARIES_ADOBERGB++* (= 11) ====
 
 This value represents the Color Primaries defined in
 <<adobergb,Adobe RGB (1998)>>, described in <<PRIMARIES_ADOBERGB>>.
@@ -3250,7 +3472,7 @@ This value represents the Color Primaries defined in
 <<<
 === *_transferFunction_* ===
 
-Many color representations contain a non-linear _transfer function_
+Many color representations contain a nonlinear _transfer function_
 which maps between a linear (intensity-based) representation and
 a more perceptually-uniform encoding; more information is provided
 in <<TRANSFER_CONVERSION>>.
@@ -3296,15 +3518,24 @@ intermediate values to which the transfer function should apply.
 
 The enumerant value for each of the following transfer functions is
 shown in parentheses alongside the title.
+The use of the enumerated transform (for nonlinear transforms) indicates
+that the value is stored in a nonlinear encoding (that is, an OETF or
+EOTF^-1^ has been applied to linear values), and to process the data in
+linear form a corresponding inverse transfer function (OETF^-1^ or EOTF)
+will need to be applied to the numerical encoded value.
+(For clarity, it is _not_ the case that the value is stored in linear
+form and there is an expectation of converting to a nonlinear
+representation before use -- the DFD describes how to interpret the
+stored representation, not how to use it after decoding.)
 
-==== *++KHR_DF_TRANSFER_UNSPECIFIED++* (= 0) ====
+==== [[KHR_DF_TRANSFER_UNSPECIFIED]]*++KHR_DF_TRANSFER_UNSPECIFIED++* (= 0) ====
 
 This value should be used when the transfer function is unknown,
 or specified only in an extension block, precluding conversion of
 color spaces and correct filtering of the data values using only
 the information in the basic descriptor block.
 
-==== *++KHR_DF_TRANSFER_LINEAR++* (= 1) ====
+==== [[KHR_DF_TRANSFER_LINEAR]]*++KHR_DF_TRANSFER_LINEAR++* (= 1) ====
 
 This value represents a linear transfer function: for color data,
 there is a linear relationship between numerical pixel values and
@@ -3312,9 +3543,14 @@ the intensity of additive colors. This transfer function allows for
 blending and filtering operations to be applied directly to the data
 values.
 
-==== *++KHR_DF_TRANSFER_SRGB++* (= 2) ====
+<<<
 
-This value represents the non-linear transfer function defined in
+==== [[KHR_DF_TRANSFER_SRGB]]*++KHR_DF_TRANSFER_SRGB++* (= 2) ====
+
+(Aliases: *++KHR_DF_TRANSFER_SRGB_EOTF++*,
+*++KHR_DF_TRANSFER_SCRGB++*, *++KHR_DF_TRANSFER_SRGB_EOTF++*)
+
+This value represents the nonlinear transfer function defined in
 the <<srgb,sRGB specification>> for mapping between numerical pixel
 values and displayed light intensity, as described in <<TRANSFER_SRGB>>.
 
@@ -3324,12 +3560,19 @@ values and displayed light intensity, as described in <<TRANSFER_SRGB>>.
 | Mapping from encoding to linear intensity | EOTF | <<TRANSFER_SRGB_EOTF>>
 |==========
 
-Encoded values outside the range 0..1 use the extended formulae
-for EOTF and EOTF^-1^ described in <<TRANSFER_SCRGB_EOTF>>.
+Encoded values outside the range 0..1 (as in scRGB) use the extended
+formulae for EOTF and EOTF^-1^ described in <<TRANSFER_SCRGB_EOTF>>.
 
-==== *++KHR_DF_TRANSFER_ITU++* (= 3) ====
+==== [[KHR_DF_TRANSFER_ITU]]*++KHR_DF_TRANSFER_ITU++* (= 3) ====
 
-This value represents the non-linear transfer function defined by
+(Aliases: *++KHR_DF_TRANSFER_ITU_OETF++*,
+*++KHR_DF_TRANSFER_BT601++*, *++KHR_DF_TRANSFER_BT601_OETF++*,
+*++KHR_DF_TRANSFER_BT709++*, *++KHR_DF_TRANSFER_BT709_OETF++*,
+*++KHR_DF_TRANSFER_BT2020++*, *++KHR_DF_TRANSFER_BT2020_OETF++*,
+*++KHR_DF_TRANSFER_SMPTE170M++*, *++KHR_DF_TRANSFER_SMPTE170M_OETF++*,
+*++KHR_DF_TRANSFER_SMPTE170M_EOTF++*)
+
+This value represents the nonlinear transfer function defined by
 the ITU and used in the BT.601, BT.709 and BT.2020 specifications
 for mapping between represented scene light intensity and numerical
 pixel values, as described in <<TRANSFER_ITU>>.
@@ -3340,9 +3583,11 @@ pixel values, as described in <<TRANSFER_ITU>>.
 | Mapping from encoding to linear intensity | OETF^&nbsp;-1^ | <<TRANSFER_ITU_INVOETF>>
 |==========
 
-==== *++KHR_DF_TRANSFER_NTSC++* (= 4) ====
+==== [[KHR_DF_TRANSFER_NTSC]]*++KHR_DF_TRANSFER_NTSC++* (= 4) ====
 
-This value represents the non-linear transfer function defined by
+(Alias: *++KHR_DF_TRANSFER_NTSC_EOTF++*)
+
+This value represents the nonlinear transfer function defined by
 the original NTSC television broadcast specification for mapping
 between represented scene light intensity or display light intensity
 and numerical pixel values, as described in <<TRANSFER_LEGACY_NTSC>>.
@@ -3356,7 +3601,9 @@ and numerical pixel values, as described in <<TRANSFER_LEGACY_NTSC>>.
 NOTE: More recent formulations of this transfer functions, such as that
 defined in SMPTE 170M-2004, use the ``ITU'' formulation described above.
 
-==== *++KHR_DF_TRANSFER_SLOG++* (= 5) ====
+==== [[KHR_DF_TRANSFER_SLOG]]*++KHR_DF_TRANSFER_SLOG++* (= 5) ====
+
+(Alias: *++KHR_DF_TRANSFER_SLOG_OETF++*)
 
 This value represents a nonlinear Transfer Function between linear
 scene light intensity and nonlinear pixel values, used by some
@@ -3369,7 +3616,9 @@ and is described in <<TRANSFER_SLOG>>.
 | Mapping from encoding to linear intensity | OETF^&nbsp;-1^
 |==========
 
-==== *++KHR_DF_TRANSFER_SLOG2++* (= 6) ====
+==== [[KHR_DF_TRANSFER_SLOG2]]*++KHR_DF_TRANSFER_SLOG2++* (= 6) ====
+
+(Alias: *++KHR_DF_TRANSFER_SLOG2_OETF++*)
 
 This value represents a nonlinear Transfer Function between linear
 scene light intensity and nonlinear pixel values, used by some
@@ -3382,7 +3631,9 @@ and is described in <<TRANSFER_SLOG2>>.
 | Mapping from encoding to linear intensity | OETF^&nbsp;-1^
 |==========
 
-==== *++KHR_DF_TRANSFER_BT1886++* (= 7) ====
+==== [[KHR_DF_TRANSFER_BT1886]]*++KHR_DF_TRANSFER_BT1886++* (= 7) ====
+
+(Alias: *++KHR_DF_TRANSFER_BT1886_EOTF++*)
 
 This value represents the nonlinear latexmath:[$\gamma = 2.4$]
 EOTF between encoded pixel values and linear image intensity defined
@@ -3394,13 +3645,18 @@ in <<bt1886,BT.1886>> and described in <<TRANSFER_BT1886>>.
 | Mapping from encoding to linear intensity | EOTF | latexmath:[$\{R,G,B\} = \{R',G',B'\}^{1\over{2.4}}$]
 |==========
 
-<<<
-==== *++KHR_DF_TRANSFER_HLG_OETF++* (= 8) ====
+==== [[KHR_DF_TRANSFER_HLG_OETF]]*++KHR_DF_TRANSFER_HLG_OETF++* (= 8) ====
 
-This value represents the Hybrid Log Gamma OETF between linear
+This value represents the Hybrid Log Gamma OETF between normalized linear
 scene light intensity and nonlinear pixel values, defined by the
 ITU in BT.2100 for high dynamic range television, and described
 in <<TRANSFER_HLG>>.
+
+NOTE: Content marked *++KHR_DF_TRANSFER_HLG_OETF++* and *++KHR_DF_TRANSFER_HLG_EOTF++*
+may typically be processed identically, with whichever transfer function
+corresponds to the target color space desired; the two distinct enumerants
+can be used to express the space in which the content was authored.
+Most HLG video content is authored using the scene-referred OETF.
 
 [width="60%",cols="^8,^2,^3"]
 |==========
@@ -3408,12 +3664,18 @@ in <<TRANSFER_HLG>>.
 | Mapping from encoding to linear intensity | OETF^&nbsp;-1^ | <<TRANSFER_HLG_IOETF_NORM>>
 |==========
 
-==== *++KHR_DF_TRANSFER_HLG_EOTF++* (= 9) ====
+==== [[KHR_DF_TRANSFER_HLG_EOTF]]*++KHR_DF_TRANSFER_HLG_EOTF++* (= 9) ====
 
 This value represents the Hybrid Log Gamma EOTF between nonlinear
-pixel values and linear image light intensity, defined by the ITU
-in BT.2100 for high dynamic range television, and described in
+pixel values and normalized linear image light intensity, defined by the
+ITU in BT.2100 for high dynamic range television, and described in
 <<TRANSFER_HLG>>.
+
+NOTE: Content marked *++KHR_DF_TRANSFER_HLG_OETF++* and *++KHR_DF_TRANSFER_HLG_EOTF++*
+may typically be processed identically, with whichever transfer function
+corresponds to the target color space desired; the two distinct enumerants
+can be used to express the space in which the content was authored.
+Most HLG video content is authored using the scene-referred OETF.
 
 [width="60%",cols="^8,^2,^3"]
 |==========
@@ -3421,12 +3683,20 @@ in BT.2100 for high dynamic range television, and described in
 | Mapping from encoding to linear intensity | EOTF | <<TRANSFER_HLG_EOTF_NORM>>
 |==========
 
-==== *++KHR_DF_TRANSFER_PQ_EOTF++* (= 10) ====
+<<<
+
+==== [[KHR_DF_TRANSFER_PQ_EOTF]]*++KHR_DF_TRANSFER_PQ_EOTF++* (= 10) ====
 
 This value represents the Perceptual Quantization EOTF between
 nonlinear pixel values and linear image light intensity, defined
 by the ITU in BT.2100 for high dynamic range television, and
 described in <<TRANSFER_PQ>>.
+
+NOTE: Content marked *++KHR_DF_TRANSFER_PQ_OETF++* and *++KHR_DF_TRANSFER_PQ_EOTF++*
+may typically be processed identically, with whichever transfer function
+corresponds to the target color space desired; the two distinct enumerants
+can be used to express the space in which the content was authored.
+Most PQ video content is authored using the display-referred EOTF.
 
 [width="60%",cols="^8,^2,^3"]
 |==========
@@ -3434,12 +3704,18 @@ described in <<TRANSFER_PQ>>.
 | Mapping from encoding to linear intensity | EOTF | <<TRANSFER_PQ_EOTF>>
 |==========
 
-==== *++KHR_DF_TRANSFER_PQ_OETF++* (= 11) ====
+==== [[KHR_DF_TRANSFER_PQ_OETF]]*++KHR_DF_TRANSFER_PQ_OETF++* (= 11) ====
 
 This value represents the Perceptual Quantization OETF between
 linear scene light intensity and nonlinear pixel values, defined
 by the ITU in BT.2100 for high dynamic range television, and
 described in <<TRANSFER_PQ>>.
+
+NOTE: Content marked *++KHR_DF_TRANSFER_PQ_OETF++* and *++KHR_DF_TRANSFER_PQ_EOTF++*
+may typically be processed identically, with whichever transfer function
+corresponds to the target color space desired; the two distinct enumerants
+can be used to express the space in which the content was authored.
+Most PQ video content is authored using the display-referred EOTF.
 
 [width="60%",cols="^8,^2,^3"]
 |==========
@@ -3447,7 +3723,9 @@ described in <<TRANSFER_PQ>>.
 | Mapping from encoding to linear intensity | OETF^&nbsp;-1^ | <<TRANSFER_PQ_IOETF>>
 |==========
 
-==== *++KHR_DF_TRANSFER_DCIP3++* (= 12) ====
+==== [[KHR_DF_TRANSFER_DCIP3]]*++KHR_DF_TRANSFER_DCIP3++* (= 12) ====
+
+(Alias: *++KHR_DF_TRANSFER_DCIP3_EOTF++*)
 
 This value represents the transfer function between nonlinear pixel
 values and linear image light intensity defined in DCI P3 and described
@@ -3459,8 +3737,7 @@ in <<TRANSFER_DCIP3>>.
 | Mapping from encoding to linear intensity | EOTF
 |==========
 
-<<<
-==== *++KHR_DF_TRANSFER_PAL_OETF++* (= 13) ====
+==== [[KHR_DF_TRANSFER_PAL_OETF]]*++KHR_DF_TRANSFER_PAL_OETF++* (= 13) ====
 
 This value represents the OETF between linear scene light intensity
 and nonlinear pixel values for legacy PAL systems described
@@ -3472,7 +3749,8 @@ in <<TRANSFER_LEGACY_PAL_OETF>>.
 | Mapping from encoding to linear intensity | OETF^&nbsp;-1^
 |==========
 
-==== *++KHR_DF_TRANSFER_PAL625_EOTF++* (= 14) ====
+<<<
+==== [[KHR_DF_TRANSFER_PAL625_EOTF]]*++KHR_DF_TRANSFER_PAL625_EOTF++* (= 14) ====
 
 This value represents the EOTF between nonlinear pixel values and
 linear image light intensity for legacy 625-line PAL systems
@@ -3484,11 +3762,15 @@ described in <<TRANSFER_LEGACY_PAL_EOTF>>.
 | Mapping from encoding to linear intensity | EOTF
 |==========
 
-==== *++KHR_DF_TRANSFER_ST240++* (= 15) ====
+==== [[KHR_DF_TRANSFER_ST240]]*++KHR_DF_TRANSFER_ST240++* (= 15) ====
 
-This value represents the transfer function between linear scene
-light intensity and nonlinear pixel values associated with the
+(Aliases: *++KHR_DF_TRANSFER_ST240_OETF++*, *++KHR_DF_TRANSFER_ST240_EOTF++*)
+
+This value represents the transfer function between linear scene and
+display light intensity and nonlinear pixel values associated with the
 legacy ST-240 (SMPTE240M) standard, described in <<TRANSFER_ST240>>.
+Note that this standard has a linear OOTF, and therefore the EOTF
+and OETF are symmetrical.
 
 [width="60%",cols="^8,^4"]
 |==========
@@ -3496,7 +3778,9 @@ legacy ST-240 (SMPTE240M) standard, described in <<TRANSFER_ST240>>.
 | Mapping from encoding to linear intensity | EOTF / OETF^&nbsp;-1^
 |==========
 
-==== *++KHR_DF_TRANSFER_ACESCC++* (= 16) ====
+==== [[KHR_DF_TRANSFER_ACESCC]]*++KHR_DF_TRANSFER_ACESCC++* (= 16) ====
+
+(Alias: *++KHR_DF_TRANSFER_ACESCC_OETF++*)
 
 This value represents the nonlinear transfer function between
 linear scene light intensity and nonlinear pixel values used in
@@ -3510,7 +3794,9 @@ for use within Color Grading Systems, S-2014-003, defined in
 | Mapping from encoding to linear intensity | OETF^&nbsp;-1^
 |==========
 
-==== *++KHR_DF_TRANSFER_ACESCCT++* (= 17) ====
+==== [[KHR_DF_TRANSFER_ACESCCT]]*++KHR_DF_TRANSFER_ACESCCT++* (= 17) ====
+
+(Alias: *++KHR_DF_TRANSFER_ACESCCT_OETF++*)
 
 This value represents the nonlinear transfer function between
 linear scene light intensity and nonlinear pixel values used in
@@ -3524,10 +3810,42 @@ system for use within Color Grading Systems, S-2016-001, defined in
 | Mapping from encoding to linear intensity | OETF^&nbsp;-1^
 |==========
 
-==== *++KHR_DF_TRANSFER_ADOBERGB++* (= 18) ====
+<<<
+==== [[KHR_DF_TRANSFER_ADOBERGB]]*++KHR_DF_TRANSFER_ADOBERGB++* (= 18) ====
+
+(Alias: *++KHR_DF_TRANSFER_ADOBERGB_EOTF++*)
 
 This value represents the transfer function defined in the
 Adobe RGB (1998) specification and described in <<TRANSFER_ADOBERGB>>.
+
+[width="60%",cols="^8,^4"]
+|==========
+| Mapping from linear intensity to encoding | EOTF^&nbsp;-1^
+| Mapping from encoding to linear intensity | EOTF
+|==========
+
+==== [[KHR_DF_TRANSFER_HLG_UNNORMALIZED_OETF]]*++KHR_DF_TRANSFER_HLG_UNNORMALIZED_OETF++* (= 19) ====
+
+This value represents the Hybrid Log Gamma OETF between unnormalized linear
+scene light intensity and nonlinear pixel values, defined by the
+ITU in BT.2100 for high dynamic range television, and described
+in <<TRANSFER_HLG>>.
+
+++KHR_DF_TRANSFER_HLG_UNNORMALIZED_OETF++ and
+++KHR_DF_TRANSFER_HLG_UNNORMALIZED_EOTF++ content may typically be processed
+identically, with whichever transfer function corresponds to the target
+color space desired; the two distinct enumerants can be used to express
+the space in which the content was authored.
+Most HLG video content is authored using the scene-referred OETF.
+Since the normalization affects the scale factor applied to the
+linear scene illumination, there is no ``unnormalized version''
+of the EOTF.
+
+[width="60%",cols="^8,^2,^3"]
+|==========
+| Mapping from linear intensity to encoding | OETF | <<TRANSFER_HLG_OETF_UNNORM>>
+| Mapping from encoding to linear intensity | OETF^&nbsp;-1^ | <<TRANSFER_HLG_IOETF_UNNORM>>
+|==========
 
 <<<
 === *_flags_* ===
@@ -3548,7 +3866,7 @@ boolean flags; these are described in the enumeration
 *++khr_df_flags_e++* *_flags_* = *++KHR_DF_MASK_FLAGS++* &
 (++bdb++[*++KHR_DF_WORD_FLAGS++*] >> *++KHR_DF_SHIFT_FLAGS++*);
 
-==== *++KHR_DF_FLAG_ALPHA_PREMULTIPLIED++* (= 1) ====
+==== [[KHR_DF_FLAG_ALPHA_PREMULTIPLIED]]*++KHR_DF_FLAG_ALPHA_PREMULTIPLIED++* (= 1) ====
 
 If the *++KHR_DF_FLAG_ALPHA_PREMULTIPLIED++* bit is set, any color
 information in the data should be interpreted as having been
@@ -3718,7 +4036,7 @@ the texel block, as shown in <<SampleOverview>>.
 |================================
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
-^| *_F_* ^| *_S_* ^| *_E_* ^| *_L_* 4+^| *_channelType_* 8+^| *_bitLength_* 16+^| *_bitOffset_*
+^| *_F_* ^| *_S_* ^| *_E_* ^| *_L_* 4+^| *_channelId_* 8+^| *_bitLength_* 16+^| *_bitOffset_*
 8+^| *_samplePosition3_* 8+^| *_samplePosition2_* 8+^| *_samplePosition1_* 8+^| *_samplePosition0_*
 32+^| *_sampleLower_*
 32+^| *_sampleUpper_*
@@ -3783,8 +4101,9 @@ shared exponent formats, require that bits be reused.
 Nor is there a requirement that all the bits in a plane be used
 (a format may contain padding).
 
-It is unusual but legal for a descriptor block to contain no
-samples provided the color model is *++KHR_DF_MODEL_UNSPECIFIED++*.
+It is legal for a descriptor block to contain no samples provided
+the color model is *++KHR_DF_MODEL_UNSPECIFIED++*, although this is
+unusual.
 See <<UNSIZED>> for details.
 
 <<<
@@ -3827,10 +4146,19 @@ which begins at an offset of one byte relative to the data format
 would have a *_bitOffset_* of 8.
 The *_bitOffset_* is an unsigned 16-bit integer quantity.
 
+A sample that only provides additional bits to *_sampleLower_*
+and *_sampleUpper_* without extending the size of the encoded field,
+as potentially required for custom floating point formats described in
+<<customfp>>, should be encoded with values of *_bitOffset_*,
+*_channelType_* and *_samplePosition_* identical to the sample that
+it extends (as in <<exampledescriptor_ufloat40>>).
+
 In the special case that the *_bitOffset_* field contains the reserved
 value 0xFFFF, the sample contributes a constant value of the specified bit
 length, encoded in the *_sampleLower_* field.
-This mechanism notably supports values that are zero-extended.
+This mechanism notably supports values that are zero-extended
+(that is, have implicit zeroes in their least-significant bits),
+since this sample can appear first.
 
 .Field location information for sample *_bitOffset_*
 [cols="7,10,2"]
@@ -3850,26 +4178,33 @@ The *_bitLength_* field describes the number of consecutive bits from
 the concatenated bit stream that contribute to the sample. This field
 is an unsigned 8-bit integer quantity, and stores the number of bits
 contributed minus 1; thus a single-byte channel should have a *_bitLength_*
-field value of 7. If a *_bitLength_* of more than 256 is required, further
-samples should be added; the value for the sample is composed in
-increasing order from least to most significant bit as subsequent
-samples are processed.
+field value of 7. If a *_bitLength_* over 256 is required, further
+samples should be added; the final value is accumulated in increasing
+order from least- to most-significant bit with each subsequent sample.
 
-Note that a large *_bitLength_* value means a sample can encode more
-bits than can be described in the *_sampleLower_* and *_sampleUpper_*
+Note that a large *_bitLength_* value means a sample can describe more
+bits than can be contained in the *_sampleLower_* and *_sampleUpper_*
 fields.
-If the rules for expanding the *_sampleLower_* and *_sampleUpper_*
-values in this case produce the desired result, *_bitLength_* can exceed
-32; otherwise the *_bitLength_* should be limited and multiple samples
-used to encode *_sampleLower_* and *_sampleUpper_*: there is no way to
-indicate a sample contribution of zero bits for a sample that exists only
-to expand upon *_sampleLower_* and *_sampleUpper_*.
+The *_bitLength_* of the sample can exceed 32 if in this case the rules
+for expanding *_sampleLower_* and *_sampleUpper_* produce the desired result.
+Otherwise the *_bitLength_* should be limited to 32 and multiple samples
+used to encode additional bits of *_sampleLower_* and *_sampleUpper_*,
+with each sample before the last contributing 32 bits.
 
-Except in the case of a paletted texture (described in <<PALETTED>>) or
-where the special *_bitOffset_* value 0xFFFF is used to indicate constant bits,
-the *_bitLength_* added to *_bitOffset_* should not be greater than eight
-times the total number of bytes contributed to the logical bit stream by
-the *_bytesPlane_* values.
+A sample that provides additional bits to *_sampleLower_* and
+*_sampleUpper_* without extending the size of the encoded field,
+as potentially required for custom floating point formats, should have
+a *_bitLength_* encoding of zero (normally indicating a length of 1),
+as in <<exampledescriptor_ufloat40>>.
+The number of bits contributed by *_sampleLower_* and *_sampleUpper_*
+in this case can be deduced indirectly, as described in <<customfp>>.
+
+Except in the case of a paletted texture (described in <<PALETTED>>),
+where the sample provides only additional bits of *_sampleLower_* or
+*_sampleUpper_* data, or where the special *_bitOffset_* value 0xFFFF
+is used to indicate constant bits, the *_bitLength_* added to
+*_bitOffset_* should not exceed eight times the total number of bytes
+contributed to the logical bit stream by the *_bytesPlane_* values.
 
 In the descriptor block examples in this specification, bit lengths are
 shown as the value to be stored in the *_bitLength_* field, but with the
@@ -3888,16 +4223,16 @@ represented number (without the -1 offset) in parentheses for clarity.
 {plus} *++KHR_DF_SAMPLEWORD_BITLENGTH++*]) >> *++KHR_DF_SAMPLESHIFT_BITLENGTH++*);
 
 <<<
-=== Sample *_channelType_* and qualifiers ===
+=== Sample *_channelType_*: *_channelId_* and qualifiers ===
 
 The *_channelType_* field is an unsigned 8-bit quantity.
 
-The bottom four bits of the *_channelType_* indicates which channel is being
-described by this sample. The list of available channels is determined by
-the *_colorModel_* field of the Basic Data Format Descriptor Block, and the
-*_channelType_* field contains the number of the required channel within this
-list -- see the <<COLORMODEL,*_colorModel_*>> field for the list of channels
-for each model.
+The bottom four bits of the *_channelType_* indicate the *_channelId_*
+which determines which channel is being described by this sample.
+The list of available channels is determined by the *_colorModel_* field of
+the Basic Data Format Descriptor Block, and the *_channelId_* field
+contains the number of the required channel within this list -- see the
+<<COLORMODEL,*_colorModel_*>> field for the list of channels for each model.
 
 .Field location information for sample *_channelType_*
 [cols="7,10,2"]
@@ -3911,8 +4246,8 @@ for each model.
 ((++bdb++[*++KHR_DF_WORD_SAMPLESTART++* {plus} (_sample_ {times} *++KHR_DF_WORD_SAMPLEWORDS++*) +
 {plus} *++KHR_DF_SAMPLEWORD_CHANNELID++*]) >> *++KHR_DF_SAMPLESHIFT_CHANNELID++*);
 
-The top four bits of the *_channelType_* are described by the
-*++khr_df_sample_datatype_qualifiers_e++* enumeration:
+The *++khr_df_sample_datatype_qualifiers_e++* enumeration
+describes the top four bits of the *_channelType_*:
 
 .Field location information for sample *_qualifiers_*
 [cols="7,10,2"]
@@ -3948,33 +4283,53 @@ For samples in which the *++KHR_DF_SAMPLE_DATATYPE_EXPONENT++* bit is not set:
   <<SampleOverview>>, is set, the sample holds a signed value in two's
   complement form.
   If this bit is _not_ set, the sample holds an unsigned value.
-  It is possible to represent a sign/magnitude integer value by having a
-  sample of unsigned integer type with the same channel and sample location,
-  as a 1-bit signed sample.
+  It is possible to represent a sign/magnitude integer value by following a
+  sample of unsigned integer type with  a 1-bit signed sample of the
+  same channel and sample position.
+  By convention, the *_sampleUpper_* and *_sampleLower_* values for a sign
+  bit are 0 and -1 respectively.
 
 * If the *++KHR_DF_SAMPLE_DATATYPE_FLOAT++* bit, shown as *_F_* in
-  <<SampleOverview>>, is set, the sample holds floating point data in a
-  conventional format of 10, 11 or 16 bits, as described in <<fpformats>>,
-  or of 32, or 64 bits as described in <<IEEE 754>>.
+  <<SampleOverview>>, is set, and there is no corresponding modifier
+  sample for the same position and channel id, this sample holds floating
+  point data in a conventional format of 10, 11 or 16 bits, as described
+  in <<fpformats>>, or of 32, or 64 bits as described in <<IEEE 754>>.
   Unless a genuine unsigned format is intended,
   *++KHR_DF_SAMPLE_DATATYPE_SIGNED++* (bit *_S_*) should also be set.
-  Less common floating point representations can be generated with
+  Less-common floating point representations can be generated with
   multiple samples and a combination of signed integer, unsigned integer
-  and exponent fields, as described above and in <<customfp>>.
+  and exponent fields, as described above and in <<customfp>>, in which
+  case the *++KHR_DF_SAMPLE_DATATYPE_FLOAT++* bit instead indicates the
+  presence of an implicit ``1'' (as described below).
 
 <<<
+* If a sample represents part of a _base value_ of a custom floating
+  point format (which can be identified by the descriptor containing
+  other samples of the same channel and position with the
+  *++KHR_DF_SAMPLE_DATATYPE_EXPONENT++* bit set, indicating
+  that these other samples contain a _modifier_), the
+  *++KHR_DF_SAMPLE_DATATYPE_FLOAT++* bit determines the presence or
+  absence of an ``implicit 1'' bit in the base value.
+  If the *++KHR_DF_SAMPLE_DATATYPE_FLOAT++* bit is set, the base value
+  is stored with an ``implicit 1'' above the topmost bit (as though
+  an additional sample added a constant 1 bit at this position).
+  Otherwise, the base value stores the 1 bit explicitly.
+  All samples contributing to a base value (including a separate
+  sign bit if present) should set the *++KHR_DF_SAMPLE_DATATYPE_FLOAT++*
+  bit consistently.
+
 If the *++KHR_DF_SAMPLE_DATATYPE_EXPONENT++* bit, shown as *_E_* in
 <<SampleOverview>>, _is_ set, the sample applies a _modifier_ to the base
 value, with the interpretation of the modifier determined according to
 <<exponentqualifiers>>.
-In this case, the virtual sample contains both a base value and
-a modifier.
+In this case, the virtual sample contains both a _base value_ and
+a _modifier_.
 
 All samples contributing to a modifier for the same base value should
 contain the same *_L_* and *_F_* bits (it is not legal, for example, to
 define both a multiplier and a divisor).
 Samples which apply a modifier should directly follow the samples that
-describe the base value.
+describe the base value, including following any sign bits.
 If no samples have the *_E_* bit set for this channel and position, the
 base value directly represents the pixel value; it is not legal for
 a virtual sample to describe a modifier but no base value.
@@ -3984,7 +4339,7 @@ more than one channel -- this is commonly the case for high dynamic range
 formats with a shared exponent or divisor.
 The descriptor in this case should contain samples for each color channel
 in turn, with the description of the shared bits replicated for each
-channel, as shown in <<exampledescriptor_r9g9b9e5>>.
+channel, as shown in <<exampledescriptor_e5b9g9r9>>.
 
 [[exponentqualifiers]]
 .Qualifier interpretation when *++KHR_DF_SAMPLE_DATATYPE_EXPONENT++* = 1
@@ -4007,8 +4362,8 @@ For samples in which the *++KHR_DF_SAMPLE_DATATYPE_EXPONENT++* bit is set:
   floating point format, as shown in <<exampledescriptor_float16explicit>>,
   or a shared exponent location in shared exponent formats (with the
   exponent bits listed separately under each channel as shown in
-  <<exampledescriptor_r9g9b9e5>>).
-  If this modifer is used, the base value is considered to contain
+  <<exampledescriptor_e5b9g9r9>>).
+  If this modifier is used, the base value is considered to contain
   mantissa information and the samples describing it would not normally
   have the *++KHR_DF_SAMPLE_DATATYPE_FLOAT++* bit set.
   If the *++KHR_DF_SAMPLE_DATATYPE_SIGNED++* bit (*_S_*) is also set,
@@ -4016,31 +4371,28 @@ For samples in which the *++KHR_DF_SAMPLE_DATATYPE_EXPONENT++* bit is set:
   treated as unsigned.
   The bias of the exponent can be determined by the exponent's
   *_sampleLower_* value.
-  The presence or absence of an implicit leading digit in the mantissa of
-  a format with an exponent can be determined by the *_sampleUpper_* value
-  of the mantissa.
   The use of the exponent is described in more detail in <<customfp>>.
 
 * If the *++KHR_DF_SAMPLE_DATATYPE_FLOAT++* bit is set and the
   *++KHR_DF_SAMPLE_DATATYPE_LINEAR++* bit is clear, this sample holds
   a multiplier (in integer form) for this channel, such that the encoded
   value is a product of this modifier value and the base value.
-  This approach is useful for encoding a shared multiplier as part of
-  a high dynamic range color image, for example.
+  This approach may be useful for encoding a shared multiplier as part of
+  a high dynamic range color image.
 
 * If the *++KHR_DF_SAMPLE_DATATYPE_LINEAR++* bit is set and the
   *++KHR_DF_SAMPLE_DATATYPE_FLOAT++* bit is clear, this sample holds
   a divisor (in integer form) for this channel, such that the encoded
   value is the base value divided by this modifier value.
-  This approach is useful for encoding a shared divisor as part of
-  a high dynamic range color image, for example.
+  This approach may be useful for encoding a shared divisor as part of
+  a high dynamic range color image.
 
 * If both *++KHR_DF_SAMPLE_DATATYPE_FLOAT++* and
   *++KHR_DF_SAMPLE_DATATYPE_LINEAR++* are set, this sample holds
   a power term (in integer form) for this channel, such that the encoded
   value is the base value raised to the power of the modifier value.
-  This approach is useful for encoding a shared multiplier as part of
-  a high dynamic range color image, for example.
+  This approach may be useful for encoding a shared power for
+  a high dynamic range color image.
 
 Note that in the multiplier, divisor and power cases, the
 *_sampleLower_* and *_sampleUpper_* values allow the modifier value
@@ -4050,7 +4402,7 @@ depending on whether the *_S_* bit is set.
 <<<
 === *_samplePosition[0..3]_* ===
 
-The sample has an associated location within the 4-dimensional space of
+The sample has an associated position within the 4-dimensional space of
 the texel block.
 Therefore each sample has an offset relative to the 0,0 position
 of the texel block, represented as an 8-bit unsigned integer quantity.
@@ -4132,7 +4484,7 @@ four dimensions need to be contained within a single texel block, an
 extension will be required.
 
 It is legal, but unusual, to use the same bits to represent multiple
-samples at different coordinate locations.
+samples at different coordinate positions.
 
 NOTE: Versions of this specification prior to 1.3 always recorded the
 sample position in a 7.1 fixed-point format (with half-coordinate
@@ -4207,6 +4559,8 @@ as a number, in which case *_sampleUpper_* and *_sampleLower_* should
 hold ``1'' and either ``0'' or ``-1'' depending on whether the format
 is signed, respectively.
 
+==== Integer and standard floating-point formats
+
 If the channel encoding is an integer format, the *_sampleLower_* and
 *_sampleUpper_* values are represented as 32-bit integers -- signed or
 unsigned according to whether the channel encoding is signed.
@@ -4224,7 +4578,8 @@ A floating point value is converted to the native representation (for
 example, a ++float++ value is converted to ++double++ in the normal way).
 An integer value is expanded by preserving any sign bit and replicating
 the top non-sign bit (for example, signed 0x80000000 is extended to
-the 40-bit value 0x8000000000).
+the 40-bit value 0x8000000000, and signed 0x8FFFFFFF is extended to
+the 40-bit value 0x8FFFFFFFFF).
 If these rules do not produce the desired result, it may be necessary
 to describe the contribution to the channel in multiple samples of
 no more than 32 bits.
@@ -4233,7 +4588,7 @@ should occupy 32 bits, with any residual bits encoded in samples
 corresponding to higher *_bitOffset_* values.
 
 <<<
-If multiple samples contribute to a single value, for example because
+If multiple samples contribute to a single value, such as in cases where
 the bits of a channel are non-contiguous in the logical bit stream,
 the *_sampleLower_* and *_sampleUpper_* fields of each sample are
 concatenated in increasing bit order to produce virtual *_sampleLower_*
@@ -4243,10 +4598,10 @@ If this contribution is fewer than 32 bits and the value being encoded
 is signed, the sign bit of the final *_sampleLower_* and *_sampleUpper_*
 values should be used to pad the fields of the sample.
 
-For example, if a signed 16-bit value with a minimum value of -32767
-(0xFFFE) is described as two 8-bit values, the first sample should have
-a *_sampleLower_* value of 0xFFFFFFFE -- of which the bottom 8 bits
-(0xFE) corresponds to the bottom 8 bits of the final minimum value and
+For example, if a signed 16-bit value with a minimum value of -256
+(0xFF00) is described as two 8-bit values, the first sample should have
+a *_sampleLower_* value of 0xFFFFFF00 -- of which the bottom 8 bits
+(0x00) corresponds to the bottom 8 bits of the final minimum value and
 the upper 24 bits (0xFFFFFF00) are a result of replicating the sign of
 bit 15 of the final minimum value.
 The second sample should have a *_sampleLower_* value of 0xFFFFFFFF
@@ -4255,23 +4610,6 @@ the final minimum value and the upper 24 bits (0xFFFFFF00) are a result
 of sign-extending this value.
 Only the sample corresponding to the top bits of the channel may have a
 *_sampleLower_* or *_sampleUpper_* occupying more bits than the input.
-
-The *_sampleLower_* value for an exponent should represent the exponent
-bias -- the value that should be subtracted from the encoded exponent
-to indicate that the mantissa's *_sampleUpper_* value will represent 1.0.
-The *_sampleUpper_* value for an exponent should represent the largest
-conventional legal exponent value.
-If the encoded exponent exceeds this value, the encoded floating point
-value encodes either an infinity or a _NaN_ value, depending on the
-mantissa.
-See <<customfp>> for more detail on this.
-
-If the channel encoding is the mantissa of a custom floating point
-format (that is, the encoding is integer but the same sample location
-and channel is shared by a sample that encodes an exponent), the
-presence of an implicit ``1'' digit can be represented by setting the
-*_sampleUpper_* value to a value one larger than can be encoded in the
-available bits for the mantissa, as described in <<customfp>>.
 
 In OpenGL terminology, a ``normalized'' channel contains an integer value
 which is mapped to the range 0..1.0; a channel which is not normalized
@@ -4292,6 +4630,28 @@ the channel for an unsigned channel type is equivalent to defining a
 ``normalized'' texture.
 Setting *_sampleUpper_* to ``1'' is equivalent to defining an
 ``unnormalized'' texture.
+
+==== Custom floating point formats
+
+The *_sampleLower_* value for an exponent should represent the exponent
+bias -- the value that should be subtracted from the encoded exponent
+to indicate that the mantissa's *_sampleUpper_* value will represent 1.0.
+The *_sampleUpper_* value for an exponent should represent the largest
+conventional legal exponent value.
+If the encoded exponent exceeds this value, the encoded floating point
+value encodes either an infinity or a _NaN_ value, depending on the
+mantissa.
+See <<customfp>> for more detail on this.
+
+In the channel encoding of the mantissa of a custom floating point
+format (that is, the encoding is integer but the same sample position
+and channel is shared by a sample that encodes an exponent or other
+modifier value), the  *_sampleLower_* and *_sampleUpper_* for the
+mantissa should contain the entire bit sequence for representations
+of lower and upper values, including additional bits for the
+exponent, as described in <<customfp>>.
+
+==== Constant virtual bits
 
 In the special case that the sample *_bitOffset_* field is 0xFFFF, only
 the bottom 16 bits of the *_sampleLower_* field indicate a contribution to
@@ -4388,7 +4748,7 @@ There are two ways to do this, each with its own uses.
 Only the color primaries, transfer function and flags may be encoded
 or these and the presence of color and alpha samples may be encoded.
 
-In both cases an unsized format is indicated by setting all
+In both cases an unsized format can be indicated by setting all
 *_bytesPlane_* values to 0.
 
 In the first case, *++KHR_DF_MODEL_UNSPECIFIED++* is used in a
@@ -4402,6 +4762,344 @@ presence of these samples in the image.
 The *_texelBlockDimension_* values and *_bitOffset_*, *_bitLength_* and
 *_samplePosition_* fields of the samples can all be set to 0 or the values
 prior to variable-rate compression can be retained.
+
+Note that an implementation may associate a DFD with compressed (or
+other non-repetitive) data in the expectation that these aspects of the
+DFD will be valid only once a conversion has been made to an addressable
+format.
+If an implementation has other means to indicate that the content is
+not directly addressable, and clients of the interface are expecting this,
+it should not be seen as inherently invalid for the DFD not to be usable
+directly in interpreting the compressed data.
+
+<<<
+[[customfp]]
+=== Non-standard floating point formats
+
+Rather than attempting to enumerate every possible floating-point
+format variation in this specification, the data format descriptor
+can be used to describe the components of arbitrary floating-point
+data, as follows. Note that non-standard floating point formats do
+not use the *++KHR_DF_SAMPLE_DATATYPE_FLOAT++* bit in the same way
+as standard floating-point formats.
+This section is described in terms of a mantissa and exponent, but
+the same encoding applies if the _modifier_ field encodes a multiplier,
+divisor or power term (as encoded in <<exponentqualifiers>>).
+Standard floating point formats (as described in <<fpformats>>)
+should be used directly where possible, rather than replicating
+their definitions in explicit terms.
+
+An example of use of the 16-bit floating point format described in
+<<16bitfp>> but described in terms of a custom floating point format
+is provided in <<exampledescriptor_float16explicit>>.
+Note that this is provided for example only, and this particular
+format should in practice be described using the standard 16-bit floating
+point format as documented in <<exampledescriptor_float16implicit>>.
+
+==== The mantissa
+
+The mantissa of a custom floating point format should be represented
+as an integer *_channelType_*. If the mantissa represents a signed
+quantity encoded in two's complement, the *++KHR_DF_SAMPLE_DATATYPE_SIGNED++*
+bit should be set. To encode a signed mantissa represented in
+sign-magnitude format, the main part of the mantissa should be
+represented as an unsigned integer quantity (with
+*++KHR_DF_SAMPLE_DATATYPE_SIGNED++* not set), and an additional one-bit
+sample _with_ *++KHR_DF_SAMPLE_DATATYPE_SIGNED++* set (but other qualifier
+bits matching the rest of the mantissa) should be used to identify the sign
+bit.
+By convention, a sign bit should be encoded in a later sample than the
+corresponding mantissa, but before any modifier/exponent sample.
+
+The *_sampleUpper_* and *_sampleLower_* values for the mantissa should
+hold the representation of 1.0 and 0.0 (for unsigned formats) or -1.0
+(for signed formats) respectively.
+Note that these values indicate how the value should be interpreted,
+not merely how the number is encoded in floating-point terms:
+by symmetry with the integer case, a floating point value of ``2.0''
+may still be scaled to 1.0 by the *_sampleLower_* and *_sampleUpper_*
+range.
+
+The mantissa (or _base value_) encoding should appear in the
+least-significant bits of the encoded *_sampleUpper_* and
+*_sampleLower_*, including any separate sign bits, followed by
+the exponent (or _modifier_); note that this is not the bit order
+of the final data in formats such as those described by <<IEEE 754>>,
+which separate the sign bit from the mantissa.
+
+If more than 32 bits are required in the representation, these
+combined values are encoded in increasing samples beginning
+with the first mantissa sample and continuing to further
+mantissa samples (including any samples for the sign bits)
+as needed.
+The number of bits required is derived from the *_bitLength_*
+of each sample describing the value.
+Any unused bits are ignored and should be zero.
+
+If additional samples are needed to encode the *_sampleLower_*
+and *_sampleUpper_* values beyond the available mantissa samples,
+these should be encoded in samples encoded identically to the
+last mantissa sample (including a sign bit), but with a
+*_bitLength_* encoding of zero.
+These samples can be distinguished by the repeated *_bitOffset_*
+value, as shown in <<exampledescriptor_ufloat40>>.
+
+In the example of the shared exponent format shown in
+<<exampledescriptor_e5b9g9r9>>, there is no implicit ``1'' bit in
+its representation of the mantissa.
+Therefore the *_sampleUpper_* values for the 9-bit mantissas for
+the three color channels represent 256 -- this being the mantissa
+value used to represent 1.0 in the channel when the exponent, after
+the exponent bias has been subtracted, is 1.
+The exponent encoded in the mantissa's *_sampleUpper_* value is 16
+(the bias + 1).
+Therefore the *_sampleUpper_* value encodes a mantissa of 256 in
+the lower 9 bits and an exponent of 16 in the upper 5 bits.
+
+An exponent of 0 would require a mantissa of 512, which is not
+representable in the available number of mantissa bits; representing
+1.0 with a mantissa encoded as 128 would require a larger value
+corresponding to an exponent of 2; therefore an exponent value of 1
+after the bias has been subtracted is the smallest which can represent
+1.0.
+Note that for a format with an explicit 1 bit in the mantissa, there
+are multiple representations of the value 1.0, corresponding to larger
+exponent values and smaller mantissa encodings.
+
+For the 16-bit signed floating point format described in <<16bitfp>>,
+the _F_ qualifier bit of the mantissa is set to 1, indicating the
+implicit ``1'' bit.
+*_sampleLower_* and *_sampleUpper_* encode -1.0 and 1.0 respectively,
+with a 0 mantissa fraction in the low 10 bits, one bit of sign, and
+the exponent equal to the bias in the top 5 bits.
+
+<<<
+==== The exponent
+
+The *++KHR_DF_SAMPLE_DATATYPE_EXPONENT++* bit should be set in a sample
+which contains the exponent of a custom floating point format.
+
+The *_sampleLower_* for the exponent should indicate the exponent bias.
+The bias is chosen such that the value in the exponent field minus the
+bias is the number of places by which the binary point should be shifted
+right from above the topmost encoded mantissa bit.
+For formats which represent the mantissa with an implicit ``1'', the bias
+is the exponent value which corresponds to placing the binary point below
+the implicit 1, so the stored exponent is equal to the bias when the value
+being encoded is 1.0.
+For formats with an _explicit_ ``1'' in the mantissa, setting the exponent
+equal to the bias places the binary point _above_ a normalized explicit 1
+in the top bit of the mantissa; an encoding of 1.0 using the top bit of the
+mantissa therefore requires that the value be recorded with an exponent
+that is the bias value in *_sampleLower_* plus 1.
+
+The *_sampleUpper_* for the exponent indicates the maximum legal
+exponent value. Values above this are used to encode infinities and
+not-a-number (_NaN_) values.
+The value of *_sampleUpper_* can therefore be used to indicate whether or
+not the format supports these encodings.
+
+As a special case, a *_sampleUpper_* of one greater than can be
+represented by the number of bits assigned to the exponent (e.g. 32 for a
+5-bit exponent) indicates that a _NaN_ is represented by the encoding for
+-0.0; some formats use this representation to maximize the representable
+exponent range. The maximum legal exponent is then one lower than
+*_sampleUpper_*.
+
+If *_sampleUpper_* is encoded with an additional high bit beyond the
+maximum representable exponent, a _NaN_ is represented by a maximum value
+in both the exponent and mantissa (irrespective of the sign bit).
+
+==== Special values
+
+Floating point values encoded with an exponent of 0 (before the
+bias has been subtracted) and a mantissa of 0 are used to represent
+the value 0.0.
+An explicit sign bit can distinguish between +0 and -0.
+
+Floating point values encoded with an exponent of 0 (before bias)
+and a non-zero mantissa are assumed to indicate a denormalized
+number, if the format has an implicit ``1'' bit. That is, when
+the exponent is 0, the ``1'' bit becomes explicit and the exponent
+is considered to be the negative sample bias minus one.
+
+Floating point values encoded with an exponent larger than the
+exponent's *_sampleUpper_* value and with a mantissa of 0 are
+interpreted as representing +/- infinity, depending on the value
+of an explicit sign bit. Note that in some formats, no exponent
+above *_sampleUpper_* is possible -- for example,
+<<exampledescriptor_e5b9g9r9>>.
+
+Floating point values encoded with an exponent larger than the
+exponent's *_sampleUpper_* value and with a mantissa of non-0
+are interpreted as representing not-a-number (_NaN_).
+
+Note that these interpretations are compatible with the
+corresponding numerical representations in <<IEEE 754>>.
+
+As mentioned in the previous section, if the exponent's
+*_sampleUpper_* values is one greater than the number that
+can be represented in the number of bits assigned to the
+exponent, _NaN_ is instead represented by -0.0, which then
+does not have a distinct representation.
+These representations lack a way to encode an infinity.
+Examples are the ``<<exampledescriptor_e5m2fnuz,E5M2FNUZ>>'' and
+``<<exampledescriptor_e4m3fnuz,E4M3FNUZ>>'' 8-bit formats.
+
+If *_sampleUpper_* encodes the maximum representable exponent
+with a prefixing high bit, _NaN_ is instead encoded with a maximum
+exponent and mantissa value -- for example, S.1111.111 (base 2) for
+the ``<<exampledescriptor_e4m3fn,E4M3FN>>'' 8-bit float format.
+
+<<<
+[[ConversionFormulae]]
+==== Conversion formulae
+
+Given an optional sign bit _S_ (whose value is interpreted as 0
+if the bit is missing), a mantissa value of _M_ and an exponent
+value of _E_, a value in a format with an implicit ``1'' bit in
+the mantissa can be converted from its representation to a real
+value as follows:
+
+[latexmath]
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+\[
+V =
+  \begin{cases}
+    (-1)^S \times 0.0,             & E = 0, M = 0    \\
+    (-1)^S \times 2^{-(E_\mathit{sampleLower}-1)} \times { M \over M_\mathit{sampleUpper} },  & E = 0, M \neq 0 \\
+    (-1)^S \times 2^{E-E_\mathit{sampleLower}} \times { \left( 1 + { M \over M_\mathit{sampleUpper} } \right) },
+                                   & 0 < E \leq E_\mathit{sampleUpper}   \\
+    (-1)^S \times \mathit{Inf},    & E > E_\mathit{sampleUpper}, M = 0   \\
+    \mathit{NaN},                  & E > E_\mathit{sampleUpper}, M \neq 0.
+  \end{cases}
+\]
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+If there is no implicit ``1'' bit in the mantissa, the value can be converted
+to a real value as follows:
+
+[latexmath]
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+\[
+V =
+  \begin{cases}
+    (-1)^S \times 2^{E-E_{\mathit{sampleLower}}} \times { \left( { M \over M_\mathit{sampleUpper} } \right) },
+                                   & 0 < E \leq E_\mathit{sampleUpper}   \\
+    (-1)^S \times \mathit{Inf},    & E > E_\mathit{sampleUpper}, M = 0   \\
+    \mathit{NaN},                  & E > E_\mathit{sampleUpper}, M \neq 0.
+  \end{cases}
+\]
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+A descriptor block for a format without an implicit ``1'' (and with the
+added complication of having the same exponent bits shared across multiple
+channels, which is why an implicit ``1'' bit does not make sense) is shown
+in <<exampledescriptor_e5b9g9r9>>. In the case of this particular example,
+the above equations simplify to:
+
+[latexmath]
++++++++++++++++++++
+    $$red   = \mathit{red}_\mathrm{shared}\times 2^{(\mathit{E}_\mathrm{shared}-B-N)}$$
+    $$green = \mathit{green}_\mathrm{shared}\times 2^{(\mathit{E}_\mathrm{shared}-B-N)}$$
+    $$blue  = \mathit{blue}_\mathrm{shared}\times 2^{(\mathit{E}_\mathrm{shared}-B-N)}$$
++++++++++++++++++++
+
+Where:
+
+[latexmath]
++++++++++++++++++++
+   $$N = 9  \textrm{ (= number of mantissa bits per component)}$$
+   $$B = 15 \textrm{ (= exponent bias)}$$
++++++++++++++++++++
+
+Note that in general conversion from a real number _to_ any representation
+may require rounding, truncation and special value management rules which
+are beyond the scope of a data format specification and may be documented
+in APIs which generate these formats.
+
+<<<
+[NOTE]
+====
+One approach for converting a real number to a representation with no implicit
+``1'' bit is as follows: +
+ +
+First the value _V_ is clamped to the representable range.
+If the full range of the exponent bits _E_ are used to represent valid
+numbers, the largest representable value is:
+
+[latexmath]
++++++++++++
+\begin{align*}
+V &= {{2^N - 1}\over{2^N}} \times 2^{E_\mathit{max} - B}
+\end{align*}
++++++++++++
+
+A provisional exponent is calculated as:
+
+[latexmath]
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+\begin{align*}
+E_\textit{provisional} &=
+  \begin{cases}
+    \left\lfloor\textrm{log}_2\left(V\right)\right\rfloor + B + 1,
+                        & V \ge 2^{-(B+1)}   \\
+    0,                  & V < 2^{-(B+1)}
+  \end{cases}
+\end{align*}
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+The second of these cases for _V_ handles denormalized numbers and 0.
+(Some specifications use {leq} for the second clause, but
+latexmath:[$\left\lfloor\textrm{log}_2\left(2^{-(B+1)}\right)\right\rfloor + B + 1$]
+evaluates to 0 in any case, and this value is not denormalized.) +
+ +
+Then a provisional mantissa _M~provisional~_ is calculated, rounding to nearest:
+
+[latexmath]
++++++++++++
+\begin{align*}
+M_\textit{provisional} &= \left\lfloor{V\over{2^{E_\textit{provisional} - B - N}}} + {1\over2}\right\rfloor
+\end{align*}
++++++++++++
+
+The rounding may cause this mantissa to exceed the representable range,
+which means that the actual exponent may need to be increased:
+
+[latexmath]
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+\begin{align*}
+E_\textit{final} &=
+  \begin{cases}
+    E_\textit{provisional},      & 0 \le M_\textit{provisional} < 2^N \\
+    E_\textit{provisional} + 1,  & M_\textit{provisional} \ge 2^N
+  \end{cases}
+\end{align*}
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+The final mantissa can then be encoded in terms of the final exponent:
+
+[latexmath]
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+\begin{align*}
+M_\textit{final} &= \left\lfloor{V\over{2^{E_\textit{final}-B-N}}}+{1\over2}\right\rfloor
+\end{align*}
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+This encoding represents the value 1.0 as a value of 1 in the top bit
+of the mantissa, and an exponent equal to the bias value _B_ + 1.
+Other encodings that also represent a value of 1.0 exist, and an
+implementation may wish to specify, for consistency, whether it is
+preferable to minimize the exponent (as in this approach) or the
+encoded mantissa (for example encoding 1.0 as a mantissa of 1 and
+an exponent of _B_ {plus} _N_). +
+ +
+In the case of a format with a shared exponent, as shown in
+<<exampledescriptor_e5b9g9r9>>, the exponent _E~final~_ can be
+calculated for the largest value _V_ in any of the channels.
+Each mantissa _M~final~_ for each channel can then be calculated
+separately using the same _E~final~_ exponent.
+====
 
 <<<
 === C99 struct mapping (informative)
@@ -4432,6 +5130,8 @@ typedef struct _DFDSampleType {
 typedef struct _BasicDataFormatDescriptor {
   uint32_t vendorId: 17;
   uint32_t descriptorType: 15;
+  uint32_t versionNumber: 16;
+  uint32_t descriptorBlockSize: 16;
   uint32_t model: 8;
   uint32_t primaries: 8;
   uint32_t transfer: 8;
@@ -4542,7 +5242,7 @@ form of allocation while reading texel values.
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0xBF800000U -- -1.0f
-32+^| *_sampleUpper:_* 0x7F800000U -- 1.0f
+32+^| *_sampleUpper:_* 0x3F800000U -- 1.0f
 32+^| ~Extension descriptor block~
 15+^| *_descriptorType:_* 0 17+^| *_vendorId:_* 0x1FFFF
 16+^| *_descriptorBlockSize:_* 8 + (4 {times} 1) = 12 16+^| *_versionNumber:_* 0
@@ -4552,7 +5252,7 @@ form of allocation while reading texel values.
 
 It is possible for a vendor to use the extension block to store peripheral
 information required to access the image -- plane base addresses, stride, etc.
-Since different implementations have different kinds of non-linear ordering
+Since different implementations have different kinds of nonlinear ordering
 and proprietary alignment requirements, this is not described as part of the
 standard. By many conventional definitions, this information is not part of
 the ``format'', and particularly it ensures that an identical copy of the image
@@ -4767,8 +5467,11 @@ for this standard.
 == Floating-point formats ==
 
 Some common floating-point numeric representations are defined in
-<<IEEE 754>>. Additional floating point formats are defined in this
+<<IEEE 754>>.
+Additional standard floating point formats are defined in this
 section.
+A mechanism for describing custom floating-point representations is
+detailed in <<customfp>>.
 
 [[16bitfp]]
 === 16-bit floating-point numbers
@@ -4804,6 +5507,7 @@ _N_, then
     $$M = N \bmod 1024.$$
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+<<<
 [[11bitfp]]
 === Unsigned 11-bit floating-point numbers
 
@@ -4867,160 +5571,6 @@ _N_, then
     $$E = \left\lfloor { N \over 32 } \right\rfloor$$
     $$M = N \bmod 32.$$
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-[[customfp]]
-=== Non-standard floating point formats
-
-Rather than attempting to enumerate every possible floating-point
-format variation in this specification, the data format descriptor
-can be used to describe the components of arbitrary floating-point
-data, as follows. Note that non-standard floating point formats do
-not use the *++KHR_DF_SAMPLE_DATATYPE_FLOAT++* bit.
-
-An example of use of the 16-bit floating point format described in
-<<16bitfp>> but described in terms of a custom floating point format
-is provided in <<exampledescriptor_float16explicit>>.
-Note that this is provided for example only, and this particular
-format would be better described using the standard 16-bit floating
-point format as documented in <<exampledescriptor_float16implicit>>.
-
-==== The mantissa
-
-The mantissa of a custom floating point format should be represented
-as an integer *_channelType_*. If the mantissa represents a signed
-quantity encoded in two's complement, the *++KHR_DF_SAMPLE_DATATYPE_SIGNED++*
-bit should be set. To encode a signed mantissa represented in
-sign-magnitude format, the main part of the mantissa should be
-represented as an unsigned integer quantity (with
-*++KHR_DF_SAMPLE_DATATYPE_SIGNED++* not set), and an additional one-bit
-sample _with_ *++KHR_DF_SAMPLE_DATATYPE_SIGNED++* set should be used
-to identify the sign bit. By convention, a sign bit should be encoded
-in a later sample than the corresponding mantissa.
-
-The *_sampleUpper_* and *_sampleLower_* values for the mantissa should be
-set to indicate the representation of 1.0 and 0.0 (for unsigned formats)
-or -1.0 (for signed formats) respectively when the exponent is in a
-0 position after any bias has been corrected. If there is an implicit
-``1'' bit, these values for the mantissa will exceed what can be
-represented in the number of available mantissa bits.
-
-For example, the shared exponent formats shown in
-<<exampledescriptor_r9g9b9e5>> does not have an implicit ``1'' bit, and
-therefore the *_sampleUpper_* values for the 9-bit mantissas are 256 --
-this being the mantissa value for 1.0 when the exponent is set to 0.
-
-For the 16-bit signed floating point format described in <<16bitfp>>,
-*_sampleUpper_* should be set to 1024, indicating the implicit ``1'' bit
-which is above the 10 bits representable in the mantissa. *_sampleLower_*
-should be 0 in this case, since the mantissa uses a sign-magnitude
-representation.
-
-By convention, the *_sampleUpper_* and *_sampleLower_* values for a sign
-bit are 0 and -1 respectively.
-
-==== The exponent
-
-The *++KHR_DF_SAMPLE_DATATYPE_EXPONENT++* bit should be set in a sample
-which contains the exponent of a custom floating point format.
-
-The *_sampleLower_* for the exponent should indicate the exponent bias.
-That is, the mantissa should be scaled by two raised to the power of
-the stored exponent minus this *_sampleLower_* value.
-
-The *_sampleUpper_* for the exponent indicates the maximum legal
-exponent value. Values above this are used to encode infinities and
-not-a-number (_NaN_) values. *_sampleUpper_* can therefore be used to
-indicate whether or not the format supports these encodings.
-
-==== Special values
-
-Floating point values encoded with an exponent of 0 (before bias)
-and a mantissa of 0 are used to represent the value 0. An explicit
-sign bit can distinguish between +0 and -0.
-
-Floating point values encoded with an exponent of 0 (before bias)
-and a non-zero mantissa are assumed to indicate a denormalized
-number, if the format has an implicit ``1'' bit. That is, when
-the exponent is 0, the ``1'' bit becomes explicit and the exponent
-is considered to be the negative sample bias minus one.
-
-Floating point values encoded with an exponent larger than the
-exponent's *_sampleUpper_* value and with a mantissa of 0 are
-interpreted as representing +/- infinity, depending on the value
-of an explicit sign bit. Note that in some formats, no exponent
-above *_sampleUpper_* is possible -- for example,
-<<exampledescriptor_r9g9b9e5>>.
-
-Floating point values encoded with an exponent larger than the
-exponent's *_sampleUpper_* value and with a mantissa of non-0
-are interpreted as representing not-a-number (_NaN_).
-
-Note that these interpretations are compatible with the
-corresponding numerical representations in <<IEEE 754>>.
-
-==== Conversion formulae
-
-Given an optional sign bit _S_, a mantissa value of _M_ and an
-exponent value of _E_, a format with an implicit ``1'' bit can
-be converted from its representation to a real value as follows:
-
-[latexmath]
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-\[
-V =
-  \begin{cases}
-    (-1)^S \times 0.0,             & E = 0, M = 0    \\
-    (-1)^S \times 2^{-(E_\mathit{sampleLower}-1)} \times { M \over M_\mathit{sampleUpper} },  & E = 0, M \neq 0 \\
-    (-1)^S \times 2^{E-E_\mathit{sampleLower}} \times { \left( 1 + { M \over M_\mathit{sampleUpper} } \right) },
-                                   & 0 < E \leq E_\mathit{sampleUpper}   \\
-    (-1)^S \times \mathit{Inf},    & E > E_\mathit{sampleUpper}, M = 0   \\
-    \mathit{NaN},                  & E > E_\mathit{sampleUpper}, M \neq 0.
-  \end{cases}
-\]
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-If there is no implicit ``1'' bit (that is, the *_sampleUpper_* value
-of the mantissa is representable in the number of bits assigned to the
-mantissa), the value can be converted to a real value as follows:
-
-[latexmath]
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-\[
-V =
-  \begin{cases}
-    (-1)^S \times 2^{E-E_{\mathit{sampleUower}}} \times { \left( { M \over M_\mathit{sampleUpper} } \right) },
-                                   & 0 < E \leq E_\mathit{sampleUpper}   \\
-    (-1)^S \times \mathit{Inf},    & E > E_\mathit{sampleUpper}, M = 0   \\
-    \mathit{NaN},                  & E > E_\mathit{sampleUpper}, M \neq 0.
-  \end{cases}
-\]
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-A descriptor block for a format without an implicit ``1'' (and with the
-added complication of having the same exponent bits shared across multiple
-channels, which is why an implicit ``1'' bit does not make sense) is shown
-in <<exampledescriptor_r9g9b9e5>>. In the case of this particular example, the above
-equations simplify to:
-
-[latexmath]
-+++++++++++++++++++
-    $$red   = \mathit{red}_\mathrm{shared}\times 2^{(\mathit{exp}_\mathrm{shared}-B-N)}$$
-    $$green = \mathit{green}_\mathrm{shared}\times 2^{(\mathit{exp}_\mathrm{shared}-B-N)}$$
-    $$blue  = \mathit{blue}_\mathrm{shared}\times 2^{(\mathit{exp}_\mathrm{shared}-B-N)}$$
-+++++++++++++++++++
-
-Where:
-
-[latexmath]
-+++++++++++++++++++
-   $$N = 9  \textrm{ (= number of mantissa bits per component)}$$
-   $$B = 15 \textrm{ (= exponent bias)}$$
-+++++++++++++++++++
-
-Note that in general conversion from a real number _to_ any representation
-may require rounding, truncation and special value management rules which
-are beyond the scope of a data format specification and may be documented
-in APIs which generate these formats.
 
 == Example format descriptors ==
 
@@ -5434,8 +5984,8 @@ endif::[]
 32+^| *_sampleUpper:_* 31
 |================================
 
-[[exampledescriptor_r9g9b9e5]]
-.R9G9B9E5 shared-exponent format
+[[exampledescriptor_e5b9g9r9]]
+.E5B9G9R9 shared-exponent format
 [width="97%"]
 |================================
 32+^| *~++uint32_t++ bit~*
@@ -5448,42 +5998,42 @@ endif::[]
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 4
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the _R_ mantissa~
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the _R_ mantissa (explicit 1 since _F_ = 0)~
 ^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 8 (= ``9'') 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
-32+^| *_sampleUpper:_* 256 -- mantissa at 1.0
+32+^| *_sampleUpper:_* 8448 (0x2100) -- 1.0 encoded as a 9-bit mantissa = 256 and 5-bit exponent = 16
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the _R_ exponent~
 ^| 0 ^| 0 ^| 1 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 4 (= ``5'') 16+^| *_bitOffset:_* 27
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
-32+^| *_sampleLower:_* 0
-32+^| *_sampleUpper:_* 15 -- exponent bias
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the _G_ mantissa~
+32+^| *_sampleLower:_* 15 -- exponent bias
+32+^| *_sampleUpper:_* 31 -- no special exponent encodings for infinity or NaN
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the _G_ mantissa (explicit 1 since _F_ = 0)~
 ^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 8 (= ``9'') 16+^| *_bitOffset:_* 9
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
-32+^| *_sampleUpper:_* 256 -- mantissa at 1.0
+32+^| *_sampleUpper:_* 8448 (0x2100) -- 1.0 encoded as a 9-bit mantissa = 256 and 5-bit exponent = 16
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the _G_ exponent~
 ^| 0 ^| 0 ^| 1 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 4 (= ``5'') 16+^| *_bitOffset:_* 27
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
-32+^| *_sampleLower:_* 0
-32+^| *_sampleUpper:_* 15 -- exponent bias
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the _B_ mantissa~
+32+^| *_sampleLower:_* 15 -- exponent bias
+32+^| *_sampleUpper:_* 31 -- no special exponent encodings for infinity or NaN
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the _B_ mantissa (explicit 1 since _F_ = 0)~
 ^| 0 ^| 0 ^| 0 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 8 (= ``9'') 16+^| *_bitOffset:_* 18
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
-32+^| *_sampleUpper:_* 256 -- mantissa at 1.0
+32+^| *_sampleUpper:_* 8448 (0x2100) -- 1.0 encoded as a 9-bit mantissa = 256 and 5-bit exponent = 16
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the _B_ exponent~
 ^| 0 ^| 0 ^| 1 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 4 (= ``5'') 16+^| *_bitOffset:_* 27
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
-32+^| *_sampleLower:_* 0
-32+^| *_sampleUpper:_* 15 -- exponent bias
+32+^| *_sampleLower:_* 15 -- exponent bias
+32+^| *_sampleUpper:_* 31 -- no special exponent encodings for infinity or NaN
 |================================
 
 [[exampledescriptor_AcornTint]]
@@ -5709,7 +6259,7 @@ endif::[]
 |================================
 
 [[exampledescriptor_float16explicit]]
-.A single 16-bit floating-point red value, described explicitly (example only!)
+.A signed 16-bit floating-point red value with implicit 1, described explicitly (example only!)
 [width="97%"]
 |================================
 32+^| *~++uint32_t++ bit~*
@@ -5722,18 +6272,18 @@ endif::[]
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 2
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~First sample: mantissa~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 9 (= ``10'') 16+^| *_bitOffset:_* 0
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~First sample: mantissa with implicit 1 (_F_ = 1)~
+^| 1 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 9 (= ``10'') 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
-32+^| *_sampleLower:_* 0
-32+^| *_sampleUpper:_* 1024 -- implicit 1.0 bit since 1024 > 2^*_bitLength_*^ - 1
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Second sample: sign of mantissa~
-^| 0 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 0 (= ``1'') 16+^| *_bitOffset:_* 15
+32+^| *_sampleLower:_* 31744 (0x7C00) -- -1.0 encoded as 10-bit mantissa = 0, sign bit = 1, exponent = 15
+32+^| *_sampleUpper:_* 30720 (0x7800) --  1.0 encoded as 10-bit mantissa = 0, sign bit = 0, exponent = 15
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Second sample: sign bit of mantissa (_F_ inherited)~
+^| 1 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 0 (= ``1'') 16+^| *_bitOffset:_* 15
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
-32+^| *_sampleLower:_* 1 -- 1-bit ``-1''
-32+^| *_sampleUpper:_* 0 -- 1-bit ``0''
+32+^| *_sampleLower:_* 0 -- unused
+32+^| *_sampleUpper:_* 0 -- unused
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Third sample: exponent~
 ^| 0 ^| 0 ^| 1 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 4 (= ``5'') 16+^| *_bitOffset:_* 10
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
@@ -5743,7 +6293,7 @@ endif::[]
 |================================
 
 [[exampledescriptor_float16implicit]]
-.A single 16-bit floating-point red value, described normally
+.A standard signed 16-bit floating-point red value, described normally
 [width="97%"]
 |================================
 32+^| *~++uint32_t++ bit~*
@@ -5762,6 +6312,315 @@ endif::[]
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0xBF800000U -- IEEE 754 floating-point representation for -1.0f
 32+^| *_sampleUpper:_* 0x3F800000U -- IEEE 754 floating-point representation for 1.0f
+|================================
+
+[[exampledescriptor_bfloat16]]
+.bfloat16 (Brain Floating Point -- 16-bit floating point with the range of 32-bit floating point)
+[width="97%"]
+|================================
+32+^| *~++uint32_t++ bit~*
+^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
+32+^| *_totalSize:_* 76
+15+^| *_descriptorType:_* 0 17+^| *_vendorId:_* 0
+16+^| *_descriptorBlockSize:_* 24 + (16 {times} 3) = 72 16+^| *_versionNumber:_* 2
+8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++RGBSDA++*
+8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 2
+8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~First sample: mantissa with implicit 1 (_F_ = 1)~
+^| 1 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 6 (= ``7'') 16+^| *_bitOffset:_* 0
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 32640 (0x7F80) -- -1.0 encoded as 7-bit mantissa = 0, sign bit = 1, exponent = 127
+32+^| *_sampleUpper:_* 32512 (0x7F00) --  1.0 encoded as 7-bit mantissa = 0, sign bit = 0, exponent = 127
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Second sample: sign bit of mantissa (_F_ inherited)~
+^| 1 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 0 (= ``1'') 16+^| *_bitOffset:_* 15
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 0 -- unused
+32+^| *_sampleUpper:_* 0 -- unused
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Third sample: exponent~
+^| 0 ^| 0 ^| 1 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 7 (= ``8'') 16+^| *_bitOffset:_* 7
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 127 -- bias
+32+^| *_sampleUpper:_* 254 -- support for infinities because 254 < 2^*bitLength*^ - 1
+|================================
+
+[[exampledescriptor_e5m2]]
+.E5M2 (8-bit floating point, similar to IEEE754)
+[width="97%"]
+|================================
+32+^| *~++uint32_t++ bit~*
+^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
+32+^| *_totalSize:_* 76
+15+^| *_descriptorType:_* 0 17+^| *_vendorId:_* 0
+16+^| *_descriptorBlockSize:_* 24 + (16 {times} 3) = 72 16+^| *_versionNumber:_* 2
+8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++RGBSDA++*
+8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 1
+8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~First sample: mantissa with implicit 1 (_F_ = 1)~
+^| 1 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 1 (= ``2'') 16+^| *_bitOffset:_* 0
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 124 (0x7C) -- -1.0 encoded as 2-bit mantissa = 0, sign bit = 1, exponent = 15
+32+^| *_sampleUpper:_* 120 (0x78) --  1.0 encoded as 2-bit mantissa = 0, sign bit = 0, exponent = 15
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Second sample: sign bit of mantissa (_F_ inherited)~
+^| 1 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 0 (= ``1'') 16+^| *_bitOffset:_* 7
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 0 -- unused
+32+^| *_sampleUpper:_* 0 -- unused
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Third sample: exponent~
+^| 0 ^| 0 ^| 1 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 4 (= ``5'') 16+^| *_bitOffset:_* 2
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 15 -- bias
+32+^| *_sampleUpper:_* 30 -- support for infinities because 30 < 2^*bitLength*^ - 1
+|================================
+
+[[exampledescriptor_e4m3fn]]
+.E4M3FN (8-bit floating point, no infinities, NaN encoded as maximum)
+[width="97%"]
+|================================
+32+^| *~++uint32_t++ bit~*
+^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
+32+^| *_totalSize:_* 76
+15+^| *_descriptorType:_* 0 17+^| *_vendorId:_* 0
+16+^| *_descriptorBlockSize:_* 24 + (16 {times} 3) = 72 16+^| *_versionNumber:_* 2
+8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++RGBSDA++*
+8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 1
+8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~First sample: mantissa with implicit 1 (_F_ = 1)~
+^| 1 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 2 (= ``3'') 16+^| *_bitOffset:_* 0
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 120 (0x78) -- -1.0 encoded as 3-bit mantissa = 0, sign bit = 1, exponent = 7
+32+^| *_sampleUpper:_* 112 (0x70) --  1.0 encoded as 3-bit mantissa = 0, sign bit = 0, exponent = 7
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Second sample: sign bit of mantissa (_F_ inherited)~
+^| 1 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 0 (= ``1'') 16+^| *_bitOffset:_* 7
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 0 -- unused
+32+^| *_sampleUpper:_* 0 -- unused
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Third sample: exponent~
+^| 0 ^| 0 ^| 1 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 3 (= ``4'') 16+^| *_bitOffset:_* 3
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 7 -- bias
+32+^| *_sampleUpper:_* 31 -- special case 2^*bitLength* + 1^ - 1 => NaN encoded as S.1111.111~2~
+|================================
+
+[[exampledescriptor_e5m2fnuz]]
+.E5M2FNUZ (8-bit floating point, no infinities, NaN encoded as -0)
+[width="97%"]
+|================================
+32+^| *~++uint32_t++ bit~*
+^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
+32+^| *_totalSize:_* 76
+15+^| *_descriptorType:_* 0 17+^| *_vendorId:_* 0
+16+^| *_descriptorBlockSize:_* 24 + (16 {times} 3) = 72 16+^| *_versionNumber:_* 2
+8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++RGBSDA++*
+8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 1
+8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~First sample: mantissa with implicit 1 (_F_ = 1)~
+^| 1 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 1 (= ``2'') 16+^| *_bitOffset:_* 0
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 132 (0x84) -- -1.0 encoded as 2-bit mantissa = 0, sign bit = 1, exponent = 16
+32+^| *_sampleUpper:_* 128 (0x80) --  1.0 encoded as 2-bit mantissa = 0, sign bit = 0, exponent = 16
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Second sample: sign bit of mantissa (_F_ inherited)~
+^| 1 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 0 (= ``1'') 16+^| *_bitOffset:_* 7
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 0 -- unused
+32+^| *_sampleUpper:_* 0 -- unused
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Third sample: exponent~
+^| 0 ^| 0 ^| 1 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 4 (= ``5'') 16+^| *_bitOffset:_* 2
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 16 -- bias
+32+^| *_sampleUpper:_* 32 -- special case 2^*bitLength*^ => NaN encoded as -0.0
+|================================
+
+[[exampledescriptor_e4m3fnuz]]
+.E4M3FNUZ (8-bit floating point, no infinities, NaN encoded as -0)
+[width="97%"]
+|================================
+32+^| *~++uint32_t++ bit~*
+^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
+32+^| *_totalSize:_* 76
+15+^| *_descriptorType:_* 0 17+^| *_vendorId:_* 0
+16+^| *_descriptorBlockSize:_* 24 + (16 {times} 3) = 72 16+^| *_versionNumber:_* 2
+8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++RGBSDA++*
+8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 1
+8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~First sample: mantissa with implicit 1 (_F_ = 1)~
+^| 1 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 2 (= ``3'') 16+^| *_bitOffset:_* 0
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 136 (0x88) -- -1.0 encoded as 3-bit mantissa = 0, sign bit = 1, exponent = 8
+32+^| *_sampleUpper:_* 128 (0x80) --  1.0 encoded as 3-bit mantissa = 0, sign bit = 0, exponent = 8
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Second sample: sign bit of mantissa (_F_ inherited)~
+^| 1 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 0 (= ``1'') 16+^| *_bitOffset:_* 7
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 0 -- unused
+32+^| *_sampleUpper:_* 0 -- unused
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Third sample: exponent~
+^| 0 ^| 0 ^| 1 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 3 (= ``4'') 16+^| *_bitOffset:_* 3
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 8 -- bias
+32+^| *_sampleUpper:_* 16 -- special case 2^*bitLength*^ => NaN encoded as -0.0
+|================================
+
+[[exampledescriptor_tensorfloat]]
+.NVIDIA TensorFloat (19-bit floating point, stored in 4 bytes)
+[width="97%"]
+|================================
+32+^| *~++uint32_t++ bit~*
+^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
+32+^| *_totalSize:_* 76
+15+^| *_descriptorType:_* 0 17+^| *_vendorId:_* 0
+16+^| *_descriptorBlockSize:_* 24 + (16 {times} 3) = 72 16+^| *_versionNumber:_* 2
+8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++RGBSDA++*
+8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 4
+8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~First sample: mantissa with implicit 1 (_F_ = 1)~
+^| 1 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 9 (= ``10'') 16+^| *_bitOffset:_* 0
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 261120 (0x3FC00) -- -1.0 encoded as 10-bit mantissa = 0, sign bit = 1, exponent = 127
+32+^| *_sampleUpper:_* 260096 (0x3F800) --  1.0 encoded as 10-bit mantissa = 0, sign bit = 0, exponent = 127
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Second sample: sign bit of mantissa (_F_ inherited)~
+^| 1 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 0 (= ``1'') 16+^| *_bitOffset:_* 18
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 0 -- unused
+32+^| *_sampleUpper:_* 0 -- unused
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Third sample: exponent~
+^| 0 ^| 0 ^| 1 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 7 (= ``8'') 16+^| *_bitOffset:_* 10
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 127 -- bias
+32+^| *_sampleUpper:_* 254 -- support for infinities because 254 < 2^*bitLength*^ - 1
+|================================
+
+[[exampledescriptor_amdfp24]]
+.AMD fp24 (24-bit floating point with 7-bit exponent, stored in 3 bytes)
+[width="97%"]
+|================================
+32+^| *~++uint32_t++ bit~*
+^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
+32+^| *_totalSize:_* 76
+15+^| *_descriptorType:_* 0 17+^| *_vendorId:_* 0
+16+^| *_descriptorBlockSize:_* 24 + (16 {times} 3) = 72 16+^| *_versionNumber:_* 2
+8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++RGBSDA++*
+8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 3
+8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~First sample: mantissa with implicit 1 (_F_ = 1)~
+^| 1 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 15 (= ``16'') 16+^| *_bitOffset:_* 0
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 8323072 (0x7F0000) -- -1.0 encoded as 16-bit mantissa = 0, sign bit = 1, exponent = 63
+32+^| *_sampleUpper:_* 8257536 (0x7E0800) --  1.0 encoded as 16-bit mantissa = 0, sign bit = 0, exponent = 63
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Second sample: sign bit of mantissa (_F_ inherited)~
+^| 1 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 0 (= ``1'') 16+^| *_bitOffset:_* 23
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 0 -- unused
+32+^| *_sampleUpper:_* 0 -- unused
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Third sample: exponent~
+^| 0 ^| 0 ^| 1 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 6 (= ``7'') 16+^| *_bitOffset:_* 16
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 63 -- bias
+32+^| *_sampleUpper:_* 126 -- support for infinities because 126 < 2^*bitLength*^ - 1
+|================================
+
+[[exampledescriptor_pxr24]]
+.PixarPXR24 (24-bit floating point with 8-bit exponent, stored in 3 bytes)
+[width="97%"]
+|================================
+32+^| *~++uint32_t++ bit~*
+^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
+32+^| *_totalSize:_* 76
+15+^| *_descriptorType:_* 0 17+^| *_vendorId:_* 0
+16+^| *_descriptorBlockSize:_* 24 + (16 {times} 3) = 72 16+^| *_versionNumber:_* 2
+8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++RGBSDA++*
+8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 3
+8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~First sample: mantissa with implicit 1 (_F_ = 1)~
+^| 1 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 14 (= ``15'') 16+^| *_bitOffset:_* 0
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 8355840 (0x7F8000) -- -1.0 encoded as 15-bit mantissa = 0, sign bit = 1, exponent = 127
+32+^| *_sampleUpper:_* 8323072 (0x7F0800) --  1.0 encoded as 15-bit mantissa = 0, sign bit = 0, exponent = 127
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Second sample: sign bit of mantissa (_F_ inherited)~
+^| 1 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 0 (= ``1'') 16+^| *_bitOffset:_* 23
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 0 -- unused
+32+^| *_sampleUpper:_* 0 -- unused
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Third sample: exponent~
+^| 0 ^| 0 ^| 1 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 7 (= ``8'') 16+^| *_bitOffset:_* 15
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 127 -- bias
+32+^| *_sampleUpper:_* 254 -- support for infinities because 254 < 2^*bitLength*^ - 1
+|================================
+
+[[exampledescriptor_ufloat40]]
+.An unsigned 40-bit (E8R32) floating-point red value with implicit 1
+[width="97%"]
+|================================
+32+^| *~++uint32_t++ bit~*
+^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
+32+^| *_totalSize:_* 76
+15+^| *_descriptorType:_* 0 17+^| *_vendorId:_* 0
+16+^| *_descriptorBlockSize:_* 24 + (16 {times} 3) = 72 16+^| *_versionNumber:_* 2
+8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++RGBSDA++*
+8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 2
+8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
+
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~First sample: mantissa with implicit 1 (_F_ = 1)~
+^| 1 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 31 (= ``32'') 16+^| *_bitOffset:_* 0
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 0 -- 0.0 (bottom 32 bits, holding mantissa = 0)
+32+^| *_sampleUpper:_* 0 -- 1.0 (bottom 32 bits, holding mantissa = 0)
+
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Second sample: Supplemental mantissa with remaining *_sampleLower_*/*_sampleUpper_* bits~
+^| 1 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 0 (= ``1'') 16+^| *_bitOffset:_* 0 (same as first sample, indicating overflow)
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 0 -- 0.0 (exponent bits, stored as 8-bit overflow from the mantissa sample)
+32+^| *_sampleUpper:_* 127 -- 1.0 (exponent bits, stored as 8-bit overflow from the mantissa sample)
+
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Third sample: exponent~
+^| 0 ^| 0 ^| 1 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 7 (= ``8'') 16+^| *_bitOffset:_* 32
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 127 -- bias
+32+^| *_sampleUpper:_* 254 -- support for infinities because 254 < 2^*bitLength*^ - 1
 |================================
 
 ifndef::a2xhtml[]
@@ -5795,6 +6654,8 @@ Simon Fenney
 Jan-Harald Fredriksen
 
 Andrew Garrard
+
+Rich Geldreich
 
 Fabien Giesen
 
@@ -5845,4 +6706,3 @@ Eric Werness
 David Wilkinson
 
 // vim: filetype=asciidoc ai expandtab tw=72 ts=4 sts=2 sw=2
-

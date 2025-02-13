@@ -26,6 +26,7 @@ sources    := df.txt \
              etc2.txt \
              astc.txt \
              pvrtc.txt \
+             uastc.txt \
              references.txt
 
 html_config := docbook-xsl/xhtml.xsl df-xhtml.css
@@ -34,10 +35,10 @@ html_config := $(addprefix config/,${html_config})
 pdf_config  := mathjax-docbook.conf docbook-xsl/pdf.xsl
 pdf_config  := $(addprefix config/,${pdf_config})
 
-version     := 1.3
+version     := 1.4
 outbasename := out/dataformat.$(version)
 
-html: $(outbasename).html out/config/df-xhtml.css out/images/Khronos_Dec14.svg out/images/icons/note.png
+html: $(outbasename).html out/config/df-xhtml.css out/images/Khronos_RGB_June18.svg out/images/icons/note.png
 inlinehtml: $(outbasename).inline.html
 compressedinlinehtml: $(outbasename).inline.html.gz
 pdf: $(outbasename).pdf
@@ -47,12 +48,12 @@ $(outbasename).html: $(sources) $(html_config) | out
 	a2x $(A2XOPTS) -f xhtml df.txt -a svgpdf=svg -a a2xhtml=html -a docinfo --xsl-file=config/docbook-xsl/xhtml.xsl -a toc2 -a toclevels=2 -D out
 	./simplifyhtmllinks.pl out/df.html out/df2.html
 	rm out/df.html
-	mv out/df2.html out/dataformat.1.3.html
+	mv out/df2.html out/dataformat.$(version).html
 
 out/config/df-xhtml.css: config/df-xhtml.css  | out out/config
 	cp $< $@
 
-out/images/Khronos_Dec14.svg: images/Khronos_Dec14.svg | out/images
+out/images/Khronos_RGB_June18.svg: images/Khronos_RGB_June18.svg | out/images
 	cp $< $@
 
 out/images/icons/note.png: images/icons/note.png | out/images/icons
@@ -62,10 +63,10 @@ out out/config out/headers out/images out/images/icons:
 	mkdir -p $@
 
 $(outbasename).inline.html: $(outbasename).html inlinecss.pl inlineimages.pl
-	./inlinecss.pl < out/dataformat.1.3.html | ./inlineimages.pl > $@
+	./inlinecss.pl < out/dataformat.$(version).html | ./inlineimages.pl > $@
 
 $(outbasename).inline.html.gz: $(outbasename).inline.html
-	gzip -9 -c < out/dataformat.1.3.inline.html > out/dataformat.1.3.inline.html.gz
+	gzip -9 -c < out/dataformat.$(version).inline.html > out/dataformat.$(version).inline.html.gz
 
 $(outbasename).pdf: $(sources) $(pdf_config) | out
 	asciidoc -d book -b docbook -a numbered -f config/mathjax-docbook.conf -a svgpdf=pdf -a a2x-format=pdf -a docinfo df.txt && \
@@ -75,5 +76,5 @@ out/headers/khr_df.h: headers/khr_df.h out/headers
 	cp $< $@
 
 clean:
-	rm -f out/dataformat.1.3.pdf df.xml out/dataformat.1.3.html out/dataformat.1.3.inline.html out/dataformat.1.3.inline.html.gz
+	rm -f out/dataformat.$(version).pdf df.xml out/dataformat.$(version).html out/dataformat.$(version).inline.html out/dataformat.$(version).inline.html.gz
 	rm -rf out/config out/images out/headers

@@ -1,6 +1,7 @@
-// Copyright (c) 2019 The Khronos Group Inc.
+// Copyright (c) 2019-2025 The Khronos Group Inc.
 // Copyright notice at https://www.khronos.org/registry/speccopyright.html
 
+[[CONVERSION_INTRO]]
 == Introduction to color conversions
 === Color space composition
 
@@ -14,11 +15,11 @@ A color space consists of three basic components:
   relationships between linear intensity and linear numbers in
   the encoding scheme.
   Since the human eye's sensitivity to changes in intensity is
-  non-linear, a non-linear encoding scheme typically allows
+  nonlinear, a nonlinear encoding scheme typically allows
   improved visual quality at reduced storage cost.
 ** An opto-electrical transfer function (OETF) describes the
    conversion from ``scene-referred'' normalized linear light
-   intensity to a (typically) non-linear electronic representation.
+   intensity to a (typically) nonlinear electronic representation.
    The inverse function is written ``OETF^&#160;-1^''.
 ** An electro-optical transfer function (EOTF) describes the
    conversion from the electronic representation to
@@ -30,8 +31,8 @@ A color space consists of three basic components:
    linear display light intensity: OOTF(x) = EOTF(OETF(x)).
    OETF&#160;=&#160;EOTF^&#160;-1^ and
    EOTF&#160;=&#160;OETF^&#160;-1^ only if the OOTF is linear.
-** Historically, a non-linear transfer function has been implicit
-   due to the non-linear relationship between voltage and intensity
+** Historically, a nonlinear transfer function has been implicit
+   due to the nonlinear relationship between voltage and intensity
    provided by a CRT display.
    In contrast, many computer graphics applications are best
    performed in a representation with a linear relationship to
@@ -91,21 +92,21 @@ separate conversion operations:
 
 * The color primary conversion operates on linear _RGB_
   additive color values; if the input or output are not defined in
-  linear terms but with a non-linear <<TRANSFER_CONVERSION,transfer
+  linear terms but with a nonlinear <<TRANSFER_CONVERSION,transfer
   function>>, any color primary conversion must be ``wrapped'' with
-  any transfer functions; conventionally, non-linear _RGB_
+  any transfer functions; conventionally, nonlinear _RGB_
   values are written _R&prime;G&prime;B&prime;_.
 
 * If the input or output <<MODEL_CONVERSION,color model>> is not
   defined in terms of additive primaries (for example,
   _Y&prime;C~B~C~R~_ -- colloquially known as _YUV_), the model
-  conversion is applied to the non-linear _R&prime;G&prime;B&prime;_
-  values; the _Y&prime;~C~C&prime;~CB~C&prime;~CR~_ and _IC~T~C~P~_
-  color models are created from both linear and non-linear
+  conversion is applied to the nonlinear _R&prime;G&prime;B&prime;_
+  values; the _Y&prime;~C~C&prime;~BC~C&prime;~RC~_ and _IC~T~C~P~_
+  color models are created from both linear and nonlinear
   _RGB_.
 
 * Converting numerical values stored in memory to the representation
-  of the color model may itself require additional operations - in
+  of the color model may itself require additional operations -- in
   order to remove dependence on bit depth, all the formulae described
   here work with continuous natural numbers, but some common in-memory
   <<CONVERSION_QUANTIZATION, quantization schemes>> must often be
@@ -131,26 +132,26 @@ encoded for 625-line <<bt601,BT.601>> to a _Y&prime;C~B~C~R~_
 image encoded for <<bt709,BT.709>> can involve multiple costly
 operations.
 An example is shown in the following diagram, which represents
-sampling from a _Y&prime;C~B~C~R~_ texture in one color space,
-and the operations needed to generate a different set of
-_Y&prime;C~B~C~R~_ values representing the color of the sample
-position in a different color space:
+sampling a given location from a _Y&prime;C~B~C~R~_ texture in
+one color space, and the operations needed to generate a different
+set of _Y&prime;C~B~C~R~_ values representing the color of the
+sample position in a different color space:
 
 [[conversionexample]]
 .Example sampling in one space and converting to a different space
 image::images/colorconversion_accurate.{svgpdf}[width="{svgpdf@pdf:475pt:576}",align="center"]
 
-In this diagram, non-linear luma _Y&prime;_ channels are shown
+In this diagram, nonlinear luma _Y&prime;_ channels are shown
 in black and white, color difference _C~B~_/_C~R~_
 channels are shown with the colors at the extremes of their range, and
 color primary channels are shown as the primary color and black.
 Linear representations are shown diagonally divided by a straight line;
-non-linear representations are shown with a gamma curve.
+nonlinear representations are shown with a gamma curve.
 The luma and color difference representation is discussed in
 <<MODEL_YUV>>.
 The interpretation of color primaries is discussed in
 <<PRIMARY_CONVERSION>>.
-Non-linear transfer functions are described in <<TRANSFER_CONVERSION>>.
+Nonlinear transfer functions are described in <<TRANSFER_CONVERSION>>.
 As described below, the diagram shows a 2{times}3 grid of
 input chroma texel values, corresponding to a 4{times}6 grid of
 luma texel values, since the chroma channels are stored at half
@@ -158,6 +159,32 @@ the horizontal and half the vertical resolution of the luma
 channel (i.e. in ``4:2:0'' representation).
 Grayed-out texel values do not contribute to the final output, and are
 shown only to indicate relative alignment of the coordinates.
+
+The stages shown in this diagram assume that the chroma samples are
+being reconstructed at the luma positions through linear interpolation.
+In the days of analog video, this interpolation was an implicit part
+of the display process (<<bt709,BT.709>> and earlier discuss low-pass
+filtering of the chroma signal), but modern standards are less explicit
+about how the reconstruction should be performed, other than defining
+the chroma sample positions.
+In <<microsoftyuv,their guidance on 8-bit YUV>>, Microsoft suggests
+that cosited chroma (with chroma samples at the same image position as
+either odd or even luma samples) use a four-tap Catmull-Rom
+interpolation on each axis for chroma samples which fall between luma
+samples: latexmath:[$9\over{16}$] times the two nearest samples minus
+latexmath:[$1\over{16}$] times the two surrounding samples; see
+<<examplechromareconstruction>> for an equivalent cubic interpolation
+for chroma samples falling at the midpoint of surrounding luma samples.
+Replication (nearest-neighbor sampling) can introduce aliasing at
+color boundaries (although the reconstructed linear RGB values can
+still be filtered).
+In contrast, bilinear interpolation reduces the chroma aliasing, but
+can reduce the expressible range of high spatial-frequency chroma
+values; this is especially true for chroma samples located at the
+midpoint of surrounding luma values, since all reconstructed values
+will be interpolated.
+Ideally the encoder and decoder of the image should be aware of the
+approach used and adjust values accordingly.
 
 <<<
 
@@ -181,32 +208,36 @@ implementations may wish to take advantage of the sparseness.
 . Reconstruction to full resolution of channels which are not at the
   full sampling resolution (``chroma reconstruction''), for example by
   replication or interpolation at the sites of the luma samples, allowing
-  for the chroma sample positions; this example assumes that the chroma
-  samples are being reconstructed through linear interpolation.
+  for the chroma sample positions.
   In the diagram, sample positions for each channel are shown as green
   dots, and each channel corresponds to the same region of the image;
   in this example, the chroma samples are located at the horizontal and
   vertical midpoint of quads of luma samples, but different standards
   align the chroma samples differently.
   Note that interpolation for channel reconstruction necessarily happens
-  in a non-linear representation for color difference representations
+  in a nonlinear representation for color difference representations
   such as _Y&prime;C~B~C~R~_: creating a linear representation would
   require converting to _RGB_, which in turn requires a full
-  set of _Y&prime;C~B~C~R~_ samples for a given location.
+  set of _Y&prime;C~B~C~R~_ samples for a given position.
 
-. Conversion between color models -- in this example, from non-linear
-  _Y&prime;C~B~C~R~_ to non-linear _R&prime;G&prime;B&prime;_.
+. Conversion between color models -- in this example, from nonlinear
+  _Y&prime;C~B~C~R~_ to nonlinear _R&prime;G&prime;B&prime;_.
   For example, the conversion might be that between BT.601
-  _Y&prime;C~B~C~R~_ and BT.601 non-linear _R&prime;G&prime;B&prime;_
+  _Y&prime;C~B~C~R~_ and BT.601 nonlinear _R&prime;G&prime;B&prime;_
   described in <<MODEL_BT601>>.
   For _Y&prime;C~B~C~R~_ to _R&prime;G&prime;B&prime;_, this
   conversion is a sparse matrix multiplication.
 
-. Application of a transfer function to convert from non-linear
+. Application of a transfer function to convert from nonlinear
   _R&prime;G&prime;B&prime;_ to linear _RGB_, using the
   color primaries of the input representation.
-  In this case, the conversion might be the EOTF^&#160;-1^ described
-  in <<TRANSFER_ITU>>.
+  In this case, the conversion might be the ITU OETF^&#160;-1^ described
+  in <<TRANSFER_ITU>>, since all operations are being performed in a
+  scene-referred color space.
+  If the filtered _RGB_ values are to be displayed directly, this
+  conversion may instead be the EOTF described in <<TRANSFER_SRGB_EOTF>>
+  (for a computer monitor) or <<TRANSFER_BT1886>> (for a television),
+  thereby incorporating the <<TRANSFER_CONVERSION,OOTF>>.
 +
 The separation of stages 4 and 5 is specific to the _Y&prime;C~B~C~R~_
 to _R&prime;G&prime;B&prime;_ color model conversion.
@@ -215,7 +246,7 @@ _IC~T~C~P~_ have more complex interactions between the color
 model conversion and the transfer function.
 
 . Interpolation of linear color values at the sampling position shown
-  with a magenta cross according to the chosen sampling rules.
+  with a magenta cross according to the chosen texture sampling rules.
 
 . Convert from the color primaries of the input representation to the
   desired color primaries of the output representation, which is
@@ -225,10 +256,11 @@ model conversion and the transfer function.
   <<PRIMARIES_BT709>>.
 
 . Convert from the linear _RGB_ representation using the
-  target primaries to a non-linear _R&prime;G&prime;B&prime;_
-  representation, for example the OETF described in <<TRANSFER_ITU>>.
+  target primaries to a nonlinear _R&prime;G&prime;B&prime;_
+  representation, for example the (scene-referred) ITU OETF
+  described in <<TRANSFER_ITU>>.
 
-. Conversion from non-linear _R&prime;G&prime;B&prime;_ to the
+. Conversion from nonlinear _R&prime;G&prime;B&prime;_ to the
   _Y&prime;C~B~C~R~_ color model, for example as defined
   in as defined in <<MODEL_BT709>>
   (a matrix multiplication).
@@ -237,6 +269,7 @@ If the output is to be written to a frame buffer with reduced-resolution
 chroma channels, chroma values for multiple samples need to be combined.
 Note that it is easy to introduce inadvertent chroma blurring in this
 operation if the source space chroma values are generated by interpolation.
+This chroma rate reduction is not shown in the diagram.
 
 In this example, generating the four linear _RGB_ values
 required for linear interpolation at the magenta cross position
@@ -276,19 +309,19 @@ use the following steps:
 . Range expansion (as in the previous example)
 . Chroma reconstruction combined with sampling.
   In this case, the desired chroma reconstruction operation is
-  approximated by adjusting the sample locations to compensate
+  approximated by adjusting the sample positions to compensate
   for the reduced resolution and sample positions of the chroma
-  channels, resulting in a single set of non-linear
+  channels, resulting in a single set of nonlinear
   _Y&prime;C~B~C~R~_ values.
 . Model conversion from _Y&prime;C~B~C~R~_ to _R&prime;G&prime;B&prime;_
   as described in <<MODEL_BT601>>, here performed _after_ the
   sampling/filtering operation.
-. Conversion from non-linear _R&prime;G&prime;B&prime;_ to linear
-  _RGB_, using the EOTF^&#160;-1^ described
+. Conversion from nonlinear _R&prime;G&prime;B&prime;_ to linear
+  _RGB_, using the ITU OETF^&#160;-1^ described
   in <<TRANSFER_ITU>>.
 . Conversion of color primaries, corresponding to step 7 of the
   previous example.
-. Conversion to a non-linear representation, corresponding to step
+. Conversion to a nonlinear representation, corresponding to step
   8 of the previous example.
 . Conversion to the output color model, corresponding to step 9
   of the previous example.
@@ -305,19 +338,21 @@ Large areas of constant color will be correctly converted by this
 approximation.
 However, there are two sources of errors near color boundaries:
 
-. Interpolation takes place on values with a non-linear representation;
+. Interpolation takes place on values with a nonlinear representation;
   the repercussions of this are discussed in <<TRANSFER_CONVERSION>>,
   but can introduce both intensity and color shifts.
-  Note that applying a non-linear transfer function as part of filtering
+  Note that applying a nonlinear transfer function as part of filtering
   does not improve accuracy for color models other than
-  _R&prime;G&prime;B&prime;_ since the non-linear additive values have been
-  transformed as part of the color model representation.
+  _R&prime;G&prime;B&prime;_ since the nonlinear additive values have
+  been transformed as part of the color model representation.
 . When chroma reconstruction is bilinear and the final sample operation
   is bilinear, the interpolation operation now only access a maximum of
   four chroma samples, rather than up to nine for the precise series
   of operations.
   This has the potential to introduce a degree of aliasing in the
-  output.
+  output; image errors may be more visible if the scaling factor or
+  sample positions change over time, for example when a video texture
+  is projected onto a 3D surface.
 
 This approximation produces identical results to the more explicit
 sequence of operations in two cases:
@@ -327,28 +362,64 @@ sequence of operations in two cases:
   a linear interpolation.
 . If the sampling operation is a nearest-neighbor operation and
   chroma reconstruction uses linear interpolation, _if_ the sample
-  coordinate position is adjusted to the nearest luma sample location.
+  coordinate position is adjusted to the nearest luma sample position.
+
+The approximation in <<approximateconversionexample>> consists of
+applying the sequence of operations used to reconstruct full-color
+samples at the luma sampling points in a more general solution, but
+does so instead at all final color positions.
+If final color values are only evaluated at the positions of the
+luma samples (such that the interpolation shown in stage 6 of
+<<conversionexample>> equates to a single sample value), the two
+approaches are equivalent: generating an image of the original luma
+resolution does not require the two-stage sampling process shown in
+<<conversionexample>>.
 
 As another example, the conversion from BT.709-encoded
 _Y&prime;C~B~C~R~_ to sRGB _R&prime;G&prime;B&prime;_ may be considered
 to be a simple <<MODEL_YUV,model conversion>> (to
-<<PRIMARIES_BT709,BT.709>> _R&prime;G&prime;B&prime;_ non-linear primaries
-using the ``<<TRANSFER_ITU,ITU>>'' OETF), since sRGB shares the BT.709
-color primaries and is defined as a complementary <<TRANSFER_SRGB,EOTF>>
-intended to be combined with BT.709's OETF.
+<<PRIMARIES_BT709,BT.709>> _R&prime;G&prime;B&prime;_ nonlinear primaries
+that are encoded representing the ``<<TRANSFER_ITU,ITU>>'' OETF), since sRGB
+shares the BT.709 color primaries and is defined as a complementary
+<<TRANSFER_SRGB,EOTF>> intended to be combined with BT.709's OETF.
 This interpretation imposes a latexmath:[$\gamma \approx$] 1.1
-OOTF.
-Matching the OOTF of a
-<<TRANSFER_ITU,BT.709>>-<<TRANSFER_BT1886,BT.1886>> system,
-for which latexmath:[$\gamma \approx$] 1.2, implies using the
-<<TRANSFER_BT1886,BT.1886>> EOTF to convert to linear light,
-then the <<TRANSFER_SRGB,sRGB>> EOTF^&#160;-1^ to convert back
-to sRGB non-linear space.
-Encoding linear scene light with linear OOTF means applying
-the <<TRANSFER_ITU,BT.709>> OETF^&#160;-1^; if the sRGB
-_R&prime;G&prime;B&prime;_ target is itself intended to represent
-a linear OOTF, then the {_R&prime;~sRGB~_, _G&prime;~sRGB~_,
-_B&prime;~sRGB~_} should be calculated as:
+OOTF between the scene described by the BT.709 (scene-referred)
+OETF encoding and the display output described by the sRGB (display-referred)
+EOTF.
+
+[latexmath]
++++++
+\begin{align*}
+ \{\mathit{R}_\mathit{sRGB},\mathit{G}_\mathit{sRGB},\mathit{B}_\mathit{sRGB}\}
+ &= \textrm{EOTF}_{sRGB}(\{\mathit{R}'_{\mathit{BT}.709},\mathit{G}'_{\mathit{BT}.709},\mathit{B}'_{\mathit{BT}.709}\}) \\
+ &= \textrm{OOTF}_{\mathit{BT}.709{\rightarrow}sRGB}(\{\mathit{R}_{\mathit{BT}.709},\mathit{G}_{\mathit{BT}.709},\mathit{B}_{\mathit{BT}.709}\})
+\end{align*}
++++++
+
+Matching the OOTF of a <<TRANSFER_ITU,BT.709>>-<<TRANSFER_BT1886,BT.1886>>
+system, for which latexmath:[$\gamma \approx$] 1.2, implies applying the
+<<TRANSFER_BT1886,BT.1886>> EOTF to the nonlinear BT.709 content to
+convert to linear display light (for a television).
+For a computer display whose frame buffer is represented with sRGB
+nonlinear encoding to match the output of a television, the output of
+the BT.709{rarrow}BT.1886 (OETF^&#160;-1^{rarrow}EOTF) pair can then have the
+<<TRANSFER_SRGB,sRGB>> EOTF^&#160;-1^ applied to the resulting display-linear
+_RGB_ values to convert back to sRGB nonlinear _R&prime;G&prime;B&prime;_
+space:
+
+[latexmath]
++++++
+$$\{\mathit{R}'_\mathit{sRGB},\mathit{G}'_\mathit{sRGB},\mathit{B}'_\mathit{sRGB}\} =
+\textrm{EOTF}^{-1}_{sRGB}(\textrm{EOTF}_{\mathit{BT}.1886}
+(\{\mathit{R}'_{\mathit{BT}.709},\mathit{G}'_{\mathit{BT}.709},\mathit{B}'_{\mathit{BT}.709}\}))$$
++++++
+
+To represent scene-linear light (with a linear OOTF), BT.709-encoded
+content can be converted to a linear representation with the scene-referred
+<<TRANSFER_ITU,BT.709>> OETF^&#160;-1^ and, if necessarly, this can be
+treated as linear display light and converted back to a nonlinear sRGB
+_R&prime;G&prime;B&prime;_ target by subsequently applying the
+<<TRANSFER_SRGB,sRGB>> EOTF^&#160;-1^:
 
 [latexmath]
 +++++
@@ -356,3 +427,491 @@ $$\{\mathit{R}'_\mathit{sRGB},\mathit{G}'_\mathit{sRGB},\mathit{B}'_\mathit{sRGB
 \textrm{EOTF}^{-1}_{sRGB}(\textrm{OETF}^{-1}_{\mathit{BT}.709}
 (\{\mathit{R}'_{\mathit{BT}.709},\mathit{G}'_{\mathit{BT}.709},\mathit{B}'_{\mathit{BT}.709}\}))$$
 +++++
+
+Note that this OOTF implies that the scene viewing conditions and the
+display viewing conditions match, which is unlikely unless the scene is
+very dim or the display is very bright.
+
+<<<
+
+[[examplechromareconstruction]]
+=== Example chroma reconstruction results
+
+The following images show the effects of different chroma reconstruction
+schemes on sample inputs.
+In practice, a number of proprietary schemes exist for chroma
+reconstruction (as with the related problem of reconstructing
+full-color data from filtered camera sensors), and the approaches
+with the highest visual quality may rely on heuristics; the
+mechanisms described here are relatively simplistic, but may be
+appropriate for real-time support in a general-purpose environment
+such as texture filtering on a GPU.
+
+The initial set of images are reconstructed here assuming that chroma
+samples logically fall at the midpoint of (that is, half way between)
+luma samples: the nearest chroma samples to _Y&prime;~(x,y)~_ fall at
+latexmath:[$\left(2\left\lfloor{x\over 2}\right\rfloor + {1\over 2},
+2\left\lfloor{y\over 2}\right\rfloor + {1\over 2}\right)$] in luma
+coordinates, and the luma samples nearest to chroma _C~B(x,y)~_ and
+_C~R(x,y)~_ are at latexmath:[$\left(x\pm 0.25, y\pm 0.25\right)$]
+in chroma coordinates.
+
+[[chromacheckeroriginal]]
+.A colored checker pattern reconstructed at its original size
+image::images/cb16all.{svgpdf}[width="{svgpdf@pdf:475pt:576}",align="center"]
+
+In <<chromacheckeroriginal>>:
+
+* The left-most image shows the original image: a 16{times}16 checkerboard of
+  colored squares, each occupying 2{times}2 texels.
+
+To generate the remaining images, the _R&prime;G&prime;B&prime;_ pattern
+is converted to _Y&prime;C~B~C~R~_ with the chroma difference channels
+downsampled by 2 on each axis (that is, ``4:2:0'' downsampling) by averaging
+after the color model conversion (in this example, each quad of texels has
+the same color, so this averaging is trivial), resulting in 16{times}16
+_Y&prime;_ values and 8{times}8 _C~B~_ and _C~R~_ values.
+The chroma values are then reconstructed to the original resolution
+before conversion to _R&prime;G&prime;B&prime;_ pixels.
+
+* The second-from-left image shows the result of reconstructing the chroma
+  samples to luma resolution using bilinear interpolation between adjacent
+  chroma values, which are assumed to be at the midpoint of each 2{times}2
+  quad.
+  Each chroma value used is therefore a weighted average of the surrounding
+  chroma samples; since the chroma values vary quickly, the most visible
+  effect of this is to reduce the saturation of the colored squares.
+  This effect can be mitigated by applying a sharpening deconvolution to the
+  encoded chroma values, although the result may result in values that cannot
+  be encoded.
+  Note that the pixels at the edge of the image are not interpolating because
+  the accessed chroma coordinates are clamped, which results in increased
+  saturation in this image.
+* The second-from-right image uses a bicubic filter to reconstruct the chroma
+  values, equivalent to using a bicubic filter for step 3 of <<conversionexample>>.
+  (For this example, in the chosen filter, proposed by R. Keys in 1981, the
+  reconstructed chroma value to the right of chroma sample p~x~ is calculated as
+  -0.070312{times}p~x-1~ + 0.867188{times}p~x~ + 0.226562{times}p~x+1~ -
+  0.023438{times}p~x+2~, with the x and y axes filtered separably; weightings are
+  obviously reflected for the chroma value to the _left_ of chroma sample p~x~.)
+  This has the effect of increasing the significance of the nearest chroma
+  sample (compared with the 0.75 weight used in bilinear interpolation), in
+  this case restoring some of the lost saturation compared with bilinear
+  filtering.
+* The rightmost sample simply reconstructs the chroma values at each luma
+  position by replicating the nearest chroma sample, corresponding to the
+  use of a nearest filter for chroma in step 3 of <<conversionexample>>.
+  Since the chroma values for each quad in the original image are identical,
+  for this source image the reconstruction is perfect (and matches the
+  left-most image exactly).
+
+<<<
+
+The next example shows the result of scaling this 16{times}16 image to
+21{times}21 pixels.
+
+[[chromacheckerupscale]]
+.A colored checker pattern upscaled from 16{times}16 to 21{times}21
+image::images/cb21all.{svgpdf}[width="{svgpdf@pdf:475pt:576}",align="center"]
+
+In <<chromacheckerupscale>>:
+
+* The left-most image shows the original _R&prime;G&prime;B&prime;_ image
+  directly upscaled from 16{times}16 to 21{times}21 pixels with bilinear
+  filtering (after conversion to linear _RGB_), for reference.
+* The top-left image shows bilinear filtering for chroma reconstruction, using
+  the explicit reconstruction used in <<conversionexample>>: chroma values are
+  calculated at each 16{times}16 luma sample position by bilinear interpolation,
+  the resulting ``4:4:4'' values are converted to _R&prime;G&prime;B&prime;_, and
+  these 16{times}16 color values are bilinearly interpolated (after conversion to
+  linear _RGB_) to get a final color for each pixel.
+  Since the chroma reconstruction is as shown for the linear example in
+  <<chromacheckeroriginal>>, the result is desaturated relative to the original
+  image, but the effect is consistent across the image.
+* The bottom-left image shows bilinear filtering of luma and chroma values by
+  projecting the sample position directly onto the 16{times}16 luma and
+  downsampled 8{times}8 chroma planes, as shown in <<approximateconversionexample>>,
+  prior to conversion to _R&prime;G&prime;B&prime;_.
+  Since the resulting chroma sampling positions fall at varying distances from
+  the position of the original chroma values due to the scaling of the image
+  (and the chroma values are nonlinear), the result is a varying saturation
+  across the image.
+  For a static image at a fixed scale ratio, this effect may be considered
+  minor, since affects primarily high frequency color data -- but it may
+  be more intrusive if sample positions change over time, as with video
+  projected onto a moving 3D surface: changes both to subpixel offset and
+  scale factors can move the chroma sample and therefore alter saturation.
+  Additionally, linear interpolation of nonlinear luma values results in
+  an overall loss of image brightness at transitions.
+* The top-right image shows chroma reconstruction to the 16{times}16 _Y&prime;_
+  resolution by replicating the nearest chroma sample values to each _Y&prime;_
+  position, converting to _R&prime;G&prime;B&prime;_, and bilinearly filtering
+  the resulting 16{times}16 values after linearising to _RGB_
+  space -- corresponding to <<conversionexample>> with a nearest filter in step 3.
+  Since this mechanism perfectly replicates the chroma of this original image
+  example, as shown in <<chromacheckeroriginal>>, the result matches the
+  bilinearly-filtered _R&prime;G&prime;B&prime;_ image.
+* The bottom-right image shows chroma reconstruction by projecting the sample
+  position onto the 16{times}16 luma and 8{times}8 chroma planes and accessing
+  the nearest chroma values to the sample position (corresponding to nearest
+  filtering in step 3 of <<approximateconversionexample>>), while bilinearly
+  interpolating _Y&prime;_, prior to conversion to _R&prime;G&prime;B&prime;_.
+  The result is color aliasing, with a loss of brightness from interpolation
+  of nonlinear luma values.
+* The right-most image shows bicubic reconstruction of chroma to the
+  original _Y&prime;_ resolution and subsequent filtering after conversion
+  to _R&prime;G&prime;B&prime;_ -- corresponding to bilinear filtering
+  of the right-most image in <<chromacheckeroriginal>> (after conversion
+  to linear _RGB_).
+  As in the <<chromacheckeroriginal>> case, the level of color saturation
+  is between that of bilinear and nearest filtering, and consistent across
+  the image.
+
+<<<
+
+A second source image demonstrates more continuous variation in chroma,
+with varying spatial frequency.
+
+[[rainbowwheeloriginal]]
+.A radial rainbow pattern reconstructed at its original size
+image::images/all_glory_to_the_hypnotoad_24.{svgpdf}[width="{svgpdf@pdf:475pt:576}",align="center"]
+
+In <<rainbowwheeloriginal>>:
+
+* The left-most image shows the original image: a 24{times}24 pattern
+  of color changes that increase in frequency towards the middle of
+  the image.
+
+To generate the remaining images, the _R&prime;G&prime;B&prime;_ pattern
+is converted to _Y&prime;C~B~C~R~_ with the chroma difference channels
+downsampled by 2 on each axis (that is, ``4:2:0'' downsampling) by averaging
+after the color model conversion, resulting in 24{times}24 _Y&prime;_ values
+and 12{times}12 _C~B~_ and _C~R~_ values.
+These chroma values are then reconstructed to the original resolution
+before conversion to _R&prime;G&prime;B&prime;_ pixels.
+
+* The second-from-left image shows the result of reconstructing the chroma
+  samples to luma resolution using bilinear interpolation between adjacent
+  chroma values, which are assumed to be at the midpoint of each 2{times}2
+  quad.
+  Each chroma value used is therefore a weighted average of the surrounding
+  chroma samples; since the chroma values vary quickly, the most visible
+  effect of this is to reduce the saturation at the higher-frequency region
+  near the center of the image, whereas colors are recovered quite faithfully
+  in the low-frequency regions towards the image edges.
+* The second-from-right image uses a bicubic filter to reconstruct the chroma
+  values, as in <<chromacheckeroriginal>>.
+  This again has the effect of increasing the significance of the nearest chroma
+  sample, slightly restoring the lost saturation compared with bilinear filtering
+  in the high frequency region.
+* The rightmost example simply reconstructs the chroma values at each luma
+  position by replicating the nearest chroma sample to the corresponding
+  luma coordinates.
+  The result retains some missing saturation relative to the interpolated
+  examples; the chroma channels were constructed by averaging quads of chroma
+  values corresponding to each _R&prime;G&prime;B&prime;_ texel, so some
+  saturation has still been lost in areas of high frequency chroma, but there
+  is no further saturation loss in chroma reconstruction.
+  However, aliasing is quite visible.
+
+<<<
+
+The final example shows this 24{times}24 image scaled up to 30{times}30
+pixels.
+
+[[rainbowwheelupscale]]
+.A radial rainbow pattern upscaled from 24{times}24 to 30{times}30
+image::images/all_glory_to_the_hypnotoad_30.{svgpdf}[width="{svgpdf@pdf:475pt:576}",align="center"]
+
+In <<rainbowwheelupscale>>:
+
+* The left-most image shows the original _R&prime;G&prime;B&prime;_ image
+  upscaled to 30{times}30 pixels directly (after conversion to _RGB_, using
+  bilinear interpolation) for reference.
+* The top-left image shows bilinear filtering for chroma reconstruction, using
+  the explicit reconstruction used in <<conversionexample>>: the chroma values
+  are reconstructed at each of the 24{times}24 luma sample positions by bilinear
+  interpolation, the resulting ``4:4:4'' values are converted to
+  _R&prime;G&prime;B&prime;_, and the resulting 24{times}24 color values are
+  bilinearly interpolated (after conversion to linear _RGB_) to get a final color
+  for each pixel.
+  Since the chroma reconstruction is as shown for the linear example in
+  <<rainbowwheeloriginal>>, the result is desaturated in the high frequency
+  regions relative to the original image, but the resulting filtering is
+  consistent across the image coordinates.
+* The bottom-left image shows bilinear filtering of chroma values by
+  projecting the sample position directly onto the the 24{times}24 luma and
+  downsampled 12{times}12 chroma planes, as shown in
+  <<approximateconversionexample>>, prior to conversion to
+  _R&prime;G&prime;B&prime;_.
+  Since the resulting chroma sampling positions are at varying distances from
+  the position of the original chroma values due to the scaling of the image,
+  the result is a variation in saturation across the image -- partly recovering
+  some of the loss of saturation in the top left case (most visible in orange
+  bands six pixels above and to the left of the spiral center), at the cost of
+  color aliasing and inconsistency.
+  For a static image at a fixed scale ratio, this effect may be considered
+  minor, since it affects primarily high frequency color data -- but it may
+  be more intrusive if the sample positions change over time, as with a
+  projection of video onto a moving 3D surface.
+* The top-right image shows chroma reconstruction to the 24{times}24 _Y&prime;_
+  resolution by replicating the nearest chroma values to each _Y&prime;_ position,
+  conversion to _R&prime;G&prime;B&prime;_, and bilinearly filtering the
+  resulting 24{times}24 values in _RGB_ space (corresponding to
+  <<conversionexample>> with a nearest filter in step 3).
+  While the chroma aliasing from <<rainbowwheeloriginal>> is still highly visible,
+  the interpolation helps to reduce its intrusiveness slightly, and the effect
+  is consistent across the image.
+* The bottom-right image shows chroma reconstruction by projecting the sample
+  position onto the 16{times}16 luma and 8{times}8 chroma planes and accessing
+  the nearest chroma values to the sample position (corresponding to nearest
+  filtering in step 3 of <<approximateconversionexample>>), while bilinearly
+  interpolating _Y&prime;_, prior to conversion to _R&prime;G&prime;B&prime;_.
+  The result is color aliasing, amplified by the scaling effect relative to
+  <<rainbowwheeloriginal>>, with luma values still interpolated.
+* The right-most image shows bicubic reconstruction of chroma to the
+  original _Y&prime;_ resolution and subsequent filtering after conversion
+  to _R&prime;G&prime;B&prime;_ -- corresponding to bilinear filtering
+  of the right-most image in <<rainbowwheeloriginal>>.
+  As in the <<rainbowwheeloriginal>> case, the level of color saturation
+  is between that of bilinear and nearest filtering, and consistent across
+  the image.
+
+<<<
+
+The remaining examples show similar chroma reconstruction, but assuming that
+the chroma samples are logically cosited with even luma samples (that
+is, aligned with even luma coordinates in each axis).
+That is, for each luma sample at _Y&prime;~(x,y)~_ there are chroma
+samples located at
+latexmath:[$\left(2\left\lfloor{x\over 2}\right\rfloor,
+2\left\lfloor{y\over 2}\right\rfloor\right)$] in luma coordinates, and
+for chroma _C~B(x,y)~_ and _C~R(x,y)~_ there are luma samples at
+latexmath:[$\left(x + 0.25 \pm 0.25, y + 0.25 \pm 0.25\right)$]
+in chroma coordinates.
+Note that there are video standards for which chroma is logically cosited with
+luma in one axis, but falls at the midpoint of luma values in the other.
+
+[[chromacheckeroriginal_cosited]]
+.A cosited colored checker pattern reconstructed at its original size
+image::images/cb16all_cosited.{svgpdf}[width="{svgpdf@pdf:475pt:576}",align="center"]
+
+In <<chromacheckeroriginal_cosited>>:
+
+* The left-most image shows the original image: a 16{times}16 checkerboard of
+  colored squares, each occupying 2{times}2 texels.
+
+To generate the remaining images, the _R&prime;G&prime;B&prime;_ pattern
+is converted to _Y&prime;C~B~C~R~_ with the chroma difference channels
+downsampled by 2 on each axis (that is, ``4:2:0'' downsampling) after the
+color model conversion by taking the top left texel chroma value of each
+2{times}2 quad, resulting in 16{times}16 _Y&prime;_ values and 8{times}8
+_C~B~_ and _C~R~_ values.
+The chroma values are then reconstructed to the original resolution
+before conversion to _R&prime;G&prime;B&prime;_ pixels.
+
+* The second-from-left image shows the result of reconstructing the chroma
+  samples to luma resolution using bilinear interpolation between adjacent
+  chroma values, which are assumed to be aligned with the the top left texel
+  of each 2{times}2 quad.
+  The top left texel of each quad therefore replicates the original color
+  accurately, and the remaining chroma values are a weighted average of
+  the surrounding chroma samples.
+  Most chroma values used are therefore a weighted average of the surrounding
+  chroma samples; since the chroma values vary quickly, the most visible
+  effect of this is to reduce the saturation of the colored squares away from
+  the top left texel of each quad, and to shift the chroma of the image up
+  and to the left, since the source image has constant chroma for values
+  which this reconstruction approach is interpolating.
+  Note that the pixels at the edge of the image are not interpolating because
+  the accessed chroma coordinates are clamped.
+* The second-from-right image uses a bicubic filter to reconstruct the chroma
+  values, as in Microsoft's suggestion: the chroma of even coordinates is used
+  directly, and at odd coordinates the chroma is calculated as
+  latexmath:[$9\over{16}$] times the two nearest samples minus
+  latexmath:[$1\over{16}$] times the two surrounding samples, on each axis.
+  This has the effect of a mild sharpening in chroma, but the difference from
+  the bilinear filtering case in this example is subtle.
+* The rightmost sample simply reconstructs the chroma values by replicating
+  the nearest chroma sample to the luma position (rounding the coordinate down);
+  since the chroma values for each quad in the original image are identical,
+  for this source image the reconstruction is perfect (matching the left-most
+  image), and the effect is identical to the nearest chroma reconstruction in
+  <<chromacheckeroriginal>>.
+
+<<<
+
+The next example shows the result of scaling this 16{times}16 image to
+21{times}21 pixels.
+
+[[chromacheckerupscale_cosited]]
+.A cosited colored checker pattern upscaled from 16{times}16 to 21{times}21
+image::images/cb21all_cosited.{svgpdf}[width="{svgpdf@pdf:475pt:576}",align="center"]
+
+In <<chromacheckerupscale_cosited>>:
+
+* The left-most image shows the original _R&prime;G&prime;B&prime;_ image
+  directly upscaled from 16{times}16 to 21{times}21 pixels with bilinear
+  filtering (after conversion to linear _RGB_), for reference.
+* The top-left image shows bilinear filtering for chroma reconstruction, using
+  the explicit reconstruction used in <<conversionexample>>: the chroma values
+  for the top left of each quad in the 16{times}16 luma sample positions are
+  used exactly and the remainder are reconstructed by bilinear interpolation,
+  as in <<chromacheckeroriginal_cosited>>, and the resulting ``4:4:4'' values
+  are converted to _R&prime;G&prime;B&prime;_; the resulting 16{times}16 color
+  values are bilinearly interpolated (after conversion to linear _RGB_) to get
+  a final color for each pixel.
+  Since the chroma reconstruction is as shown for the linear example in
+  <<chromacheckeroriginal_cosited>>, chroma is similarly shifted up and left
+  relative to the ``correct'' chroma position for this source image,
+  and intermediate values are desaturated compared with the original; however
+  the resulting filtering is consistent across the image.
+* The bottom-left image shows bilinear filtering of luma and chroma values by
+  projecting the sample position directly onto the 16{times}16 luma and
+  downsampled 8{times}8 chroma planes, as shown in <<approximateconversionexample>>,
+  prior to conversion to _R&prime;G&prime;B&prime;_.
+  Since the resulting chroma sampling positions fall at varying distances from
+  the position of the original chroma values due to the scaling of the image
+  (and the chroma values are nonlinear), this causes saturation to vary across
+  the image.
+  Additionally the interpolation of luma and chroma in nonlinear space causes
+  reduced brightness and saturation at interpolated pixels.
+* The top-right image shows chroma reconstruction to the 16{times}16 _Y&prime;_
+  resolution by replicating the nearest chroma values to each _Y&prime;_
+  with the top left luma coordinates corresponding to the position of chroma
+  for each 2{times}2 quad -- but rounding the other projected coordinates down
+  such that the same chroma values are used for the entire quad.
+  The result is converted to _R&prime;G&prime;B&prime;_, and the resulting
+  16{times}16 values are bilinearly filtered in _RGB_ space (corresponding to
+  <<conversionexample>> with a nearest filter in step 3).
+  Since this mechanism perfectly replicates the chroma of this original image
+  example, as shown in <<chromacheckeroriginal_cosited>>, the result matches the
+  bilinearly-filtered _R&prime;G&prime;B&prime;_ image, and also the equivalent
+  image in <<chromacheckerupscale>>.
+* The bottom-right image shows chroma reconstruction by projecting the sample
+  position directly onto the 16{times}16 luma and 8{times}8 chroma planes, where
+  chroma samples are aligned with the top left luma of each 2{times}2 quad,
+  and accessing the nearest chroma values; this corresponds to nearest filtering
+  in step 3 of <<approximateconversionexample>>.
+  _Y&prime;_ is bilinearly interpolated prior to conversion to
+  _R&prime;G&prime;B&prime;_.
+  Reduced brightness is caused by linearly interpolating nonlinear luma values,
+  and the chroma and luma samples are visibly out of alignment due to chroma
+  aliasing -- an effect common to analog television broadcasts.
+* The right-most image shows bicubic reconstruction of chroma to the
+  original _Y&prime;_ resolution and subsequent filtering after conversion
+  to _R&prime;G&prime;B&prime;_ -- corresponding to bilinear filtering
+  of the right-most image in <<chromacheckeroriginal_cosited>>.
+  As in the <<chromacheckeroriginal_cosited>> case, the distinction from
+  the bilinearly-filtered case is subtle.
+
+<<<
+
+The second source image demonstrates more continuous variation in chroma,
+with varying spatial frequency, here again reproduced assuming that chroma
+samples are cosited with even luma coordinates.
+
+[[rainbowwheeloriginal_cosited]]
+.A cosited radial rainbow pattern reconstructed at its original size
+image::images/all_glory_to_the_hypnotoad_24_cosited.{svgpdf}[width="{svgpdf@pdf:475pt:576}",align="center"]
+
+In <<rainbowwheeloriginal_cosited>>:
+
+* The left-most image shows the original image: a 24{times}24 pattern
+  of color changes that increase in frequency towards the middle of
+  the image.
+
+To generate the remaining images, the _R&prime;G&prime;B&prime;_ pattern
+is converted to _Y&prime;C~B~C~R~_ with the chroma difference channels
+downsampled by 2 on each axis (that is, ``4:2:0'' downsampling) after the
+color model conversion by taking the top left chroma value of each 2{times}2
+quad, resulting in 24{times}24 _Y&prime;_ values and 12{times}12 _C~B~_ and
+_C~R~_ values.
+These chroma values are then reconstructed to the original resolution
+before conversion to _R&prime;G&prime;B&prime;_ pixels.
+
+* The second-from-left image shows the result of reconstructing the chroma
+  samples to luma resolution using bilinear interpolation between adjacent
+  chroma values, which are assumed to be aligned with the the top left texel
+  of each 2{times}2 quad.
+  The top left texel of each quad therefore replicates the original color
+  accurately, and the remaining chroma values are a weighted average of
+  the surrounding chroma samples.
+  Most chroma values used are therefore a weighted average of the surrounding
+  chroma samples; since the chroma values vary quickly, the most visible
+  effect of this is to reduce the saturation at many pixels in the
+  higher-frequency region and introduce color aliasing near the center of the
+  image, whereas colors are recovered quite faithfully in the low-frequency
+  regions at the image edges.
+* The second-from-right image uses a bicubic filter to reconstruct the chroma
+  values, as in <<chromacheckeroriginal_cosited>>.
+  This slightly increases the saturation of some pixels due to chroma sharpening
+  in the high chroma frequency region, but the difference from the bilinear case
+  is subtle.
+* The rightmost sample simply reconstructs the chroma values by replicating
+  the chroma sample corresponding to the top left of each 2{times}2 quad.
+  Since in this case the created chroma values were not antialiased during
+  chroma reconstruction, the desaturation seen in the corresponding image of
+  <<rainbowwheeloriginal>> is replaced with chroma aliasing, with chroma regions
+  being shifted down and right relative to the luma values with which they should
+  be associated because of the replication of the top left chroma sample.
+
+<<<
+
+The final example shows this 24{times}24 image scaled up to 30{times}30
+pixels.
+
+[[rainbowwheelupscale_cosited]]
+.A cosited radial rainbow pattern upscaled from 24{times}24 to 30{times}30
+image::images/all_glory_to_the_hypnotoad_30_cosited.{svgpdf}[width="{svgpdf@pdf:475pt:576}",align="center"]
+
+In <<rainbowwheelupscale_cosited>>:
+
+* The left-most image shows the original _R&prime;G&prime;B&prime;_ image
+  upscaled to 30{times}30 pixels directly (after conversion to _RGB_, using
+  bilinear interpolation) for reference.
+* The top-left image shows bilinear filtering for chroma reconstruction, using
+  the explicit reconstruction used in <<conversionexample>>: the chroma values
+  are reconstructed at each of the 24{times}24 luma sample positions by bilinear
+  interpolation as in <<rainbowwheeloriginal_cosited>>, the resulting ``4:4:4''
+  values are converted to _R&prime;G&prime;B&prime;_, and the resulting
+  24{times}24 color values are bilinearly interpolated (after conversion to linear
+  _RGB_) to get a final color for each pixel.
+  Since the chroma reconstruction is as shown for the linear example in
+  <<rainbowwheeloriginal_cosited>>, the result is desaturated at many pixels in
+  the high frequency regions relative to the original image and some color aliasing
+  is visible especially at the image center, but the resulting filtering is
+  consistent across the image coordinates.
+* The bottom-left image shows projection of sample positions directly onto the
+  24{times}24 luma and downsampled 12{times}12 chroma planes, and bilinear
+  filtering of these nonlinear values (as shown in <<approximateconversionexample>>),
+  prior to conversion to _R&prime;G&prime;B&prime;_.
+  Since the resulting chroma sampling positions are at varying distances from
+  the position of the original chroma values due to the scaling of the image,
+  the result is a variation in saturation across the image; additionally the
+  interpolation of nonlinear luma and chroma values results in a loss of image
+  brightness and saturation.
+* The top-right image shows chroma reconstruction to the 24{times}24 _Y&prime;_
+  resolution by replicating the nearest chroma values to each _Y&prime;_ (rounding
+  coordinates down), conversion to _R&prime;G&prime;B&prime;_, and bilinearly
+  filtering the resulting 24{times}24 values in _RGB_ space (corresponding to
+  <<conversionexample>> with a nearest filter in step 3).
+  While the chroma aliasing from <<rainbowwheeloriginal_cosited>> is still highly
+  visible, interpolation helps to reduce its intrusiveness slightly, and the
+  effect is consistent across the image.
+* The bottom-right image reconstructs chroma by accessing the nearest
+  chroma values to the sample position projected onto the chroma planes
+  (corresponding to nearest filtering in step 3 of <<approximateconversionexample>>)
+  and bilinearly interpolating _Y&prime;_, prior to conversion to
+  _R&prime;G&prime;B&prime;_.
+  The result is color aliasing, amplified by the scaling effect relative to
+  <<rainbowwheeloriginal_cosited>>, with nonlinear luma values still
+  interpolated linearly (reducing brightness) and partly displaced relative
+  to the chroma values.
+* The right-most image shows bicubic reconstruction of chroma to the
+  original _Y&prime;_ resolution and subsequent filtering after conversion
+  to _R&prime;G&prime;B&prime;_ -- corresponding to bilinear filtering
+  of the right-most image in <<rainbowwheeloriginal_cosited>>.
+  As in the <<rainbowwheeloriginal_cosited>> case, the level of color saturation
+  is between that of bilinear and nearest filtering, and consistent across
+  the image; the difference from the bilinear filtering case is subtle.

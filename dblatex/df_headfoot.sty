@@ -16,14 +16,14 @@
 
 % Define front/main/back matter if not available
 \@ifundefined{frontmatter}{
-  \def\frontmatter{\pagenumbering{arabic}
+  \def\frontmatter{\pagenumbering{roman}
                    \lhead[]{\DBKtitle}
                    \chead[]{\releasebox}
-                   \rhead[]{\textsf{\thepage{} / \getpagerefnumber{LastPage}}}}
+                   \rhead[]{\textsf{\thepage{}}}}
 }{}
 \@ifundefined{mainmatter}{
     \def\mainmatter{\pagenumbering{arabic}
-                  \setcounter{page}{3}
+                  \setcounter{page}{1}
                   \lhead[]{\DBKtitle}
                   \chead[]{\releasebox}
                   \rhead[]{\textsf{\thepage{} / \getpagerefnumber{LastPage}}}}

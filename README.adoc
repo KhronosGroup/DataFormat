@@ -34,6 +34,10 @@ available as part of many Linux distributions.
 The PDF build subsequently depends on
 link:http://dblatex.sourceforge.net[dblatex].
 
+Please note that as of 2024, parts of the build system rely on
+reprecated software, so legacy installations may be required to
+get the specification to build. Work to remedy this is underway.
+
 All forms of the specification may be built with a simple "make"
 or "make all" command, with an output into the "out" directory.
 

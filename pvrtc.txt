@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019 The Khronos Group Inc.
+// Copyright (c) 2014-2025 The Khronos Group Inc.
 // Copyright notice at https://www.khronos.org/registry/speccopyright.html
 [[PVRTC]]
 == PVRTC Compressed Texture Image Formats
@@ -47,22 +47,27 @@ at image pixels latexmath:[$(4\times\mathit{X}, 4\times\mathit{Y})$], and a
 color sample for each low-resolution image which influences an overlapping
 7{times}7 texel region of the final output, with each sample centered on
 output pixel latexmath:[$((4\times\mathit{X})+2, (4\times\mathit{Y})+2)$].
-Nearly every texel location requires data from a set of 2{times}2 data words
+Nearly every texel position requires data from a set of 2{times}2 data words
 in order to be decoded: the low-resolution encoded images are bilinearly interpolated
 to, in effect, generate a pair of full-resolution images prior to modulation, and this
 interpolation requires examining multiple data words in the compressed image
 data.
-At least one word of PVRTC data must exist in each mip level of a texture.
+
+The dimensions of PVRTC1 images must be powers of two.
+Any mip level of a texture must comprise at least two words of PVRTC data
+in each dimension; for example, a texture of 16{times}4 texels is represented
+by 4{times}2 PVRTC words of 4{times}4 texels each.
+Some (particularly software) implementations are further constrained to square
+images.
 If a texture (or a particular mip-level) is smaller than the size of the block
 of texels described by one word in any dimension, reconstruction of an image
 occurs as if fetching the upper-left most texels from the region covered by
 those words.
-PVRTC1 images must have dimensions that are power of two values.
 
 ==== PVRTC1 4bpp word encoding
 
 Each data word contains two colors and a set of modulation data describing
-how to interpolate between them for each pixel location in the original image.
+how to interpolate between them for each pixel position in the original image.
 A flag _M_ describes how the modulation data should be interpreted, and each
 color contains a bit to describe whether it contains alpha data.
 
@@ -91,9 +96,9 @@ Expressing each of the _X_ and _Y_ indices as an array of bits, the index of a
 particular PVRTC word can be found by interleaving the bits of the _X_ and _Y_
 indices as follows:
 
-Let _Xb_ be the number of bits used to express _X_ -- i.e. latexmath:[$\mathit{Xb} = \mathrm{log}_2\left(\left\lceil{\mathit{width}\over 4}\right\rceil\right)$].
+Let _Xb_ be the number of bits used to express _X_ -- i.e. latexmath:[$\mathit{Xb} = \mathrm{log}_2\left(\mathrm{max}\left(\left\lceil{\mathit{width}\over 4}\right\rceil, 2\right)\right)$].
 
-Let _Yb_ be the number of bits used to express _Y_ -- i.e. latexmath:[$\mathit{Yb} = \mathrm{log}_2\left(\left\lceil{\mathit{height}\over 4}\right\rceil\right)$].
+Let _Yb_ be the number of bits used to express _Y_ -- i.e. latexmath:[$\mathit{Yb} = \mathrm{log}_2\left(\mathrm{max}\left(\left\lceil{\mathit{height}\over 4}\right\rceil, 2\right)\right)$].
 
 Then:
 
@@ -143,8 +148,8 @@ units of 4{times}4 areas encoded by words:
 [latexmath]
 ++++++
 \begin{align*}
-\textit{wordWidth} =& \left\lceil{\textit{width}\over 4}\right\rceil \\
-\textit{wordHeight} =& \left\lceil{\textit{height}\over 4}\right\rceil
+\textit{wordWidth} =& \textrm{max}\left(\left\lceil{\textit{width}\over 4}\right\rceil, 2\right) \\
+\textit{wordHeight} =& \textrm{max}\left(\left\lceil{\textit{height}\over 4}\right\rceil, 2\right)
 \end{align*}
 ++++++
 
@@ -166,8 +171,8 @@ uint32_t reflectedMortonOffset(const uint32_t X,
     assert(X < wordWidth && Y < wordHeight);
 
     // Must be (non-zero) powers of 2
-    assert((wordWidth  & (wordWidth  - 1)) == 0);
-    assert((wordHeight & (wordHeight - 1)) == 0);
+    assert((wordWidth  & (wordWidth  - 1)) == 0 && wordWidth >= 2);
+    assert((wordHeight & (wordHeight - 1)) == 0 && wordHeight >= 2);
 
     for (mask = 1; mask < minDim; mask <<= 1)
     {
@@ -184,13 +189,14 @@ uint32_t reflectedMortonOffset(const uint32_t X,
 
 <<<
 
+[[PVRTCreconsamples]]
 ==== PVRTC1 4bpp color reconstruction samples
 
 Each data word encodes a color sample value from each of the two
-low-resolution images, with the (_X_, _Y_) location of the block
-corresponding to the (_X~Low~_, _Y~Low~_) location of the colors in
+low-resolution images, with the (_X_, _Y_) position of the block
+corresponding to the (_X~Low~_, _Y~Low~_) position of the colors in
 the low-resolution images.
-The image colors for a given pixel location (_x_, _y_) are reconstructed
+The image colors for a given pixel position (_x_, _y_) are reconstructed
 using the words containing the four nearest color samples:
 latexmath:[$W_{X_\textit{Low},Y_\textit{Low}}$],
 latexmath:[$W_{X_\textit{Low}+1,Y_\textit{Low}}$],
@@ -267,6 +273,24 @@ latexmath:[$W_{X_\mathit{Low}+1,Y_\mathit{Low}}$] at the bottom of the image.
 image::images/PVRTC1_image_reconstruction_wrap.{svgpdf}[width="{svgpdf@pdf:300pt:466}",align="center"]
 =====
 
+In modern decoder implementations, if the texture width or height is a single
+texel block or smaller, both ``wrapped'' color reconstruction samples will come
+from the same PVRTC word, much as in PVRTC2.
+For example an 8{times}4-texel image in PVRTC1 4bpp will be described by the color
+reconstruction samples in the first and third PVRTC words, with the second and
+fourth (required by the minimum wordHeight of two texel blocks) purely acting as
+padding.
+
+In older implementations, the color reconstructions samples are retrieved from
+the padding PVRTC words.
+Some encoders might have used this to allow a single 4{times}4 texture to use
+eight reconstruction samples for extra flexibility, with six samples coming from
+the padding words -- but only the two samples from the first texel block would
+be accessed on a modern decoder.
+For consistency, therefore, padding PVRTC words used to increase the width or
+height to two PVRTC words should be encoded with the same color reconstruction
+sample values as the adjacent non-padding texel blocks.
+
 <<<
 
 ==== PVRTC1 4bpp image reconstruction
@@ -331,7 +355,7 @@ as described above.
 ** latexmath:[$y_r
 = (y - 2) - \left(4\times\left\lfloor{{y - 2}\over 4}\right\rfloor\right)
 = (y - 2) - (4 \times Y_\textit{Low})$]
-* Coordinates wrap at the edges of the image.
+* Coordinates wrap at the edges of the image (but see <<PVRTCreconsamples>> for small images).
 * An interpolation is performed which is mathematically equivalent to  <<PVRTC1_4bpp_interpolation>>.
 
 [[PVRTC1_4bpp_interpolation]]
@@ -452,14 +476,16 @@ fully-transparent areas appropriately.
 
 PVRTC1 2bpp has the same broad data layout as PVRTC1 4bpp, but instead
 uses an 8{times}4 bilinear upscale.
+It retains the constraint that images must have dimensions that are
+powers of two, with a minimum word width and height of two.
 
 ==== PVRTC1 2bpp word offset calculation
 
 The inputs to the Morton order encoding for 2bpp mode are:
 
-Let _Xb_ be the number of bits used to express _X_ -- i.e. latexmath:[$\mathit{Xb} = \mathrm{log}_2\left(\left\lceil{\mathit{width}\over 8}\right\rceil\right)$].
+Let _Xb_ be the number of bits used to express _X_ -- i.e. latexmath:[$\mathit{Xb} = \mathrm{log}_2\left(\mathrm{max}\left(\left\lceil{\mathit{width}\over 8}\right\rceil, 2\right)\right)$].
 
-Let _Yb_ be the number of bits used to express _Y_ -- i.e. latexmath:[$\mathit{Yb} = \mathrm{log}_2\left(\left\lceil{\mathit{height}\over 4}\right\rceil\right)$].
+Let _Yb_ be the number of bits used to express _Y_ -- i.e. latexmath:[$\mathit{Yb} = \mathrm{log}_2\left(\mathrm{max}\left(\left\lceil{\mathit{height}\over 4}\right\rceil, 2\right)\right)$].
 
 
 ==== PVRTC1 2bpp image reconstruction
@@ -480,7 +506,8 @@ latexmath:[$\textit{W}_{\textit{X}_\textit{Low},\textit{Y}_\textit{Low}}$]:
 ** latexmath:[$y_r
 = (y - 2) - \left(4\times\left\lfloor{{y - 2}\over 4}\right\rfloor\right)
 = (y - 2) - (4 \times Y_\textit{Low})$]
-* Coordinates wrap at the edges of the image.
+* Coordinates wrap at the edges of the image (but see <<PVRTCreconsamples>> for
+which words contain the color reconstruction samples for small images).
 * An interpolation is performed which is mathematically equivalent to  <<PVRTC1_2bpp_interpolation>>.
 
 [[PVRTC1_2bpp_interpolation]]
@@ -553,12 +580,13 @@ and *Image B* for modulation data bit = 1.
 |=======
 ^| *Modulation flag value* _M_ ^| *Mode*
 ^| 0 ^| Standard Bilinear, 1bpp modulation
-^| 1 ^| Punch-through, interpolated modulation
+^| 1 ^| Standard Bilinear, interpolated modulation
 |=======
 
 If the modulation flag _M_ is set to 1, the pixels with 2-bit stored values have
-modulation weights equal to those of PVRTC1 4bpp for modulation mode 1,
-as shown in <<PVRTC1ModulationWeights>>.
+modulation weights equal to those of PVRTC1 4bpp for modulation mode 0,
+as shown in <<PVRTC1ModulationWeights>>; to get translucent data, the
+*Color A* and *Color B* must be set accordingly.
 
 The modulation data for the pixel at 0,0 (and when bit~0~ = 1, the pixel
 at 2,4) is treated as if the value was duplicated -- so the single-bit 0
@@ -585,11 +613,11 @@ latexmath:[$\textit{weight}_{x,y} = \left\lfloor{{w(\textit{md}(x-1,y))+w(\texti
 
 where _md(x,y)_ is the modulation data for texel offset (_x_, _y_) and
 _w_() is the weighting described in <<PVRTC1ModulationWeights>>
-for _M_ = 1.
+for _M_ = 0.
 
 If an adjacent pixel's modulation value is not present in the current
 word, the value is obtained from the adjacent PVRTC word which does
-contain that pixel's modulation data, with the location wrapping to
+contain that pixel's modulation data, with the position wrapping to
 the other side of the image if necessary.
 
 This weight is then applied to <<PVRTCmodulate>>.
@@ -606,7 +634,7 @@ the stored format uses the next-larger multiple. Any padding texels added by
 this resize are not accessed when reconstructing the image.
 
 PVRTC2 words are not laid out in a reflected Morton order, instead they are
-laid out in a standard linear order, as with all other formats.
+laid out in a standard linear order.
 
 The layout of PVRTC2 data words is very similar to that of PVRTC1, though there
 are two main differences:
@@ -716,8 +744,8 @@ In the non-interpolated mode, the *A* and *B* base colors are not bilinearly
 interpolated in the affected regions.
 Instead, the colors for the word encapsulating each particular pixel are
 used directly, in the sense that the stored colors are expanded, where
-necessary, via bit replication to an _ARGB_:4555 format and then, again, by
-bit replication to _ARGB_:8888.
+necessary, via bit replication to an _ARGB_:4555 format and then again, by
+a second bit replication, to _ARGB_:8888.
 The modulation encodings are interpreted in the same manner as for the
 ``standard bilinear'' weights, and the colors blended, as before, with
 <<PVRTCmodulate>>.
@@ -864,7 +892,7 @@ texel blocks.
 
 * The modulation values correspond to the same entry in the list for each
   pixel above.
-  For instance, a modulation value of 3 (bit pattern 11) for pixel location
+  For instance, a modulation value of 3 (bit pattern 11) for pixel position
   0,1 (which is offset 2,3 relative to the top left of block P) would
   correspond to color latexmath:[$\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}$] being selected.
 
