@@ -1,10 +1,10 @@
-// Copyright 2014-2024 The Khronos Group Inc.
+// Copyright 2014-2026 The Khronos Group Inc.
 // SPDX-License-Identifier: CC-BY-4.0
 
 [[BPTC]]
 == BPTC Compressed Texture Image Formats
 
-_This description is derived from the ``BPTC Compressed Texture Image Formats''
+_This description is derived from the "`BPTC Compressed Texture Image Formats`"
 section of the OpenGL 4.4 specification._
 More information on
 link:https://docs.microsoft.com/en-us/windows/desktop/direct3d11/bc7-format[BC7],
@@ -1084,7 +1084,7 @@ The resultant bit pattern should be interpreted as a 16-bit half float.
 
 [NOTE]
 ====
-The ability to support latexmath:[-\infty] is considered ``accidental''
+The ability to support latexmath:[-\infty] is considered "`accidental`"
 due to the asymmetry of two's complement representation: in order to
 map integer 0x7FFF to 65504.0 and 0x0000 to 0.0, -0x7FFF maps to the
 largest finite negative value, -65504.0, represented as 0xFBFF.

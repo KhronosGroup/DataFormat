@@ -24,16 +24,16 @@ _YUV_.
 
 In the broadcast standards which define these models:
 
-* A prime mark ({prime}) is used to refer to the ``gamma
-  pre-corrected'' version of a value. That is, an approximation to a
+* A prime mark ({prime}) is used to refer to the "`gamma
+  pre-corrected`" version of a value. That is, an approximation to a
   perceptually linear mapping between value and intensity. The absence
   of a prime mark indicates that the value is linear in intensity.
 * _R{prime}G{prime}B{prime}_ is used to refer to the red, green and blue
-  reference values in ``gamma pre-corrected'' form.
+  reference values in "`gamma pre-corrected`" form.
   That is, _R{prime}_, _G{prime}_ and _B{prime}_ have a non-linear transfer
   function, whereas _R_, _G_ and _B_ are linear with respect to light
   intensity.
-  The transfer function used resembles an exponentiation ``gamma correction''
+  The transfer function used resembles an exponentiation "`gamma correction`"
   operation, with a linear segment near zero for mathematical stability.
   See <<TRANSFER_ITU>> for details of the transfer function typically used
   in these cases.
@@ -58,7 +58,7 @@ In the broadcast standards which define these models:
   and _B{prime}_ values, and represents non-physically-linear
   (but perceptually-linear) light intensity, as distinct from
   physically-linear light intensity.
-  Note that the ITU broadcast standards use ``luminance'' for
+  Note that the ITU broadcast standards use "`luminance`" for
   _Y{prime}_ despite some authorities reserving that term for a
   linear intensity representation.
   Since this is a weighted sum of non-linear values, latexmath:[Y'] is
@@ -68,7 +68,7 @@ In the broadcast standards which define these models:
   The prime symbol is often omitted so that _Y{prime}_ is confusingly
   written _Y_.
   <<bt601,BT.601>> and <<bt709,BT.709>> refers to the continuous non-linear
-  ``luminance'' signal as latexmath:[E'_Y]; in <<bt2020,BT.2020>> and
+  "`luminance`" signal as latexmath:[E'_Y]; in <<bt2020,BT.2020>> and
   <<bt2100,BT.2100>> this value is just _Y{prime}_.
   The quantized digital representation is written as simply _Y{prime}_
   in <<bt601,BT.601>>, as latexmath:[D'_Y] in <<bt709,BT.709>>, and as
@@ -416,7 +416,7 @@ For the inverse conversion:
 [[MODEL_YCCBCCRC]]
 === _Y{prime}~C~C{prime}~BC~C{prime}~CR~_ constant luminance color model
 
-<<bt2020,ITU-T Rec. BT.2020>> introduced a ``constant luminance''
+<<bt2020,ITU-T Rec. BT.2020>> introduced a "`constant luminance`"
 color representation as an alternative representation to
 _Y{prime}C~B~C~R~_:
 
@@ -469,7 +469,7 @@ case, which is a simple matrix transform.
 [[MODEL_ICTCP]]
 === _IC~T~C~P~_ constant intensity color model
 
-<<bt2100,ITU-T Rec. BT.2100>> introduced a ``constant intensity''
+<<bt2100,ITU-T Rec. BT.2100>> introduced a "`constant intensity`"
 color representation as an alternative representation to
 _Y{prime}C~B~C~R~_:
 

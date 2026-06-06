@@ -1,10 +1,10 @@
-// Copyright 2008-2024 The Khronos Group Inc.
+// Copyright 2008-2026 The Khronos Group Inc.
 // SPDX-License-Identifier: CC-BY-4.0
 
 [[RGTC]]
 == RGTC Compressed Texture Image Formats
 
-_This description is derived from the ``RGTC Compressed Texture Image Formats''
+_This description is derived from the "`RGTC Compressed Texture Image Formats`"
 section of the OpenGL 4.4 specification._
 
 Compressed texture images stored using the RGTC compressed image encodings

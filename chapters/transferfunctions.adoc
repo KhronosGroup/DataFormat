@@ -216,7 +216,7 @@ would represent the non-linear encoding of each value. Typically
 the non-linear encoding is applied to additive primary colors;
 derived color differences may or may not retain the prime symbol.
 
-Charles Poynton provides a further discussion on ``Gamma'' in
+Charles Poynton provides a further discussion on "`Gamma`" in
 link:http://www.poynton.com/PDFs/TIDV/Gamma.pdf[
 http://www.poynton.com/PDFs/TIDV/Gamma.pdf].
 
@@ -224,7 +224,7 @@ http://www.poynton.com/PDFs/TIDV/Gamma.pdf].
 [[TRANSFER_ITU]]
 === ITU transfer functions
 
-NOTE: ``ITU'' is used in this context as a shorthand for the
+NOTE: "`ITU`" is used in this context as a shorthand for the
 OETF shared by the current <<bt601,BT.601>>, <<bt709,BT.709>> and
 <<bt2020,BT.2020>> family of standard dynamic range digital
 television production standards.
@@ -295,11 +295,11 @@ _{delta}_ can be deduced from _{alpha}_ {times} _{beta}_^0.45^
 for the derivation of these values.
 
 <<smpte170m,SMPTE 170M-2004>>, which defines the behavior of NTSC
-televisions, defines the EOTF of the ``reference reproducer'' as the
+televisions, defines the EOTF of the "`reference reproducer`" as the
 OETF^{nbsp}-1^ function above, with _{delta}_ explicitly
 written as 0.0812.
 Therefore the SMPTE 170M-2004 EOTF^{nbsp}-1^ equals the OETF given above.
-The ``reference camera'' of SMTPE 170M-2004 has an OETF function matching
+The "`reference camera`" of SMTPE 170M-2004 has an OETF function matching
 that of the ITU specifications.
 That is, the OOTF of the system described in SMPTE 170M-2004 provides a
 linear mapping of captured scene intensity to display intensity: the SMPTE
@@ -307,13 +307,13 @@ linear mapping of captured scene intensity to display intensity: the SMPTE
 on a typical display.
 This is distinct from the current ITU specifications, which assume a
 non-linear OOTF.
-SMPTE 170M-2004 also represents a change from the ``assumed gamma'' of
+SMPTE 170M-2004 also represents a change from the "`assumed gamma`" of
 2.2 associated with most NTSC display devices as described in
 <<bt470,ITU-T BT.470-6>> and <<bt2043,BT.2043>>, although these
 standards also define a linear OOTF.
 
 <<<
-This ``ITU'' OETF is closely approximated by a simple power function with
+This "`ITU`" OETF is closely approximated by a simple power function with
 an exponent of 0.5 (and therefore the OETF^{nbsp}-1^ is quite closely
 approximated by a simple power function with an exponent of 2.0);
 the linear segment and offset mean that the best match is _not_ the
@@ -337,10 +337,10 @@ image::{images}/tf_ituvsgamma2_0.png[width="{svgpdf@pdf:160pt:257}",align="cente
 
 [NOTE]
 ====
-<<smpte170m,SMPTE 170M-2004>> contains a note that the OETF is a more ``technically
-correct'' definition of the transfer function, and compares it to a ``transfer
-gradient (gamma exponent) of 2.2'' in previous specifications, and that the
-OETF in older documents is described as ``1/2.2 (0.455...)''.
+<<smpte170m,SMPTE 170M-2004>> contains a note that the OETF is a more "`technically
+correct`" definition of the transfer function, and compares it to a "`transfer
+gradient (gamma exponent) of 2.2`" in previous specifications, and that the
+OETF in older documents is described as "`1/2.2 (0.455...)`".
 While both versions define a linear OOTF, there is no explicit mention that
 curve has substantially changed; this might be due to conflation of the 0.455
 exponent in older specifications with the 0.45 exponent in the new formulae.
@@ -508,7 +508,7 @@ image::{images}/tf_srgbvsgamma.png[width="{svgpdf@pdf:192pt:257}",align="center"
 NOTE: The sRGB standard assumes a quantization scheme in which
 0.0 is represented by the value 0 and 1.0 is represented by 255.
 Despite the goal of complementing <<bt709,ITU-T Rec. BT.709>>,
-this is different from the ITU ``full-range'' encoding scheme
+this is different from the ITU "`full-range`" encoding scheme
 defined in <<bt2100,ITU-T Rec. BT.2100>>, which represents 1.0 as
 a power of two (not latexmath:[2^n-1]) and therefore cannot exactly
 represent 1.0.
@@ -827,8 +827,8 @@ specification may have been incorrectly rounded.
 [[TRANSFER_BT1886]]
 === BT.1886 transfer functions
 
-The <<bt1886,BT.1886>> standard for the ``Reference electro-optical transfer
-function for flat panel displays used in HDTV studio production'' is intended to
+The <<bt1886,BT.1886>> standard for the "`Reference electro-optical transfer
+function for flat panel displays used in HDTV studio production`" is intended to
 represent a typical EOTF for CRTs and to document this to ensure consistency
 between other display technologies:
 
@@ -841,8 +841,8 @@ L = a(\textrm{max}(V+b,0))^\gamma
 |====
 <|_L_ = screen luminance in cd/m^2^
 <|_V_ = input signal normalized to [0..1]
-<|_a_ = user gain (legacy ``contrast'')
-<|_b_ = black level lift (legacy ``brightness'')
+<|_a_ = user gain (legacy "`contrast`")
+<|_b_ = black level lift (legacy "`brightness`")
 <|latexmath:[\gamma] = 2.4
 |====
 
@@ -898,7 +898,7 @@ L &= \begin{cases}
 <|latexmath:[\alpha_2] = 3.0
 <|_k_ = coefficient of normalization (so that _V_ = 1 gives white),
 <|latexmath:[k=L_W(1+b)^{-\alpha_1}]
-<|_b_ = black level lift (legacy ``brightness'')
+<|_b_ = black level lift (legacy "`brightness`")
 |====
 
 ====
@@ -996,7 +996,7 @@ the note in the <<TRANSFER_HLG_OETF_NORM,HLG OETF>> above.
 [[TRANSFER_HLG_OETF_UNNORM]]
 ==== Unnormalized HLG OETF
 
-BT.2100-0 describes the HLG OETF formulae with _E_ ``normalized'' to the
+BT.2100-0 describes the HLG OETF formulae with _E_ "`normalized`" to the
 range [0..12], with the <<TRANSFER_HLG_OETF_NORM,variant with the range
 normalized to [0..1]>> as an alternative.
 Only the variant normalized to the range [0..1] is described in the updated
@@ -1025,7 +1025,7 @@ version of the <<TRANSFER_HLG_OETF_NORM,normalized formulae>>.
 [[TRANSFER_HLG_IOETF_UNNORM]]
 ==== Unnormalized HLG OETF^{nbsp}-1^
 
-The OETF^{nbsp}-1^ of ``unnormalized'' HLG (producing _E_ in the range [0..12]) is:
+The OETF^{nbsp}-1^ of "`unnormalized`" HLG (producing _E_ in the range [0..12]) is:
 
 [latexmath]
 ++++
@@ -1038,7 +1038,7 @@ E = \textrm{OETF}^{-1}(E') = \begin{cases}
 _a_, _b_ and _c_ are defined as for the
 <<TRANSFER_HLG_OETF_UNNORM,unnormalized HLG OETF>>.
 
-BT.2100-0 describes this ``unnormalized'' version of the formulae, with the
+BT.2100-0 describes this "`unnormalized`" version of the formulae, with the
 variant with the E normalized to [0..1] as an alternative.
 Only the variant with E normalized to [0..1] is described in the updated
 versions, BT.2100-1 and BT.2100-2.
@@ -1149,11 +1149,11 @@ The origins of both HLG and PQ are discussed in <<bt2390,ITU-R BT.2390>>.
 
 {nbsp}
 
-As graphed in <<bt2390,ITU-R BT.2390>>, the ``unnormalized'' HLG OETF (red)
+As graphed in <<bt2390,ITU-R BT.2390>>, the "`unnormalized`" HLG OETF (red)
 is a good approximation to the standard dynamic range ITU transfer function
 (blue, output scaled by 0.5) up to latexmath:[E \approx 1] and
 latexmath:[\textrm{OETF}(E) = E' \approx 0.5], with a smooth
-curve up to the maximum HLG representable scene light value of ``12'':
+curve up to the maximum HLG representable scene light value of "`12`":
 
 .HLG OETF (red) vs ITU OETF/2 (blue)
 image::{images}/tf_hlg.svg[width="{svgpdf@pdf:200pt:300}",align="center"]
@@ -1192,13 +1192,13 @@ _Y~S~_ is the normalized scene luminance, defined as:
 Y_S = 0.2627\times R_S + 0.6780\times G_S + 0.0593\times B_S
 ++++
 
-latexmath:[\alpha] represents adjustable user gain (display ``contrast'')
+latexmath:[\alpha] represents adjustable user gain (display "`contrast`")
 representing _L~W~_, the nominal peak luminance of achromatic pixels.
 
 [NOTE]
 ====
 Versions of BT.2100 prior to BT.2100-2 incorporated a latexmath:[\beta]
-black level offset (display ``brightness'') representing the display
+black level offset (display "`brightness`") representing the display
 luminance of black in cd/m^2^:
 
 [latexmath]
@@ -1210,7 +1210,7 @@ B_D &= \alpha\times Y_S^{\gamma-1}\times B_S + \beta \\
 \end{align*}
 ++++
 
-latexmath:[\alpha] then represented the relative display ``contrast'':
+latexmath:[\alpha] then represented the relative display "`contrast`":
 
 [width="70%",options="header",cols="1,5,5"]
 |====
@@ -1334,7 +1334,7 @@ _L~B~_ is the display luminance of black in cd/m^2^.
 [NOTE]
 ====
 Versions of BT.2100 prior to BT.2100-2 incorporated the black level
-offset (display ``brightness'') latexmath:[\beta] into the definition
+offset (display "`brightness`") latexmath:[\beta] into the definition
 of the OOTF, such that:
 
 [latexmath]
@@ -1361,7 +1361,7 @@ B_S' &= {{\textrm{OETF}\left(\textrm{OOTF}^{-1}\left(B_D'\right)\right) - \beta}
 [NOTE]
 ====
 Versions of BT.2100 prior to BT.2100-2 incorporated the black level
-offset (display ``brightness'') latexmath:[\beta] into the definition
+offset (display "`brightness`") latexmath:[\beta] into the definition
 of the OOTF, such that:
 
 [latexmath]
@@ -1461,10 +1461,10 @@ E' &= \textrm{G}_{709}(E) &= &\begin{cases}
 {nbsp}
 
 PQ can encode 100 times the display brightness of a standard dynamic
-range (``SDR'') encoding (10000cd/m^2^ compared with the 100cd/m^2^
+range ("`SDR`") encoding (10000cd/m^2^ compared with the 100cd/m^2^
 SDR reference display described in <<bt1886,BT.1886>>).
 High dynamic range (HDR) displays are intended to represent the
-majority of scene content within a ``standard'' dynamic range, and
+majority of scene content within a "`standard`" dynamic range, and
 exposure of a normalized SDR signal is chosen to provide suitable
 exposure.
 HDR displays offer extra capability for representation of small
@@ -1580,12 +1580,12 @@ latexmath:[Z = Z'^{2.6}\times 52.37]
 |====
 
 This power function is applied directly to scaled CIE _XYZ_ color
-coordinates: the ``primaries'' in DCI define the bounds of the gamut,
+coordinates: the "`primaries`" in DCI define the bounds of the gamut,
 but the actual color encoding uses _XYZ_ coordinates.
 DCI scales the resulting non-linear values to the range [0..4095]
 prior to quantization, rounding to nearest.
 
-NOTE: ``Display P3'' uses the <<TRANSFER_SRGB,sRGB transfer function>>,
+NOTE: "`Display P3`" uses the <<TRANSFER_SRGB,sRGB transfer function>>,
 modified in some implementations to have more accurate constants (see the
 section on the derivation of the sRGB constants).
 
@@ -1618,11 +1618,11 @@ This value of latexmath:[\gamma] is also used for N/PAL signals in the
 Eastern Republic of Uruguay, and was also adopted by <<st240,ST-240>>.
 
 Combined with the reference in <<smpte170m,SMPTE 170M>> to a
-latexmath:[\gamma = 2.2] being used in ``older documents'', this
+latexmath:[\gamma = 2.2] being used in "`older documents`", this
 suggests a linear design OOTF for NTSC systems.
 
 <<bt1700,ITU-R BT.1700>>, which partly replaced BT.470, also describes an
-``assumed gamma of display device'' of 2.2 for PAL and SECAM systems;
+"`assumed gamma of display device`" of 2.2 for PAL and SECAM systems;
 this is distinct from the latexmath:[\gamma = 2.8] value listed in
 <<bt470,ITU-R BT.470-6>>.
 Combined with the <<TRANSFER_ITU,ITU OETF>> which approximates
@@ -1640,10 +1640,10 @@ Hence the new NTSC formulation also assumes a linear OOTF.
 [[TRANSFER_LEGACY_PAL_OETF]]
 === Legacy PAL OETF
 
-<<bt472,ITU-R BT.472>>, ``Video-frequency characteristics of a television
+<<bt472,ITU-R BT.472>>, "`Video-frequency characteristics of a television
 system to be used for the international exchange of programmes between
-countries that have adopted 625-line colour or monochrome systems'', defines
-that the ``gamma of the picture signal'' should be ``approximately 0.4''.
+countries that have adopted 625-line colour or monochrome systems`", defines
+that the "`gamma of the picture signal`" should be "`approximately 0.4`".
 The reciprocal of this value is 2.5.
 
 That is, this standard defines an approximate OETF and OETF^{nbsp}-1^ for
@@ -1689,8 +1689,8 @@ latexmath:[G = G'^{2.8}]
 latexmath:[B = B'^{2.8}]
 |====
 
-NOTE: Poynton describes a latexmath:[\gamma] of 2.8 as being ``unrealistically
-high'' for actual CRT devices.
+NOTE: Poynton describes a latexmath:[\gamma] of 2.8 as being "`unrealistically
+high`" for actual CRT devices.
 
 Combined with the <<TRANSFER_LEGACY_PAL_EOTF,corresponding legacy EOTF>> with
 latexmath:[\gamma_{\textrm{EOTF}} = 0.4], the described system OOTF is:
@@ -1707,8 +1707,8 @@ B_{display} &\approx B_{scene}^{2.8\over{2.5}}
 Or latexmath:[\gamma_{\textrm{OOTF}} \approx 1.12].
 
 The value of latexmath:[\gamma_{\textrm{EOTF}} = 2.8] is described in BT.470-6 as being
-chosen for ``an overall system gamma'' (OOTF power function exponent) of
-``approximately 1.2''; this suggests that the ``approximately 0.4'' exponent in
+chosen for "`an overall system gamma`" (OOTF power function exponent) of
+"`approximately 1.2`"; this suggests that the "`approximately 0.4`" exponent in
 <<bt472,BT.472-6>> should be interpreted as nearer to latexmath:[{1.2\over{2.8}}
 \approx 0.43], or at least that there was enough variation in early devices for
 precise formulae to be considered irrelevant.

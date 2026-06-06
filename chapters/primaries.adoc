@@ -1,4 +1,4 @@
-// Copyright 2017-2024 The Khronos Group Inc.
+// Copyright 2017-2026 The Khronos Group Inc.
 // SPDX-License-Identifier: CC-BY-4.0
 
 [[PRIMARY_CONVERSION]]
@@ -239,14 +239,14 @@ of wavelengths in varying intensities.
 Describing the color of an object in terms of three wavelengths is
 necessarily an approximation, and effective only because the human eye
 typically sees the world mostly in terms of combinations of three color
-cone cell responses -- ``tristimulus values''.
-The typical response of these ``long'', ``medium'' and ``short''
+cone cell responses -- "`tristimulus values`".
+The typical response of these "`long`", "`medium`" and "`short`"
 wavelength-sensitive cones is the basis of the CIE XYZ color space,
 so a linear combination of primaries described in this color space
 can be mapped to a linear combination of other primaries.
 Two colors with a different spectrum but an identical appearance
 are known as _metamers_, and the tristimulus model of color relies
-on ``metameric matching'': picking a linear combination of some set
+on "`metameric matching`": picking a linear combination of some set
 of primaries that will elicit the same cone cell response as the
 desired color.
 
@@ -256,8 +256,8 @@ Each of the cone cells can appear in mutated form which results in a
 change to its response to different frequencies of light.
 Since the genes for cone cells are encoded on the X chromosome, some
 women have more than one variant of the same cone cell, being
-``tetrachromats'' -- and there is evidence that such people can
-distinguish more colors than the general ``trichromat'' population,
+"`tetrachromats`" -- and there is evidence that such people can
+distinguish more colors than the general "`trichromat`" population,
 with only a subset of these colors describable with three color
 primaries.
 There is some evidence for people with two variants of more than one
@@ -281,7 +281,7 @@ Printing colors are typically described assuming that they will
 reflect the spectrum of a theoretical illuminant; changing this
 light source may change the appearance of the printed object
 in a more complex manner than scaling the primary values.
-This can lead to ``metameric failure'', where two colors may
+This can lead to "`metameric failure`", where two colors may
 appear identical under some lighting conditions and different
 under others.
 This effect is present in nature, notably in the mineral
@@ -297,7 +297,7 @@ maximize the representable gamut and control metamerism.
 {nbsp}
 
 Adaptation to a different white point is often performed by a
-linear scaling of primaries, known as the ``von Kries transform''.
+linear scaling of primaries, known as the "`von Kries transform`".
 The link:https://onlinelibrary.wiley.com/doi/pdf/10.1002/9781119021780.app3[Bradford color adaptation transform]
 incorporates a slight nonlinear term to the blue component of
 colors to more accurately reflect visual behavior.
@@ -310,7 +310,7 @@ For example, the contributions from different lights may be recorded
 separately in order to allow later adjustment to color and relative
 intensity, specular and diffuse reflectance from a surface may be
 recorded separately (which is valuable, for example, in denoising
-algorithms), and virtual ``channels'' may be used to control shader
+algorithms), and virtual "`channels`" may be used to control shader
 effects.
 A larger number of wavelengths may also be used when rendering
 effects such as chromatic dispersion, which is important for rendering
@@ -397,7 +397,7 @@ possibly due to rounding errors.
 (as used in most PAL systems) and for 525-line systems (as used in
 the <<smpte170m,SMPTE 170M-2004>> standard for NTSC).
 
-The following chromaticity coordinates are defined for 625-line ``EBU'' systems:
+The following chromaticity coordinates are defined for 625-line "`EBU`" systems:
 [latexmath]
 ++++
 \begin{align*}
@@ -429,7 +429,7 @@ B_{601\textrm{EBU}}\end{array}\right)
 ++++
 
 The inverse transformation, from the _XYZ_ space to a color defined
-in terms of BT.601 ``EBU'' 625-line color primaries, is:
+in terms of BT.601 "`EBU`" 625-line color primaries, is:
 ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
 ++++

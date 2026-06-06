@@ -91,7 +91,7 @@ a data structure has the following benefits:
 * Simplifying the writing of generic functionality that acts on many types of data
 * Offering portability of data between APIs
 
-The ``bulk data'' may be, for example:
+The "`bulk data`" may be, for example:
 
 * Pixel/texel data
 * Vertex data
@@ -102,7 +102,7 @@ specification, but the large number of ways to describe colors, vertices
 and other repeated data makes standardization useful.
 The widest variety of standard representations and the most common
 expected use of this API is to describe pixels or texels; as such the
-terms ``texel'' and ``pixel'' are used interchangeably in this
+terms "`texel`" and "`pixel`" are used interchangeably in this
 specification when referring to elements of data, without intending to
 imply a restriction in use.
 
@@ -116,7 +116,7 @@ descriptor as defined in this specification, but may have different
 sizes, line or plane strides, tiling or dimensionality; in common parlance,
 two images that describe (for example) color data in the same way but which
 are of different shapes or sizes are still described as having the same
-``format''.
+"`format`".
 
 An example pixel representation is described in <<SimpleTexelBlock>>: a
 single 5:6:5-bit pixel composed of a blue channel in the low 5 bits, a
@@ -174,8 +174,8 @@ image::{images}/1DWordOffset.svg[width="{svgpdf@pdf:290pt:450}",align="center"]
 .1D address offsets for _R_,_G_,_B_ elements (padding in gray), start of buffer
 image::{images}/1DRGBOffset.svg[width="{svgpdf@pdf:460pt:720}",align="center"]
 
-An alternative representation is a ``structure of arrays'',
-distinct from the ``array of structures'' ++myRGBarray++:
+An alternative representation is a "`structure of arrays`",
+distinct from the "`array of structures`" ++myRGBarray++:
 
 [source]
 ----
@@ -196,7 +196,7 @@ element.
 The best approach depends on the operations performed: calculations
 on one whole ++MyRGB++ a time likely favor ++MyRGB++, those processing
 multiple values from a single channel may prefer ++MyRGBSoA++.
-A ``pixel'' need not fill an entire byte -- nor need _pixel stride_
+A "`pixel`" need not fill an entire byte -- nor need _pixel stride_
 be a whole number of bytes.
 For example, a C{plus}{plus} ++std::vector<bool>++ can be considered to be
 a 1-D bulk data structure of individual bits.
@@ -247,7 +247,7 @@ image::{images}/2DLinearOffsets.svg[width="{svgpdf@pdf:350pt:540}",align="center
 .2D _R_,_G_,_B_ byte offsets (padding in gray) from coordinates for a 4{times}4 image
 image::{images}/2DRGBOffsets.svg[width="{svgpdf@pdf:350pt:540}",align="center"]
 
-By convention, this ``linear'' layout is in _y_-major order (with the
+By convention, this "`linear`" layout is in _y_-major order (with the
 _x_ axis changing most quickly).
 This does not necessarily imply that an API which accesses the 2D data
 will do so in this orientation, and there are image layouts which have
@@ -294,7 +294,7 @@ to addressing the data.
 <<<
 === More complex 2-D texel addressing
 
-In many applications, the simple ``linear'' layout of memory has
+In many applications, the simple "`linear`" layout of memory has
 disadvantages.
 The primary concern is that data which is vertically adjacent in
 two-dimensional space may be widely separated in memory address.
@@ -377,7 +377,7 @@ more distant in memory the larger the tile size, and tile sizes which do
 not conveniently fit the cache and bus sizes of the memory subsystem
 have inefficiencies; thus the tile size is an architectural trade-off.
 
-While any non-linear representation is typically referred to as ``tiling'',
+While any non-linear representation is typically referred to as "`tiling`",
 some hardware implementations actually use a more complex layout in order
 to provide further locality of reference.
 One such scheme is Morton order:
@@ -473,7 +473,7 @@ edges of the shorter dimension.
 In all these cases, the relationship between coordinates and the memory
 storage location of the buffer depends on the image size and, other than
 needing to know the amount of memory occupied by a single texel, is
-orthogonal to the ``format''.
+orthogonal to the "`format`".
 Tiling schemes tend to be complemented by proprietary hardware that
 performs the coordinate-to-address mapping and depends on cache
 details, so many APIs expose only a linear layout to end-users, keeping
@@ -485,7 +485,7 @@ mandates leaving the calculation to the application.
 === 3-dimensional texel addressing
 
 These storage approaches can be extended to additional dimensions,
-for example treating a 3-D image as being made up of 2-D ``planes'',
+for example treating a 3-D image as being made up of 2-D "`planes`",
 which are distinct from the concept of storing channels or bits of
 data in separate planes.
 In a linear layout, 3-dimensional textures can be accessed as:
@@ -651,8 +651,8 @@ in the horizontal axis for these channels).
 This concept can be extended to more dimensions.
 Commonly, a two-dimensional image stored in _Y{prime}C~B~C~R~_ format
 may store the _C~B~_ and _C~R~_ channels downsampled by a factor of two
-in each dimension (``2{times}2 downsampling'', also known for historical
-reasons as ``4:2:0'').
+in each dimension ("`2{times}2 downsampling`", also known for historical
+reasons as "`4:2:0`").
 This approach is used in, for example, many JPEG images and MPEG video
 streams.
 
@@ -699,7 +699,7 @@ A Bayer pattern can then be used to sample an image, as shown in
 reconstruct the original image by relying on heuristic correlations
 between the channels.
 Technology for image processing continues to develop, so in many cases
-it is valuable to record the ``raw'' sensor data for later processing, and
+it is valuable to record the "`raw`" sensor data for later processing, and
 to pass the raw data unmodified to a range of algorithms; the choice of
 algorithm for reconstructing an image from samples is beyond the remit of
 this specification.
@@ -711,7 +711,7 @@ image::{images}/Bayer.svg[width="{svgpdf@pdf:95pt:170}",align="center"]
 In the Bayer representation, the red and blue channels can be considered
 to be downsampled by a factor of two in each dimension.
 The two green channels per 2{times}2 repeating block mean that the
-``downsampling factor'' for the green channel is effectively
+"`downsampling factor`" for the green channel is effectively
 latexmath:[\sqrt{2}] in each direction.
 
 <<<
@@ -720,8 +720,8 @@ For example, the X-Trans sample arrangement developed by Fujifilm for
 their digital camera range, shown in <<XTrans>>, consists of 6{times}6 texel
 blocks, with each sample, as in Bayer, corresponding to a single channel.
 In X-Trans, each block contains eight red, eight blue and twenty green
-samples; red and blue are ``downsampled'' by latexmath:[\sqrt{3\over 2}]
-and green is ``downsampled'' by latexmath:[3\over\sqrt{5}].
+samples; red and blue are "`downsampled`" by latexmath:[\sqrt{3\over 2}]
+and green is "`downsampled`" by latexmath:[3\over\sqrt{5}].
 
 [[XTrans]]
 .An 18{times}12 X-Trans image (repeating 6{times}6 pattern outlined in yellow)
@@ -819,11 +819,11 @@ which contain 4{times}4 samples.
 In general, this is not a useful approach: it is very verbose to list
 each sample individually, it does not extend well to larger block
 sizes (or to infinite ranges in approaches such as Morton order),
-it does not handle special cases well (such as the ``tail'' of a
+it does not handle special cases well (such as the "`tail`" of a
 mip chain), and encodings such as Hilbert order do not have a
 repeating mapping.
 In most contexts where these concepts exist, tiling is not considered
-to be part of a ``format''.
+to be part of a "`format`".
 
 <<<
 [[plane]]
@@ -841,9 +841,9 @@ This interpretation contradicts the traditional interpretation of
 downsampled channels: if two rows of _Y{prime}_ data correspond to a
 single row of _C~B~_ and _C~R~_ (in a linear, non-tiled memory layout),
 the _Y{prime}_ channel contribution to the texel block is _not_
-``a contiguous region of bytes''.
+"`a contiguous region of bytes`".
 Instead, each row of _Y{prime}_ contributing to a texel block can be
-treated as a separate ``plane''.
+treated as a separate "`plane`".
 
 In linear layout, this can be represented by offsetting rows of
 _Y{prime}_ data with odd _y_ coordinates by the row stride of the
@@ -916,7 +916,7 @@ as *_samplePosition3_* = 0, the second field as *_samplePosition3_*
 = 1, etc.)
 This interpretation is not mandated to allow other reasons for
 encoding four-dimensional texels, although it is consistent with
-the fourth dimension representing ``time''.
+the fourth dimension representing "`time`".
 
 [[im-2DYCbCr420_KDFS]]
 .2-D _Y{prime}C~B~C~R~_ 4:2:0 planes, with separate even and odd _Y{prime}_ planes
@@ -928,7 +928,7 @@ image::{images}/2DYCbCr420_KDFS.svg[width="{svgpdf@pdf:310pt:480}",align="center
 For the purposes of description, the bytes contributed by each plane
 are considered to be concatenated into a single contiguous _logical bit
 stream_.
-This ``concatenation'' of bits is purely conceptual for the purposes of
+This "`concatenation`" of bits is purely conceptual for the purposes of
 determining the interpretation of the bits that contribute to the texel
 block, and is not expected to be the way that actual decoders would
 process the data.
@@ -1022,26 +1022,26 @@ The sequence of bits in the (virtual) sample defines a numerical range
 which may be interpreted as a fixed-point or floating-point value and
 signed or unsigned.
 Many common representations specify this range.
-For example, 8-bit _RGB_ data may be interpreted in ``unsigned
-normalized'' form as meaning ``0.0'' (zero color contribution) when
-the channel bits are 0 and ``1.0'' (maximum color contribution) when
+For example, 8-bit _RGB_ data may be interpreted in "`unsigned
+normalized`" form as meaning "`0.0`" (zero color contribution) when
+the channel bits are 0 and "`1.0`" (maximum color contribution) when
 the channel is 255.
-In _Y{prime}C~B~C~R~_ ``narrow-range'' encoding, there is head-room
-and foot-room to the encoding: ``black'' is encoded in the _Y{prime}_
-channel as the value 16, and ``white'' is encoded as 235, as shown
+In _Y{prime}C~B~C~R~_ "`narrow-range`" encoding, there is head-room
+and foot-room to the encoding: "`black`" is encoded in the _Y{prime}_
+channel as the value 16, and "`white`" is encoded as 235, as shown
 in <<QUANTIZATION_NARROW>>.
 To allow the bit pattern of simply-encoded numerical encodings
 to be mapped to the desired values, each sample has an _upper_
 and _lower_ value associated with it, usually representing 1.0
 and either 0.0 or -1.0 depending on whether the sample is signed.
 
-Note that it is typically part of the ``format'' to indicate the
+Note that it is typically part of the "`format`" to indicate the
 numbers which are being encoded; how the application chooses to
-process these numbers is not part of the ``format''.
-For example, some APIs may have two separate ``formats'', in which
+process these numbers is not part of the "`format`".
+For example, some APIs may have two separate "`formats`", in which
 the 8-bit pattern 0x01 may be interpreted as either the float
 value 1.0 or the integer value 1; for the purposes of this
-specification, these formats are identical -- ``1'' means ``1''.
+specification, these formats are identical -- "`1`" means "`1`".
 
 A sample has an associated color channel in the color model of the
 descriptor block -- for example, if the descriptor block indicates an
@@ -1149,10 +1149,10 @@ Finally:
   transfer function is needed.
 
 <<<
-=== Related concepts outside the ``format''
+=== Related concepts outside the "`format`"
 
 The data format descriptor describes only concepts which are
-conventionally part of the ``format''.
+conventionally part of the "`format`".
 Additional information is required to access the image data:
 
 * A formula for mapping accessed coordinates to byte data for
@@ -1164,7 +1164,7 @@ Additional information is required to access the image data:
     of bytes contributed by each plane.
 * (Optionally) for each dimension, a maximum (and arguably
   minimum) range.
-  * Note that padding is independent of the ``format''.
+  * Note that padding is independent of the "`format`".
 
 For example, if texels are laid out in memory in linear order:
 
@@ -1254,13 +1254,13 @@ trivially defines a little-endian native data type size.
 Big-endian data types can be identified by observing that in a big-endian
 format, a sequence of bits in the top bits of byte _n_ may continue in
 the low bits of byte _n_ - 1.
-Finally, ``packed'' formats consist of consecutive bit sequences per
+Finally, "`packed`" formats consist of consecutive bit sequences per
 channel in either little- or big-endian order; little-endian sequences
 are a single stand-alone sample, and a big-endian sequence consists of
 a number of samples adjacent to byte boundaries in decreasing byte
 order (see <<RGB565BEEncoding>>); the packed field size can typically
 be deduced from the *_bytesPlane0_* value.
-There is no way to distinguish a logically ``packed'', byte-aligned
+There is no way to distinguish a logically "`packed`", byte-aligned
 samples from distinct but consecutively-stored channels that have the
 same in-memory representation.
 
@@ -1392,7 +1392,7 @@ of most descriptors can be deduced by which half of the *++uint32_t++*
 *_totalSize_* field is non-zero.
 
 NOTE: To avoid expanding the size of the data structure, there is no
-``magic identifier'' for a data format descriptor: applications are
+"`magic identifier`" for a data format descriptor: applications are
 expected to know the type of the data structure being accessed, and
 to provide their own means of identifying a data format descriptor if
 one is embedded in a multi-purpose byte stream.
@@ -1603,7 +1603,7 @@ as described in this specification is 2.
 NOTE: The *_versionNumber_* is incremented to indicate an incompatible change
 in the descriptor.
 The addition of enumerant values, for example to represent more compressed
-texel formats, does not constitute an ``incompatible change'', and
+texel formats, does not constitute an "`incompatible change`", and
 implementations should be resilient against enumerants that have been added
 in later minor updates.
 
@@ -1697,7 +1697,7 @@ be able to perform operations that depend only on channel location,
 not channel interpretation (such as image cropping). For example, a
 camera may store a raw format taken with a modified Bayer sensor,
 with _RGBW_ (red, green, blue and white) sensor sites, or _RGBE_
-(red, green, blue and ``emerald''). Rather than trying to encode the
+(red, green, blue and "`emerald`"). Rather than trying to encode the
 exact color coordinates of each sample in the basic descriptor,
 these formats could be represented by a four-channel *++UNSPECIFIED++*
 model, with an extension block describing the interpretation of
@@ -1836,7 +1836,7 @@ the combined key (black) channel, along with alpha, as shown in
 <<<
 ==== *++KHR_DF_MODEL_XYZW++* (= 6)
 
-This ``color model'' represents channel data used for
+This "`color model`" represents channel data used for
 coordinate values, as shown in <<XYZWChannels>> --
 for example, as a representation of the surface normal in
 a bump map.
@@ -1957,7 +1957,7 @@ supplemented by a channel for alpha, as shown in <<YCoCgAChannels>>.
 <<<
 ==== *++KHR_DF_MODEL_YCCBCCRC++* (= 12)
 
-This color model represents the ``Constant luminance''
+This color model represents the "`Constant luminance`"
 latexmath:[Y'_CC'_\mathit{BC}C'_\mathit{RC}] color model defined as an
 optional representation in ITU-T BT.2020 and described in <<MODEL_YCCBCCRC>>.
 
@@ -1976,8 +1976,8 @@ optional representation in ITU-T BT.2020 and described in <<MODEL_YCCBCCRC>>.
 
 ==== *++KHR_DF_MODEL_ICTCP++* (= 13)
 
-This color model represents the ``Constant intensity
-_IC~T~C~P~_ color model'' defined as an optional
+This color model represents the "`Constant intensity
+_IC~T~C~P~_ color model`" defined as an optional
 representation in ITU-T BT.2100 and described in <<MODEL_ICTCP>>.
 
 [[ICTCPChannels]]
@@ -2070,11 +2070,11 @@ This model represents the DXT1 or BC1 format, described in
 <<S3TC>>.
 Each compressed texel block consists of 4{times}4 texels in
 8 bytes.
-A single sample with channel ID 0 indicates that the ``special value''
+A single sample with channel ID 0 indicates that the "`special value`"
 should be interpreted as black, as described in <<s3tc_bc1_noalpha>>
 -- a descriptor block representing this is shown in
 <<dxt1a_example_noalpha>>.
-A single sample with channel ID 1 indicates that the ``special value''
+A single sample with channel ID 1 indicates that the "`special value`"
 should represent transparency, as described in <<s3tc_bc1_alpha>>
 -- a descriptor block representing this is shown in
 <<dxt1a_example_alpha>>.
@@ -2106,11 +2106,11 @@ Enumerant names for these channel ids are listed in <<bc1_channels>>.
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 1) = 40 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++DXT1A++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
+8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 8
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
@@ -2128,11 +2128,11 @@ Enumerant names for these channel ids are listed in <<bc1_channels>>.
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 1) = 40 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++DXT1A++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
+8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 8
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++ALPHA++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++ALPHA++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
@@ -2183,17 +2183,17 @@ requires the whole texel block.
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 2) = 56 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++PREMULTIPLIED++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++DXT2++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
+8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 16
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Alpha sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++ALPHA++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++ALPHA++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* *++UINT32_MAX++*
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Color sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 64
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 64
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
@@ -2211,17 +2211,17 @@ requires the whole texel block.
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 2) = 56 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++DXT3++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
+8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 16
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Alpha sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++ALPHA++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++ALPHA++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* *++UINT32_MAX++*
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Color sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 64
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 64
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
@@ -2272,17 +2272,17 @@ requires the whole texel block.
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 2) = 56 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++PREMULTIPLIED++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++DXT4++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
+8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 16
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Alpha sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++ALPHA++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++ALPHA++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* *++UINT32_MAX++*
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Color sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 64
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 64
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
@@ -2300,17 +2300,17 @@ requires the whole texel block.
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 2) = 56 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++DXT5++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
+8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 16
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Alpha sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++ALPHA++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++ALPHA++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* *++UINT32_MAX++*
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Color sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 64
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 64
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
@@ -2347,11 +2347,11 @@ The enumerant name for this channel id is listed in <<bc4_channel>>.
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 1) = 40 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++BC4++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
+8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 8
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++DATA++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++DATA++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
@@ -2368,11 +2368,11 @@ The enumerant name for this channel id is listed in <<bc4_channel>>.
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 1) = 40 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++BC4++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
+8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 8
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
-^| 0 ^| 1 ^| 0 ^| 0 4+^| *++DATA++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 1 ^| 0 ^| 0 4+^| *++DATA++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* *++INT32_MIN++*
@@ -2415,17 +2415,17 @@ Enumerant names for these channel ids are listed in <<bc5_channels>>.
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 2) = 56 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++BC5++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
+8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 16
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Red sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* *++UINT32_MAX++*
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Green sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 64
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 64
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
@@ -2443,17 +2443,17 @@ Enumerant names for these channel ids are listed in <<bc5_channels>>.
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 2) = 56 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++BC5++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
+8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 16
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Red sample information~
-^| 0 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* *++INT32_MIN++*
 32+^| *_sampleUpper:_* *++INT32_MAX++*
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Green sample information~
-^| 0 ^| 1 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 64
+^| 0 ^| 1 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 64
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* *++INT32_MIN++*
@@ -2461,7 +2461,7 @@ Enumerant names for these channel ids are listed in <<bc5_channels>>.
 |====
 
 <<<
-A legacy variant of this format known as ``ATI2n'' or ``3Dc'' swaps
+A legacy variant of this format known as "`ATI2n`" or "`3Dc`" swaps
 the location of the two channels, and can be encoded as follows:
 
 .Example ATI2n unsigned descriptor
@@ -2474,17 +2474,17 @@ the location of the two channels, and can be encoded as follows:
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 2) = 56 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++BC5++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
+8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 16
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Red sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* *++UINT32_MAX++*
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Green sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 64
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 64
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
@@ -2524,11 +2524,11 @@ The enumerant names for this channel id are listed in <<bc6h_channel>>.
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 1) = 40 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++BC6H++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
+8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 16
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
-^| 1 ^| 1 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 127 (= ``128'') 16+^| *_bitOffset:_* 0
+^| 1 ^| 1 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 127 (= "`128`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0xBF800000U -- -1.0f
@@ -2547,11 +2547,11 @@ The enumerant names for this channel id are listed in <<bc6h_channel>>.
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 1) = 40 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++BC6H++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
+8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 16
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
-^| 1 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 127 (= ``128'') 16+^| *_bitOffset:_* 0
+^| 1 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 127 (= "`128`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0xBF800000U -- -1.0f
@@ -2591,11 +2591,11 @@ The enumerant names for this channel id are listed in <<bc7_channel>>.
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 1) = 40 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++BC7++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
+8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 16
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 127 (= ``128'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 127 (= "`128`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
@@ -2636,11 +2636,11 @@ The enumerant names for this channel id are listed in <<etc1_channel>>.
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 1) = 40 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++ETC1++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
+8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 8
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
@@ -2685,11 +2685,11 @@ is 8 bytes, represented as a single 64-bit sample.
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 1) = 40 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++ETC2++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
+8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 8
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
@@ -2706,11 +2706,11 @@ is 8 bytes, represented as a single 64-bit sample.
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 1) = 40 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++ETC2++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
+8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 8
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
-^| 0 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* *++INT32_MIN++*
@@ -2733,17 +2733,17 @@ and green, in that order, indicates the RG11 EAC format as described in
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 2) = 56 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++ETC2++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
+8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 16
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Red sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* *++UINT32_MAX++*
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Green sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 64
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 64
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
@@ -2760,17 +2760,17 @@ and green, in that order, indicates the RG11 EAC format as described in
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 2) = 56 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++ETC2++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
+8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 16
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Red sample information~
-^| 0 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* *++INT32_MIN++*
 32+^| *_sampleUpper:_* *++INT32_MAX++*
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Green sample information~
-^| 0 ^| 1 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 64
+^| 0 ^| 1 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 64
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* *++INT32_MIN++*
@@ -2793,11 +2793,11 @@ A single sample of ID 2 indicates RGB2 with no alpha, occupying 8 bytes.
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 1) = 40 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++ETC2++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
+8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 8
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
@@ -2807,7 +2807,7 @@ A single sample of ID 2 indicates RGB2 with no alpha, occupying 8 bytes.
 <<<
 Channel ID 15 indicates the presence of alpha.
 If the texel block size is 8 bytes and the _RGB_ and alpha channels are
-co-sited, ``punch through'' alpha is supported as described in
+co-sited, "`punch through`" alpha is supported as described in
 <<RGBETC2_PUNCHTHROUGH>>.
 
 [[example_etc2_punchthrough]]
@@ -2821,17 +2821,17 @@ co-sited, ``punch through'' alpha is supported as described in
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 1) = 56 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++ETC2++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
+8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 8
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Color sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* *++UINT32_MAX++*
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Alpha sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++ALPHA++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++ALPHA++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
@@ -2854,17 +2854,17 @@ alpha is supported, as described in <<RGBAETC2>>.
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 1) = 56 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++ETC2++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
+8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 16
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Alpha sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++ALPHA++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++ALPHA++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* *++UINT32_MAX++*
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Color sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 64
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 64
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
@@ -2913,11 +2913,11 @@ The enumerant name for this channel id is listed in <<astc_channels>>.
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 1) = 40 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++ASTC++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
+8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 16
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++DATA++* 8+^| *_bitLength:_* 127 (= ``128'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++DATA++* 8+^| *_bitLength:_* 127 (= "`128`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
@@ -2935,11 +2935,11 @@ The enumerant name for this channel id is listed in <<astc_channels>>.
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 1) = 40 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++ASTC++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 4 (= ``5'') 8+^| 7 (= ``8'')
+8+^| 0 8+^| 0 8+^| 4 (= "`5`") 8+^| 7 (= "`8`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 16
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
-^| 1 ^| 1 ^| 0 ^| 0 4+^| *++DATA++* 8+^| *_bitLength:_* 127 (= ``128'') 16+^| *_bitOffset:_* 0
+^| 1 ^| 1 ^| 0 ^| 0 4+^| *++DATA++* 8+^| *_bitLength:_* 127 (= "`128`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0xBF800000U -- -1.0f
@@ -2980,11 +2980,11 @@ The enumerant names for this channel id are listed in <<etc1s_channel>>.
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 1) = 40 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++ETC1S++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
+8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 8
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
@@ -3024,11 +3024,11 @@ The enumerant names for this channel id are listed in <<pvrtc_channel>>.
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 1) = 40 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++PVRTC++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
+8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 8
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
@@ -3046,11 +3046,11 @@ The enumerant names for this channel id are listed in <<pvrtc_channel>>.
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 1) = 40 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++PVRTC++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 7 (= ``8'')
+8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 7 (= "`8`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 8
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
@@ -3090,11 +3090,11 @@ The enumerant names for this channel id are listed in <<pvrtc2_channel>>.
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 1) = 40 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++PVRTC2++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
+8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 8
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
@@ -3112,11 +3112,11 @@ The enumerant names for this channel id are listed in <<pvrtc2_channel>>.
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 1) = 40 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++PVRTC2++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 7 (= ``8'')
+8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 7 (= "`8`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 8
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
@@ -3128,7 +3128,7 @@ The enumerant names for this channel id are listed in <<pvrtc2_channel>>.
 
 It is not sufficient to define a buffer as containing, for example,
 additive primaries. Additional information is required to define
-what ``red'' is provided by the ``red'' channel. A full definition of
+what "`red`" is provided by the "`red`" channel. A full definition of
 primaries requires an extension which provides the full color space
 of the data, but a subset of common primary spaces can be identified
 by the *++khr_df_primaries_e++* enumeration, represented as an unsigned 8-bit
@@ -3150,15 +3150,15 @@ More information about color primaries is provided in <<PRIMARY_CONVERSION>>.
 
 ==== *++KHR_DF_PRIMARIES_UNSPECIFIED++* (= 0)
 
-This ``set of primaries'' identifies a data representation whose color
+This "`set of primaries`" identifies a data representation whose color
 representation is unknown or which does not fit into this list of
-common primaries. Having an ``unspecified'' value here precludes users
+common primaries. Having an "`unspecified`" value here precludes users
 of this data format from being able to perform automatic color conversion
 unless the primaries are defined in another way. Formats which require
 a proprietary color space -- for example, raw data from a Bayer sensor
 that records the direct response of each filtered sample -- can still
-indicate that samples represent ``red'', ``green'' and ``blue'', but should
-mark the primaries here as ``unspecified'' and provide a detailed
+indicate that samples represent "`red`", "`green`" and "`blue`", but should
+mark the primaries here as "`unspecified`" and provide a detailed
 description in an extension block.
 
 ==== *++KHR_DF_PRIMARIES_BT709++* (= 1)
@@ -3255,7 +3255,7 @@ and encoded in the enumeration *++khr_df_transfer_e++*.
 A fully-flexible transfer function requires an extension with a full
 color space definition.
 Where the transfer function can be described as a simple power curve,
-applying the function is commonly known as ``gamma correction''.
+applying the function is commonly known as "`gamma correction`".
 The transfer function is applied to a sample only when the sample's
 *++KHR_DF_SAMPLE_DATATYPE_LINEAR++* bit is 0; if this bit is 1, the
 sample is represented linearly irrespective of the *_transferFunction_*.
@@ -3267,7 +3267,7 @@ the transfer function. For example, ASTC stores both alpha and _RGB_
 data but is represented by a single sample; in ASTC, any sRGB transfer
 function is not applied to the alpha channel of the ASTC texture.
 In this case, the *++KHR_DF_SAMPLE_DATATYPE_LINEAR++* bit being zero means
-that the transfer function is ``applied'' to the ASTC sample in a way that
+that the transfer function is "`applied`" to the ASTC sample in a way that
 only affects the _RGB_ channels. This is not a concern for most color
 models, which explicitly store different channels in each sample.
 
@@ -3350,7 +3350,7 @@ and numerical pixel values, as described in <<TRANSFER_LEGACY_NTSC>>.
 |====
 
 NOTE: More recent formulations of this transfer functions, such as that
-defined in SMPTE 170M-2004, use the ``ITU'' formulation described above.
+defined in SMPTE 170M-2004, use the "`ITU`" formulation described above.
 
 ==== *++KHR_DF_TRANSFER_SLOG++* (= 5)
 
@@ -3662,8 +3662,8 @@ the first plane holds 0x40 {plus} 128 {times} 0x02 = 0x140 bytes;
 *_bytesPlane2_* then describes the number of bytes in the second plane..
 Since only sixteen bits are used to encode a bit offset for each sample,
 14 bits (two bytes excluding the top bits) are sufficient to encode any
-useful number of bytes -- there is no need to ``extend'' the higher byte.
-Few formats are expected to require this ``extension bit'', so for
+useful number of bytes -- there is no need to "`extend`" the higher byte.
+Few formats are expected to require this "`extension bit`", so for
 most of this specification, the number of bytes in a plane is considered
 to be synonymous with the *_bytesPlane_* value.
 
@@ -3695,7 +3695,7 @@ no *_bytesPlane_* value is zero, 8 planes are considered to exist.
 (++bdb++[*++KHR_DF_WORD_BYTESPLANE[0..7]++*] >> *++KHR_DF_SHIFT_BYTESPLANE[0..7]++*);
 
 NOTE: In versions of this specification prior to 1.3, there was no
-facility for the ``extension bit'', and a *_bytesPlane0_*  value of
+facility for the "`extension bit`", and a *_bytesPlane0_*  value of
 0 indicated a paletted format.
 The scheme for encoding paletted formats as of version 1.3 is
 described in <<PALETTED>>.
@@ -4093,13 +4093,13 @@ n &= \left\lceil\textrm{log}_2(\textbf{\textit{texelBlockDimension}} + 1)\right\
 For example, if *_texelBlockDimension0_* is 1 (indicating a texel block
 width of two units) *_samplePosition0_* is described in units of
 latexmath:[{2\over 256} = {1\over 128}].
-That is, a *_samplePosition0_* of 128 would encode an offset of ``1.0''
-and a *_samplePosition0_* of 64 would encode an offset of ``0.5''.
+That is, a *_samplePosition0_* of 128 would encode an offset of "`1.0`"
+and a *_samplePosition0_* of 64 would encode an offset of "`0.5`".
 If *_texelBlockDimension0_* is 5 (indicating a texel block width of
 six units), *_samplePosition0_* is described in units of
 latexmath:[{8\over 256} = {1\over 32}].
-That is, a *_samplePosition0_* of 64 would encode an offset of ``2.0''
-and a *_samplePosition0_* of 24 would encode an offset of ``0.75''.
+That is, a *_samplePosition0_* of 64 would encode an offset of "`2.0`"
+and a *_samplePosition0_* of 24 would encode an offset of "`0.75`".
 
 The adjusted _coordinateOffset_ must be less than the corresponding
 texel block dimension.
@@ -4123,7 +4123,7 @@ NOTE: Versions of this specification prior to 1.3 always recorded the
 sample position in a 7.1 fixed-point format (with half-coordinate
 granularity).
 This change does not affect the representation of single-coordinate texel
-blocks; that is, a *_samplePosition_* of ``0'' still represents ``0.0''.
+blocks; that is, a *_samplePosition_* of "`0`" still represents "`0.0`".
 
 <<<
 === *_sampleLower_* and *_sampleUpper_*
@@ -4134,13 +4134,13 @@ conceptual numerical interpretation.
 
 For unsigned formats, *_sampleLower_* typically represents the value
 which should be interpreted as zero (the black point).
-For signed formats, *_sampleLower_* typically represents ``-1''.
+For signed formats, *_sampleLower_* typically represents "`-1`".
 For color difference models such as _Y{prime}C~B~C~R~_, *_sampleLower_*
 for chroma channels represents the lower extent of the color difference
 range (which corresponds to an encoding of -0.5 in numerical terms).
 
 *_sampleUpper_* typically represents the value which should be interpreted
-as ``1.0'' (the ``white point'').
+as "`1.0`" (the "`white point`").
 For color difference models such as _Y{prime}C~B~C~R~_, *_sampleUpper_*
 for chroma channels represents the upper extent of the color difference
 range (which corresponds to an encoding of 0.5 in numerical terms).
@@ -4171,12 +4171,12 @@ of the captured image.
 There is no guarantee or expectation that image data be guaranteed to
 fall between *_sampleLower_* and *_sampleUpper_* unless the users of a
 format agree that convention.
-For example, high dynamic range video formats may define ``1.0'' as a
+For example, high dynamic range video formats may define "`1.0`" as a
 nominal brightness level substantially lower than the maximum, and
 coordinates may encode an arbitrary range.
 In some formats, the integer value should be interpreted directly
 as a number, in which case *_sampleUpper_* and *_sampleLower_* should
-hold ``1'' and either ``0'' or ``-1'' depending on whether the format
+hold "`1`" and either "`0`" or "`-1`" depending on whether the format
 is signed, respectively.
 
 If the channel encoding is an integer format, the *_sampleLower_* and
@@ -4241,29 +4241,29 @@ See <<customfp>> for more detail on this.
 If the channel encoding is the mantissa of a custom floating point
 format (that is, the encoding is integer but the same sample location
 and channel is shared by a sample that encodes an exponent), the
-presence of an implicit ``1'' digit can be represented by setting the
+presence of an implicit "`1`" digit can be represented by setting the
 *_sampleUpper_* value to a value one larger than can be encoded in the
 available bits for the mantissa, as described in <<customfp>>.
 
-In OpenGL terminology, a ``normalized'' channel contains an integer value
+In OpenGL terminology, a "`normalized`" channel contains an integer value
 which is mapped to the range 0..1.0; a channel which is not normalized
 contains an integer value which is mapped to a floating point equivalent
 of the integer value.
-Similarly an ``snorm'' channel is a signed normalized value mapping from
+Similarly an "`snorm`" channel is a signed normalized value mapping from
 -1.0 to 1.0.
 Setting *_sampleLower_* to the minimum signed integer value representable
 in the channel (which is often the negative version of the maximum signed
 integer, for example -127 rather than -128 for an 8-bit value in order to
 allow the value 0.0 to be represented exactly) is equivalent to defining
-an ``snorm'' texture.
+an "`snorm`" texture.
 Setting *_sampleUpper_* to the maximum signed integer value representable
 in the channel for a signed channel type is equivalent to defining an
-``snorm'' texture.
+"`snorm`" texture.
 Setting *_sampleUpper_* to the maximum unsigned value representable in
 the channel for an unsigned channel type is equivalent to defining a
-``normalized'' texture.
-Setting *_sampleUpper_* to ``1'' is equivalent to defining an
-``unnormalized'' texture.
+"`normalized`" texture.
+Setting *_sampleUpper_* to "`1`" is equivalent to defining an
+"`unnormalized`" texture.
 
 In the special case that the sample *_bitOffset_* field is 0xFFFF, only
 the bottom 16 bits of the *_sampleLower_* field indicate a contribution to
@@ -4275,10 +4275,10 @@ to eight bits before conversion may have four bits with the value 0
 stored in bits 19..16 of *_sampleLower_*, indicated by a *_bitOffset_*
 of 0xFFFF.
 
-These ``virtual bits'' may be needed to encode some numerical
+These "`virtual bits`" may be needed to encode some numerical
 representations.
-For example, if an 8-bit integer encodes the value ``-0.5'' as 0
-and ``0.5'' as 255 (in the manner of the color difference channel
+For example, if an 8-bit integer encodes the value "`-0.5`" as 0
+and "`0.5`" as 255 (in the manner of the color difference channel
 in <<sampleRangeConversion>>, but if we wish to apply this mapping to
 a channel other than color difference), <<sampleRangeConversion>>
 suggests that *_sampleLower_* should hold -127.5 and *_sampleUpper_*
@@ -4303,7 +4303,7 @@ map to the -0.5..0.5 range are treated specially.
 === Paletted formats
 
 The storage of the palette is considered to be outside the remit of this
-specification; however, the ``format'' describes both the encoding of
+specification; however, the "`format`" describes both the encoding of
 the bits which index into the palette and the format of the entries in
 the palette itself.
 
@@ -4459,7 +4459,7 @@ If bit 14, *++KHR_DF_KHR_DESCRIPTORTYPE_NEEDED_FOR_DECODE_BIT++*, of the
 understand the extension in order to decode the contents of the texel
 coherently.
 If this bit is clear, the data held in the extension can be considered to be
-``informative'' and that ignoring the extension will still result in correct
+"`informative`" and that ignoring the extension will still result in correct
 values to the extent specified by the basic descriptor block.
 For example, an extension may associate an absolute brightness level with
 a format, but software which does not have need of this concept can continue
@@ -4468,7 +4468,7 @@ processing the texel contents correctly.
 <<<
 As an example of the description of an extension, consider a single-channel
 32-bit depth buffer, as shown in <<DepthExtensionExample>>.
-A tiled renderer may wish to indicate that this buffer is ``virtual'': it
+A tiled renderer may wish to indicate that this buffer is "`virtual`": it
 will be allocated real memory only if needed, and will otherwise exist only
 a subset at a time in an on-chip representation.
 Someone developing such a renderer may choose to add a vendor-specific
@@ -4511,7 +4511,7 @@ form of allocation while reading texel values.
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 4
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for depth~
-^| 1 ^| 1 ^| 0 ^| 0 4+^| *++DEPTH++* 8+^| *_bitLength:_* 31 (= ``32'') 16+^| *_bitOffset:_* 0
+^| 1 ^| 1 ^| 0 ^| 0 4+^| *++DEPTH++* 8+^| *_bitLength:_* 31 (= "`32`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0xBF800000U -- -1.0f
@@ -4520,7 +4520,7 @@ form of allocation while reading texel values.
 15+^| *_descriptorType:_* 0 17+^| *_vendorId:_* 0x1FFFF
 16+^| *_descriptorBlockSize:_* 8 + (4 {times} 1) = 12 16+^| *_versionNumber:_* 0
 32+^| ~Data specific to the extension follows~
-32+^| 1 -- buffer is ``virtual''
+32+^| 1 -- buffer is "`virtual`"
 |====
 
 It is possible for a vendor to use the extension block to store peripheral
@@ -4528,10 +4528,10 @@ information required to access the image -- plane base addresses, stride, etc.
 Since different implementations have different kinds of non-linear ordering
 and proprietary alignment requirements, this is not described as part of the
 standard. By many conventional definitions, this information is not part of
-the ``format'', and particularly it ensures that an identical copy of the image
+the "`format`", and particularly it ensures that an identical copy of the image
 will have a different descriptor block (because the addresses will have changed)
 and so a simple bitwise comparison of two descriptor blocks will disagree even
-though the ``format'' matches. Additionally, many APIs will use the format
+though the "`format`" matches. Additionally, many APIs will use the format
 descriptor only for external communication, and have an internal representation
 that is more concise and less flexible. In this case, it is likely that address
 information will need to be represented separately from the format anyway. For
@@ -4623,7 +4623,7 @@ users of the layout being described.
 The fields *_texelBlockDimension[0..n]_* describe the size in coordinate
 units of the texel block in the corresponding dimension; as with the
 basic descriptor block, the value stored is the corresponding dimension
-minus 1 (so a stored value of ``0'' corresponds to a dimension of 1).
+minus 1 (so a stored value of "`0`" corresponds to a dimension of 1).
 The *_texelBlockDimension[0..7]_* fields of the basic descriptor block
 are ignored.
 
@@ -4880,16 +4880,16 @@ The *_sampleUpper_* and *_sampleLower_* values for the mantissa should be
 set to indicate the representation of 1.0 and 0.0 (for unsigned formats)
 or -1.0 (for signed formats) respectively when the exponent is in a
 0 position after any bias has been corrected. If there is an implicit
-``1'' bit, these values for the mantissa will exceed what can be
+"`1`" bit, these values for the mantissa will exceed what can be
 represented in the number of available mantissa bits.
 
 For example, the shared exponent formats shown in
-<<exampledescriptor_r9g9b9e5>> does not have an implicit ``1'' bit, and
+<<exampledescriptor_r9g9b9e5>> does not have an implicit "`1`" bit, and
 therefore the *_sampleUpper_* values for the 9-bit mantissas are 256 --
 this being the mantissa value for 1.0 when the exponent is set to 0.
 
 For the 16-bit signed floating point format described in <<im-16bitfp>>,
-*_sampleUpper_* should be set to 1024, indicating the implicit ``1'' bit
+*_sampleUpper_* should be set to 1024, indicating the implicit "`1`" bit
 which is above the 10 bits representable in the mantissa. *_sampleLower_*
 should be 0 in this case, since the mantissa uses a sign-magnitude
 representation.
@@ -4919,8 +4919,8 @@ sign bit can distinguish between +0 and -0.
 
 Floating point values encoded with an exponent of 0 (before bias)
 and a non-zero mantissa are assumed to indicate a denormalized
-number, if the format has an implicit ``1'' bit. That is, when
-the exponent is 0, the ``1'' bit becomes explicit and the exponent
+number, if the format has an implicit "`1`" bit. That is, when
+the exponent is 0, the "`1`" bit becomes explicit and the exponent
 is considered to be the negative sample bias minus one.
 
 Floating point values encoded with an exponent larger than the
@@ -4940,7 +4940,7 @@ corresponding numerical representations in <<IEEE-754>>.
 ==== Conversion formulae
 
 Given an optional sign bit _S_, a mantissa value of _M_ and an
-exponent value of _E_, a format with an implicit ``1'' bit can
+exponent value of _E_, a format with an implicit "`1`" bit can
 be converted from its representation to a real value as follows:
 
 [latexmath]
@@ -4958,7 +4958,7 @@ V =
 \end{aligned}
 ++++
 
-If there is no implicit ``1'' bit (that is, the *_sampleUpper_* value
+If there is no implicit "`1`" bit (that is, the *_sampleUpper_* value
 of the mantissa is representable in the number of bits assigned to the
 mantissa), the value can be converted to a real value as follows:
 
@@ -4975,9 +4975,9 @@ V =
 \end{aligned}
 ++++
 
-A descriptor block for a format without an implicit ``1'' (and with the
+A descriptor block for a format without an implicit "`1`" (and with the
 added complication of having the same exponent bits shared across multiple
-channels, which is why an implicit ``1'' bit does not make sense) is shown
+channels, which is why an implicit "`1`" bit does not make sense) is shown
 in <<exampledescriptor_r9g9b9e5>>. In the case of this particular example, the above
 equations simplify to:
 
@@ -5025,19 +5025,19 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 2
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~First sample: low five bits blue~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 4 (= ``5'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 4 (= "`5`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 31
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Second sample: middle six bits green~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 5 = (``6'') 16+^| *_bitOffset:_* 6
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 5 = ("`6`") 16+^| *_bitOffset:_* 6
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 63
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^|  ~Third sample: top five bits red~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 4 (= ``5'') 16+^| *_bitOffset:_* 11
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 4 (= "`5`") 16+^| *_bitOffset:_* 11
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
@@ -5061,25 +5061,25 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 4
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the first sample~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 7 (= ``8'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 7 (= "`8`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 255
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the second sample~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 7 (= ``8'') 16+^| *_bitOffset:_* 8
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 7 (= "`8`") 16+^| *_bitOffset:_* 8
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 255
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the third sample~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 7 (= ``8'') 16+^| *_bitOffset:_* 16
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 7 (= "`8`") 16+^| *_bitOffset:_* 16
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 255
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the fourth sample~
-^| 0 ^| 0 ^| 0 ^| 1 4+^| *++ALPHA++* 8+^| *_bitLength:_* 7 (= ``8'') 16+^| *_bitOffset:_* 24
+^| 0 ^| 0 ^| 0 ^| 1 4+^| *++ALPHA++* 8+^| *_bitLength:_* 7 (= "`8`") 16+^| *_bitOffset:_* 24
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
@@ -5121,17 +5121,17 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 8) = 142 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++YUVSDA++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 0 8+^| 7 (= ``8'')
+8+^| 0 8+^| 0 8+^| 0 8+^| 7 (= "`8`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 1
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the first sample~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 0 (= ``1'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 0 (= "`1`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 1
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the second sample~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 0 (= ``1'') 16+^| *_bitOffset:_* 1
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 0 (= "`1`") 16+^| *_bitOffset:_* 1
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0x20
 32+^| *_sampleLower:_* 0
@@ -5146,37 +5146,37 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the third sample~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 0 (= ``1'') 16+^| *_bitOffset:_* 2
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 0 (= "`1`") 16+^| *_bitOffset:_* 2
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0x40
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 1
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| _~Sample information for the fourth sample~_
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 0 (= ``1'') 16+^| *_bitOffset:_* 3
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 0 (= "`1`") 16+^| *_bitOffset:_* 3
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0x60
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 1
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| _~Sample information for the fifth sample~_
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 0 (= ``1'') 16+^| *_bitOffset:_* 4
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 0 (= "`1`") 16+^| *_bitOffset:_* 4
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0x80
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 1
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| _~Sample information for the sixth sample~_
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 0 (= ``1'') 16+^| *_bitOffset:_* 5
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 0 (= "`1`") 16+^| *_bitOffset:_* 5
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0xA0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 1
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| _~Sample information for the seventh sample~_
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 0 (= ``1'') 16+^| *_bitOffset:_* 6
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 0 (= "`1`") 16+^| *_bitOffset:_* 6
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0xC0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 1
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| _~Sample information for the eighth sample~_
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 0 (= ``1'') 16+^| *_bitOffset:_* 7
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 0 (= "`1`") 16+^| *_bitOffset:_* 7
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0xE0
 32+^| *_sampleLower:_* 0
@@ -5196,31 +5196,31 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 4) = 88 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++SRGB++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++RGBSDA++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 1 (height = ``2'') 8+^| 1 (width = ``2'')
+8+^| 0 8+^| 0 8+^| 1 (height = "`2`") 8+^| 1 (width = "`2`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 2 8+^| *_bytesPlane0:_* 2
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the first sample~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 7 (= ``8'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 7 (= "`8`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
-8+^| 0 8+^| 0 8+^| 0x00 (_y_ = ``0'') 8+^| 0x00 (_x_ = ``0'')
+8+^| 0 8+^| 0 8+^| 0x00 (_y_ = "`0`") 8+^| 0x00 (_x_ = "`0`")
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 255
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the second sample~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 7 (= ``8'') 16+^| *_bitOffset:_* 8
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 7 (= "`8`") 16+^| *_bitOffset:_* 8
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
-8+^| 0 8+^| 0 8+^| 0x00 (_y_ = ``0'') 8+^| 0x80 (_x_ = ``1'')
+8+^| 0 8+^| 0 8+^| 0x00 (_y_ = "`0`") 8+^| 0x80 (_x_ = "`1`")
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 255
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the third sample~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 7 (= ``8'') 16+^| *_bitOffset:_* 16
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 7 (= "`8`") 16+^| *_bitOffset:_* 16
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
-8+^| 0 8+^| 0 8+^| 0x80 (_y_ = ``1'') 8+^| 0x00 (_x_ = ``0'')
+8+^| 0 8+^| 0 8+^| 0x80 (_y_ = "`1`") 8+^| 0x00 (_x_ = "`0`")
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 255
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the fourth sample~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 7 (= ``8'') 16+^| *_bitOffset:_* 24
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 7 (= "`8`") 16+^| *_bitOffset:_* 24
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
-8+^| 0 8+^| 0 8+^| 0x80 (_y_ = ``1'') 8+^| 0x80 (_x_ = ``1'')
+8+^| 0 8+^| 0 8+^| 0x80 (_y_ = "`1`") 8+^| 0x80 (_x_ = "`1`")
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 255
 |====
@@ -5242,25 +5242,25 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 1
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the 8-bit index~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| 0 8+^| *_bitLength:_* 7 (= ``8'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| 0 8+^| *_bitLength:_* 7 (= "`8`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 239
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Red channel of the palette entries~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 3 (= ``4'') 16+^| *_bitOffset:_* 8 (palette entry)
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 3 (= "`4`") 16+^| *_bitOffset:_* 8 (palette entry)
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0 (palette id)
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 15
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Green channel of the palette entries~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 3 (= ``4'') 16+^| *_bitOffset:_* 8 (palette entry)
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 3 (= "`4`") 16+^| *_bitOffset:_* 8 (palette entry)
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0 (palette id)
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 15
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Blue channel of the palette entries~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 3 (= ``4'') 16+^| *_bitOffset:_* 8 (palette entry)
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 3 (= "`4`") 16+^| *_bitOffset:_* 8 (palette entry)
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0 (palette id)
 32+^| *_sampleLower:_* 0
@@ -5282,37 +5282,37 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 4
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Red channel palette index~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 7 (= ``8'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 7 (= "`8`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 255
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Green channel palette index~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 7 (= ``8'') 16+^| *_bitOffset:_* 8
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 7 (= "`8`") 16+^| *_bitOffset:_* 8
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 255
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Blue channel palette index~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 7 (= ``8'') 16+^| *_bitOffset:_* 16
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 7 (= "`8`") 16+^| *_bitOffset:_* 16
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 255
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Red palette entry~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 9 (= ``10'') 16+^| *_bitOffset:_* 32 (palette entry)
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 9 (= "`10`") 16+^| *_bitOffset:_* 32 (palette entry)
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0 (*++RED++* palette)
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 1023
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Green palette entry~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 9 (= ``10'') 16+^| *_bitOffset:_* 32 (palette entry)
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 9 (= "`10`") 16+^| *_bitOffset:_* 32 (palette entry)
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 1 (*++GREEN++* palette)
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 1023
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Blue palette entry~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 9 (= ``10'') 16+^| *_bitOffset:_* 32 (palette entry)
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 9 (= "`10`") 16+^| *_bitOffset:_* 32 (palette entry)
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 2 (*++BLUE++* palette)
 32+^| *_sampleLower:_* 0
@@ -5330,43 +5330,43 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 6) = 120 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++ITU++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++YUVSDA++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 1 (height = ``2'')  8+^| 1 (width = ``2'')
+8+^| 0 8+^| 0 8+^| 1 (height = "`2`")  8+^| 1 (width = "`2`")
 8+^| *_bytesPlane3:_* 1 8+^| *_bytesPlane2:_* 1 8+^| *_bytesPlane1:_* 2 8+^| *_bytesPlane0:_* 2
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the first _Y{prime}_ sample~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 7 (= ``8'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 7 (= "`8`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
-8+^| 0 8+^| 0 8+^| 0x00 (_y_ = ``0.0'') 8+^| 0x00 (_x_ = ``0.0'')
+8+^| 0 8+^| 0 8+^| 0x00 (_y_ = "`0.0`") 8+^| 0x00 (_x_ = "`0.0`")
 32+^| *_sampleLower:_* 16
 32+^| *_sampleUpper:_* 235
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the second _Y{prime}_ sample~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 7 (= ``8'') 16+^| *_bitOffset:_* 8
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 7 (= "`8`") 16+^| *_bitOffset:_* 8
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
-8+^| 0 8+^| 0 8+^| 0x00 (_y_ = ``0.0'') 8+^| 0x80 (_x_ = ``1.0'')
+8+^| 0 8+^| 0 8+^| 0x00 (_y_ = "`0.0`") 8+^| 0x80 (_x_ = "`1.0`")
 32+^| *_sampleLower:_* 16
 32+^| *_sampleUpper:_* 235
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the third _Y{prime}_ sample~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 7 (= ``8'') 16+^| *_bitOffset:_* 16
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 7 (= "`8`") 16+^| *_bitOffset:_* 16
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
-8+^| 0 8+^| 0 8+^| 0x80 (_y_ = ``1.0'') 8+^| 0x00 (_x_ = ``0.0'')
+8+^| 0 8+^| 0 8+^| 0x80 (_y_ = "`1.0`") 8+^| 0x00 (_x_ = "`0.0`")
 32+^| *_sampleLower:_* 16
 32+^| *_sampleUpper:_* 235
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the fourth _Y{prime}_ sample~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 7 (= ``8'') 16+^| *_bitOffset:_* 24
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 7 (= "`8`") 16+^| *_bitOffset:_* 24
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
-8+^| 0 8+^| 0 8+^| 0x80 (_y_ = ``1.0'') 8+^| 0x80 (_x_ = ``1.0'')
+8+^| 0 8+^| 0 8+^| 0x80 (_y_ = "`1.0`") 8+^| 0x80 (_x_ = "`1.0`")
 32+^| *_sampleLower:_* 16
 32+^| *_sampleUpper:_* 235
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the _U_ sample~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++U++* 8+^| *_bitLength:_* 7 (= ``8'') 16+^| *_bitOffset:_* 32
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++U++* 8+^| *_bitLength:_* 7 (= "`8`") 16+^| *_bitOffset:_* 32
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
-8+^| 0 8+^| 0 8+^| 0x40 (_y_ = ``0.5'') 8+^| 0x40 (_x_ = ``0.5'')
+8+^| 0 8+^| 0 8+^| 0x40 (_y_ = "`0.5`") 8+^| 0x40 (_x_ = "`0.5`")
 32+^| *_sampleLower:_* 16
 32+^| *_sampleUpper:_* 240
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the _V_ sample~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++V++* 8+^| *_bitLength:_* 7 (= ``8'') 16+^| *_bitOffset:_* 40
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++V++* 8+^| *_bitLength:_* 7 (= "`8`") 16+^| *_bitOffset:_* 40
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
-8+^| 0 8+^| 0 8+^| 0x40 (_y_ = ``0.5'') 8+^| 0x40 (_x_ = ``0.5'')
+8+^| 0 8+^| 0 8+^| 0x40 (_y_ = "`0.5`") 8+^| 0x40 (_x_ = "`0.5`")
 32+^| *_sampleLower:_* 16
 32+^| *_sampleUpper:_* 240
 |====
@@ -5386,25 +5386,25 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 2
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Bit 0 is green, green bits 0..2 in bits 5..7 of the higher byte address (less-significant half of the big-endian word)~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 2 (= ``3'') 16+^| *_bitOffset:_* 13
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 2 (= "`3`") 16+^| *_bitOffset:_* 13
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0 -- lower 3 bits of 6-bit value 0
 32+^| *_sampleUpper:_* 7 -- lower 3 bits of 6-bit value 63
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Continuation: green bits 3..5 in bits 0..2 of the lower byte address (more-significant half of the big-endian word)~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 2 (= ``3'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 2 (= "`3`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0 -- upper 3 bits of 6-bit value 0
 32+^| *_sampleUpper:_* 7 -- upper 3 bits of 6-bit value 63
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Next undescribed bit: red in bits 3..7 of the lower byte address (more-significant half of the big-endian word)~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 4 (= ``5'') 16+^| *_bitOffset:_* 3
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 4 (= "`5`") 16+^| *_bitOffset:_* 3
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 31
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Remaining bits: blue in bits 0..4 of the higher byte address (less-significant half of the big-endian word)~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 4 (= ``5'') 16+^| *_bitOffset:_* 8
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 4 (= "`5`") 16+^| *_bitOffset:_* 8
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
@@ -5426,37 +5426,37 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 4
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the _R_ mantissa~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 8 (= ``9'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 8 (= "`9`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 256 -- mantissa at 1.0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the _R_ exponent~
-^| 0 ^| 0 ^| 1 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 4 (= ``5'') 16+^| *_bitOffset:_* 27
+^| 0 ^| 0 ^| 1 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 4 (= "`5`") 16+^| *_bitOffset:_* 27
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 15 -- exponent bias
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the _G_ mantissa~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 8 (= ``9'') 16+^| *_bitOffset:_* 9
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 8 (= "`9`") 16+^| *_bitOffset:_* 9
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 256 -- mantissa at 1.0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the _G_ exponent~
-^| 0 ^| 0 ^| 1 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 4 (= ``5'') 16+^| *_bitOffset:_* 27
+^| 0 ^| 0 ^| 1 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 4 (= "`5`") 16+^| *_bitOffset:_* 27
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 15 -- exponent bias
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the _B_ mantissa~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 8 (= ``9'') 16+^| *_bitOffset:_* 18
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 8 (= "`9`") 16+^| *_bitOffset:_* 18
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 256 -- mantissa at 1.0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the _B_ exponent~
-^| 0 ^| 0 ^| 1 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 4 (= ``5'') 16+^| *_bitOffset:_* 27
+^| 0 ^| 0 ^| 1 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 4 (= "`5`") 16+^| *_bitOffset:_* 27
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
@@ -5478,31 +5478,31 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 1
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| _~First sample: four bits of red starting at bit 0, including two shared bits 0..1~_
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 3 (= ``4'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 3 (= "`4`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 15
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Second sample: two bits of green ``tint'' shared with red~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 1 (= ``2'') 16+^| *_bitOffset:_* 0
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Second sample: two bits of green "`tint`" shared with red~
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 1 (= "`2`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 3
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Third sample: two bits unique to green~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 1 (= ``2'') 16+^| *_bitOffset:_* 4
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 1 (= "`2`") 16+^| *_bitOffset:_* 4
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 3
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Fourth sample: two bits of blue ``tint'' shared with red~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 1 (= ``2'') 16+^| *_bitOffset:_* 0
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Fourth sample: two bits of blue "`tint`" shared with red~
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 1 (= "`2`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 3
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Fifth sample: two bits unique to blue~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 1 (= ``2'') 16+^| *_bitOffset:_* 6
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 1 (= "`2`") 16+^| *_bitOffset:_* 6
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
@@ -5519,37 +5519,37 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 16+^| *_descriptorBlockSize:_* 24 + (16 {times} 12) = 216 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++ITU++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++YUVSDA++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 0 8+^| 5 (width = ``6'')
+8+^| 0 8+^| 0 8+^| 0 8+^| 5 (width = "`6`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 16
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~First sample: shared mid-sited _U0/U1_~
 ^| 0 ^| 0 ^| 0 ^| 0 4+^| *++U++* 8+^| *_bitLength:_* 10 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
-8+^| 0 8+^| 0 8+^| 0 8+^| 0x10 (_x_ = ``0.5'')
+8+^| 0 8+^| 0 8+^| 0 8+^| 0x10 (_x_ = "`0.5`")
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 1023
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Second sample: _Y{prime}0_~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 9 (= ``10'') 16+^| *_bitOffset:_* 10
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 9 (= "`10`") 16+^| *_bitOffset:_* 10
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
-8+^| 0 8+^| 0 8+^| 0 8+^| 0x00 (_x_ = ``0.0'')
+8+^| 0 8+^| 0 8+^| 0 8+^| 0x00 (_x_ = "`0.0`")
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 1023
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Third sample: shared mid-sited _V0/V1_~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++V++* 8+^| *_bitLength:_* 9 (= ``10'') 16+^| *_bitOffset:_* 20
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++V++* 8+^| *_bitLength:_* 9 (= "`10`") 16+^| *_bitOffset:_* 20
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
-8+^| 0 8+^| 0 8+^| 0 8+^| 0x10 (_x_ = ``0.5'')
+8+^| 0 8+^| 0 8+^| 0 8+^| 0x10 (_x_ = "`0.5`")
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 1023
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Fourth sample: _Y{prime}1_~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 9 (= ``10'') 16+^| *_bitOffset:_* 32
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 9 (= "`10`") 16+^| *_bitOffset:_* 32
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
-8+^| 0 8+^| 0 8+^| 0 8+^| 0x20 (_x_ = ``1.0'')
+8+^| 0 8+^| 0 8+^| 0 8+^| 0x20 (_x_ = "`1.0`")
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 1023
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Fifth sample: shared mid-sited _U2/U3_~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++U++* 8+^| *_bitLength:_* 9 (= ``10'') 16+^| *_bitOffset:_* 42
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++U++* 8+^| *_bitLength:_* 9 (= "`10`") 16+^| *_bitOffset:_* 42
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
-8+^| 0 8+^| 0 8+^| 0 8+^| 0x50 (_x_ = ``2.5'')
+8+^| 0 8+^| 0 8+^| 0 8+^| 0x50 (_x_ = "`2.5`")
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 1023
 |====
@@ -5560,45 +5560,45 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sixth sample: _Y{prime}2_~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 9 (= ``10'') 16+^| *_bitOffset:_* 52
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 9 (= "`10`") 16+^| *_bitOffset:_* 52
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
-8+^| 0 8+^| 0 8+^| 0 8+^| 0x40 (_x_ = ``2.0'')
+8+^| 0 8+^| 0 8+^| 0 8+^| 0x40 (_x_ = "`2.0`")
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 1023
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Seventh sample: shared mid-sited _V2/V3_~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++V++* 8+^| *_bitLength:_* 9 (= ``10'') 16+^| *_bitOffset:_* 64
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++V++* 8+^| *_bitLength:_* 9 (= "`10`") 16+^| *_bitOffset:_* 64
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
-8+^| 0 8+^| 0 8+^| 0 8+^| 0x50 (_x_ = ``2.5'')
+8+^| 0 8+^| 0 8+^| 0 8+^| 0x50 (_x_ = "`2.5`")
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 1023
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Eighth sample: _Y{prime}3_~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 9 (= ``10'') 16+^| *_bitOffset:_* 74
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 9 (= "`10`") 16+^| *_bitOffset:_* 74
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
-8+^| 0 8+^| 0 8+^| 0 8+^| 0x60 (_x_ = ``3.0'')
+8+^| 0 8+^| 0 8+^| 0 8+^| 0x60 (_x_ = "`3.0`")
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 1023
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Ninth sample: shared mid-sited _U4/U5_~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++U++* 8+^| *_bitLength:_* 9 (= ``10'') 16+^| *_bitOffset:_* 84
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++U++* 8+^| *_bitLength:_* 9 (= "`10`") 16+^| *_bitOffset:_* 84
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
-8+^| 0 8+^| 0 8+^| 0 8+^| 0x90 (_x_ = ``4.5'')
+8+^| 0 8+^| 0 8+^| 0 8+^| 0x90 (_x_ = "`4.5`")
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 1023
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Tenth sample: _Y{prime}4_~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 9 (= ``10'') 16+^| *_bitOffset:_* 96
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 9 (= "`10`") 16+^| *_bitOffset:_* 96
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
-8+^| 0 8+^| 0 8+^| 0 8+^| 0x80 (_x_ = ``4.0'')
+8+^| 0 8+^| 0 8+^| 0 8+^| 0x80 (_x_ = "`4.0`")
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 1023
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Eleventh sample: shared mid-sited _V4/V5_~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++V++* 8+^| *_bitLength:_* 9 (= ``10'') 16+^| *_bitOffset:_* 106
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++V++* 8+^| *_bitLength:_* 9 (= "`10`") 16+^| *_bitOffset:_* 106
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
-8+^| 0 8+^| 0 8+^| 0 8+^| 0x90 (_x_ = ``4.5'')
+8+^| 0 8+^| 0 8+^| 0 8+^| 0x90 (_x_ = "`4.5`")
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 1023
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Twelfth sample: _Y{prime}5_~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 9 (= ``10'') 16+^| *_bitOffset:_* 116
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 9 (= "`10`") 16+^| *_bitOffset:_* 116
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
-8+^| 0 8+^| 0 8+^| 0 8+^| 0xA0 (_x_ = ``5.0'')
+8+^| 0 8+^| 0 8+^| 0 8+^| 0xA0 (_x_ = "`5.0`")
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 1023
 |====
@@ -5618,25 +5618,25 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 1
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~First sample: red~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 7 (= ``8'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 7 (= "`8`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 255
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Second sample: green~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 7 (= ``8'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 7 (= "`8`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 255
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Third sample: blue~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 7 (= ``8'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 7 (= "`8`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 255
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Fourth sample: alpha~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++ALPHA++* 8+^| *_bitLength:_* 7 (= ``8'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++ALPHA++* 8+^| *_bitLength:_* 7 (= "`8`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
@@ -5658,19 +5658,19 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 6
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~First sample: bits 0..15 of the 48-bit value, in memory bytes 4..5~
-^| 0 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 15 (= ``16'') 16+^| *_bitOffset:_* 32
+^| 0 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 15 (= "`16`") 16+^| *_bitOffset:_* 32
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0xFFFF0000U -- bottom 16 bits of 0x800000000000, sign-extended
 32+^| *_sampleUpper:_* 0x0000FFFFU -- bottom 16 bits of 0x7FFFFFFFFFFF
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Second sample: bits 16..31 of the 48-bit value, in memory bytes 2..3~
-^| 0 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 15 (= ``16'') 16+^| *_bitOffset:_* 16
+^| 0 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 15 (= "`16`") 16+^| *_bitOffset:_* 16
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0xFFFF0000U -- middle 16 bits of 0x800000000000, sign-extended
 32+^| *_sampleUpper:_* 0x0000FFFFU -- middle 16 bits of 0x7FFFFFFFFFFF
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Third sample: bits 32..47 of the 48-bit value, in memory bytes 0..1~
-^| 0 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 15 (= ``16'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 15 (= "`16`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0xFFFF8000U -- top 16 bits of 0x800000000000, sign-extended
@@ -5692,19 +5692,19 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 2
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~First sample: mantissa~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 9 (= ``10'') 16+^| *_bitOffset:_* 0
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 9 (= "`10`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 1024 -- implicit 1.0 bit since 1024 > 2^*_bitLength_*^ - 1
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Second sample: sign of mantissa~
-^| 0 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 0 (= ``1'') 16+^| *_bitOffset:_* 15
+^| 0 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 0 (= "`1`") 16+^| *_bitOffset:_* 15
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
-32+^| *_sampleLower:_* 1 -- 1-bit ``-1''
-32+^| *_sampleUpper:_* 0 -- 1-bit ``0''
+32+^| *_sampleLower:_* 1 -- 1-bit "`-1`"
+32+^| *_sampleUpper:_* 0 -- 1-bit "`0`"
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Third sample: exponent~
-^| 0 ^| 0 ^| 1 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 4 (= ``5'') 16+^| *_bitOffset:_* 10
+^| 0 ^| 0 ^| 1 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 4 (= "`5`") 16+^| *_bitOffset:_* 10
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 15 -- bias
@@ -5726,7 +5726,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 2
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
-^| 1 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 15 (= ``16'') 16+^| *_bitOffset:_* 0
+^| 1 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 15 (= "`16`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0xBF800000U -- IEEE 754 floating-point representation for -1.0f

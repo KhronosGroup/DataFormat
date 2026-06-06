@@ -1,10 +1,10 @@
-// Copyright 2014-2024 The Khronos Group Inc.
+// Copyright 2014-2026 The Khronos Group Inc.
 // SPDX-License-Identifier: CC-BY-4.0
 
 [[ETC2]]
 == ETC2 Compressed Texture Image Formats
 
-_This description is derived from the ``ETC Compressed Texture Image Formats''
+_This description is derived from the "`ETC Compressed Texture Image Formats`"
 section of the OpenGL 4.4 specification._
 
 The ETC formats form a family of related compressed texture image formats.
@@ -56,9 +56,9 @@ _Signed RG11 EAC_ is a two-channel signed
 format. Each channel is decoded exactly as
 signed R11 EAC.
 
-_RGB ETC2 with ``punchthrough'' alpha_ is very similar to
+_RGB ETC2 with "`punchthrough`" alpha_ is very similar to
 RGB ETC2, but has the ability to represent
-``punchthrough'' alpha (completely opaque or transparent). Each block
+"`punchthrough`" alpha (completely opaque or transparent). Each block
 can select to be completely opaque using one bit. To fit this bit,
 there is no individual mode in
 RGB ETC2 with punchthrough alpha. In other respects,

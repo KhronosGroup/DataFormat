@@ -11,7 +11,7 @@ encodings for representing some color models within a given bit
 depth range.
 
 [[QUANTIZATION_NARROW]]
-=== ``Narrow range'' encoding
+=== "`Narrow range`" encoding
 
 ITU broadcast standards typically reserve values at the ends of
 the representable integer range for rounding errors and for
@@ -62,7 +62,7 @@ prefixing a _D_ to represent the digital quantized encoding of a numerical
 value.
 
 <<<
-That is, in ``narrow range'' encoding:
+That is, in "`narrow range`" encoding:
 
 [options="header",cols="18%,34%,48%"]
 |====
@@ -188,12 +188,12 @@ C'_\mathit{Tnorm}   & = {{{\mathit{DC}'_{T}\times{224\times ^{n-8}}} + 128\times
 
 
 [[QUANTIZATION_FULL]]
-=== ``Full range'' encoding
+=== "`Full range`" encoding
 
 <<bt2100,ITU-T Rec. BT.2100>>-1 and the current <<jfif,Rec. T.871>> JFIF
 specification define the following quantization scheme that does
 not incorporate any reserved head-room or foot-room, which is optional
-and described as ``full range'' in BT.2100, and integral to Rec. T.871.
+and described as "`full range`" in BT.2100, and integral to Rec. T.871.
 
 NOTE: Both these specifications modify a definition used in previous versions
 of their specifications, which is described <<QUANTIZATION_LEGACY_FULL,below>>.
@@ -279,7 +279,7 @@ C'_P    & = {\mathit{DC}'_P - 2^{n-1}\over{2^n - 1}}
 ++++
 
 <<<
-That is, in ``full range'' encoding:
+That is, in "`full range`" encoding:
 
 [options="header",cols="18%,34%,48%"]
 |====
@@ -407,7 +407,7 @@ C'_{\mathit{Tnorm}}   & = \mathit{DC}'_{T} + {2^{n-1}\over{2^n - 1}} \\
 
 <<<
 [[QUANTIZATION_LEGACY_FULL]]
-=== Legacy ``full range'' encoding.
+=== Legacy "`full range`" encoding.
 
 <<bt2100,ITU-T Rec. BT.2100>>-0 formalized an optional encoding scheme that does
 not incorporate any reserved head-room or foot-room.
@@ -461,7 +461,7 @@ Out-of-bounds values must be clamped to the largest representable
 value.
 
 NOTE: ITU-R BT.2100-0 dictates that in 12-bit coding, the largest
-values encoded should be 4092 (``for consistency'' with 10-bit
+values encoded should be 4092 ("`for consistency`" with 10-bit
 encoding, with a maximum value of 1023).
 This slightly reduces the maximum intensity which can be expressed,
 and slightly reduces the saturation range.

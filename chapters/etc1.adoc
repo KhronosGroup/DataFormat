@@ -1,4 +1,4 @@
-// Copyright 2014-2024 The Khronos Group Inc.
+// Copyright 2014-2026 The Khronos Group Inc.
 // SPDX-License-Identifier: CC-BY-4.0
 
 [[ETC1]]
@@ -309,8 +309,8 @@ clamped to [0..255], resulting in the color
 [NOTE]
 ====
 ETC1 is a proper subset of ETC2.
-There are examples of ``<<etc2-individual-example,individual>>'' and
-``<<etc2-differential-example,differential>>'' decoding in <<ETC2>>.
+There are examples of "`<<etc2-individual-example,individual>>`" and
+"`<<etc2-differential-example,differential>>`" decoding in <<ETC2>>.
 ====
 
 [[ETC1S]]

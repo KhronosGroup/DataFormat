@@ -21,7 +21,7 @@ data wherein texel values are encoded as two low-resolution images,
 modulation signal, **M~Sig~**, to combine those images.
 
 More information on the specifics of the PVRTC1 compression technique can be
-found in the ``Graphics Hardware 2003'' paper
+found in the "`Graphics Hardware 2003`" paper
 link:http://cdn.imgtec.com/sdk-documentation/PVR+Texture+Compression.Whitepaper.pdf[Texture Compression using Low-Frequency Signal Modulation].
 
 In PVRTC, images are described in terms of 64-bit little-endian words,
@@ -243,7 +243,7 @@ image::{images}/PVRTC1_image_reconstruction_simple.svg[width="{svgpdf@pdf:350pt:
 
 <<<
 
-The texture data words are wrapped toroidally, such that the ``nearest''
+The texture data words are wrapped toroidally, such that the "`nearest`"
 sample may exist on the opposite side of the image.
 
 [NOTE]
@@ -252,12 +252,12 @@ For example, sampling a pixel in any corner of the image results in the
 words in all four corners being examined -- or sampling a pixel at the
 bottom of the image will result in words from the top of the image
 being examined, as shown in <<PVRTCwraprecon>>.
-In this example, the nearest samples ``below'' the shaded pixels in regions
+In this example, the nearest samples "`below`" the shaded pixels in regions
 latexmath:[\mathbf{M}_{\mathbf{X}_\mathbf{Mod},\mathbf{Y}_\mathbf{Mod}}]
 and
 latexmath:[\mathbf{M}_{\mathbf{X}_\mathbf{Mod}+1,\mathbf{Y}_\mathbf{Mod}}]
 the row of words at the top of the image, and the nearest samples
-``above'' the shaded pixels in regions
+"`above`" the shaded pixels in regions
 latexmath:[\mathbf{M}_{\mathbf{X}_\mathbf{Mod},\mathbf{Y}_\mathbf{Mod}+1}]
 and
 latexmath:[\mathbf{M}_{\mathbf{X}_\mathbf{Mod}+1,\mathbf{Y}_\mathbf{Mod}+1}]
@@ -419,7 +419,7 @@ depending on the value of modulation flag _M_.
 ^| *Modulation bits* ^| *Weight* ^| *Modulation bits* ^| *Weight* ^| *Alpha*
 ^| 00 ^| 0 ^| 00 ^| 0 .2+^.^|{nbsp}Normal
 ^| 01 ^| 3 ^| 01 .2+^.^|{nbsp}4
-^| 10 ^| 5 ^| 10 ^| ``Punch-through''
+^| 10 ^| 5 ^| 10 ^| "`Punch-through`"
 ^| 11 ^| 8 | 11 ^| 8 ^| Normal
 |====
 
@@ -444,7 +444,7 @@ corresponding pixels in the upscaled images.
 For this reason, with PVRTC1 4bpp, it is advised to not use pre-multiplied
 alpha textures, and to change the color of fully transparent areas to the
 average of the local neighborhood.
-PVRTexTool provides ``alpha bleed'' functionality to modify
+PVRTexTool provides "`alpha bleed`" functionality to modify
 fully-transparent areas appropriately.
 ====
 
@@ -721,7 +721,7 @@ used directly, in the sense that the stored colors are expanded, where
 necessary, via bit replication to an _ARGB_:4555 format and then, again, by
 bit replication to _ARGB_:8888.
 The modulation encodings are interpreted in the same manner as for the
-``standard bilinear'' weights, and the colors blended, as before, with
+"`standard bilinear`" weights, and the colors blended, as before, with
 <<PVRTCmodulate>>.
 
 <<<

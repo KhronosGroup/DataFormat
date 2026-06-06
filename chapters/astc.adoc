@@ -1,4 +1,4 @@
-// Copyright 2014-2024 The Khronos Group Inc.
+// Copyright 2014-2026 The Khronos Group Inc.
 // SPDX-License-Identifier: CC-BY-4.0
 
 [[ASTC]]
@@ -20,7 +20,7 @@ ASTC textures may be encoded using either high or low dynamic range.
 Low dynamic range images may optionally be specified using the sRGB
 transfer function for the _RGB_ channels.
 
-Two sub-profiles (``LDR Profile'' and ``HDR Profile'') may be implemented,
+Two sub-profiles ("`LDR Profile`" and "`HDR Profile`") may be implemented,
 which support only 2D images at low or high dynamic range respectively.
 
 ASTC textures may be encoded as 1, 2, 3 or 4 components, but they are
@@ -42,7 +42,7 @@ The design goals for the format are as follows:
   rates, leaving content developers with only coarse control over
   the size/quality tradeoff.
 * Scalable and long-lived. The format should support existing _R_, _RG_,
-  _RGB_ and _RGBA_ image types, and also have high ``headroom'', allowing
+  _RGB_ and _RGBA_ image types, and also have high "`headroom`", allowing
   continuing use for several years and the ability to innovate in
   encoders. Part of this is the choice to include HDR and 3D.
 * Feature orthogonality. The choices for the various features of the
@@ -67,10 +67,10 @@ is divided into a number of blocks of uniform size, which makes it
 possible to quickly determine which block a given texel resides in.
 
 Each block has a fixed memory footprint of 128 bits, but these bits
-can represent varying numbers of texels (the block ``footprint'').
+can represent varying numbers of texels (the block "`footprint`").
 
-NOTE: The term ``block footprint'' in ASTC refers to the same concept
-as ``compressed texel block dimensions'' elsewhere in the Data Format
+NOTE: The term "`block footprint`" in ASTC refers to the same concept
+as "`compressed texel block dimensions`" elsewhere in the Data Format
 Specification.
 
 Block footprint sizes are not confined to powers-of-two, and are
@@ -87,7 +87,7 @@ simplifies cache design, reduces bandwidth and improves encoder throughput.
 To understand how the blocks are stored and decoded, it is useful to start
 with a simple example, and then introduce additional features.
 
-The simplest block encoding starts by defining two color ``endpoints''. The
+The simplest block encoding starts by defining two color "`endpoints`". The
 endpoints define two colors, and a number of additional colors are generated
 by interpolating between them. We can define these colors using 1, 2, 3,
 or 4 components (usually corresponding to _R_, _RG_, _RGB_ and _RGBA_ textures),
@@ -116,7 +116,7 @@ For blocks which have a mixture of disparate colors, a single line in the
 color space is not a good fit to the colors of the pixels in the original
 image. It is therefore possible to partition the texels into multiple sets,
 the pixels within each set having similar colors. For each of these
-``partitions'', we specify separate endpoint pairs, and choose which pair of
+"`partitions`", we specify separate endpoint pairs, and choose which pair of
 endpoints to use for a particular texel by looking up the partition index
 from a partitioning pattern table. In ASTC, this partition table is actually
 implemented as a function.
@@ -126,7 +126,7 @@ The endpoint encoding for each partition is independent.
 For blocks which have uncorrelated channels -- for example an image with a
 transparency mask, or an image used as a normal map -- it may be necessary
 to specify two weights for each texel. Interpolation between the components
-of the endpoint colors can then proceed independently for each ``plane'' of
+of the endpoint colors can then proceed independently for each "`plane`" of
 the image. The assignment of channels to planes is selectable.
 
 Since each of the above options is independent, it is possible to specify any
@@ -140,12 +140,12 @@ which are nevertheless highly amenable to hardware decode.
 
 All of the values used as weights and color endpoint values can be specified
 with a variable number of bits. The encoding scheme used allows a fine-grained
-tradeoff between weight bits and color endpoint bits using ``integer
-sequence encoding''. This can pack adjacent values together, allowing us to
+tradeoff between weight bits and color endpoint bits using "`integer
+sequence encoding`". This can pack adjacent values together, allowing us to
 use fractional numbers of bits per value.
 
-Finally, a block may be just a single color. This is a so-called ``void
-extent block'' and has a special coding which also allows it to identify
+Finally, a block may be just a single color. This is a so-called "`void
+extent block`" and has a special coding which also allows it to identify
 nearby regions of single color. This may be used to short-circuit fetching of
 what would be identical blocks, and further reduce memory bandwidth.
 
@@ -297,7 +297,7 @@ For square and nearly-square blocks, this gives the bit rates in
 ^| 12        ^| 12        ^| 0.89     ^|
 |====
 
-The ``Increment'' column indicates the ratio of bit rate against the next
+The "`Increment`" column indicates the ratio of bit rate against the next
 lower available rate. A consistent value in this column indicates an even
 spread of bit rates.
 
@@ -396,13 +396,13 @@ Each block has the same basic layout, shown in <<astc-block-layout>>.
 3+| {nbsp} Extra 2+| {nbsp} Part 11+| {nbsp} Block mode
 |====
 
-Since the size of the ``texel weight data'' field is variable, the
-positions shown for the ``more config data'' field and ``color endpoint
-data'' field are only representative and not fixed.
+Since the size of the "`texel weight data`" field is variable, the
+positions shown for the "`more config data`" field and "`color endpoint
+data`" field are only representative and not fixed.
 
-The ``Block mode'' field specifies how the Texel Weight Data is encoded.
+The "`Block mode`" field specifies how the Texel Weight Data is encoded.
 
-The ``Part'' field specifies the number of partitions, minus one. If dual
+The "`Part`" field specifies the number of partitions, minus one. If dual
 plane mode is enabled, the number of partitions must be 3 or fewer.
 If 4 partitions are specified, the error value is returned for all
 texels in the block.
@@ -446,7 +446,7 @@ weight data.
 If dual-plane mode is active, the color component selector bits then appear
 directly below the additional CEM bits.
 
-The final special case is that if bits [8..0] of the block are ``111111100'',
+The final special case is that if bits [8..0] of the block are "`111111100`",
 then the block is a void-extent block, which has a separate encoding
 described in <<astc-void-extent-blocks>>.
 
@@ -650,7 +650,7 @@ value in a sequence (e.g. a color weight) is constrained.
 
 Since it is often the case that the most efficient range for these
 values is not a power of two, each value sequence is encoded using a
-technique known as ``integer sequence encoding''. This allows efficient,
+technique known as "`integer sequence encoding`". This allows efficient,
 hardware-friendly packing and unpacking of values with non-power-of-two
 ranges.
 
@@ -664,8 +664,8 @@ in one of the forms shown in <<astc-range-forms>> and
 |====
 | {nbsp} Value range        | {nbsp} MSB encoding           | {nbsp} LSB encoding
 | {nbsp} latexmath:[0 \dots 2^n-1]   | {nbsp} -                      | {nbsp} _n_-bit value _m_ (_n_ {leq} 8)
-| {nbsp} latexmath:[0 \dots (3 \times 2^n)-1]  | {nbsp} Base-3 ``trit'' value _t_  | {nbsp} _n_-bit value _m_ (_n_ {leq} 6)
-| {nbsp} latexmath:[0 \dots (5 \times 2^n)-1]  | {nbsp} Base-5 ``quint'' value _q_ | {nbsp} _n_-bit value _m_ (_n_ {leq} 5)
+| {nbsp} latexmath:[0 \dots (3 \times 2^n)-1]  | {nbsp} Base-3 "`trit`" value _t_  | {nbsp} _n_-bit value _m_ (_n_ {leq} 6)
+| {nbsp} latexmath:[0 \dots (5 \times 2^n)-1]  | {nbsp} Base-5 "`quint`" value _q_ | {nbsp} _n_-bit value _m_ (_n_ {leq} 5)
 |====
 
 [[astc-range-encodings]]
