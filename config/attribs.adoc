@@ -54,6 +54,8 @@
 :sqrt: √
 :inf: ∞
 :plusmn: ±
+:approx: ≈
+:sim: ∼
 
 // Greek letters
 :alpha: α

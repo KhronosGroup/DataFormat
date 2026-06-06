@@ -163,7 +163,7 @@ The two modes differ in various ways, as shown in <<astc-differences-between-ldr
 .ASTC differences between LDR and HDR modes
 [options="header"]
 |====
-| Operation | &nbsp; LDR mode | HDR mode
+| Operation | {nbsp} LDR mode | HDR mode
 | Returned Value 2+| Determined by decoding mode
 | sRGB compatible | Yes | No
 | LDR endpoint decoding precision | 16 bits, or 8 bits for sRGB | 16 bits
@@ -178,10 +178,10 @@ the decoding mode as shown in <<astc_decoding_modes>>.
 .ASTC decoding modes
 [options="header"]
 |====
-| Decode mode | LDR mode |&nbsp; HDR mode
+| Decode mode | LDR mode |{nbsp} HDR mode
 | decode_float16 2+| Vector of FP16 values
-| decode_unorm8 | Vector of 8-bit unsigned normalized values |&nbsp; invalid
-| decode_rgb9e5 2+|&nbsp; Vector using a shared exponent format
+| decode_unorm8 | Vector of 8-bit unsigned normalized values |{nbsp} invalid
+| decode_rgb9e5 2+|{nbsp} Vector using a shared exponent format
 |====
 
 Using the decode_unorm8 decoding mode in HDR mode gives undefined results.
@@ -190,12 +190,12 @@ For sRGB, the decoding mode is ignored, ad the decoding always returns
 a vector of 8-bit unsigned normalized values.
 
 The error color is opaque fully-saturated magenta
-(_R_,_G_,_B_,_A_)&nbsp;=&nbsp;(0xFF,&nbsp;0x00,&nbsp;0xFF,&nbsp;0xFF).
+(_R_,_G_,_B_,_A_){nbsp}={nbsp}(0xFF,{nbsp}0x00,{nbsp}0xFF,{nbsp}0xFF).
 This has been chosen as it is much more noticeable than black or white, and occurs
 far less often in valid images.
 
 For linear _RGB_ decode, the error color may be either opaque fully-saturated
-magenta (_R_,_G_,_B_,_A_) = (1.0,&nbsp;0.0,&nbsp;1.0,&nbsp;1.0) or a vector of four _NaNs_
+magenta (_R_,_G_,_B_,_A_) = (1.0,{nbsp}0.0,{nbsp}1.0,{nbsp}1.0) or a vector of four _NaNs_
 (_R_,_G_,_B_,_A_) = (_NaN_, _NaN_, _NaN_, _NaN_). In the latter case, the recommended
 _NaN_ value returned is 0xFFFF.
 
@@ -364,7 +364,7 @@ _w_ {times} _h_, the size of the image in blocks is:
 === Block Layout
 
 Each block in the image is stored as a single 128-bit block in memory. These
-blocks are laid out in raster order, starting with the block at (0,&nbsp;0,&nbsp;0), then
+blocks are laid out in raster order, starting with the block at (0,{nbsp}0,{nbsp}0), then
 ordered sequentially by X, Y and finally Z (if present). They are aligned to
 128-bit boundaries in memory.
 
@@ -379,21 +379,21 @@ Each block has the same basic layout, shown in <<astc-block-layout>>.
 [width="97%",cols="1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1"]
 |====
 ^| ~127~ ^| ~126~ ^| ~125~ ^| ~124~ ^| ~123~ ^| ~122~ ^| ~121~ ^| ~120~ ^| ~119~ ^| ~118~ ^| ~117~ ^| ~116~ ^| ~115~ ^| ~114~ ^| ~113~ ^| ~112~
-12+| &nbsp; Texel weight data (variable width) 4+| &nbsp; Fill direction latexmath:[\rightarrow]
+12+| {nbsp} Texel weight data (variable width) 4+| {nbsp} Fill direction latexmath:[\rightarrow]
 ^| ~111~ ^| ~110~ ^| ~109~ ^| ~108~ ^| ~107~ ^| ~106~ ^| ~105~ ^| ~104~ ^| ~103~ ^| ~102~ ^| ~101~ ^| ~100~ ^| ~99~ ^| ~98~ ^| ~97~ ^| ~96~
-16+| &nbsp; Texel weight data
+16+| {nbsp} Texel weight data
 ^| ~95~ ^| ~94~ ^| ~93~ ^| ~92~ ^| ~91~ ^| ~90~ ^| ~89~ ^| ~88~ ^| ~87~ ^| ~86~ ^| ~85~ ^| ~84~ ^| ~83~ ^| ~82~ ^| ~81~ ^| ~80~
-16+| &nbsp; Texel weight data
+16+| {nbsp} Texel weight data
 ^| ~79~ ^| ~78~ ^| ~77~ ^| ~76~ ^| ~75~ ^| ~74~ ^| ~73~ ^| ~72~ ^| ~71~ ^| ~70~ ^| ~69~ ^| ~68~ ^| ~67~ ^| ~66~ ^| ~65~ ^| ~64~
-16+| &nbsp; Texel weight data
+16+| {nbsp} Texel weight data
 ^| ~63~ ^| ~62~ ^| ~61~ ^| ~60~ ^| ~59~ ^| ~58~ ^| ~57~ ^| ~56~ ^| ~55~ ^| ~54~ ^| ~53~ ^| ~52~ ^| ~51~ ^| ~50~ ^| ~49~ ^| ~48~
-5+| 6+| &nbsp; More config data 5+|
+5+| 6+| {nbsp} More config data 5+|
 ^| ~47~ ^| ~46~ ^| ~45~ ^| ~44~ ^| ~43~ ^| ~42~ ^| ~41~ ^| ~40~ ^| ~39~ ^| ~38~ ^| ~37~ ^| ~36~ ^| ~35~ ^| ~34~ ^| ~33~ ^| ~32~
-8+| &nbsp; latexmath:[\leftarrow] Fill direction 8+| &nbsp; Color endpoint data
+8+| {nbsp} latexmath:[\leftarrow] Fill direction 8+| {nbsp} Color endpoint data
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~
-4+| 12+| &nbsp; Extra configuration data
+4+| 12+| {nbsp} Extra configuration data
 ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
-3+| &nbsp; Extra 2+| &nbsp; Part 11+| &nbsp; Block mode
+3+| {nbsp} Extra 2+| {nbsp} Part 11+| {nbsp} Block mode
 |====
 
 Since the size of the ``texel weight data'' field is variable, the
@@ -416,9 +416,9 @@ in <<astc-single-partition-layout>> (only the bottom 32 bits are shown).
 [width="97%",cols="1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1"]
 |====
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~
-15+| &nbsp; Color endpoint data ^| CEM
+15+| {nbsp} Color endpoint data ^| CEM
 ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
-3+| &nbsp; CEM ^| 0 ^| 0 11+| &nbsp; Block mode
+3+| {nbsp} CEM ^| 0 ^| 0 11+| {nbsp} Block mode
 |====
 
 CEM is the color endpoint mode field, which determines how the Color
@@ -432,9 +432,9 @@ directly below the weight bits, as shown in <<astc-multi-partition-layout>>.
 [width="97%",cols="1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1"]
 |====
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~
-3+| 6+| &nbsp; CEM 7+| &nbsp; Partition index
+3+| 6+| {nbsp} CEM 7+| {nbsp} Partition index
 ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
-3+| &nbsp; Partition index 2+| &nbsp; Part 11+| &nbsp; Block mode
+3+| {nbsp} Partition index 2+| {nbsp} Part 11+| {nbsp} Block mode
 |====
 
 The Partition Index field specifies which partition layout to use. CEM is
@@ -564,23 +564,23 @@ endpoints. They can be summarized as shown in <<astc-color-endpoint-modes>>.
 .ASTC color endpoint modes
 [cols="2,11,2",options="header",width="55%"]
 |====
-^| CEM | &nbsp; Description                        ^| Class
->|  0 &nbsp;&nbsp; | &nbsp; LDR Luminance, direct              ^| 0
->|  1 &nbsp;&nbsp; | &nbsp; LDR Luminance, base+offset         ^| 0
->|  2 &nbsp;&nbsp; | &nbsp; HDR Luminance, large range         ^| 0
->|  3 &nbsp;&nbsp; | &nbsp; HDR Luminance, small range         ^| 0
->|  4 &nbsp;&nbsp; | &nbsp; LDR Luminance+Alpha, direct        ^| 1
->|  5 &nbsp;&nbsp; | &nbsp; LDR Luminance+Alpha, base+offset   ^| 1
->|  6 &nbsp;&nbsp; | &nbsp; LDR _RGB_, base+scale                ^| 1
->|  7 &nbsp;&nbsp; | &nbsp; HDR _RGB_, base+scale                ^| 1
->|  8 &nbsp;&nbsp; | &nbsp; LDR _RGB_, direct                    ^| 2
->|  9 &nbsp;&nbsp; | &nbsp; LDR _RGB_, base+offset               ^| 2
->| 10 &nbsp;&nbsp; | &nbsp; LDR _RGB_, base+scale plus two _A_     ^| 2
->| 11 &nbsp;&nbsp; | &nbsp; HDR _RGB_, direct                    ^| 2
->| 12 &nbsp;&nbsp; | &nbsp; LDR _RGBA_, direct                   ^| 3
->| 13 &nbsp;&nbsp; | &nbsp; LDR _RGBA_, base+offset              ^| 3
->| 14 &nbsp;&nbsp; | &nbsp; HDR _RGB_, direct + LDR Alpha        ^| 3
->| 15 &nbsp;&nbsp; | &nbsp; HDR _RGB_, direct + HDR Alpha        ^| 3
+^| CEM | {nbsp} Description                        ^| Class
+>|  0 {nbsp}{nbsp} | {nbsp} LDR Luminance, direct              ^| 0
+>|  1 {nbsp}{nbsp} | {nbsp} LDR Luminance, base+offset         ^| 0
+>|  2 {nbsp}{nbsp} | {nbsp} HDR Luminance, large range         ^| 0
+>|  3 {nbsp}{nbsp} | {nbsp} HDR Luminance, small range         ^| 0
+>|  4 {nbsp}{nbsp} | {nbsp} LDR Luminance+Alpha, direct        ^| 1
+>|  5 {nbsp}{nbsp} | {nbsp} LDR Luminance+Alpha, base+offset   ^| 1
+>|  6 {nbsp}{nbsp} | {nbsp} LDR _RGB_, base+scale                ^| 1
+>|  7 {nbsp}{nbsp} | {nbsp} HDR _RGB_, base+scale                ^| 1
+>|  8 {nbsp}{nbsp} | {nbsp} LDR _RGB_, direct                    ^| 2
+>|  9 {nbsp}{nbsp} | {nbsp} LDR _RGB_, base+offset               ^| 2
+>| 10 {nbsp}{nbsp} | {nbsp} LDR _RGB_, base+scale plus two _A_     ^| 2
+>| 11 {nbsp}{nbsp} | {nbsp} HDR _RGB_, direct                    ^| 2
+>| 12 {nbsp}{nbsp} | {nbsp} LDR _RGBA_, direct                   ^| 3
+>| 13 {nbsp}{nbsp} | {nbsp} LDR _RGBA_, base+offset              ^| 3
+>| 14 {nbsp}{nbsp} | {nbsp} HDR _RGB_, direct + LDR Alpha        ^| 3
+>| 15 {nbsp}{nbsp} | {nbsp} HDR _RGB_, direct + HDR Alpha        ^| 3
 |====
 
 In multi-partition mode, the CEM field is of variable width, from 6 to 14
@@ -591,16 +591,16 @@ for each partition is calculated as shown in <<astc-multi-partition-color-endpoi
 .ASTC Multi-Partition Color Endpoint Modes
 [cols="1,5",options="header",width="45%"]
 |====
-^| Value | &nbsp; Meaning
-^| 00 | &nbsp; All color endpoint pairs are of the same
+^| Value | {nbsp} Meaning
+^| 00 | {nbsp} All color endpoint pairs are of the same
 
-&nbsp; type; a full 4-bit CEM is stored in block
+{nbsp} type; a full 4-bit CEM is stored in block
 
-&nbsp; bits [28..25]
+{nbsp} bits [28..25]
     and is used for all partitions
-^| 01 | &nbsp; All endpoint pairs are of class 0 or 1
-^| 10 | &nbsp; All endpoint pairs are of class 1 or 2
-^| 11 | &nbsp; All endpoint pairs are of class 2 or 3
+^| 01 | {nbsp} All endpoint pairs are of class 0 or 1
+^| 10 | {nbsp} All endpoint pairs are of class 1 or 2
+^| 11 | {nbsp} All endpoint pairs are of class 2 or 3
 |====
 
 If the CEM selector value in bits [24..23] is not 00,
@@ -662,20 +662,20 @@ in one of the forms shown in <<astc-range-forms>> and
 .ASTC range forms
 [options="header",width="65%",cols="2,3,3"]
 |====
-| &nbsp; Value range        | &nbsp; MSB encoding           | &nbsp; LSB encoding
-| &nbsp; latexmath:[0 \dots 2^n-1]   | &nbsp; -                      | &nbsp; _n_-bit value _m_ (_n_ {leq} 8)
-| &nbsp; latexmath:[0 \dots (3 \times 2^n)-1]  | &nbsp; Base-3 ``trit'' value _t_  | &nbsp; _n_-bit value _m_ (_n_ {leq} 6)
-| &nbsp; latexmath:[0 \dots (5 \times 2^n)-1]  | &nbsp; Base-5 ``quint'' value _q_ | &nbsp; _n_-bit value _m_ (_n_ {leq} 5)
+| {nbsp} Value range        | {nbsp} MSB encoding           | {nbsp} LSB encoding
+| {nbsp} latexmath:[0 \dots 2^n-1]   | {nbsp} -                      | {nbsp} _n_-bit value _m_ (_n_ {leq} 8)
+| {nbsp} latexmath:[0 \dots (3 \times 2^n)-1]  | {nbsp} Base-3 ``trit'' value _t_  | {nbsp} _n_-bit value _m_ (_n_ {leq} 6)
+| {nbsp} latexmath:[0 \dots (5 \times 2^n)-1]  | {nbsp} Base-5 ``quint'' value _q_ | {nbsp} _n_-bit value _m_ (_n_ {leq} 5)
 |====
 
 [[astc-range-encodings]]
 .ASTC encoding for different ranges
 [options="header",width="60%",cols="4,3,2,5"]
 |====
-| &nbsp; Value range         | &nbsp; Value | &nbsp; Block | &nbsp; Packed block size
-| &nbsp; latexmath:[0 \dots 2^n-1]        | &nbsp; _m_   | &nbsp; 1      | &nbsp; _n_
-| &nbsp; latexmath:[0 \dots (3 \times 2^n)-1] | &nbsp; latexmath:[t \times 2^n + m]   | &nbsp; 5 | &nbsp; 8 {plus} 5 {times} _n_
-| &nbsp; latexmath:[0 \dots (5 \times 2^n)-1] | &nbsp; latexmath:[q \times 2^n + m]   | &nbsp; 3 | &nbsp; 7 {plus} 3 {times} _n_
+| {nbsp} Value range         | {nbsp} Value | {nbsp} Block | {nbsp} Packed block size
+| {nbsp} latexmath:[0 \dots 2^n-1]        | {nbsp} _m_   | {nbsp} 1      | {nbsp} _n_
+| {nbsp} latexmath:[0 \dots (3 \times 2^n)-1] | {nbsp} latexmath:[t \times 2^n + m]   | {nbsp} 5 | {nbsp} 8 {plus} 5 {times} _n_
+| {nbsp} latexmath:[0 \dots (5 \times 2^n)-1] | {nbsp} latexmath:[q \times 2^n + m]   | {nbsp} 3 | {nbsp} 7 {plus} 3 {times} _n_
 |====
 
 Since 3^5^ is 243, it is possible to pack five trits into 8 bits (which has
@@ -742,7 +742,7 @@ else
 If the range is encoded using a quint, then each block contains 3 values
 (v~0~ to v~2~), each of which contains a quint (q~0~ to q~2~) and a corresponding
 LSB value (m~0~ to m~2~). The first bit of the packed block is bit
-latexmath:[ \left\lfloor {i\over 3} \right\rfloor \times (7+3 \times n)].
+latexmath:[\left\lfloor {i\over 3} \right\rfloor \times (7 + 3 \times n)].
 
 The bits in the block are packed as described in <<astc-quint-based-packing>> and
 <<astc-quint-based-packing-2>> (in this example, _n_ is 4).
@@ -865,23 +865,23 @@ The methods can be summarized as shown in <<astc-ldr-color-endpoint-modes>>.
 .ASTC LDR color endpoint modes
 [options="header",cols="2,3,11,1",width="55%"]
 |====
-^| CEM ^| Range | &nbsp; Description                         ^| _n_
->| 0  &nbsp; ^| LDR | &nbsp; Luminance, direct                      ^| 2
->| 1  &nbsp; ^| LDR | &nbsp; Luminance, base+offset                 ^| 2
->| 2  &nbsp; ^| HDR | &nbsp; Luminance, large range                 ^| 2
->| 3  &nbsp; ^| HDR | &nbsp; Luminance, small range                 ^| 2
->| 4  &nbsp; ^| LDR | &nbsp; Luminance+Alpha, direct                ^| 4
->| 5  &nbsp; ^| LDR | &nbsp; Luminance+Alpha, base+offset           ^| 4
->| 6  &nbsp; ^| LDR | &nbsp; _RGB_, base+scale                        ^| 4
->| 7  &nbsp; ^| HDR | &nbsp; _RGB_, base+scale                        ^| 4
->| 8  &nbsp; ^| LDR | &nbsp; _RGB_, direct                            ^| 6
->| 9  &nbsp; ^| LDR | &nbsp; _RGB_, base+offset                       ^| 6
->| 10 &nbsp; ^| LDR | &nbsp; _RGB_, base+scale plus two _A_             ^| 6
->| 11 &nbsp; ^| HDR | &nbsp; _RGB_                                    ^| 6
->| 12 &nbsp; ^| LDR | &nbsp; _RGBA_, direct                           ^| 8
->| 13 &nbsp; ^| LDR | &nbsp; _RGBA_, base+offset                      ^| 8
->| 14 &nbsp; ^| HDR | &nbsp; _RGB_ + LDR Alpha                        ^| 8
->| 15 &nbsp; ^| HDR | &nbsp; _RGB_ + HDR Alpha                        ^| 8
+^| CEM ^| Range | {nbsp} Description                         ^| _n_
+>| 0  {nbsp} ^| LDR | {nbsp} Luminance, direct                      ^| 2
+>| 1  {nbsp} ^| LDR | {nbsp} Luminance, base+offset                 ^| 2
+>| 2  {nbsp} ^| HDR | {nbsp} Luminance, large range                 ^| 2
+>| 3  {nbsp} ^| HDR | {nbsp} Luminance, small range                 ^| 2
+>| 4  {nbsp} ^| LDR | {nbsp} Luminance+Alpha, direct                ^| 4
+>| 5  {nbsp} ^| LDR | {nbsp} Luminance+Alpha, base+offset           ^| 4
+>| 6  {nbsp} ^| LDR | {nbsp} _RGB_, base+scale                        ^| 4
+>| 7  {nbsp} ^| HDR | {nbsp} _RGB_, base+scale                        ^| 4
+>| 8  {nbsp} ^| LDR | {nbsp} _RGB_, direct                            ^| 6
+>| 9  {nbsp} ^| LDR | {nbsp} _RGB_, base+offset                       ^| 6
+>| 10 {nbsp} ^| LDR | {nbsp} _RGB_, base+scale plus two _A_             ^| 6
+>| 11 {nbsp} ^| HDR | {nbsp} _RGB_                                    ^| 6
+>| 12 {nbsp} ^| LDR | {nbsp} _RGBA_, direct                           ^| 8
+>| 13 {nbsp} ^| LDR | {nbsp} _RGBA_, base+offset                      ^| 8
+>| 14 {nbsp} ^| HDR | {nbsp} _RGB_ + LDR Alpha                        ^| 8
+>| 15 {nbsp} ^| HDR | {nbsp} _RGB_ + HDR Alpha                        ^| 8
 |====
 
 Mode 14 is special in that the alpha values are interpolated linearly,
@@ -1523,7 +1523,7 @@ results.
 
 The block size is specified as three dimensions along the _s_, _t_ and
 _r_ axes (B~s~, B~t~, B~r~).
-Texel coordinates within the block (b~s~,&nbsp;b~t~,&nbsp;b~r~) can
+Texel coordinates within the block (b~s~,{nbsp}b~t~,{nbsp}b~r~) can
 have values from 0 to one less than the block dimension in that axis.
 For each block dimension, we compute scale factors (_D~s~_, _D~t~_, _D~r~_):
 
@@ -1603,7 +1603,7 @@ w00 = 16 - fs - ft + w11;
 i = (p00*w00 + p01*w01 + p10*w10 + p11*w11 + 8) >> 4;
 ----
 
-For 3D, simplex interpolation is used as it is cheaper than a na&iuml;ve
+For 3D, simplex interpolation is used as it is cheaper than a native
 trilinear interpolation. First, we pick some parameters for the interpolation
 based on comparisons of the fractional parts of the texel
 position as shown in <<astc-simplex-interpolation-parameters>>.

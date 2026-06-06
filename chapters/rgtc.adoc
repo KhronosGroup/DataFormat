@@ -137,7 +137,7 @@ the block is given by <<BC4blocks>>.
 _RED_~min~ and _RED_~max~ are 0.0 and 1.0 respectively.
 
 Since the decoded texel has a red format, the resulting _RGBA_ value for the
-texel is (_R_,&nbsp;0,&nbsp;0,&nbsp;1).
+texel is (_R_,{nbsp}0,{nbsp}0,{nbsp}1).
 
 === BC4 signed
 
@@ -187,7 +187,7 @@ BC4 unsigned above except the decoded value _R_ for this
 second block is considered the resulting green value _G_.
 
 Since the decoded texel has a red-green format, the resulting _RGBA_
-value for the texel is (_R_,_&nbsp;G_,&nbsp;0,&nbsp;1).
+value for the texel is (_R_,_{nbsp}G_,{nbsp}0,{nbsp}1).
 
 === BC5 signed
 
@@ -201,4 +201,4 @@ BC4 signed above except the decoded value _R_ for
 this second block is considered the resulting green value _G_.
 
 Since this image has a red-green format, the resulting _RGBA_ value is
-(_R_,_&nbsp;G_,&nbsp;0,&nbsp;1).
+(_R_,_{nbsp}G_,{nbsp}0,{nbsp}1).

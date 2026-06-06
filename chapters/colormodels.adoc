@@ -1,4 +1,4 @@
-// Copyright 2017-2024 The Khronos Group Inc.
+// Copyright 2017-2026 The Khronos Group Inc.
 // SPDX-License-Identifier: CC-BY-4.0
 
 [[MODEL_CONVERSION]]
@@ -16,7 +16,7 @@ the color primaries independently - for example by encoding the
 chroma information at a reduced spatial resolution.
 
 [[MODEL_YUV]]
-=== _Y&prime;C~B~C~R~_ color model
+=== _Y{prime}C~B~C~R~_ color model
 
 Color models based on color differences are often referred to with
 incorrect or ambiguous terminology, the most common of which is
@@ -24,13 +24,13 @@ _YUV_.
 
 In the broadcast standards which define these models:
 
-* A prime mark (&prime;) is used to refer to the ``gamma
+* A prime mark ({prime}) is used to refer to the ``gamma
   pre-corrected'' version of a value. That is, an approximation to a
   perceptually linear mapping between value and intensity. The absence
   of a prime mark indicates that the value is linear in intensity.
-* _R&prime;G&prime;B&prime;_ is used to refer to the red, green and blue
+* _R{prime}G{prime}B{prime}_ is used to refer to the red, green and blue
   reference values in ``gamma pre-corrected'' form.
-  That is, _R&prime;_, _G&prime;_ and _B&prime;_ have a non-linear transfer
+  That is, _R{prime}_, _G{prime}_ and _B{prime}_ have a non-linear transfer
   function, whereas _R_, _G_ and _B_ are linear with respect to light
   intensity.
   The transfer function used resembles an exponentiation ``gamma correction''
@@ -44,7 +44,7 @@ In the broadcast standards which define these models:
   For example, in these standards, the continuous encoding of latexmath:[R']
   is written latexmath:[E_R'].
   <<bt2020,BT.2020>> and <<bt2100,BT.2100>> no longer use the _E_ convention,
-  and refer to continuous values as, for example, _R&prime;_ directly.
+  and refer to continuous values as, for example, _R{prime}_ directly.
   For brevity, this specification does not use the _E_-prefix convention
   for model conversions, and all values can be assumed to be continuous.
   <<bt601,BT.601>> refers to the quantized digital version of
@@ -52,38 +52,38 @@ In the broadcast standards which define these models:
   latexmath:[E'_{R_D}], latexmath:[E'_{G_D}] and latexmath:[E'_{B_D}].
   In <<bt709,BT.709>> the quantized digital representation is instead
   latexmath:[D'_R], latexmath:[D'_G] and latexmath:[D'_B], in
-  <<bt2020,BT.2020>> and <<bt2100,BT.2100>> written as _DR&prime;_,
-  _DG&prime;_ and _DB&prime;_.
-* _Y&prime;_ is a weighted sum of _R&prime;_, _G&prime;_
-  and _B&prime;_ values, and represents non-physically-linear
+  <<bt2020,BT.2020>> and <<bt2100,BT.2100>> written as _DR{prime}_,
+  _DG{prime}_ and _DB{prime}_.
+* _Y{prime}_ is a weighted sum of _R{prime}_, _G{prime}_
+  and _B{prime}_ values, and represents non-physically-linear
   (but perceptually-linear) light intensity, as distinct from
   physically-linear light intensity.
   Note that the ITU broadcast standards use ``luminance'' for
-  _Y&prime;_ despite some authorities reserving that term for a
+  _Y{prime}_ despite some authorities reserving that term for a
   linear intensity representation.
   Since this is a weighted sum of non-linear values, latexmath:[Y'] is
   not mathematically equivalent to applying the non-linear transfer function
   to a weighted sum of linear _R_, _G_ and _B_ values:
   latexmath:[R^{\gamma}+G^{\gamma}+B^{\gamma} \neq (R + G + B)^{\gamma}].
-  The prime symbol is often omitted so that _Y&prime;_ is confusingly
+  The prime symbol is often omitted so that _Y{prime}_ is confusingly
   written _Y_.
   <<bt601,BT.601>> and <<bt709,BT.709>> refers to the continuous non-linear
   ``luminance'' signal as latexmath:[E'_Y]; in <<bt2020,BT.2020>> and
-  <<bt2100,BT.2100>> this value is just _Y&prime;_.
-  The quantized digital representation is written as simply _Y&prime;_
+  <<bt2100,BT.2100>> this value is just _Y{prime}_.
+  The quantized digital representation is written as simply _Y{prime}_
   in <<bt601,BT.601>>, as latexmath:[D'_Y] in <<bt709,BT.709>>, and as
-  _DY&prime;_ in <<bt2020,BT.2020>> and <<bt2100,BT.2100>>.
-  In this standard, _Y&prime;_ refers to a continuous value.
+  _DY{prime}_ in <<bt2020,BT.2020>> and <<bt2100,BT.2100>>.
+  In this standard, _Y{prime}_ refers to a continuous value.
 
 <<<
 
 * For the purposes of this section, we will refer to the weighting factor
-  applied to _R&prime;_ as _K~R~_ and the weighting factor
-  applied to _B&prime;_ as _K~B~_. The weighting factor of
-  _G&prime;_ is therefore latexmath:[1-K_R-K_B]. Thus
+  applied to _R{prime}_ as _K~R~_ and the weighting factor
+  applied to _B{prime}_ as _K~B~_. The weighting factor of
+  _G{prime}_ is therefore latexmath:[1-K_R-K_B]. Thus
   latexmath:[Y' = K_R \times R' + (1-K_R-K_B) \times G' + Kb \times B'].
 
-Color differences are calculated from the non-linear _Y&prime;_ and
+Color differences are calculated from the non-linear _Y{prime}_ and
 color components as:
 [latexmath]
 ++++
@@ -92,7 +92,7 @@ color components as:
   R'-Y' &= (1-K_R) \times R' - (1-K_R-K_B) \times G' - K_B \times B'
 \end{align*}
 ++++
-Note that, for _R&prime;_, _G&prime;_, _B&prime;_ in the range [0..1]:
+Note that, for _R{prime}_, _G{prime}_, _B{prime}_ in the range [0..1]:
 
 [latexmath]
 ++++
@@ -169,8 +169,8 @@ R' & = Y' + 2(1-K_R)\times C'_R \\
 B' & = Y' + 2(1-K_B)\times C'_B
 \end{align*}
 ++++
-The formula for _G&prime;_ can be derived by substituting the formulae
-for _R&prime;_ and _B&prime;_ into the derivation of _Y&prime;_:
+The formula for _G{prime}_ can be derived by substituting the formulae
+for _R{prime}_ and _B{prime}_ into the derivation of _Y{prime}_:
 
 [latexmath]
 ++++
@@ -230,11 +230,11 @@ space parameters:
 
 <<<
 [[MODEL_BT709]]
-==== BT.709 _Y&prime;C~B~C~R~_ conversion
+==== BT.709 _Y{prime}C~B~C~R~_ conversion
 
 <<bt709,ITU Rec.709>> defines _K~R~_ = 0.2126 and _K~B~_ = 0.0722.
 
-That is, for conversion between (_R&prime;_,_&nbsp;G&prime;_,_&nbsp;B&prime;_)
+That is, for conversion between (_R{prime}_,_{nbsp}G{prime}_,_{nbsp}B{prime}_)
 defined in <<PRIMARIES_BT709,BT.709 color primaries>> and using the
 <<KHR_DF_TRANSFER_ITU,ITU transfer function>>:
 
@@ -275,11 +275,11 @@ For the inverse conversion:
 ++++
 
 [[MODEL_BT601]]
-==== BT.601 _Y&prime;C~B~C~R~_ conversion
+==== BT.601 _Y{prime}C~B~C~R~_ conversion
 
 <<bt601,ITU Rec.601>> defines _K~R~_ = 0.299 and _K~B~_ = 0.114.
 
-That is, for conversion between (_R&prime;_,_&nbsp;G&prime;_,_&nbsp;B&prime;_)
+That is, for conversion between (_R{prime}_,_{nbsp}G{prime}_,_{nbsp}B{prime}_)
 defined in <<PRIMARIES_BT601_EBU,BT.601 EBU color primaries>> or
 <<PRIMARIES_BT601_SMPTE,BT.601 SMPTE color primaries>>, and using the
 <<KHR_DF_TRANSFER_ITU,ITU transfer function>>:
@@ -322,12 +322,12 @@ For the inverse conversion:
 
 <<<
 [[MODEL_BT2020]]
-==== BT.2020 _Y&prime;C~B~C~R~_ conversion
+==== BT.2020 _Y{prime}C~B~C~R~_ conversion
 
 <<bt2020,ITU Rec.2020>> and <<bt2100,ITU Rec.2100>> define
 _K~R~_ = 0.2627 and _K~B~_ = 0.0593.
 
-That is, for conversion between (_R&prime;_,_&nbsp;G&prime;_,_&nbsp;B&prime;_)
+That is, for conversion between (_R{prime}_,_{nbsp}G{prime}_,_{nbsp}B{prime}_)
 defined in <<PRIMARIES_BT2020,BT.2020 color primaries>> and using the
 <<KHR_DF_TRANSFER_ITU,ITU transfer function>>:
 
@@ -368,7 +368,7 @@ For the inverse conversion:
 ++++
 
 [[MODEL_ST240]]
-==== ST-240/SMPTE 240M _Y&prime;C~B~C~R~_ conversion
+==== ST-240/SMPTE 240M _Y{prime}C~B~C~R~_ conversion
 
 <<st240,ST240>>, formerly SMPTE 240M, defines
 _K~R~_ = 0.212 and _K~B~_ = 0.087.
@@ -414,11 +414,11 @@ For the inverse conversion:
 
 <<<
 [[MODEL_YCCBCCRC]]
-=== _Y&prime;~C~C&prime;~BC~C&prime;~CR~_ constant luminance color model
+=== _Y{prime}~C~C{prime}~BC~C{prime}~CR~_ constant luminance color model
 
 <<bt2020,ITU-T Rec. BT.2020>> introduced a ``constant luminance''
 color representation as an alternative representation to
-_Y&prime;C~B~C~R~_:
+_Y{prime}C~B~C~R~_:
 
 [latexmath]
 ++++
@@ -471,7 +471,7 @@ case, which is a simple matrix transform.
 
 <<bt2100,ITU-T Rec. BT.2100>> introduced a ``constant intensity''
 color representation as an alternative representation to
-_Y&prime;C~B~C~R~_:
+_Y{prime}C~B~C~R~_:
 
 [latexmath]
 ++++

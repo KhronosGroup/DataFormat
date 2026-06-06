@@ -1,4 +1,4 @@
-// Copyright 2014-2024 The Khronos Group Inc.
+// Copyright 2014-2026 The Khronos Group Inc.
 // SPDX-License-Identifier: CC-BY-4.0
 
 [[PVRTC]]
@@ -32,8 +32,8 @@ Unlike traditional block-based formats, PVRTC uses adjacent data-words
 to reconstruct the original image.
 
 If combined with this encoding scheme, the <<TRANSFER_SRGB,sRGB EOTF>>
-is applied to the unquantized version of the _R&prime;_, _G&prime;_ and
-_B&prime;_ channels (that is,
+is applied to the unquantized version of the _R{prime}_, _G{prime}_ and
+_B{prime}_ channels (that is,
 latexmath:[\textit{R}_\textit{out} = \textit{EOTF}_{\textit{sRGB}}\left({\textit{R}'\over 255}\right)],
 etc.) at the end of the texel decode process, but the _A_ channel is
 interpreted linearly.
@@ -374,7 +374,7 @@ interpolated color of all texels in the 7{times}7 region
 from latexmath:[C_{x-3,y-3}] to latexmath:[C_{x+3,y+3}] centered on
 the color sample.
 
-&nbsp;
+{nbsp}
 
 Any 2{times}2 quad of texel values can be evaluated from a single
 set of four adjacent texel blocks.
@@ -417,8 +417,8 @@ depending on the value of modulation flag _M_.
 |====
 2+^| *Standard bilinear* (_M_ = 0) .6+| 3+^| *Punch-through* (_M_ = 1)
 ^| *Modulation bits* ^| *Weight* ^| *Modulation bits* ^| *Weight* ^| *Alpha*
-^| 00 ^| 0 ^| 00 ^| 0 .2+^.^|&nbsp;Normal
-^| 01 ^| 3 ^| 01 .2+^.^|&nbsp;4
+^| 00 ^| 0 ^| 00 ^| 0 .2+^.^|{nbsp}Normal
+^| 01 ^| 3 ^| 01 .2+^.^|{nbsp}4
 ^| 10 ^| 5 ^| 10 ^| ``Punch-through''
 ^| 11 ^| 8 | 11 ^| 8 ^| Normal
 |====
@@ -850,7 +850,7 @@ The entry for offset 0,0 is interpolated as per PVRTC's standard
 bilinear filtering mode. It will thus only use colors from word
 latexmath:[W_{X_\textit{Low},Y_\textit{Low}}].
 
-&nbsp;
+{nbsp}
 
 The local palette mode shares with the other modes of PVRTC2 the property
 that the column latexmath:[x_r = 0] has no contribution from words

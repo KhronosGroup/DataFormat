@@ -193,14 +193,14 @@ and _color_~1~, encoded as latexmath:[\left({{29}\over{31}}, {{60}\over{63}}, {{
 are shown as circles. The interpolated value is shown as a small diamonds.
 Since 20 {leq} 29, there is one interpolated value for
 _code_(_x_, _y_) = 2, and _code_(_x_, _y_) = 3 represents
-(_R_,_&nbsp;G_,_&nbsp;B_) = (0,&nbsp;0,&nbsp;0).
+(_R_,_{nbsp}G_,_{nbsp}B_) = (0,{nbsp}0,{nbsp}0).
 
 [[Figure-bc1a]]
 .BC1 one interpolated color {plus} black
 image::{images}/bc1a.svg[width="{svgpdf@pdf:190.5pt:382.5}",align="center"]
 
 If the format is BC1 with alpha, _code_(_x_, _y_) = 3 is transparent
-(alpha&nbsp;=&nbsp;0).
+(alpha{nbsp}={nbsp}0).
 If the format is BC1 with no alpha, _code_(_x_, _y_) = 3 represents
 opaque black.
 

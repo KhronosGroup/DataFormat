@@ -1,4 +1,4 @@
-// Copyright 2017-2024 The Khronos Group Inc.
+// Copyright 2017-2026 The Khronos Group Inc.
 // SPDX-License-Identifier: CC-BY-4.0
 
 [[CONVERSION_QUANTIZATION]]
@@ -17,7 +17,7 @@ ITU broadcast standards typically reserve values at the ends of
 the representable integer range for rounding errors and for
 signal control data. The nominal range of representable values
 between these limits is represented by the following encodings,
-for bit depth _n_ = {8,&nbsp;10,&nbsp;12}:
+for bit depth _n_ = {8,{nbsp}10,{nbsp}12}:
 
 [latexmath]
 ++++
@@ -68,34 +68,34 @@ That is, in ``narrow range'' encoding:
 |====
 | Value | Continuous encoding value | Quantized encoding
 | Black |
-{_R&prime;_,
-_G&prime;_,
-_B&prime;_,
-_Y&prime;_,
+{_R{prime}_,
+_G{prime}_,
+_B{prime}_,
+_Y{prime}_,
 latexmath:[Y'_C],
 _I_} =
 0.0
 |
-{_DR&prime;_,
-_DG&prime;_,
-_DB&prime;_,
-_DY&prime;_,
+{_DR{prime}_,
+_DG{prime}_,
+_DB{prime}_,
+_DY{prime}_,
 latexmath:[\mathit{DY}'_C],
 _DI_} =
 latexmath:[16 \times 2^{n-8}]
 | Peak brightness |
-{_R&prime;_,
-_G&prime;_,
-_B&prime;_,
-_Y&prime;_,
+{_R{prime}_,
+_G{prime}_,
+_B{prime}_,
+_Y{prime}_,
 latexmath:[Y'_C],
 _I_} =
 1.0
 |
-{_DR&prime;_,
-_DG&prime;_,
-_DB&prime;_,
-_DY&prime;_,
+{_DR{prime}_,
+_DG{prime}_,
+_DB{prime}_,
+_DY{prime}_,
 latexmath:[\mathit{DY}'_C],
 _DI_} =
 latexmath:[235 \times 2^{n-8}]
@@ -132,7 +132,7 @@ _DC~T~_,
 _DC~P~_} =
 latexmath:[240 \times 2^{n-8}]
 | Achromatic colors |
-_R&prime;_ = _G&prime;_ = _B&prime;_
+_R{prime}_ = _G{prime}_ = _B{prime}_
 
 {latexmath:[C'_B],
 latexmath:[C'_R],
@@ -285,34 +285,34 @@ That is, in ``full range'' encoding:
 |====
 | Value | Continuous encoding value | Quantized encoding
 | Black |
-{_R&prime;_,
-_G&prime;_,
-_B&prime;_,
-_Y&prime;_,
+{_R{prime}_,
+_G{prime}_,
+_B{prime}_,
+_Y{prime}_,
 latexmath:[Y'_C],
 _I_} =
 0.0
 |
-{_DR&prime;_,
-_DG&prime;_,
-_DB&prime;_,
-_DY&prime;_,
+{_DR{prime}_,
+_DG{prime}_,
+_DB{prime}_,
+_DY{prime}_,
 latexmath:[\mathit{DY}'_C],
 _DI_} =
 0
 | Peak brightness |
-{_R&prime;_,
-_G&prime;_,
-_B&prime;_,
-_Y&prime;_,
+{_R{prime}_,
+_G{prime}_,
+_B{prime}_,
+_Y{prime}_,
 latexmath:[Y'_C],
 _I_} =
 1.0
 |
-{_DR&prime;_,
-_DG&prime;_,
-_DB&prime;_,
-_DY&prime;_,
+{_DR{prime}_,
+_DG{prime}_,
+_DB{prime}_,
+_DY{prime}_,
 latexmath:[\mathit{DY}'_C],
 _DI_} =
 2^_n_^ - 1
@@ -351,7 +351,7 @@ latexmath:[2^n - 1]
 
 (clamped)
 | Achromatic colors |
-_R&prime;_ = _G&prime;_ = _B&prime;_
+_R{prime}_ = _G{prime}_ = _B{prime}_
 
 {latexmath:[C'_B],
 latexmath:[C'_R],
@@ -523,10 +523,10 @@ conversion.
 For example, a legacy shader-based JPEG decoder may read values
 in a normalized 0..1 range, where the in-memory value 0 represents
 0.0 and the in-memory value 1 represents 1.0.
-The decoder should scale the _Y&prime;_ value by a factor of
+The decoder should scale the _Y{prime}_ value by a factor of
 latexmath:[255\over 256] to match the encoding in the <<jfif,JFIF3>>
 document, and latexmath:[C'_B] and _C~R~_ should be scaled by
 latexmath:[255\over 256] and offset by 0.5.
-After the model conversion matrix has been applied, the _R&prime;_,
-_G&prime;_ and _B&prime;_ values should be scaled by
+After the model conversion matrix has been applied, the _R{prime}_,
+_G{prime}_ and _B{prime}_ values should be scaled by
 latexmath:[256\over 255], restoring the ability to represent pure white.

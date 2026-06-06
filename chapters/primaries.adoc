@@ -188,7 +188,7 @@ The transform from the defined color primaries to _XYZ_ space is:
 
 [latexmath]
 ++++
-\left(\begin{array}{c}X\\
+\left(\begin{array}{c}X \\
 Y\\
 Z\end{array}\right) =
 \left(\begin{array}{ccc}R_X, & G_X, & B_X \\
@@ -200,8 +200,8 @@ B\end{array}\right) =
 \left(\begin{array}{ccc}{R_Y\over{R_y}}R_x, & {G_Y\over{G_y}}G_x, & {B_Y\over{B_y}}B_x \\
 R_Y, & G_Y, & B_Y \\
 {R_Y\over{R_y}}(1-R_x-R_y), & {G_Y\over{G_y}}(1-G_x-G_y), & {B_Y\over{B_y}}(1-B_x-B_y)
-\end{array}\right)\left(\begin{array}{c}R\\
-G\\
+\end{array}\right)\left(\begin{array}{c}R \\
+G \\
 B\end{array}\right)
 ++++
 
@@ -209,7 +209,7 @@ The transform from _XYZ_ space to the defined color primaries is therefore:
 
 [latexmath]
 ++++
-\left(\begin{array}{c}R\\
+\left(\begin{array}{c}R \\
 G\\
 B\end{array}\right) =
 \left(\begin{array}{ccc}R_X, & G_X, & B_X \\
@@ -221,8 +221,8 @@ Z\end{array}\right) =
 \left(\begin{array}{ccc}{R_Y\over{R_y}}R_x, & {G_Y\over{G_y}}G_x, & {B_Y\over{B_y}}B_x \\
 R_Y, & G_Y, & B_Y \\
 {R_Y\over{R_y}}(1-R_x-R_y), & {G_Y\over{G_y}}(1-G_x-G_y), & {B_Y\over{B_y}}(1-B_x-B_y)
-\end{array}\right)^{-1}\left(\begin{array}{c}X\\
-Y\\
+\end{array}\right)^{-1}\left(\begin{array}{c}X \\
+Y \\
 Z\end{array}\right)
 ++++
 
@@ -250,7 +250,7 @@ on ``metameric matching'': picking a linear combination of some set
 of primaries that will elicit the same cone cell response as the
 desired color.
 
-&nbsp;
+{nbsp}
 
 Each of the cone cells can appear in mutated form which results in a
 change to its response to different frequencies of light.
@@ -272,7 +272,7 @@ Note that rod cells, which dominate the human visual system in
 low light conditions, are typically ignored at higher illumination
 levels for the purposes of color matching.
 
-&nbsp;
+{nbsp}
 
 The difference between a primary color representation and the
 full spectrum emitted by a real-world object is particularly
@@ -294,7 +294,7 @@ spectra) to appear different.
 Inkjet printing often uses many more than three inks in order to
 maximize the representable gamut and control metamerism.
 
-&nbsp;
+{nbsp}
 
 Adaptation to a different white point is often performed by a
 linear scaling of primaries, known as the ``von Kries transform''.
@@ -302,7 +302,7 @@ The link:https://onlinelibrary.wiley.com/doi/pdf/10.1002/9781119021780.app3[Brad
 incorporates a slight nonlinear term to the blue component of
 colors to more accurately reflect visual behavior.
 
-&nbsp;
+{nbsp}
 
 It is common for production rendering systems to represent each
 pixel with more than three channels.

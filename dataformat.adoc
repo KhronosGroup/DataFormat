@@ -30,6 +30,22 @@ toc::[]
 
 <<<<
 
+:test: 0
+ifeval::["{test}"=="1"]
+
+// Test markup so we don't have to build the full spec
+ifndef::backend-html5[]
+= Color conversions
+endif::[]
+
+include::{chapters}/transferfunctions.adoc[]
+
+include::{chapters}/bptc.adoc[]
+
+endif::[]
+
+ifeval::["{test}"!="1"]
+
 // Chapters
 
 include::{chapters}/df.adoc[]
@@ -38,3 +54,5 @@ include::{chapters}/df.adoc[]
 // :numbered!:
 //
 // include::{appendices}/spirvenv.adoc[]
+
+endif::[]
