@@ -1,0 +1,27 @@
+version = 1
+SPDX-PackageName = "DataFormat"
+SPDX-PackageDownloadLocation = "https://github.com/KhronosGroup/DataFormat"
+
+[[annotations]]
+path = ["images/**.svg", "config/**/docinfo-header.html"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2015-2026 The Khronos Group Inc."
+SPDX-License-Identifier = "CC-BY-4.0"
+
+[[annotations]]
+path = "katex/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2013-2019 Khan Academy and other contributors"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "config/khronos.css"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2013 Dan Allen"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "config/copyright-spec.adoc"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2014-2026 The Khronos Group Inc"
+SPDX-License-Identifier = "LicenseRef-KhronosSpecCopyright"

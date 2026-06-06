@@ -27,13 +27,13 @@ jobs:
         run: reuse lint
 
   spec-generate:
-    name: Build the Data Format specification in HTML and PDF form
+    name: Build the Data Format specification
     runs-on: ubuntu-latest
     container: khronosgroup/docker-images@sha256:f1ca671f3bdb10ad49e238b9bf28853088a21af49504498fc9084c9b4fea4762
 
     steps:
       - uses: actions/checkout@v5
-      - name: Build the actual spec (both chunked and single-page HTML), and other common targets
+      - name: Build the Data Format specification
         run: make html pdf
       - name: Package generated spec
         # https://github.com/actions/upload-artifact#limitations
