@@ -399,7 +399,7 @@ relative to the start of the buffer as:
 pixelOffset = x | (y * 16);
 -----
 
-a 16{times}12 image comprised of 4{times}4 tiles may calculate the
+a 16{times}12 image comprising 4{times}4 tiles may calculate the
 pixel offset relative to the start of the buffer as:
 
 -----
