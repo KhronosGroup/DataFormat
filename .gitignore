@@ -1,6 +1,3 @@
 df.xml
 
-out/config
-out/dataformat.*
-out/headers
-out/images
+out/

@@ -4,7 +4,7 @@
 // :regtitle: is explained in
 // https://discuss.asciidoctor.org/How-to-add-markup-to-author-information-in-document-title-td6488.html
 
-= Khronos Data Format Specification v1.3.1
+= Khronos Data Format Specification v1.4.0
 :regtitle: pass:q,r[^®^]
 Andrew Garrard
 :data-uri:

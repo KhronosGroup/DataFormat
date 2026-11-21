@@ -36,7 +36,9 @@
 :uparrow: ↑
 :rightarrow: →
 :downarrow: ↓
-:elem: ∈
+// The LaTeX name for this is \in.
+:isin: ∈
+:notin: ∉
 :lnot: ¬
 :land: ∧
 :lor: ∨

@@ -16,3 +16,5 @@ include::{chapters}/etc2.adoc[]
 include::{chapters}/astc.adoc[]
 
 include::{chapters}/pvrtc.adoc[]
+
+include::{chapters}/uastc.adoc[]

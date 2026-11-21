@@ -379,7 +379,7 @@ In this example, one _base color_ is encoded as the 4-bit triple
 Modifier table 4 [-60,{nbsp}-18,{nbsp}18,{nbsp}60] is selected for this subblock,
 giving the following _paint colors_:
 
-[options="header",width="25%",cols="2,1,1,1"]
+[options="header",width="30%",cols="2,1,1,1"]
 |====
 ^| Modifier ^| _R_ ^| _G_ ^| _B_
 ^| -60 {nbsp} >|   8 {nbsp} >| 127 {nbsp} >|  93 {nbsp}
@@ -394,7 +394,7 @@ The other _base color_ is encoded as the 4-bit triple
 Modifier table 0 [-8,{nbsp}-2,{nbsp}2,{nbsp}8] is selected for this
 subblock, giving the following _paint colors_ for the subblock:
 
-[options="header",width="25%",cols="2,1,1,1"]
+[options="header",width="30%",cols="2,1,1,1"]
 |====
 ^| Modifier ^| _R_ ^| _G_ ^| _B_
 ^| -8 >| 230 {nbsp} >| 43 {nbsp} >| 128 {nbsp}
@@ -454,7 +454,7 @@ subblocks of this example, since a _R_~d~ offset of {plus}4 is unrepresentable.
 In this example, modifier table 2 [-29,{nbsp}-9,{nbsp}9,{nbsp}29] is
 applied to subblock 1's _base color_ of (239,{nbsp}214,{nbsp}66):
 
-[options="header",width="25%",cols="2,1,1,1"]
+[options="header",width="30%",cols="2,1,1,1"]
 |====
 ^| Modifier ^| _R_ ^| _G_ ^| _B_
 ^| -29 >| 210 {nbsp} >| 185 {nbsp} >| 37 {nbsp}
@@ -469,7 +469,7 @@ With _modifiers_, all grays [0..255] are representable.
 Similarly, modifier table 3 [-42,{nbsp}-13,{nbsp}13,{nbsp}42] is applied to
 the _base color_ of subblock 2, (206,{nbsp}189,{nbsp}90):
 
-[options="header",width="25%",cols="2,1,1,1"]
+[options="header",width="30%",cols="2,1,1,1"]
 |====
 ^| Modifier ^| _R_ ^| _G_ ^| _B_
 ^| -42 >| 164 {nbsp} >| 147 {nbsp} >|  48 {nbsp}
@@ -650,7 +650,7 @@ The block encodes a _distance index_ of 5 (this means that _base color 1_
 must be greater than _base color 2_), corresponding to a distance _d_
 of 32. This leads to the following _paint colors_:
 
-[width="50%",cols="2,1,1,1,2,1,1,1"]
+[width="60%",cols="2,1,1,1,2,1,1,1"]
 |====
 .2+^.^| *_Paint color_ id* 3+^| *_Base color_* ^| *Distance* 3+^| *_Paint color_*
 ^| *_R_* ^| *_G_* ^| *_B_* ^| *_d_* ^| *_R_* ^| *_G_* ^| *_B_*
@@ -1203,6 +1203,7 @@ information about the green component.
 Both 64-bit integers are decoded in the same way as R11 EAC described in
 <<Section-r11eac>>.
 
+[[Section-signedr11eac]]
 === Format Signed R11 EAC
 
 The number of bits to represent a 4{times}4 texel block is 64 bits
@@ -1356,7 +1357,7 @@ expanded to 0011101011001110b{nbsp}={nbsp}15054.
 A negative 11-bit value must first be made positive before bit replication, and
 then made negative again:
 
-[source]
+[source,c]
 ----
 if (result11bit >= 0) {
   result16bit = (result11bit << 5) + (result11bit >> 5);
@@ -1432,7 +1433,7 @@ unsigned version EAC_R11.
 Apart from the {plus}4, the clamping and the extension to bit sizes other than 11,
 the same decoding hardware can be shared between the two codecs.
 
-[[Section-signedr11eac-signedr11eac]]
+[[Section-signedrg11eac]]
 === Format Signed RG11 EAC
 
 The number of bits to represent a 4{times}4 texel block is 128 bits
@@ -1456,7 +1457,7 @@ of a two-channel 4{times}4 pixel block as shown in
 <<Figure-etc2-pixellayout>>, and the word _int64bit_~1~ contains
 information about the green component. Both 64-bit integers are
 decoded in the same way as signed R11 EAC described in
-<<Section-signedr11eac-signedr11eac>>.
+<<Section-signedr11eac>>.
 
 <<<
 [[RGBETC2_PUNCHTHROUGH]]
@@ -1662,7 +1663,7 @@ if MSB==1 and LSB==0, the alpha value will be zero, otherwise it will be 255.
 Finally, if the alpha value equals 0, the red, green and blue components will also
 be zero.
 
-[source]
+[source,c]
 ----
 if (opaque == 0 && MSB == 1 && LSB == 0) {
   red = 0;
@@ -1741,7 +1742,7 @@ In both cases, the value of each channel is clamped to within [0..255].
 Just as for the differential mode, the _RGB_ channels are set to zero if
 alpha is zero, and the alpha component is calculated the same way:
 
-[source]
+[source,c]
 ----
 if (opaque == 0 && MSB == 1 && LSB == 0) {
   red = 0;
@@ -1777,7 +1778,7 @@ _paint colors_ will be:
 Yet again, _RGB_ is zeroed if alpha is 0 and the alpha component is
 determined the same way:
 
-[source]
+[source,c]
 ----
 if (opaque == 0 && MSB == 1 && LSB == 0) {
   red = 0;

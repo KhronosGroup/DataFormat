@@ -205,6 +205,14 @@ G \\
 B\end{array}\right)
 ++++
 
+Since the _Y_ channel represents luminance, the second row of this matrix
+provides suitable weights for monochrome conversion.
+In practice, many such conversions contain an artistic input to the weighting
+of channels, corresponding to photographic filters and their effect on the
+contribution to exposure contributed by continuous real-world wavelengths.
+For example, black and white landscape photography often uses a red filter
+to darken a (blue) sky.
+
 The transform from _XYZ_ space to the defined color primaries is therefore:
 
 [latexmath]
@@ -1011,7 +1019,7 @@ Z\end{array}\right) \approx
 \left(\begin{array}{r@{}lr@{}lr@{}l}
 0.&4865709486, & 0.&2656676932, & 0.&1982172852 \\
 0.&2289745641, & 0.&6917385218, & 0.&0792869141 \\
-0.&0000000000, & 0.&0451133819, & 1.&0439443689\end{array}\right) =
+0.&0000000000, & 0.&0451133819, & 1.&0439443689\end{array}\right)
 \left(\begin{array}{c} R_{\textrm{DisplayP3}} \\
 G_{\textrm{DisplayP3}} \\
 B_{\textrm{DisplayP3}}\end{array}\right)
@@ -1026,7 +1034,7 @@ Z\end{array}\right) \approx
 \left(\begin{array}{ccc}
 0.4865709486, & 0.2656676932, & 0.1982172852 \\
 0.2289745641, & 0.6917385218, & 0.0792869141 \\
-0.0000000000, & 0.0451133819, & 1.0439443689\end{array}\right) =
+0.0000000000, & 0.0451133819, & 1.0439443689\end{array}\right)
 \left(\begin{array}{c} R_{\textrm{DisplayP3}} \\
 G_{\textrm{DisplayP3}} \\
 B_{\textrm{DisplayP3}}\end{array}\right)

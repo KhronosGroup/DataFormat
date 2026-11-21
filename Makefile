@@ -142,7 +142,10 @@ SPECSRC   = $(SPECDIR)/dataformat.adoc
 SPECFILES = $(wildcard chapters/[A-Za-z]*.adoc appendices/[A-Za-z]*.adoc)
 
 # All non-format-specific dependencies
-COMMONDOCS     = $(SPECFILES)
+COMMONDOCS     = $(SPECFILES) $(CONFIGS)/attribs.adoc
+
+# HTML dependencies
+HTMLDOCS       = $(CONFIGS)/dataformat/docinfo-header.html
 
 # Script to translate math at build time
 TRANSLATEMATH = $(NODEJS) $(SCRIPTS)/translate_math.js $(KATEXSRCDIR)/katex.min.js
@@ -159,10 +162,10 @@ $(KATEXINSTDIR): $(KATEXSRCDIR)
 # There is some complexity to try and avoid short virtual targets like 'html'
 # causing specs to *always* be regenerated.
 
-html: $(HTMLDIR)/dataformat.html $(SPECSRC) $(COMMONDOCS)
+html: $(HTMLDIR)/dataformat.html $(SPECSRC) $(COMMONDOCS) $(HTMLDOCS)
 
 $(HTMLDIR)/dataformat.html: KATEXDIR = ../katex
-$(HTMLDIR)/dataformat.html: $(SPECSRC) $(COMMONDOCS) $(KATEXINSTDIR)
+$(HTMLDIR)/dataformat.html: $(SPECSRC) $(COMMONDOCS) $(HTMLDOCS) $(KATEXINSTDIR)
 	$(QUIET)$(ASCIIDOC) -b html5 $(ADOCOPTS) $(ADOCHTMLOPTS) -o $@ $(SPECSRC)
 	$(QUIET)$(TRANSLATEMATH) $@
 
