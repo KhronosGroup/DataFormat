@@ -1,0 +1,36 @@
+== Revision History
+////
+// You must insert a new row containing the current values of the
+// revnumber and revdate attributes into the table when creating
+// a new revision.
+////
+
+[.revhistory,cols="^15,^20,^10,<55a",options="header"]
+|===
+| Document Revision |    Date     | Author Initials ^|              Remark
+|      0.1          | Jan 2015    | AG               | Initial sharing
+|      0.2          | Feb 2015    | AG               | Added clarification, tables, examples.
+|      0.3          | Feb 2015    | AG               | Further cleanup.
+|      0.4          | Apr 2015    | AG               | Channel ordering standardized.
+|      0.5          | Apr 2015    | AG               | Typos and clarification.
+|   1.0 rev 1       | May 2015    | AG               | Submission for 1.0 release.
+|   1.0 rev 2       | Jun 2015    | AG               | Clarifications for 1.0 release.
+|   1.0 rev 3       | Jul 2015    | AG               | Added KHR_DF_SAMPLE_DATATYPE_LINEAR.
+|   1.0 rev 4       | Jul 2015    | AG               | Clarified KHR_DF_SAMPLE_DATATYPE_LINEAR.
+|   1.0 rev 5       | Mar 2019    | AG               | Clarification and typography.
+|   1.1 rev 1       | Nov 2015    | AG               | Added definitions of compressed texture formats.
+|   1.1 rev 2       | Jan 2016    | AG               | Added definitions of floating-point formats.
+|   1.1 rev 3       | Feb 2016    | AG               | Fixed typo in sRGB conversion (thank you, Tom Grim!).
+|   1.1 rev 4       | Mar 2016    | AG               | Fixed typo/clarified sRGB in ASTC, typographical improvements.
+|   1.1 rev 5       | Mar 2016    | AG               | Switch to official Khronos logo, removed scripts, restored title.
+|   1.1 rev 6       | Jun 2016    | AG               | ASTC block footprint note, fixed credits/changelog/contents.
+|   1.1 rev 7       | Sep 2016    | AG               | ASTC multi-point part and quint decode typo fixes.
+|   1.1 rev 8       | Jun 2017    | AG               | ETC2 legibility and table typo fix.
+|   1.1 rev 9       | Mar 2019    | AG               | Typo fixes and much reformatting.
+|   1.2 rev 0       | Sep 2017    | AG               | Added color conversion formulae and extra options.
+|   1.2 rev 1       | Mar 2019    | AG               | Typo fixes and much reformatting.
+|      1.3          | Oct 2019    | AG/MC            | Updates for KTX2/glTF. BC6h and ASTC table fixes and typo fixes, examples.
+|     1.3.1         | Mar 2020    | MC               | Unswapped DXT pre-multiplied &alpha;. BC7 bit layout fix. Unsized formats rewrite.
+|     1.4.0         | Feb 2025    | AG/AK/MC         | Added UASTC format spec/color model &amp; ETC1S color model. Fixed typos.
+|===
+

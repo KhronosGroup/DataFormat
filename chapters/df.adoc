@@ -6664,4 +6664,6 @@ Eric Werness
 
 David Wilkinson
 
+include::{chapters}/revhistory.adoc[]
+
 // vim: filetype=asciidoc ai expandtab tw=72 ts=4 sts=2 sw=2
