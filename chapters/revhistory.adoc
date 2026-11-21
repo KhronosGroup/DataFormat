@@ -1,9 +1,4 @@
 == Revision History
-////
-// You must insert a new row containing the current values of the
-// revnumber and revdate attributes into the table when creating
-// a new revision.
-////
 
 [.revhistory,cols="^15,^20,^10,<55a",options="header"]
 |===
