@@ -5551,7 +5551,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 
 [[exampledescriptor_565]]
 .565 _RGB_ packed 16-bit format as written to memory by a little-endian architecture
-[width="97%"]
+[.exampledfd,width="97%"]
 |====
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
@@ -5587,7 +5587,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 
 [[exampledescriptor_cosited]]
 .Four co-sited 8-bit sRGB channels, assuming premultiplied alpha
-[width="97%"]
+[.exampledfd,width="97%"]
 |====
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
@@ -5629,7 +5629,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 
 [[exampledescriptor_mono8bit]]
 .A single 8-bit monochrome channel
-[width="97%"]
+[.exampledfd,width="97%"]
 |====
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
@@ -5651,7 +5651,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 
 [[exampledescriptor_1bpp]]
 .A single 1-bit monochrome channel, as an 8×1 texel block to allow byte-alignment, part 1 of 2
-[width="97%"]
+[.exampledfd,width="97%"]
 |====
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
@@ -5680,7 +5680,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 <<<
 
 .A single 1-bit monochrome channel, as an 8×1 texel block to allow byte-alignment, part 2 of 2
-[width="97%"]
+[.exampledfd,width="97%"]
 |====
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
@@ -5726,7 +5726,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 
 [[exampledescriptor_bayer]]
 .2×2 Bayer pattern: four 8-bit distributed sRGB channels, spread across two lines (as two planes)
-[width="97%"]
+[.exampledfd,width="97%"]
 |====
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
@@ -5768,7 +5768,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 
 [[exampledescriptor_simplepalette]]
 .Simple paletted format: 8-bit index to 240 entries of 4-bit _R_, _G_, _B_ channels
-[width="97%"]
+[.exampledfd,width="97%"]
 |====
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
@@ -5808,7 +5808,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 
 [[exampledescriptor_LUT]]
 .Paletted color look-up table format: three 8-bit indices into separate 256-entry 10-bit channels
-[width="97%"]
+[.exampledfd,width="97%"]
 |====
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
@@ -5860,7 +5860,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 
 [[exampledescriptor_ycbcr]]
 ._Y{prime}C~B~C~R~_ 4:2:0: BT.709 reduced-range data, with _C~B~_ and _C~R~_ aligned to the midpoint of the _Y{prime}_ samples
-[width="97%"]
+[.exampledfd,width="97%"]
 |====
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
@@ -5912,7 +5912,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 
 [[exampledescriptor_bigendian]]
 .565 _RGB_ packed 16-bit format as written to memory by a big-endian architecture
-[width="97%"]
+[.exampledfd,width="97%"]
 |====
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
@@ -5952,7 +5952,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 
 [[exampledescriptor_e5b9g9r9]]
 .E5B9G9R9 shared-exponent format
-[width="97%"]
+[.exampledfd,width="97%"]
 |====
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
@@ -6004,7 +6004,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 
 [[exampledescriptor_AcornTint]]
 .Acorn 256-color format (2 bits each independent _RGB_, 2 bits shared tint)
-[width="97%"]
+[.exampledfd,width="97%"]
 |====
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
@@ -6049,7 +6049,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 |====
 
 .V210 format (full-range _Y{prime}C~B~C~R~_) part 1 of 2
-[width="97%"]
+[.exampledfd,width="97%"]
 |====
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
@@ -6094,7 +6094,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 |====
 
 .V210 format (full-range _Y{prime}C~B~C~R~_) part 2 of 2
-[width="97%"]
+[.exampledfd,width="97%"]
 |====
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
@@ -6144,7 +6144,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 
 [[exampledescriptor_intensity]]
 .Intensity-alpha format showing aliased samples
-[width="97%"]
+[.exampledfd,width="97%"]
 |====
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
@@ -6184,7 +6184,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 
 [[exampledescriptor_48bit]]
 .A 48-bit signed middle-endian red channel: three co-sited 16-bit little-endian words, high word first
-[width="97%"]
+[.exampledfd,width="97%"]
 |====
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
@@ -6218,7 +6218,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 
 [[exampledescriptor_float16explicit]]
 .A signed 16-bit floating-point red value with implicit 1, described explicitly (example only!)
-[width="97%"]
+[.exampledfd,width="97%"]
 |====
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
@@ -6252,7 +6252,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 
 [[exampledescriptor_float16implicit]]
 .A standard signed 16-bit floating-point red value, described normally
-[width="97%"]
+[.exampledfd,width="97%"]
 |====
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
@@ -6274,7 +6274,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 
 [[exampledescriptor_bfloat16]]
 .bfloat16 (Brain Floating Point -- 16-bit floating point with the range of 32-bit floating point)
-[width="97%"]
+[.exampledfd,width="97%"]
 |================================
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
@@ -6308,7 +6308,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 
 [[exampledescriptor_e5m2]]
 .E5M2 (8-bit floating point, similar to IEEE754)
-[width="97%"]
+[.exampledfd,width="97%"]
 |================================
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
@@ -6342,7 +6342,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 
 [[exampledescriptor_e4m3fn]]
 .E4M3FN (8-bit floating point, no infinities, NaN encoded as maximum)
-[width="97%"]
+[.exampledfd,width="97%"]
 |================================
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
@@ -6376,7 +6376,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 
 [[exampledescriptor_e5m2fnuz]]
 .E5M2FNUZ (8-bit floating point, no infinities, NaN encoded as -0)
-[width="97%"]
+[.exampledfd,width="97%"]
 |================================
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
@@ -6410,7 +6410,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 
 [[exampledescriptor_e4m3fnuz]]
 .E4M3FNUZ (8-bit floating point, no infinities, NaN encoded as -0)
-[width="97%"]
+[.exampledfd,width="97%"]
 |================================
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
@@ -6444,7 +6444,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 
 [[exampledescriptor_tensorfloat]]
 .NVIDIA TensorFloat (19-bit floating point, stored in 4 bytes)
-[width="97%"]
+[.exampledfd,width="97%"]
 |================================
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
@@ -6478,7 +6478,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 
 [[exampledescriptor_amdfp24]]
 .AMD fp24 (24-bit floating point with 7-bit exponent, stored in 3 bytes)
-[width="97%"]
+[.exampledfd,width="97%"]
 |================================
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
@@ -6512,7 +6512,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 
 [[exampledescriptor_pxr24]]
 .PixarPXR24 (24-bit floating point with 8-bit exponent, stored in 3 bytes)
-[width="97%"]
+[.exampledfd,width="97%"]
 |================================
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
@@ -6546,7 +6546,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 
 [[exampledescriptor_ufloat40]]
 .An unsigned 40-bit (E8R32) floating-point red value with implicit 1
-[width="97%"]
+[.exampledfd,width="97%"]
 |================================
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
