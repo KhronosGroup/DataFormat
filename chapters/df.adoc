@@ -813,14 +813,15 @@ descriptor blocks.
 
 [[DescriptorAndDescriptorBlocks]]
 .Data format descriptor and descriptor blocks
-[width="75%",cols="1a"]
+[stripes="none",width="50%",cols="^1a"]
 |====
-^|_Data format descriptor_
-[width="100%",cols="1"]
+|_Data format descriptor_
+|
+[cols="^1"]
 !=============
 ! _{nbsp}Descriptor block 1_
 ! _{nbsp}Descriptor block 2_
-! {nbsp}:
+! {nbsp}{vlipsis}
 !=============
 |====
 

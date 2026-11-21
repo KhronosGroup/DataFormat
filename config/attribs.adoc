@@ -23,6 +23,7 @@
 :trade: ™
 :harr: ↔
 :check: ✓
+:vlipsis: ⋮
 
 // Math operators and logic symbols
 :times: ×
