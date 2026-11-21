@@ -24,7 +24,7 @@ _YUV_.
 
 In the broadcast standards which define these models:
 
-* A prime mark ({prime]) is used to refer to what the ITU standards call
+* A prime mark ({prime}) is used to refer to what the ITU standards call
   a "`gamma pre-corrected`" representation of a value; that is, the value
   encoded with a nonlinear transfer function between physical light
   intensity and representation.
@@ -50,10 +50,10 @@ In the broadcast standards which define these models:
   nonlinear behavior.
   See <<CONVERSION_INTRO>> for an introduction to transfer functions, and
   <<TRANSFER_ITU>> for details of the transfer function typically used
-  with Y{prime]C~B~C~R~.
-* _R{prime]G{prime]B{prime]_ is used to refer to the red, green and blue
+  with Y{prime}C~B~C~R~.
+* _R{prime}G{prime}B{prime}_ is used to refer to the red, green and blue
   reference values in ``gamma pre-corrected'' form, whereas _R_, _G_ and
-  _B_ (without {prime] symbols) are represented linearly with respect to
+  _B_ (without {prime} symbols) are represented linearly with respect to
   physical light intensity, as explained above.
 * IEEE standards <<bt601,BT.601>> and <<bt709,BT.709>> use a prefix of _E_
   to refer to a continuous signal value in the range [0..1], mirroring the
@@ -70,10 +70,10 @@ In the broadcast standards which define these models:
   latexmath:[E'_{R_D}], latexmath:[E'_{G_D}] and latexmath:[E'_{B_D}].
   In <<bt709,BT.709>> the quantized digital representation is instead
   latexmath:[D'_R], latexmath:[D'_G] and latexmath:[D'_B], in
-  <<bt2020,BT.2020>> and <<bt2100,BT.2100>> written as _DR{prime]_,
-  _DG{prime]_ and _DB{prime]_.
-* _Y{prime]_ is a weighted sum of _R{prime]_, _G{prime]_
-  and _B{prime]_ values, and represents physically-nonlinear
+  <<bt2020,BT.2020>> and <<bt2100,BT.2100>> written as _DR{prime}_,
+  _DG{prime}_ and _DB{prime}_.
+* _Y{prime}_ is a weighted sum of _R{prime}_, _G{prime}_
+  and _B{prime}_ values, and represents physically-nonlinear
   (but perceptually-linear) light intensity, as distinct from
   physically-linear light intensity.
   Note that the ITU broadcast standards use "`luminance`" for
@@ -86,12 +86,12 @@ In the broadcast standards which define these models:
   The prime symbol is often omitted so that _Y{prime}_ is confusingly
   written _Y_.
   <<bt601,BT.601>> and <<bt709,BT.709>> refers to the continuous nonlinear
-  ``luminance'' signal as latexmath:[E'_Y]; in <<bt2020,BT.2020>> and
-  <<bt2100,BT.2100>> this value is just _Y{prime]_.
-  The quantized digital representation is written as simply _Y{prime]_
+  "`luminance`" signal as latexmath:[E'_Y]; in <<bt2020,BT.2020>> and
+  <<bt2100,BT.2100>> this value is just _Y{prime}_.
+  The quantized digital representation is written as simply _Y{prime}_
   in <<bt601,BT.601>>, as latexmath:[D'_Y] in <<bt709,BT.709>>, and as
-  _DY{prime]_ in <<bt2020,BT.2020>> and <<bt2100,BT.2100>>.
-  In this standard, _Y{prime]_ refers to a continuous value.
+  _DY{prime}_ in <<bt2020,BT.2020>> and <<bt2100,BT.2100>>.
+  In this standard, _Y{prime}_ refers to a continuous value.
 * For the purposes of this section, we will refer to the weighting factor
   applied to _R{prime}_ as _K~R~_ and the weighting factor
   applied to _B{prime}_ as _K~B~_. The weighting factor of
@@ -213,14 +213,14 @@ primary conversion matrix is shown as (0.212639, 0.715169, 0.072192),
 which are approximately the (0.2126, 0.7152, 0.0722) triple defined
 for (_K~R~_, (1-_K~R~_), _K~B~_) in the <<MODEL_BT709,corresponding>>
 color model version.
-Non-standard _Y{prime]C~B~C~R~_ representations could be derived for
+Non-standard _Y{prime}C~B~C~R~_ representations could be derived for
 different color primaries using this observation.
 
 Note that the _K~R~_ and _K~B~_ used in the <<MODEL_BT601,BT.601>>
-_Y{prime]C~B~C~R~_ conversion correspond (approximately) to the
+_Y{prime}C~B~C~R~_ conversion correspond (approximately) to the
 <<PRIMARIES_NTSC,NTSC 1953>> color primaries.
 The <<PRIMARIES_BT601_EBU,BT.601 525-line>> primaries correspond to
-the _Y{prime]C~B~C~R~_ conversion from <<MODEL_ST240,ST-240>>, but there is
+the _Y{prime}C~B~C~R~_ conversion from <<MODEL_ST240,ST-240>>, but there is
 no corresponding standard model conversion that corresponds to the
 <<PRIMARIES_BT601_EBU,BT.601 625-line>> color primaries.
 
