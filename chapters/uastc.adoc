@@ -1,5 +1,6 @@
-// Copyright (c) 2014-2025 The Khronos Group Inc.
-// Copyright notice at https://www.khronos.org/registry/speccopyright.html
+// Copyright 2014-2026 The Khronos Group Inc.
+// SPDX-License-Identifier: CC-BY-4.0
+
 [[UASTC]]
 == Universal ASTC Compressed Texture Images
 

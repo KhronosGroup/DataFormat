@@ -3,7 +3,13 @@ SPDX-PackageName = "DataFormat"
 SPDX-PackageDownloadLocation = "https://github.com/KhronosGroup/DataFormat"
 
 [[annotations]]
-path = ["images/**.svg", "config/**/docinfo-header.html"]
+path = "config/fonts/mplus1p-regular-fallback.ttf"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "Copyright 2016 The M+ Project Authors"
+SPDX-License-Identifier = "OFL-1.1"
+
+[[annotations]]
+path = ["images/**.pdf", "images/**.png", "images/**.svg", "config/**/docinfo-header.html"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2015-2026 The Khronos Group Inc."
 SPDX-License-Identifier = "CC-BY-4.0"
