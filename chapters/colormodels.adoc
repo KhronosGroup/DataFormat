@@ -29,12 +29,12 @@ In the broadcast standards which define these models:
   encoded with a nonlinear transfer function between physical light
   intensity and representation.
   The transfer function creates an approximately linear relationship
-  between the "`"gamma pre-corrected`" value and perceived intensity;
+  between the "`gamma pre-corrected`" value and perceived intensity;
   the absence of a prime mark indicates that the value is linear with
   respect to absolute light intensity.
   The nonlinear transfer function resembles an exponentiation operation,
   in many cases with a linear segment near zero for mathematical stability;
-  the exponent is conventionally referred to as "`"gamma`".
+  the exponent is conventionally referred to as "`gamma`".
   The encoding reduces the required bandwidth by de-emphasising details
   that are hard for humans to perceive.
   Historical CRTs had a nonlinear response to (analog) input voltage,
