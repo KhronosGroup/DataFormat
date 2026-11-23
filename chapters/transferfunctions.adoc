@@ -1024,9 +1024,9 @@ E' = \textrm{OETF}(E) = \begin{cases}
 Note that these constants are the same as those used in the BT.2100-1
 version of the <<TRANSFER_HLG_OETF_NORM,normalized formulae>>.
 
-Since this ``unnormalized'' representation refers to a scale factor between
+Since this "`unnormalized`" representation refers to a scale factor between
 the scene light and the encoded nonlinear signal, there is no corresponding
-``unnormalized'' EOTF.
+"`unnormalized`" EOTF.
 
 [[TRANSFER_HLG_IOETF_UNNORM]]
 ==== Unnormalized HLG OETF^{nbsp}-1^

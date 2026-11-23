@@ -4912,7 +4912,7 @@ exponent, _NaN_ is instead represented by -0.0, which then
 does not have a distinct representation.
 These representations lack a way to encode an infinity.
 Examples are the "`<<exampledescriptor_e5m2fnuz,E5M2FNUZ>>`" and
-``<<exampledescriptor_e4m3fnuz,E4M3FNUZ>>`" 8-bit formats.
+"`<<exampledescriptor_e4m3fnuz,E4M3FNUZ>>`" 8-bit formats.
 
 If *_sampleUpper_* encodes the maximum representable exponent
 with a prefixing high bit, _NaN_ is instead encoded with a maximum
@@ -4990,7 +4990,7 @@ in APIs which generate these formats.
 [NOTE]
 ====
 One approach for converting a real number to a representation with no implicit
-``1`" bit is as follows: +
+"`1`" bit is as follows: +
  +
 First the value _V_ is clamped to the representable range.
 If the full range of the exponent bits _E_ are used to represent valid

@@ -90,7 +90,7 @@ simplifies cache design, reduces bandwidth and improves encoder throughput.
 
 [NOTE]
 ====
-ASTC has multiple types of ``mode'', which should not be conflated:
+ASTC has multiple types of "`mode`", which should not be conflated:
 
 * ASTC has three _operation modes_: sRGB (which is inherently LDR),
 linear LDR and HDR.

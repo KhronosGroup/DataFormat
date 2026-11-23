@@ -45,7 +45,7 @@ relying on similarities between nearby texel regions to describe
 * "`<<PVRTC,PVRTC>>`" describes several encoding schemes with two colors
   per block of 4{times}4 or 8{times}4 texels, interpolated between
   adjacent texel blocks, and means of modulating between them.
-* ``<<UASTC,UASTC>>'' describes a compressed format designed for
+* "`<<UASTC,UASTC>>`" describes a compressed format designed for
   efficient transcoding to ASTC, BC7 and other compressed formats.
 
 Example data format descriptors for compressed formats can

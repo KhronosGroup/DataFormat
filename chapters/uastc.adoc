@@ -39,7 +39,7 @@ ETC2 EAC A8.
 === Bitstream format
 
 Bits are described in order from the start of the block (the first
-byte's least-significant bit) working ``down'' towards bit 127.
+byte's least-significant bit) working "`down`" towards bit 127.
 Each block may contain the following fields, the exact layout of which
 depends on the _Mode Index_ value.
 
@@ -81,7 +81,7 @@ depends on the _Mode Index_ value.
   WEIGHTS1 is present only in dual-plane modes.
   Each array has 16 elements.
 
-NOTE: Just like BC7, the first weight index of each subset's ``anchor''
+NOTE: Just like BC7, the first weight index of each subset's "`anchor`"
 pixel always has a most-significant bit of 0, so these weights can be
 encoded with one fewer bit than the others.
 In dual-plane modes (which are always one subset), the first two weight
@@ -372,7 +372,7 @@ A summary of the bit allocations in each UASTC mode can be found in
 <<uastc-modesummary-1>> through <<uastc-modesummary-6>>.
 Most mode encodings are followed by weight values of an indicated number
 of bits per texel, the arrangement of which may depend on the _PAT_ field.
-Dual-plane modes are indicated by ``{times}2'' in the weight description.
+Dual-plane modes are indicated by "`{times}2`" in the weight description.
 Note that one bit per partition is reclaimed from the weights according
 to the _anchor_indices_.
 Any unassigned bits (following the weights, if present) are set to 0.
@@ -1626,7 +1626,7 @@ for (int p = 0; p < 2; p++)
 
 For most UASTC _Mode Indices_, weight indices can be copied to BC7 indices as-is.
 
-Implementations must respect ``anchor'' indices for multi-subset BC7 modes
+Implementations must respect "`anchor`" indices for multi-subset BC7 modes
 and swap low/high endpoint values and invert weight indices accordingly.
 
 Although UASTC _Mode Index_ 1 has only one subset, its BC7 counterpart (mode 3)
@@ -1699,7 +1699,7 @@ lookup table.
 
 * *UASTC to ETC2 _RGBA_ (ETC1 _RGB_ + ETC2 _Alpha_)*
 +
-NOTE: There are no hints for ETC2-only color modes (``T'', ``H'', or planar).
+NOTE: There are no hints for ETC2-only color modes ("`T`", "`H`", or planar).
 +
 NOTE: Transcoding non-solid UASTC _RGB_ data to ETC2/EAC R11 (or RG11) blocks
 requires full-block re-encoding.

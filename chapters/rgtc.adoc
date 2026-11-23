@@ -55,7 +55,7 @@ The data corresponding to a specific texel (_x_, _y_) are extracted from a
 ====
 There is an analysis of the precise conversions performed by a
 range of real-world GPU hardware in
-link:https://fgiesen.wordpress.com/2021/10/04/gpu-bcn-decoding/[Fabian ``ryg'' Giesen's blog].
+link:https://fgiesen.wordpress.com/2021/10/04/gpu-bcn-decoding/[Fabian "`ryg`" Giesen's blog].
 ====
 
 There are four distinct RGTC image formats described in the following

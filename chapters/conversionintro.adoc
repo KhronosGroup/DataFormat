@@ -380,7 +380,7 @@ As another example, the conversion from BT.709-encoded
 _Y{prime}C~B~C~R~_ to sRGB _R{prime}G{prime}B{prime}_ may be considered
 to be a simple <<MODEL_YUV,model conversion>> (to
 <<PRIMARIES_BT709,BT.709>> _R{prime}G{prime}B{prime}_ nonlinear primaries
-that are encoded representing the ``<<TRANSFER_ITU,ITU>>'' OETF), since sRGB
+that are encoded representing the "`<<TRANSFER_ITU,ITU>>`" OETF), since sRGB
 shares the BT.709 color primaries and is defined as a complementary
 <<TRANSFER_SRGB,EOTF>> intended to be combined with BT.709's OETF.
 This interpretation imposes a latexmath:[$\gamma \approx$] 1.1
@@ -468,7 +468,7 @@ In <<chromacheckeroriginal>>:
 
 To generate the remaining images, the _R{prime}G{prime}B{prime}_ pattern
 is converted to _Y{prime}C~B~C~R~_ with the chroma difference channels
-downsampled by 2 on each axis (that is, ``4:2:0'' downsampling) by averaging
+downsampled by 2 on each axis (that is, "`4:2:0`" downsampling) by averaging
 after the color model conversion (in this example, each quad of texels has
 the same color, so this averaging is trivial), resulting in 16{times}16
 _Y{prime}_ values and 8{times}8 _C~B~_ and _C~R~_ values.
@@ -523,7 +523,7 @@ In <<chromacheckerupscale>>:
 * The top-left image shows bilinear filtering for chroma reconstruction, using
   the explicit reconstruction used in <<conversionexample>>: chroma values are
   calculated at each 16{times}16 luma sample position by bilinear interpolation,
-  the resulting ``4:4:4'' values are converted to _R{prime}G{prime}B{prime}_, and
+  the resulting "`4:4:4`" values are converted to _R{prime}G{prime}B{prime}_, and
   these 16{times}16 color values are bilinearly interpolated (after conversion to
   linear _RGB_) to get a final color for each pixel.
   Since the chroma reconstruction is as shown for the linear example in
@@ -585,7 +585,7 @@ In <<rainbowwheeloriginal>>:
 
 To generate the remaining images, the _R{prime}G{prime}B{prime}_ pattern
 is converted to _Y{prime}C~B~C~R~_ with the chroma difference channels
-downsampled by 2 on each axis (that is, ``4:2:0'' downsampling) by averaging
+downsampled by 2 on each axis (that is, "`4:2:0`" downsampling) by averaging
 after the color model conversion, resulting in 24{times}24 _Y{prime}_ values
 and 12{times}12 _C~B~_ and _C~R~_ values.
 These chroma values are then reconstructed to the original resolution
@@ -632,7 +632,7 @@ In <<rainbowwheelupscale>>:
 * The top-left image shows bilinear filtering for chroma reconstruction, using
   the explicit reconstruction used in <<conversionexample>>: the chroma values
   are reconstructed at each of the 24{times}24 luma sample positions by bilinear
-  interpolation, the resulting ``4:4:4'' values are converted to
+  interpolation, the resulting "`4:4:4`" values are converted to
   _R{prime}G{prime}B{prime}_, and the resulting 24{times}24 color values are
   bilinearly interpolated (after conversion to linear _RGB_) to get a final color
   for each pixel.
@@ -704,7 +704,7 @@ In <<chromacheckeroriginal_cosited>>:
 
 To generate the remaining images, the _R{prime}G{prime}B{prime}_ pattern
 is converted to _Y{prime}C~B~C~R~_ with the chroma difference channels
-downsampled by 2 on each axis (that is, ``4:2:0'' downsampling) after the
+downsampled by 2 on each axis (that is, "`4:2:0`" downsampling) after the
 color model conversion by taking the top left texel chroma value of each
 2{times}2 quad, resulting in 16{times}16 _Y{prime}_ values and 8{times}8
 _C~B~_ and _C~R~_ values.
@@ -758,13 +758,13 @@ In <<chromacheckerupscale_cosited>>:
   the explicit reconstruction used in <<conversionexample>>: the chroma values
   for the top left of each quad in the 16{times}16 luma sample positions are
   used exactly and the remainder are reconstructed by bilinear interpolation,
-  as in <<chromacheckeroriginal_cosited>>, and the resulting ``4:4:4'' values
+  as in <<chromacheckeroriginal_cosited>>, and the resulting "`4:4:4`" values
   are converted to _R{prime}G{prime}B{prime}_; the resulting 16{times}16 color
   values are bilinearly interpolated (after conversion to linear _RGB_) to get
   a final color for each pixel.
   Since the chroma reconstruction is as shown for the linear example in
   <<chromacheckeroriginal_cosited>>, chroma is similarly shifted up and left
-  relative to the ``correct'' chroma position for this source image,
+  relative to the "`correct`" chroma position for this source image,
   and intermediate values are desaturated compared with the original; however
   the resulting filtering is consistent across the image.
 * The bottom-left image shows bilinear filtering of luma and chroma values by
@@ -824,7 +824,7 @@ In <<rainbowwheeloriginal_cosited>>:
 
 To generate the remaining images, the _R{prime}G{prime}B{prime}_ pattern
 is converted to _Y{prime}C~B~C~R~_ with the chroma difference channels
-downsampled by 2 on each axis (that is, ``4:2:0'' downsampling) after the
+downsampled by 2 on each axis (that is, "`4:2:0`" downsampling) after the
 color model conversion by taking the top left chroma value of each 2{times}2
 quad, resulting in 24{times}24 _Y{prime}_ values and 12{times}12 _C~B~_ and
 _C~R~_ values.
@@ -874,7 +874,7 @@ In <<rainbowwheelupscale_cosited>>:
 * The top-left image shows bilinear filtering for chroma reconstruction, using
   the explicit reconstruction used in <<conversionexample>>: the chroma values
   are reconstructed at each of the 24{times}24 luma sample positions by bilinear
-  interpolation as in <<rainbowwheeloriginal_cosited>>, the resulting ``4:4:4''
+  interpolation as in <<rainbowwheeloriginal_cosited>>, the resulting "`4:4:4`"
   values are converted to _R{prime}G{prime}B{prime}_, and the resulting
   24{times}24 color values are bilinearly interpolated (after conversion to linear
   _RGB_) to get a final color for each pixel.

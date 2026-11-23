@@ -276,7 +276,7 @@ image::{images}/PVRTC1_image_reconstruction_wrap.svg[width="{svgpdf@pdf:300pt:46
 ====
 
 In modern decoder implementations, if the texture width or height is a single
-texel block or smaller, both ``wrapped'' color reconstruction samples will come
+texel block or smaller, both "`wrapped`" color reconstruction samples will come
 from the same PVRTC word, much as in PVRTC2.
 For example an 8{times}4-texel image in PVRTC1 4bpp will be described by the color
 reconstruction samples in the first and third PVRTC words, with the second and

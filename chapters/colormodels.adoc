@@ -52,7 +52,7 @@ In the broadcast standards which define these models:
   <<TRANSFER_ITU>> for details of the transfer function typically used
   with Y{prime}C~B~C~R~.
 * _R{prime}G{prime}B{prime}_ is used to refer to the red, green and blue
-  reference values in ``gamma pre-corrected'' form, whereas _R_, _G_ and
+  reference values in "`gamma pre-corrected`" form, whereas _R_, _G_ and
   _B_ (without {prime} symbols) are represented linearly with respect to
   physical light intensity, as explained above.
 * IEEE standards <<bt601,BT.601>> and <<bt709,BT.709>> use a prefix of _E_

@@ -40,7 +40,7 @@ for bit depth _n_ = {8,{nbsp}10,{nbsp}12}:
 Note that these scale factors correspond to 1.0 being encoded as
 latexmath:[$235 \times 2^{n-8}$] (for _R{prime}_, _G{prime}_,
 _B{prime}_ and _Y{prime}_), not latexmath:[$235 \times \left(2^{n-8} - 1\right)$]
-as might be expected for ``normalized'' representations.
+as might be expected for "`normalized`" representations.
 
 The dequantization formulae are therefore:
 [latexmath]
@@ -158,7 +158,7 @@ latexmath:[128 \times 2^{n-8}]
 
 If, instead of the quantized values, the input is interpreted as fixed-point
 _n_-bit values in the range 0.0..1.0, as might be the case if the values were
-treated as unsigned ``normalized'' quantities in a computer graphics API, the
+treated as unsigned "`normalized`" quantities in a computer graphics API, the
 following conversions can be applied instead:
 
 [latexmath]
