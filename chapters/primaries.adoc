@@ -364,22 +364,6 @@ B_{709}\end{array}\right)
 
 The inverse transformation, from the _XYZ_ space to a color defined
 in terms of BT.709 color primaries, is:
-ifeval::["{svgpdf}"=="pdf"]
-[latexmath]
-++++
-\left(\begin{array}{c} R_{709} \\
-G_{709} \\
-B_{709}\end{array}\right) \approx
-\left(\begin{array}{r@{}lr@{}lr@{}l}
- 3.&240970, & -1.&537383, & -0.&498611 \\
--0.&969244, &  1.&875968, &  0.&041555 \\
- 0.&055630, & -0.&203977, &  1.&056972\end{array}\right)
-\left(\begin{array}{c}X \\
-Y \\
-Z\end{array}\right)
-++++
-endif::[]
-ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
 \left(\begin{array}{c} R_{709} \\
@@ -393,7 +377,6 @@ B_{709}\end{array}\right) \approx
 Y \\
 Z\end{array}\right)
 ++++
-endif::[]
 
 NOTE: <<scrgb,sYCC>> lists a slightly different version of this matrix,
 possibly due to rounding errors.
@@ -438,22 +421,6 @@ B_{601\textrm{EBU}}\end{array}\right)
 
 The inverse transformation, from the _XYZ_ space to a color defined
 in terms of BT.601 "`EBU`" 625-line color primaries, is:
-ifeval::["{svgpdf}"=="pdf"]
-[latexmath]
-++++
-\left(\begin{array}{c} R_{601\textrm{EBU}} \\
-G_{601\textrm{EBU}} \\
-B_{601\textrm{EBU}}\end{array}\right) \approx
-\left(\begin{array}{r@{}lr@{}lr@{}l}
- 3.&063361, & -1.&393390, & -0.&475824 \\
--0.&969244, &  1.&875968, &  0.&041555 \\
- 0.&067861, & -0.&228799, &  1.&069090\end{array}\right)
-\left(\begin{array}{c}X \\
-Y \\
-Z\end{array}\right)
-++++
-endif::[]
-ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
 \left(\begin{array}{c} R_{601\textrm{EBU}} \\
@@ -467,7 +434,6 @@ B_{601\textrm{EBU}}\end{array}\right) \approx
 Y \\
 Z\end{array}\right)
 ++++
-endif::[]
 
 [[PRIMARIES_BT601_SMPTE]]
 === BT.601 525-line color primaries
@@ -491,7 +457,6 @@ W_x &= 0.3127 & W_y &= 0.3290
 Therefore to convert from linear color values defined in terms of BT.601 color
 primaries for 525-line systems to _XYZ_ space the formulae in
 <<PRIMARY_CONVERSION>> result in the following matrix:
-ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
 ++++
 \left(\begin{array}{c}X \\
@@ -505,41 +470,9 @@ Z\end{array}\right) \approx
 G_{601\textrm{SMPTE}} \\
 B_{601\textrm{SMPTE}}\end{array}\right)
 ++++
-endif::[]
-ifeval::["{svgpdf}"=="svg"]
-[latexmath]
-++++
-\left(\begin{array}{c}X \\
-Y \\
-Z\end{array}\right) \approx
-\left(\begin{array}{ccc}
-0.393521, & 0.365258, & 0.191677 \\
-0.212376, & 0.701060, & 0.086564 \\
-0.018739, & 0.111934, & 0.958385\end{array}\right)
-\left(\begin{array}{c} R_{601\textrm{SMPTE}} \\
-G_{601\textrm{SMPTE}} \\
-B_{601\textrm{SMPTE}}\end{array}\right)
-++++
-endif::[]
 
 The inverse transformation, from the _XYZ_ space to a color defined
 in terms of BT.601 525-line color primaries, is:
-ifeval::["{svgpdf}"=="pdf"]
-[latexmath]
-++++
-\left(\begin{array}{c} R_{601\textrm{SMPTE}} \\
-G_{601\textrm{SMPTE}} \\
-B_{601\textrm{SMPTE}}\end{array}\right) \approx
-\left(\begin{array}{r@{}lr@{}lr@{}l}
- 3.506003, & -1.739791, & -0.544058 \\
--1.069048, &  1.977779, &  0.035171 \\
- 0.056307, & -0.196976, &  1.049952\end{array}\right)
-\left(\begin{array}{c}X \\
-Y \\
-Z\end{array}\right)
-++++
-endif::[]
-ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
 \left(\begin{array}{c} R_{601\textrm{SMPTE}} \\
@@ -553,7 +486,6 @@ B_{601\textrm{SMPTE}}\end{array}\right) \approx
 Y \\
 Z\end{array}\right)
 ++++
-endif::[]
 
 NOTE: <<bt1700,Analog 525-line PAL systems>> used a different white point,
 and therefore have a <<PRIMARIES_PAL525,different>> conversion matrix.
@@ -578,22 +510,6 @@ The same primaries are used for <<bt2100,BT.2100>> for HDR TV.
 Therefore to convert from linear color values defined in terms of BT.2020 color
 primaries to _XYZ_ space the formulae in <<PRIMARY_CONVERSION>> result
 in the following matrix:
-ifeval::["{svgpdf}"=="pdf"]
-[latexmath]
-++++
-\left(\begin{array}{c}X \\
-Y \\
-Z\end{array}\right) \approx
-\left(\begin{array}{r@{}lr@{}lr@{}l}
-0.&636958, & 0.&144617, & 0.&168881 \\
-0.&262700, & 0.&677998, & 0.&059302 \\
-0.&000000, & 0.&028073, & 1.&060985\end{array}\right)
-\left(\begin{array}{c} R_{2020} \\
-G_{2020} \\
-B_{2020}\end{array}\right)
-++++
-endif::[]
-ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
 \left(\begin{array}{c}X \\
@@ -607,26 +523,9 @@ Z\end{array}\right) \approx
 G_{2020} \\
 B_{2020}\end{array}\right)
 ++++
-endif::[]
 
 The inverse transformation, from the _XYZ_ space to a color
 defined in terms of BT.2020 color primaries, is:
-ifeval::["{svgpdf}"=="pdf"]
-[latexmath]
-++++
-\left(\begin{array}{c} R_{2020} \\
-G_{2020} \\
-B_{2020}\end{array}\right) \approx
-\left(\begin{array}{r@{}lr@{}lr@{}l}
- 1.&716651, & -0.&355671, & -0.&253366 \\
--0.&666684, &  1.&616481, &  0.&015769 \\
- 0.&017640, & -0.&042771, &  0.&942103\end{array}\right)
-\left(\begin{array}{c}X \\
-Y \\
-Z\end{array}\right)
-++++
-endif::[]
-ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
 \left(\begin{array}{c} R_{2020} \\
@@ -640,7 +539,6 @@ B_{2020}\end{array}\right) \approx
 Y \\
 Z\end{array}\right)
 ++++
-endif::[]
 
 <<<
 [[PRIMARIES_NTSC]]
@@ -674,22 +572,6 @@ point set to D-white at 9300K.
 Therefore to convert from linear color values defined in terms of NTSC 1953 color
 primaries to _XYZ_ space the formulae in <<PRIMARY_CONVERSION>> result
 in the following matrix:
-ifeval::["{svgpdf}"=="pdf"]
-[latexmath]
-++++
-\left(\begin{array}{c}X \\
-Y \\
-Z\end{array}\right) \approx
-\left(\begin{array}{r@{}lr@{}lr@{}l}
-0.&606993, & 0.&173449, & 0.&200571 \\
-0.&298967, & 0.&586421, & 0.&114612 \\
-0.&000000, & 0.&066076, & 1.&117469\end{array}\right)
-\left(\begin{array}{c} R_{\textrm{NTSC}} \\
-G_{\textrm{NTSC}} \\
-B_{\textrm{NTSC}}\end{array}\right)
-++++
-endif::[]
-ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
 \left(\begin{array}{c}X \\
@@ -703,26 +585,9 @@ Z\end{array}\right) \approx
 G_{\textrm{NTSC}} \\
 B_{\textrm{NTSC}}\end{array}\right)
 ++++
-endif::[]
 
 The inverse transformation, from the _XYZ_ space to a color
 defined in terms of NTSC 1953 color primaries, is:
-ifeval::["{svgpdf}"=="pdf"]
-[latexmath]
-++++
-\left(\begin{array}{c} R_{\textrm{NTSC}} \\
-G_{\textrm{NTSC}} \\
-B_{\textrm{NTSC}}\end{array}\right) \approx
-\left(\begin{array}{r@{}lr@{}lr@{}l}
- 1.&909675, & -0.&532365, & -0.&288161 \\
--0.&984965, &  1.&999777, & -0.&028317 \\
- 0.&058241, & -0.&118246, &  0.&896554\end{array}\right)
-\left(\begin{array}{c}X \\
-Y \\
-Z\end{array}\right)
-++++
-endif::[]
-ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
 \left(\begin{array}{c} R_{\textrm{NTSC}} \\
@@ -736,7 +601,6 @@ B_{\textrm{NTSC}}\end{array}\right) \approx
 Y \\
 Z\end{array}\right)
 ++++
-endif::[]
 
 [[PRIMARIES_PAL525]]
 === PAL 525-line analog color primaries
@@ -761,22 +625,6 @@ most modern standards.
 Therefore to convert from linear color values defined in terms of PAL 525-line color
 primaries to _XYZ_ space the formulae in <<PRIMARY_CONVERSION>> result
 in the following matrix:
-ifeval::["{svgpdf}"=="pdf"]
-[latexmath]
-++++
-\left(\begin{array}{c}X \\
-Y \\
-Z\end{array}\right) \approx
-\left(\begin{array}{r@{}lr@{}lr@{}l}
-0.&415394, & 0.&354637, & 0.&210677 \\
-0.&224181, & 0.&680675, & 0.&095145 \\
-0.&019781, & 0.&108679, & 1.&053387\end{array}\right)
-\left(\begin{array}{c} R_{\textrm{PAL525}} \\
-G_{\textrm{PAL525}} \\
-B_{\textrm{PAL525}}\end{array}\right)
-++++
-endif::[]
-ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
 \left(\begin{array}{c}X \\
@@ -790,26 +638,9 @@ Z\end{array}\right) \approx
 G_{\textrm{PAL525}} \\
 B_{\textrm{PAL525}}\end{array}\right)
 ++++
-endif::[]
 
 The inverse transformation, from the _XYZ_ space to a color
 defined in terms of PAL 525-line 1953 color primaries, is:
-ifeval::["{svgpdf}"=="pdf"]
-[latexmath]
-++++
-\left(\begin{array}{c} R_{\textrm{PAL525}} \\
-G_{\textrm{PAL525}} \\
-B_{\textrm{PAL525}}\end{array}\right) \approx
-\left(\begin{array}{r@{}lr@{}lr@{}l}
- 3.&321392, & -1.&648181, & -0.&515410 \\
--1.&101064, &  2.&037011, &  0.&036225 \\
- 0.&051228, & -0.&179211, &  0.&955260\end{array}\right)
-\left(\begin{array}{c}X \\
-Y \\
-Z\end{array}\right)
-++++
-endif::[]
-ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
 \left(\begin{array}{c} R_{\textrm{PAL525}} \\
@@ -823,7 +654,6 @@ B_{\textrm{PAL525}}\end{array}\right) \approx
 Y \\
 Z\end{array}\right)
 ++++
-endif::[]
 
 [[PRIMARIES_ACES]]
 === ACES color primaries
@@ -842,22 +672,6 @@ W_x &= 0.32168  & W_y &= 0.33767
 Therefore to convert from linear color values defined in terms of ACES color
 primaries to _XYZ_ space the formulae in <<PRIMARY_CONVERSION>> result
 in the following matrix:
-ifeval::["{svgpdf}"=="pdf"]
-[latexmath]
-++++
-\left(\begin{array}{c}X \\
-Y \\
-Z\end{array}\right) \approx
-\left(\begin{array}{r@{}lr@{}lr@{}l}
-0.&9525523959, & 0.&0,          &  0.&0000936786 \\
-0.&3439664498, & 0.&7281660966, & -0.&0721325464 \\
-0.&0,          & 0.&0,          &  1.&0088251844\end{array}\right)
-\left(\begin{array}{c} R_{\textrm{ACES}} \\
-G_{\textrm{ACES}} \\
-B_{\textrm{ACES}}\end{array}\right)
-++++
-endif::[]
-ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
 \left(\begin{array}{c}X \\
@@ -871,25 +685,8 @@ Z\end{array}\right) \approx
 G_{\textrm{ACES}} \\
 B_{\textrm{ACES}}\end{array}\right)
 ++++
-endif::[]
 The inverse transformation, from the _XYZ_ space to a color
 defined in terms of ACES color primaries, is:
-ifeval::["{svgpdf}"=="pdf"]
-[latexmath]
-++++
-\left(\begin{array}{c} R_{\textrm{ACES}} \\
-G_{\textrm{ACES}} \\
-B_{\textrm{ACES}}\end{array}\right) \approx
-\left(\begin{array}{r@{}lr@{}lr@{}l}
- 1.&0498110175, & 0.&0,          & -0.&0000974845 \\
--0.&4959030231, & 1.&3733130458, &  0.&0982400361 \\
- 0.&0,          & 0.&0,          &  0.&9912520182\end{array}\right)
-\left(\begin{array}{c}X \\
-Y \\
-Z\end{array}\right)
-++++
-endif::[]
-ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
 \left(\begin{array}{c} R_{\textrm{ACES}} \\
@@ -903,7 +700,6 @@ B_{\textrm{ACES}}\end{array}\right) \approx
 Y \\
 Z\end{array}\right)
 ++++
-endif::[]
 
 [[PRIMARIES_ACESCC]]
 === ACEScc color primaries
@@ -923,22 +719,6 @@ W_x &= 0.32168 & W_y &= 0.33767
 Therefore to convert from linear color values defined in terms of ACEScc/ACEScct
 color primaries to _XYZ_ space the formulae in <<PRIMARY_CONVERSION>>
 result in the following matrix:
-ifeval::["{svgpdf}"=="pdf"]
-[latexmath]
-++++
-\left(\begin{array}{c}X \\
-Y \\
-Z\end{array}\right) \approx
-\left(\begin{array}{r@{}lr@{}lr@{}l}
- 0.&6624541811, & 0.&1340042065, & 0.&1561876870 \\
- 0.&2722287168, & 0.&6740817658, & 0.&0536895174 \\
--0.&0055746495, & 0.&0040607335, & 1.&0103391003\end{array}\right)
-\left(\begin{array}{c} R_{\textrm{ACEScct}} \\
-G_{\textrm{ACEScct}} \\
-B_{\textrm{ACEScct}}\end{array}\right)
-++++
-endif::[]
-ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
 \left(\begin{array}{c}X \\
@@ -952,25 +732,8 @@ Z\end{array}\right) \approx
 G_{\textrm{ACEScct}} \\
 B_{\textrm{ACEScct}}\end{array}\right)
 ++++
-endif::[]
 The inverse transformation, from the _XYZ_ space to a color
 defined in terms of ACEScc/ACEScct color primaries, is:
-ifeval::["{svgpdf}"=="pdf"]
-[latexmath]
-++++
-\left(\begin{array}{c} R_{\textrm{ACEScc}} \\
-G_{\textrm{ACEScc}} \\
-B_{\textrm{ACEScc}}\end{array}\right) \approx
-\left(\begin{array}{r@{}lr@{}lr@{}l}
- 1.&6410233797, & -0.&3248032942, & -0.&2364246952 \\
--0.&6636628587, &  1.&6153315917, &  0.&0167563477 \\
- 0.&0117218943, & -0.&0082844420, &  0.&9883948585\end{array}\right)
-\left(\begin{array}{c}X \\
-Y \\
-Z\end{array}\right)
-++++
-endif::[]
-ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
 \left(\begin{array}{c} R_{\textrm{ACEScc}} \\
@@ -984,7 +747,6 @@ B_{\textrm{ACEScc}}\end{array}\right) \approx
 Y \\
 Z\end{array}\right)
 ++++
-endif::[]
 
 <<<
 [[PRIMARIES_DISPLAYP3]]
@@ -1010,22 +772,6 @@ _RGB_ color space, with a D65 white point.
 Therefore to convert from linear color values defined in terms of Display P3
 color primaries to _XYZ_ space the formulae in <<PRIMARY_CONVERSION>>
 result in the following matrix:
-ifeval::["{svgpdf}"=="pdf"]
-[latexmath]
-++++
-\left(\begin{array}{c}X \\
-Y \\
-Z\end{array}\right) \approx
-\left(\begin{array}{r@{}lr@{}lr@{}l}
-0.&4865709486, & 0.&2656676932, & 0.&1982172852 \\
-0.&2289745641, & 0.&6917385218, & 0.&0792869141 \\
-0.&0000000000, & 0.&0451133819, & 1.&0439443689\end{array}\right)
-\left(\begin{array}{c} R_{\textrm{DisplayP3}} \\
-G_{\textrm{DisplayP3}} \\
-B_{\textrm{DisplayP3}}\end{array}\right)
-++++
-endif::[]
-ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
 \left(\begin{array}{c}X \\
@@ -1039,25 +785,9 @@ Z\end{array}\right) \approx
 G_{\textrm{DisplayP3}} \\
 B_{\textrm{DisplayP3}}\end{array}\right)
 ++++
-endif::[]
 The inverse transformation, from the _XYZ_ space to a color
 defined in terms of DisplayP3 color primaries, is:
-ifeval::["{svgpdf}"=="pdf"]
 [latexmath]
-++++
-\left(\begin{array}{c} R_{\textrm{DisplayP3}} \\
-G_{\textrm{DisplayP3}} \\
-B_{\textrm{DisplayP3}}\end{array}\right) \approx
-\left(\begin{array}{r@{}lr@{}lr@{}l}
- 2.&4934969119, & -0.&9313836179, & -0.&4027107845 \\
--0.&8294889696, &  1.&7626640603, &  0.&0236246858 \\
- 0.&0358458302, & -0.&0761723893, &  0.&9568845240\end{array}\right)
-\left(\begin{array}{c}X \\
-Y \\
-Z\end{array}\right)
-++++
-endif::[]
-ifeval::["{svgpdf}"=="svg"]
 ++++
 \left(\begin{array}{c} R_{\textrm{DisplayP3}} \\
 G_{\textrm{DisplayP3}} \\
@@ -1070,7 +800,6 @@ B_{\textrm{DisplayP3}}\end{array}\right) \approx
 Y \\
 Z\end{array}\right)
 ++++
-endif::[]
 
 NOTE: These matrices differ from those given in <<dcip3,SMPTE EG 432-1>>
 due to the choice of a D65 white point in Display P3.
@@ -1111,22 +840,6 @@ B_{\textrm{AdobeRGB}}\end{array}\right)
 ++++
 The inverse transformation, from the _XYZ_ space to a color
 defined in terms of Adobe RGB (1998) color primaries, is:
-ifeval::["{svgpdf}"=="pdf"]
-[latexmath]
-++++
-\left(\begin{array}{c} R_{\textrm{AdobeRGB}} \\
-G_{\textrm{AdobeRGB}} \\
-B_{\textrm{AdobeRGB}}\end{array}\right) \approx
-\left(\begin{array}{r@{}lr@{}lr@{}l}
- 2.&0415879038, & -0.&5650069743, & -0.&3447313508 \\
--0.&9692436363, &  1.&8759675015, &  0.&0415550574 \\
- 0.&0134442806, & -0.&1183623922, &  1.&0151749944\end{array}\right)
-\left(\begin{array}{c}X \\
-Y \\
-Z\end{array}\right)
-++++
-endif::[]
-ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
 \left(\begin{array}{c} R_{\textrm{AdobeRGB}} \\
@@ -1140,7 +853,6 @@ B_{\textrm{AdobeRGB}}\end{array}\right) \approx
 Y \\
 Z\end{array}\right)
 ++++
-endif::[]
 
 Adobe RGB (1998) defines a reference display white brightness of 160cd/m^2^ and
 a black point 0.34731% of this brightness, or 0.5557cd/m^2^, for a contrast
@@ -1155,26 +867,6 @@ Conversion from <<bt709,BT.709>> to <<bt601,BT.601>> 625-line primaries can
 be performed using the matrices in <<PRIMARIES_BT709>> and <<PRIMARIES_BT601_EBU>>
 as follows:
 
-ifeval::["{svgpdf}"=="pdf"]
-[latexmath]
-++++
-\left(\begin{array}{c} R_{601\textrm{EBU}} \\
-G_{601\textrm{EBU}} \\
-B_{601\textrm{EBU}}\end{array}\right) \approx
-\left(\begin{array}{r@{}lr@{}lr@{}l}
- 3.&063361, & -1.&393390, & -0.&475824 \\
--0.&969244, &  1.&875968, &  0.&041555 \\
- 0.&067861, & -0.&228799, &  1.&069090\end{array}\right)
-\left(\begin{array}{ccc}
-0.412391, & 0.357584, & 0.180481 \\
-0.212639, & 0.715169, & 0.072192 \\
-0.019331, & 0.119195, & 0.950532\end{array}\right)
-\left(\begin{array}{c} R_{709} \\
-G_{709} \\
-B_{709}\end{array}\right)
-++++
-endif::[]
-ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
 \left(\begin{array}{c} R_{601\textrm{EBU}} \\
@@ -1192,24 +884,7 @@ B_{601\textrm{EBU}}\end{array}\right) \approx
 G_{709} \\
 B_{709}\end{array}\right)
 ++++
-endif::[]
 
-ifeval::["{svgpdf}"=="pdf"]
-[latexmath]
-++++
-\left(\begin{array}{c} R_{601\textrm{EBU}} \\
-G_{601\textrm{EBU}} \\
-B_{601\textrm{EBU}}\end{array}\right) \approx
-\left(\begin{array}{r@{}lr@{}lr@{}l}
-0.&957815, &  0.&042184, & 0.&0 \\
-0.&0,      &  1.&0,      & 0.&0 \\
-0.&0,      & -0.&011934, & 1.&011934\end{array}\right)
-\left(\begin{array}{c} R_{709} \\
-G_{709} \\
-B_{709}\end{array}\right)
-++++
-endif::[]
-ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
 \left(\begin{array}{c} R_{601\textrm{EBU}} \\
@@ -1223,31 +898,10 @@ B_{601\textrm{EBU}}\end{array}\right) \approx
 G_{709} \\
 B_{709}\end{array}\right)
 ++++
-endif::[]
 
 Conversion from BT.601 625-line to BT.709 primaries can be performed
 using these matrices:
 
-ifeval::["{svgpdf}"=="pdf"]
-[latexmath]
-++++
-\left(\begin{array}{c} R_{709} \\
-G_{709} \\
-B_{709}\end{array}\right) \approx
-\left(\begin{array}{r@{}lr@{}lr@{}l}
- 3.&240970, & -1.&537383, & -0.&498611 \\
--0.&969244, &  1.&875968, &  0.&041555 \\
- 0.&055630, & -0.&203977, &  1.&056972\end{array}\right)
-\left(\begin{array}{ccc}
-0.430554, & 0.341550, & 0.178352 \\
-0.222004, & 0.706655, & 0.071341 \\
-0.020182, & 0.129553, & 0.939322\end{array}\right)
-\left(\begin{array}{c} R_{601\textrm{EBU}} \\
-G_{601\textrm{EBU}} \\
-B_{601\textrm{EBU}}\end{array}\right)
-++++
-endif::[]
-ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
 \left(\begin{array}{c} R_{709} \\
@@ -1265,24 +919,7 @@ B_{709}\end{array}\right) \approx
 G_{601\textrm{EBU}} \\
 B_{601\textrm{EBU}}\end{array}\right)
 ++++
-endif::[]
 
-ifeval::["{svgpdf}"=="pdf"]
-[latexmath]
-++++
-\left(\begin{array}{c} R_{709} \\
-G_{709} \\
-B_{709}\end{array}\right) \approx
-\left(\begin{array}{r@{}lr@{}lr@{}l}
-1.&044044, & -0.&044043, & 0.&0 \\
-0.&0,      &  1.&0,      & 0.&0 \\
-0.&0,      &  0.&011793, & 0.&988207\end{array}\right)
-\left(\begin{array}{c} R_{601\textrm{EBU}} \\
-G_{601\textrm{EBU}} \\
-B_{601\textrm{EBU}}\end{array}\right)
-++++
-endif::[]
-ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
 \left(\begin{array}{c} R_{709} \\
@@ -1296,7 +933,6 @@ B_{709}\end{array}\right) \approx
 G_{601\textrm{EBU}} \\
 B_{601\textrm{EBU}}\end{array}\right)
 ++++
-endif::[]
 
 === BT.709/BT.2020 primary conversion example
 
@@ -1304,26 +940,6 @@ Conversion from <<bt709,BT.709>> to <<bt2020,BT.2020>> primaries can
 be performed using the matrices in <<PRIMARIES_BT2020>> and <<PRIMARIES_BT709>>
 as follows:
 
-ifeval::["{svgpdf}"=="pdf"]
-[latexmath]
-++++
-\left(\begin{array}{c} R_{2020} \\
-G_{2020} \\
-B_{2020}\end{array}\right) \approx
-\left(\begin{array}{r@{}lr@{}lr@{}l}
- 1.&716651, & -0.&355671, & -0.&253366 \\
--0.&666684, &  1.&616481, &  0.&015769 \\
- 0.&017640, & -0.&042771, &  0.&942103\end{array}\right)
-\left(\begin{array}{ccc}
-0.412391, & 0.357584, & 0.180481 \\
-0.212639, & 0.715169, & 0.072192 \\
-0.019331, & 0.119195, & 0.950532\end{array}\right)
-\left(\begin{array}{c} R_{709} \\
-G_{709} \\
-B_{709}\end{array}\right)
-++++
-endif::[]
-ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
 \left(\begin{array}{c} R_{2020} \\
@@ -1341,7 +957,6 @@ B_{2020}\end{array}\right) \approx
 G_{709} \\
 B_{709}\end{array}\right)
 ++++
-endif::[]
 
 [latexmath]
 ++++
@@ -1360,26 +975,6 @@ B_{709}\end{array}\right)
 Conversion from BT.2020 primaries to BT.709 primaries can be
 performed with the following matrices:
 
-ifeval::["{svgpdf}"=="pdf"]
-[latexmath]
-++++
-\left(\begin{array}{c} R_{709} \\
-G_{709} \\
-B_{709}\end{array}\right) \approx
-\left(\begin{array}{r@{}lr@{}lr@{}l}
- 3.&240970, & -1.&537383, & -0.&498611 \\
--0.&969244, &  1.&875968, &  0.&041555 \\
- 0.&055630, & -0.&203977, &  1.&056972\end{array}\right)
-\left(\begin{array}{r@{}lr@{}lr@{}l}
-0.&636958, & 0.&144617, & 0.&168881 \\
-0.&262700, & 0.&677998, & 0.&059302 \\
-0.&000000, & 0.&028073, & 1.&060985\end{array}\right)
-\left(\begin{array}{c} R_{2020} \\
-G_{2020} \\
-B_{2020}\end{array}\right)
-++++
-endif::[]
-ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
 \left(\begin{array}{c} R_{709} \\
@@ -1397,25 +992,7 @@ B_{709}\end{array}\right) \approx
 G_{2020} \\
 B_{2020}\end{array}\right)
 ++++
-endif::[]
 
-ifeval::["{svgpdf}"=="pdf"]
-[latexmath]
-++++
-\left(\begin{array}{c} R_{709} \\
-G_{709} \\
-B_{709}\end{array}\right) \approx
-\left(\begin{array}{r@{}lr@{}lr@{}l}
- 1.&660491, & -0.&587641, & -0.&072850 \\
--0.&124551, &  1.&132900, & -0.&008349 \\
--0.&018151, & -0.&100579, &  1.&118730
-\end{array}\right)
-\left(\begin{array}{c} R_{2020} \\
-G_{2020} \\
-B_{2020}\end{array}\right)
-++++
-endif::[]
-ifeval::["{svgpdf}"=="svg"]
 [latexmath]
 ++++
 \left(\begin{array}{c} R_{709} \\
@@ -1430,4 +1007,3 @@ B_{709}\end{array}\right) \approx
 G_{2020} \\
 B_{2020}\end{array}\right)
 ++++
-endif::[]
