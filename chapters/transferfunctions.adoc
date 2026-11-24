@@ -25,7 +25,7 @@ represent darker intensities than their fraction of the representation
 of white would suggest.
 
 .Conversion curves between linear light and encoded values (sRGB example)
-image::{images}/tf_curves.svg[width="{svgpdf@pdf:350pt:576}",align="center"]
+image::{images}/tf_curves.svg[width="576",pdfwidth="350pt",align="center"]
 
 The behavior has historically been approximated by a power function
 with an exponent conventionally called latexmath:[\gamma]: +
@@ -63,7 +63,7 @@ approximating the behavior of a CRT with uncorrected signals.
 The background represents 50% gray.
 
 .Averaging checker values with different transfer functions
-image::{images}/tf_sampling.svg[width="{svgpdf@pdf:210pt:576}",align="center"]
+image::{images}/tf_sampling.svg[width="576",pdfwidth="210pt",align="center"]
 
  * *In row 1* black (0.0) and white (1.0) texels are averaged to calculate
    a 0.5 value in the frame buffer.
@@ -104,18 +104,18 @@ Incorrectly-applied transfer functions can also introduce color shifts,
 as demonstrated by the saturation change in the following examples:
 
 ._R_, _G_, _B_ channels and combined color gradient with linear light intensity in each channel
-image::{images}/tf_colorshift_intensitylinearvalues.png[width="{svgpdf@pdf:150pt:256}",align="center"]
+image::{images}/tf_colorshift_intensitylinearvalues.png[width="256",pdfwidth="150pt",align="center"]
 
 
 ._R{prime}_, _G{prime}_, _B{prime}_ channels and combined color gradient with nonlinear sRGB encoding in each channel
-image::{images}/tf_colorshift_srgblinearvalues.png[width="{svgpdf@pdf:150pt:256}",align="center"]
+image::{images}/tf_colorshift_srgblinearvalues.png[width="256",pdfwidth="150pt",align="center"]
 
 <<<
 A standard for image representation typically defines one or both of
 two types of transfer functions:
 
 .Opto-electronics and electro-optical transfer functions
-image::{images}/tf_scene_store_display.svg[width="{svgpdf@pdf:450pt:800}",align="center"]
+image::{images}/tf_scene_store_display.svg[width="800",pdfwidth="450pt",align="center"]
 
  * An opto-electronic transfer function (OETF) defines the conversion
    between a normalized linear light intensity as recorded in the scene,
@@ -183,7 +183,7 @@ Adaptation to the surround means that the top left and lower right images
 look similar.
 
 .Simultaneous contrast
-image::{images}/tf_surround_luminance.svg[width="{svgpdf@pdf:450pt:800}",align="center"]
+image::{images}/tf_surround_luminance.svg[width="800",pdfwidth="450pt",align="center"]
 
 In the context of a nonlinear OOTF, an application should be aware of whether
 operations on the image are intended to reflect the representation of colors in
@@ -333,7 +333,7 @@ quantized to 8 bits is 15, mostly due to the sharp vertical gradient
 near 0.
 
 .ITU OETF (red) vs pure gamma ^1^/~2~ (blue)
-image::{images}/tf_ituvsgamma2_0.svg[width="{svgpdf@pdf:160pt:300}",align="center"]
+image::{images}/tf_ituvsgamma2_0.svg[width="300",pdfwidth="160pt",align="center"]
 
 [NOTE]
 ====
@@ -352,7 +352,7 @@ with latexmath:[\gamma={1\over{2.2}}] (in blue).
 The difference between the curves is shown in black.
 
 .ITU OETF (red) vs pure gamma ^1^/~2.2~ (blue)
-image::{images}/tf_ituvsgamma2_2.svg[width="{svgpdf@pdf:160pt:300}",align="center"]
+image::{images}/tf_ituvsgamma2_2.svg[width="300",pdfwidth="160pt",align="center"]
 ====
 
 ==== Derivation of the ITU alpha and beta constants (informative)
@@ -503,7 +503,7 @@ The largest nonlinear difference at the same linear value when
 quantized to 8 bits is 3.
 
 .sRGB EOTF (red) vs pure gamma 2.2 (blue)
-image::{images}/tf_srgbvsgamma.svg[width="{svgpdf@pdf:160pt:300}",align="center"]
+image::{images}/tf_srgbvsgamma.svg[width="300",pdfwidth="160pt",align="center"]
 
 NOTE: The sRGB standard assumes a quantization scheme in which
 0.0 is represented by the value 0 and 1.0 is represented by 255.
@@ -523,7 +523,7 @@ latexmath:[\gamma=2.0], also shown in green is the resulting OOTF corresponding 
 power function with latexmath:[\gamma={2.2\over{2.0}}=1.1].
 
 .sRGB EOTF (red) and ITU OETF (blue)
-image::{images}/tf_ituvssrgb256.svg[width="{svgpdf@pdf:160pt:300}",align="center"]
+image::{images}/tf_ituvssrgb256.svg[width="300",pdfwidth="160pt",align="center"]
 
 <<<
 [[TRANSFER_SCRGB_EOTF]]
@@ -876,7 +876,7 @@ function with latexmath:[\gamma=2.0], also shown in green is the resulting OOTF
 corresponding to a power function with latexmath:[\gamma={2.4\over{2.0}}=1.2].
 
 .BT.1886 EOTF (red) and BT.709 OETF (blue)
-image::{images}/tf_ituvsgamma256.svg[width="{svgpdf@pdf:160pt:300}",align="center"]
+image::{images}/tf_ituvsgamma256.svg[width="300",pdfwidth="160pt",align="center"]
 
 [NOTE]
 ====
@@ -1162,7 +1162,7 @@ latexmath:[\textrm{OETF}(E) = E' \approx 0.5], with a smooth
 curve up to the maximum HLG representable scene light value of "`12`":
 
 .HLG OETF (red) vs ITU OETF/2 (blue)
-image::{images}/tf_hlg.svg[width="{svgpdf@pdf:200pt:300}",align="center"]
+image::{images}/tf_hlg.svg[width="300",pdfwidth="200pt",align="center"]
 ====
 
 <<<
@@ -1380,7 +1380,7 @@ Linear scene light/nonlinear encoded EOTF input are on the x axis,
 with linear display output/nonlinear OETF output on y.
 
 .HLG normalized OETF (blue) and EOTF (red)
-image::images/tf_hlgeotfoetf.svg[width="{svgpdf@pdf:160pt:300}",align="center"]
+image::images/tf_hlgeotfoetf.svg[width="300",pdfwidth="160pt",align="center"]
 
 <<<
 [[TRANSFER_PQ]]
@@ -1578,7 +1578,7 @@ the OETF are on the vertical axis.
 All values have been normalized to the range 0..1 for comparison.
 
 .PQ EOTF (red) and OETF (blue), normalized 0..1
-image::images/tf_hlgeotfoetf.svg[width="{svgpdf@pdf:160pt:300}",align="center"]
+image::images/tf_hlgeotfoetf.svg[width="300",pdfwidth="160pt",align="center"]
 
 <<<
 [[TRANSFER_DCIP3]]

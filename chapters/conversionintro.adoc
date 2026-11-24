@@ -140,7 +140,7 @@ sample position in a different color space:
 
 [[conversionexample]]
 .Example sampling in one space and converting to a different space
-image::{images}/colorconversion_accurate.svg[width="{svgpdf@pdf:475pt:576}",align="center"]
+image::{images}/colorconversion_accurate.svg[width="576",pdfwidth="475pt",align="center"]
 
 In this diagram, nonlinear luma _Y{prime}_ channels are shown
 in black and white, color difference _C~B~_/_C~R~_
@@ -301,7 +301,7 @@ depicted in <<approximateconversionexample>>:
 
 [[approximateconversionexample]]
 .Example approximated sampling in one space and converting to a different space
-image::{images}/colorconversion_approximate.svg[width="{svgpdf@pdf:475pt:576}",align="center"]
+image::{images}/colorconversion_approximate.svg[width="576",pdfwidth="475pt",align="center"]
 
 A performance-optimized approximation to our example conversion may
 use the following steps:
@@ -459,7 +459,7 @@ in chroma coordinates.
 
 [[chromacheckeroriginal]]
 .A colored checker pattern reconstructed at its original size
-image::{images}/cb16all.svg[width="{svgpdf@pdf:475pt:576}",align="center"]
+image::{images}/cb16all.svg[width="576",pdfwidth="475pt",align="center"]
 
 In <<chromacheckeroriginal>>:
 
@@ -513,7 +513,7 @@ The next example shows the result of scaling this 16{times}16 image to
 
 [[chromacheckerupscale]]
 .A colored checker pattern upscaled from 16{times}16 to 21{times}21
-image::{images}/cb21all.svg[width="{svgpdf@pdf:475pt:576}",align="center"]
+image::{images}/cb21all.svg[width="576",pdfwidth="475pt",align="center"]
 
 In <<chromacheckerupscale>>:
 
@@ -575,7 +575,7 @@ with varying spatial frequency.
 
 [[rainbowwheeloriginal]]
 .A radial rainbow pattern reconstructed at its original size
-image::{images}/all_glory_to_the_hypnotoad_24.svg[width="{svgpdf@pdf:475pt:576}",align="center"]
+image::{images}/all_glory_to_the_hypnotoad_24.svg[width="576",pdfwidth="475pt",align="center"]
 
 In <<rainbowwheeloriginal>>:
 
@@ -622,7 +622,7 @@ pixels.
 
 [[rainbowwheelupscale]]
 .A radial rainbow pattern upscaled from 24{times}24 to 30{times}30
-image::{images}/all_glory_to_the_hypnotoad_30.svg[width="{svgpdf@pdf:475pt:576}",align="center"]
+image::{images}/all_glory_to_the_hypnotoad_30.svg[width="576",pdfwidth="475pt",align="center"]
 
 In <<rainbowwheelupscale>>:
 
@@ -695,7 +695,7 @@ luma in one axis, but falls at the midpoint of luma values in the other.
 
 [[chromacheckeroriginal_cosited]]
 .A cosited colored checker pattern reconstructed at its original size
-image::{images}/cb16all_cosited.svg[width="{svgpdf@pdf:475pt:576}",align="center"]
+image::{images}/cb16all_cosited.svg[width="576",pdfwidth="475pt",align="center"]
 
 In <<chromacheckeroriginal_cosited>>:
 
@@ -747,7 +747,7 @@ The next example shows the result of scaling this 16{times}16 image to
 
 [[chromacheckerupscale_cosited]]
 .A cosited colored checker pattern upscaled from 16{times}16 to 21{times}21
-image::{images}/cb21all_cosited.svg[width="{svgpdf@pdf:475pt:576}",align="center"]
+image::{images}/cb21all_cosited.svg[width="576",pdfwidth="475pt",align="center"]
 
 In <<chromacheckerupscale_cosited>>:
 
@@ -814,7 +814,7 @@ samples are cosited with even luma coordinates.
 
 [[rainbowwheeloriginal_cosited]]
 .A cosited radial rainbow pattern reconstructed at its original size
-image::{images}/all_glory_to_the_hypnotoad_24_cosited.svg[width="{svgpdf@pdf:475pt:576}",align="center"]
+image::{images}/all_glory_to_the_hypnotoad_24_cosited.svg[width="576",pdfwidth="475pt",align="center"]
 
 In <<rainbowwheeloriginal_cosited>>:
 
@@ -864,7 +864,7 @@ pixels.
 
 [[rainbowwheelupscale_cosited]]
 .A cosited radial rainbow pattern upscaled from 24{times}24 to 30{times}30
-image::{images}/all_glory_to_the_hypnotoad_30_cosited.svg[width="{svgpdf@pdf:475pt:576}",align="center"]
+image::{images}/all_glory_to_the_hypnotoad_30_cosited.svg[width="576",pdfwidth="475pt",align="center"]
 
 In <<rainbowwheelupscale_cosited>>:
 
