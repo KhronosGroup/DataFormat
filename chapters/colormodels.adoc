@@ -284,7 +284,7 @@ C'_R & = {(R' - Y')\over{1.5748}} \\
 Alternatively:
 [latexmath]
 ++++
-\left(\begin{array}{c}Y' \\
+  \left(\begin{array}{c}Y' \\
   C'_B \\
   C'_R\end{array}\right) =
   \left(\begin{array}{ccc}0.2126, & 0.7152, & 0.0722 \\
@@ -304,7 +304,7 @@ Alternatively:
 For the inverse conversion:
 [latexmath]
 ++++
-\left(\begin{array}{c}R'\\
+  \left(\begin{array}{c}R'\\
   G'\\
   B'\end{array}\right) =
   \left(\begin{array}{ccc}1, & 0, & 1.5748\\
@@ -342,7 +342,7 @@ C'_R & = {(R' - Y')\over{1.402}} \\
 Alternatively:
 [latexmath]
 ++++
-\left(\begin{array}{c}Y' \\
+  \left(\begin{array}{c}Y' \\
   C'_B \\
   C'_R\end{array}\right) =
   \left(\begin{array}{ccc}0.299, & 0.587, & 0.114 \\
@@ -362,7 +362,7 @@ Alternatively:
 For the inverse conversion:
 [latexmath]
 ++++
-\left(\begin{array}{c}R'\\
+  \left(\begin{array}{c}R'\\
   G'\\
   B'\end{array}\right) =
   \left(\begin{array}{ccc}1, & 0, & 1.402\\
@@ -401,7 +401,7 @@ C'_R & = {(R' - Y')\over{1.4746}} \\
 Alternatively:
 [latexmath]
 ++++
-\left(\begin{array}{c}Y' \\
+  \left(\begin{array}{c}Y' \\
   C'_B \\
   C'_R\end{array}\right) =
   \left(\begin{array}{ccc}0.2627, & 0.6780, & 0.0593 \\
@@ -421,7 +421,7 @@ Alternatively:
 For the inverse conversion:
 [latexmath]
 ++++
-\left(\begin{array}{c}R'\\
+  \left(\begin{array}{c}R'\\
   G'\\
   B'\end{array}\right) =
   \left(\begin{array}{ccc}1, & 0, & 1.4746\\
@@ -458,7 +458,7 @@ C'_R & = {(R' - Y')\over{1.576}} \\
 Alternatively:
 [latexmath]
 ++++
-\left(\begin{array}{c}Y' \\
+  \left(\begin{array}{c}Y' \\
   C'_B \\
   C'_R\end{array}\right) =
   \left(\begin{array}{ccc}0.212, & 0.701, & 0.087 \\
@@ -478,7 +478,7 @@ Alternatively:
 For the inverse conversion:
 [latexmath]
 ++++
-\left(\begin{array}{c}R'\\
+  \left(\begin{array}{c}R'\\
   G'\\
   B'\end{array}\right) =
   \left(\begin{array}{ccc}1, & 0, & 1.576\\
@@ -588,7 +588,7 @@ To invert this, it can be observed that:
 
 [latexmath]
 ++++
-\left(\begin{array}{c}L' \\
+  \left(\begin{array}{c}L' \\
   M' \\
   S' \end{array}\right) =
   4096\times
@@ -598,7 +598,7 @@ To invert this, it can be observed that:
   \left(\begin{array}{c}I\\
   C_T\\
   C_P\end{array}\right)
-\left(\begin{array}{c}L' \\
+  \left(\begin{array}{c}L' \\
   M' \\
   S' \end{array}\right) =
   \left(\begin{array}{rrr}1, & 1112064/129174029, & 14342144/129174029 \\
@@ -607,7 +607,7 @@ To invert this, it can be observed that:
   \left(\begin{array}{c}I\\
   C_T\\
   C_P\end{array}\right)
-\left(\begin{array}{c}L' \\
+  \left(\begin{array}{c}L' \\
   M' \\
   S' \end{array}\right) \approx
   \left(\begin{array}{rrr}1, & 0.0086090370, & 0.1110296250 \\
@@ -616,9 +616,9 @@ To invert this, it can be observed that:
   \left(\begin{array}{c}I\\
   C_T\\
   C_P\end{array}\right)
-\{L_D,M_D,S_D\} = \textrm{EOTF}_{\textrm{PQ}}(\{L',M',S'\})
-\{L_S,M_S,S_S\} = \textrm{OETF}_{\textrm{HLG}}^{-1}(\{L',M',S'\})
-\left(\begin{array}{c}R \\
+  \{L_D,M_D,S_D\} = \textrm{EOTF}_{\textrm{PQ}}(\{L',M',S'\})
+  \{L_S,M_S,S_S\} = \textrm{OETF}_{\textrm{HLG}}^{-1}(\{L',M',S'\})
+  \left(\begin{array}{c}R \\
   G \\
   B\end{array}\right) =
   4096\times
@@ -628,7 +628,7 @@ To invert this, it can be observed that:
   \left(\begin{array}{c}L\\
   M\\
   S\end{array}\right)
-\left(\begin{array}{c}R \\
+  \left(\begin{array}{c}R \\
   G \\
   B \end{array}\right) = {4096\over 12801351680}\times
   \left(\begin{array}{rrr}10740530, & -7833490, & 218290 \\
@@ -637,7 +637,7 @@ To invert this, it can be observed that:
   \left(\begin{array}{c}L\\
   M\\
   S\end{array}\right)
-\left(\begin{array}{c}R \\
+  \left(\begin{array}{c}R \\
   G \\
   B \end{array}\right) \approx
   \left(\begin{array}{rrr}3.4366066943, & -2.5064521187, & 0.0698454243 \\

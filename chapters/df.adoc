@@ -5651,7 +5651,12 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 |====
 
 [[exampledescriptor_1bpp]]
+ifdef::backend-html5[]
+.A single 1-bit monochrome channel, as an 8×1 texel block to allow byte-alignment
+endif::[]
+ifndef::backend-html5[]
 .A single 1-bit monochrome channel, as an 8×1 texel block to allow byte-alignment, part 1 of 2
+endif::[]
 [.exampledfd,width="97%"]
 |====
 32+^| *~++uint32_t++ bit~*
@@ -5676,6 +5681,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 8+^| 0 8+^| 0 8+^| 0 8+^| 0x20
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 1
+ifndef::backend-html5[]
 |====
 
 <<<
@@ -5685,6 +5691,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 |====
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
+endif::[]
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information for the third sample~
 ^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 0 (= "`1`") 16+^| *_bitOffset:_* 2
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
@@ -6049,7 +6056,12 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 32+^| *_sampleUpper:_* 3
 |====
 
+ifdef::backend-html5[]
+.V210 format (full-range _Y{prime}C~B~C~R~_)
+endif::[]
+ifndef::backend-html5[]
 .V210 format (full-range _Y{prime}C~B~C~R~_) part 1 of 2
+endif::[]
 [.exampledfd,width="97%"]
 |====
 32+^| *~++uint32_t++ bit~*
@@ -6092,6 +6104,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 8+^| 0 8+^| 0 8+^| 0 8+^| 0x50 (_x_ = "`2.5`")
 32+^| *_sampleLower:_* 0
 32+^| *_sampleUpper:_* 1023
+ifndef::backend-html5[]
 |====
 
 .V210 format (full-range _Y{prime}C~B~C~R~_) part 2 of 2
@@ -6099,6 +6112,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 |====
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
+endif::[]
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sixth sample: _Y{prime}2_~
 ^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 9 (= "`10`") 16+^| *_bitOffset:_* 52
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
