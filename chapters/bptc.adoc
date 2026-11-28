@@ -81,9 +81,9 @@ the lowest bits of the lowest byte. It is encoded as zero or more zeros
 followed by a one. For example, using `x' to indicate a bit not included in
 the mode number, mode 0 is encoded as xxxxxxx1 in the low byte in binary,
 mode 5 is xx100000, and mode 7 is 10000000. Encoding the low byte as zero is
-reserved and should not be used when encoding a BPTC texture; hardware
+reserved and should not be used when encoding a BC7 texture. Hardware
 decoders processing a texel block with a low byte of 0 should return 0 for
-all channels of all texels.
+all channels of all texels, but may return 1.0 in the _A_ channel.
 
 All further decoding is driven by the values derived from the mode listed in
 <<table-bptcmodes>> and <<table-bptcmodedescriptions>>.
@@ -100,25 +100,35 @@ Per texel block, _CB_ = 3(each of _R_, _G_,
 _B_){times}2(endpoints){times}NS(#subsets){times}CB(bits/channel/endpoint).
 
 _AB_ = 2(endpoints){times}NS(#subsets){times}AB(bits/endpoint).
+
 {_IB_,_IB~2~_} = 16(texels){times}{IB,IB~2~}(#index bits/texel)
 - NS(1bit/subset).
 ====
 
-//@ [[table-bptcmodes]]
-//@ .Mode-dependent BPTC parameters
-//@ [width="97%",cols="7%,4%,4%,4%,4%,9%,9%,11%,9%,5%,4%,1%,3%,4%,4%,5%,5%,4%,4%"]
-//@ |====
-//@ ^| *Mode* ^| *NS* ^| *PB* ^| *RB* ^| *ISB* ^| *CB* ^| *AB* ^| *EPB* ^| *SPB* ^| *IB* ^| *IB~2~* 1.10+^| ^| *M* ^| *_CB_* ^| *_AB_* ^| *_EPB_* ^| *_SPB_* ^| *_IB_* ^| *_IB~2~_*
-//@ 2+^| *Bits per...* 3+^| ...texel block 2+^| ...channel/endpoint ^| ...endpoint ^| ...subset 2+^| ...texel 7+^| Bits per texel block (total)
-//@ ^| *0* ^| 3 ^| 4 ^| 0 ^| 0 ^| 4 ^| 0 ^| 1 ^| 0 ^| 3 ^| 0 ^| 1 ^| 72 ^| 0  ^| 6 ^| 0 ^| 45 ^| 0
-//@ ^| *1* ^| 2 ^| 6 ^| 0 ^| 0 ^| 6 ^| 0 ^| 0 ^| 1 ^| 3 ^| 0 ^| 2 ^| 72 ^| 0  ^| 0 ^| 2 ^| 46 ^| 0
-//@ ^| *2* ^| 3 ^| 6 ^| 0 ^| 0 ^| 5 ^| 0 ^| 0 ^| 0 ^| 2 ^| 0 ^| 3 ^| 90 ^| 0  ^| 0 ^| 0 ^| 29 ^| 0
-//@ ^| *3* ^| 2 ^| 6 ^| 0 ^| 0 ^| 7 ^| 0 ^| 1 ^| 0 ^| 2 ^| 0 ^| 4 ^| 84 ^| 0  ^| 4 ^| 0 ^| 30 ^| 0
-//@ ^| *4* ^| 1 ^| 0 ^| 2 ^| 1 ^| 5 ^| 6 ^| 0 ^| 0 ^| 2 ^| 3 ^| 5 ^| 30 ^| 12 ^| 0 ^| 0 ^| 31 ^| 47
-//@ ^| *5* ^| 1 ^| 0 ^| 2 ^| 0 ^| 7 ^| 8 ^| 0 ^| 0 ^| 2 ^| 2 ^| 6 ^| 42 ^| 16 ^| 0 ^| 0 ^| 31 ^| 31
-//@ ^| *6* ^| 1 ^| 0 ^| 0 ^| 0 ^| 7 ^| 7 ^| 1 ^| 0 ^| 4 ^| 0 ^| 7 ^| 42 ^| 14 ^| 2 ^| 0 ^| 63 ^| 0
-//@ ^| *7* ^| 2 ^| 6 ^| 0 ^| 0 ^| 5 ^| 5 ^| 1 ^| 0 ^| 2 ^| 0 ^| 8 ^| 60 ^| 20 ^| 4 ^| 0 ^| 30 ^| 0
-//@ |====
+[[table-bptcmodes]]
+.Mode-dependent BPTC parameters
+ifdef::backend-html5[]
+[width="97%",cols="7%,4%,4%,4%,4%,9%,9%,11%,9%,5%,4%,1%,3%,4%,4%,5%,5%,4%,4%"]
+endif::[]
+ifndef::backend-html5[]
+// With the above, the pdf backend complains "cannot fit contents of table
+// cell into specified column width" (without identifying either table, cell
+// or column). %autowidth fixes the problem but the table in HTML then does
+// not fill as much of the page width hence the ifdef.
+[%autowidth,cols="7%,4%,4%,4%,4%,9%,9%,11%,9%,5%,4%,1%,3%,4%,4%,5%,5%,4%,4%"]
+endif::[]
+|====
+^| *Mode* ^| *NS* ^| *PB* ^| *RB* ^| *ISB* ^| *CB* ^| *AB* ^| *EPB* ^| *SPB* ^| *IB* ^| *IB~2~* 1.10+^| ^| *M* ^| *_CB_* ^| *_AB_* ^| *_EPB_* ^| *_SPB_* ^| *_IB_* ^| *_IB~2~_*
+2+^| *Bits per...* 3+^| ...texel block 2+^| ...channel/endpoint ^| ...endpoint ^| ...subset 2+^| ...texel 7+^| Bits per texel block (total)
+^| *0* ^| 3 ^| 4 ^| 0 ^| 0 ^| 4 ^| 0 ^| 1 ^| 0 ^| 3 ^| 0 ^| 1 ^| 72 ^| 0  ^| 6 ^| 0 ^| 45 ^| 0
+^| *1* ^| 2 ^| 6 ^| 0 ^| 0 ^| 6 ^| 0 ^| 0 ^| 1 ^| 3 ^| 0 ^| 2 ^| 72 ^| 0  ^| 0 ^| 2 ^| 46 ^| 0
+^| *2* ^| 3 ^| 6 ^| 0 ^| 0 ^| 5 ^| 0 ^| 0 ^| 0 ^| 2 ^| 0 ^| 3 ^| 90 ^| 0  ^| 0 ^| 0 ^| 29 ^| 0
+^| *3* ^| 2 ^| 6 ^| 0 ^| 0 ^| 7 ^| 0 ^| 1 ^| 0 ^| 2 ^| 0 ^| 4 ^| 84 ^| 0  ^| 4 ^| 0 ^| 30 ^| 0
+^| *4* ^| 1 ^| 0 ^| 2 ^| 1 ^| 5 ^| 6 ^| 0 ^| 0 ^| 2 ^| 3 ^| 5 ^| 30 ^| 12 ^| 0 ^| 0 ^| 31 ^| 47
+^| *5* ^| 1 ^| 0 ^| 2 ^| 0 ^| 7 ^| 8 ^| 0 ^| 0 ^| 2 ^| 2 ^| 6 ^| 42 ^| 16 ^| 0 ^| 0 ^| 31 ^| 31
+^| *6* ^| 1 ^| 0 ^| 0 ^| 0 ^| 7 ^| 7 ^| 1 ^| 0 ^| 4 ^| 0 ^| 7 ^| 42 ^| 14 ^| 2 ^| 0 ^| 63 ^| 0
+^| *7* ^| 2 ^| 6 ^| 0 ^| 0 ^| 5 ^| 5 ^| 1 ^| 0 ^| 2 ^| 0 ^| 8 ^| 60 ^| 20 ^| 4 ^| 0 ^| 30 ^| 0
+|====
 
 [[table-bptcmodedescriptions]]
 .Full descriptions of the BPTC mode columns
@@ -187,9 +197,9 @@ each endpoint color bit for each mode.
 1.5+^.^| Mode
 
 {nbsp}2 2+^| ~_0..2:_~ *M^0..2^ = 001* 4+^| ~_3..8:_~ PB^0..5^
-^| ~_9..13:_~ _R_~0~^0..4^ ^| ~_14..18:_~ _R_~1~^0..4^ ^| ~_19..23:_~ _R_~2~^0..4^ ^| ~_24..28:_~ _R_~4~^0..4^ ^| ~_29..33:_~ _R_~4~^0..4^ ^| ~_34..38:_~ _R_~5~^0..4^
-^| ~_39..43:_~ _G_~0~^0..4^ ^| ~_44..48:_~ _G_~1~^0..4^ ^| ~_49..53:_~ _G_~2~^0..4^ ^| ~_54..58:_~ _G_~4~^0..4^ ^| ~_59..63:_~ _G_~4~^0..4^ ^| ~_64..68:_~ _G_~5~^0..4^
-^| ~_69..73:_~ _B_~0~^0..4^ ^| ~_74..78:_~ _B_~1~^0..4^ ^| ~_79..83:_~ _B_~2~^0..4^ ^| ~_84..88:_~ _B_~4~^0..4^ ^| ~_89..93:_~ _B_~4~^0..4^ ^| ~_94..98:_~ _B_~5~^0..4^
+^| ~_9..13:_~ _R_~0~^0..4^ ^| ~_14..18:_~ _R_~1~^0..4^ ^| ~_19..23:_~ _R_~2~^0..4^ ^| ~_24..28:_~ _R_~3~^0..4^ ^| ~_29..33:_~ _R_~4~^0..4^ ^| ~_34..38:_~ _R_~5~^0..4^
+^| ~_39..43:_~ _G_~0~^0..4^ ^| ~_44..48:_~ _G_~1~^0..4^ ^| ~_49..53:_~ _G_~2~^0..4^ ^| ~_54..58:_~ _G_~3~^0..4^ ^| ~_59..63:_~ _G_~4~^0..4^ ^| ~_64..68:_~ _G_~5~^0..4^
+^| ~_69..73:_~ _B_~0~^0..4^ ^| ~_74..78:_~ _B_~1~^0..4^ ^| ~_79..83:_~ _B_~2~^0..4^ ^| ~_84..88:_~ _B_~3~^0..4^ ^| ~_89..93:_~ _B_~4~^0..4^ ^| ~_94..98:_~ _B_~5~^0..4^
 6+^| ~_99..127:_~ IB^0..28^
 1.5+^.^| Mode
 
@@ -437,7 +447,7 @@ block is:
       \textrm{IB} \times (x + 4\times y) - 1, & \textrm{NS} = 1,\ 0 < x + 4\times y \\
       \textrm{IB} \times (x + 4\times y) - 1, & \textrm{NS} = 2,\ 0 < x + 4\times y \leq \textrm{anchor}_2[\mathit{part}] \\
       \textrm{IB} \times (x + 4\times y) - 2, & \textrm{NS} = 2,\ \textrm{anchor}_2[\mathit{part}] < x + 4\times y \\
-      \textrm{IB} \times (x + 4\times y) - 1, & \textrm{NS} = 3,\ 0 < x + 4\times y \leq \textrm{anchor}_{3,2}[\mathit{part}],\ x + 4\times y \leq \textrm{anchor}_{3,2}[\mathit{part}]\\
+      \textrm{IB} \times (x + 4\times y) - 1, & \textrm{NS} = 3,\ 0 < x + 4\times y \leq \textrm{anchor}_{3,2}[\mathit{part}],\ x + 4\times y \leq \textrm{anchor}_{3,3}[\mathit{part}]\\
       \textrm{IB} \times (x + 4\times y) - 3, & \textrm{NS} = 3,\ x + 4\times y > \textrm{anchor}_{3,2}[\mathit{part}],\ x + 4\times y > \textrm{anchor}_{3,3}[\mathit{part}] \\
       \textrm{IB} \times (x + 4\times y) - 2, & \textrm{NS} = 3,\ \textrm{otherwise} \\
   \end{cases} \\
@@ -504,7 +514,7 @@ using <<BPTCinterpolation>> with weights from the two-bit index row of
 ^| 0 ^| 0 ^| 1 ^| *_1_* ^| 1 ^| 1 ^| 1 ^| *_1_* ^| 1 ^| 1 ^| 1 ^| *_1_* ^| 0 ^| 1 ^| 1 ^| *_1_* ^| 1 ^| 1 ^| 1 ^| *_1_* ^| 1 ^| 1 ^| 1 ^| *_1_* ^| 1 ^| 1 ^| 1 ^| *_1_* ^| 1 ^| 1 ^| 1 ^| *_1_*
 
 4+^| ~16~ 4+^| ~17~ 4+^| ~18~ 4+^| ~19~ 4+^| ~20~ 4+^| ~21~ 4+^| ~22~ 4+^| ~23~
-^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 1 ^| *_1_* ^| 1 ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 1 ^| *_1_* ^| 1 ^| *_0_* ^| 0 ^| *_1_* ^| 1 ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 1 ^| *_1_* ^| 1
+^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 1 ^| *_1_* ^| 1 ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 1 ^| *_1_* ^| 1 ^| *_0_* ^| 0 ^| *_1_* ^| 1 ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 0 ^| 0 ^| 0 ^| *_0_* ^| 1 ^| 1 ^| 1
 ^| 1 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1
 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| *_1_* ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 0 ^| 0 ^| 0 ^| 0 ^| *_1_* ^| 1 ^| 0 ^| 0 ^| *_1_* ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1
 ^| 1 ^| 1 ^| 1 ^| *_1_* ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| 1 ^| 1 ^| 1 ^| 0 ^| 1 ^| 1 ^| 0 ^| 0 ^| 0 ^| 0 ^| 0 ^| *_1_*
@@ -675,6 +685,23 @@ given in <<BPTCInterpolation>>.
 .2+^.^| 4 2+^| Index ^| ~0~ ^| ~1~ ^| ~2~ ^| ~3~ ^| ~4~ ^| ~5~ ^| ~6~ ^| ~7~ ^| ~8~ ^| ~9~ ^| ~10~ ^| ~11~ ^| ~12~ ^| ~13~ ^| ~14~ ^| ~15~
 2+^| _Weight_ ^| 0 ^| 4 ^| 9 ^| 13 ^| 17 ^| 21 ^| 26 ^| 30 ^| 34 ^| 38 ^| 43 ^| 47 ^| 51 ^| 55 ^| 60 ^| 64
 |====
+
+These weights may also be calculated as follows:
+
+.2-bit weights:
+-----
+weight = (index * 21) + (index >> 1)
+-----
+
+.3-bit weights:
+-----
+weight = (index * 9) + (index >> 2)
+-----
+
+.4-bit weights:
+-----
+weight = (index << 2) + (index >> 2) + ((index >> 1) & 1)
+-----
 
 // Note: The interpolation formula is not explicitly present in the OpenGL Specification.
 // Since bit-exact interpolation is mandated by some implementations, the following formula is
@@ -1008,7 +1035,7 @@ The following pseudocode assumes the computation uses sufficiently large
 intermediate values to avoid overflow.
 For the unsigned float format, we unquantize a value _x_ to _unq_ by:
 
-[source]
+[source,c]
 ----
 if (EPB >= 15)
     unq = x;
@@ -1023,7 +1050,7 @@ else
 The signed float unquantization is similar, but needs to worry about
 orienting the negative range:
 
-[source]
+[source,c]
 ----
 s = 0;
 if (EPB >= 16) {
@@ -1061,7 +1088,7 @@ The bit pattern that represents 65504.0 is integer 0x7BFF, so the integer
 input range 0..0xFFFF can be mapped to this range by scaling the
 interpolated integer i by latexmath:[31\over 64]:
 
-[source]
+[source,c]
 ----
 out = (i * 31) >> 6;
 ----
@@ -1075,7 +1102,7 @@ The signed 16-bit integer range [-0x8000..0x7FFF] is remapped to this
 float representation by taking the absolute value of the interpolated
 value i, scaling it by latexmath:[31\over 32], and restoring the sign bit:
 
-[source]
+[source,c]
 ----
 out = i < 0 ? (((-i) * 31) >> 5) | 0x8000 : (i * 31) >> 5;
 ----

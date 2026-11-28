@@ -23,6 +23,7 @@
 :trade: ™
 :harr: ↔
 :check: ✓
+:vlipsis: ⋮
 
 // Math operators and logic symbols
 :times: ×
@@ -36,7 +37,9 @@
 :uparrow: ↑
 :rightarrow: →
 :downarrow: ↓
-:elem: ∈
+// The LaTeX name for this is \in.
+:isin: ∈
+:notin: ∉
 :lnot: ¬
 :land: ∧
 :lor: ∨

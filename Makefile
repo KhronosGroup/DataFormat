@@ -69,10 +69,7 @@ VERBOSE =
 
 NOTEOPTS     =
 PATCHVERSION = 1
-SPECREVISION = 1.3.$(PATCHVERSION)
-
-# Spell out ISO 8601 format as not all date commands support --rfc-3339
-SPECDATE     = $(shell echo `date -u "+%Y-%m-%d %TZ"`)
+SPECREVISION = 1.4.$(PATCHVERSION)
 
 # Generate Asciidoc attributes for spec remark
 # Could use `git log -1 --format="%cd"` to get branch commit date
@@ -86,7 +83,6 @@ SPECREMARK = from git branch: $(shell echo `git symbolic-ref --short HEAD 2> /de
 #   appendices - absolute path to appendix sources
 #   images - absolute path to images
 ATTRIBOPTS   = -a revnumber="$(SPECREVISION)" \
-	       -a revdate="$(SPECDATE)" \
 	       -a revremark="$(SPECREMARK)" \
 	       -a apititle="$(APITITLE)" \
 	       -a stem=latexmath \
@@ -142,7 +138,10 @@ SPECSRC   = $(SPECDIR)/dataformat.adoc
 SPECFILES = $(wildcard chapters/[A-Za-z]*.adoc appendices/[A-Za-z]*.adoc)
 
 # All non-format-specific dependencies
-COMMONDOCS     = $(SPECFILES)
+COMMONDOCS     = $(SPECFILES) $(CONFIGS)/attribs.adoc
+
+# HTML dependencies
+HTMLDOCS       = $(CONFIGS)/dataformat/docinfo-header.html
 
 # Script to translate math at build time
 TRANSLATEMATH = $(NODEJS) $(SCRIPTS)/translate_math.js $(KATEXSRCDIR)/katex.min.js
@@ -159,10 +158,10 @@ $(KATEXINSTDIR): $(KATEXSRCDIR)
 # There is some complexity to try and avoid short virtual targets like 'html'
 # causing specs to *always* be regenerated.
 
-html: $(HTMLDIR)/dataformat.html $(SPECSRC) $(COMMONDOCS)
+html: $(HTMLDIR)/dataformat.html
 
 $(HTMLDIR)/dataformat.html: KATEXDIR = ../katex
-$(HTMLDIR)/dataformat.html: $(SPECSRC) $(COMMONDOCS) $(KATEXINSTDIR)
+$(HTMLDIR)/dataformat.html: $(SPECSRC) $(COMMONDOCS) $(HTMLDOCS) $(KATEXINSTDIR) Makefile
 	$(QUIET)$(ASCIIDOC) -b html5 $(ADOCOPTS) $(ADOCHTMLOPTS) -o $@ $(SPECSRC)
 	$(QUIET)$(TRANSLATEMATH) $@
 
@@ -170,9 +169,9 @@ $(HTMLDIR)/dataformat.html: $(SPECSRC) $(COMMONDOCS) $(KATEXINSTDIR)
 # OPTIMIZEPDFOPTS=--compress-pages is slightly better, but much slower
 OPTIMIZEPDF = hexapdf optimize $(OPTIMIZEPDFOPTS)
 
-pdf: $(PDFDIR)/dataformat.pdf $(SPECSRC) $(COMMONDOCS)
+pdf: $(PDFDIR)/dataformat.pdf
 
-$(PDFDIR)/dataformat.pdf: $(SPECSRC) $(COMMONDOCS)
+$(PDFDIR)/dataformat.pdf: $(SPECSRC) $(COMMONDOCS) Makefile
 	$(QUIET)$(MKDIR) $(PDFDIR)
 	$(QUIET)$(MKDIR) $(PDFMATHDIR)
 	$(QUIET)$(ASCIIDOC) -b pdf $(ADOCOPTS) $(ADOCPDFOPTS) -o $@ $(SPECSRC)

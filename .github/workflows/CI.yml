@@ -34,7 +34,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Build the Data Format specification
-        run: make html pdf
+        run: make html
       - name: Package generated spec
         # https://github.com/actions/upload-artifact#limitations
         # upload-artifact would upload many different files individually to
