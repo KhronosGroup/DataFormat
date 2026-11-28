@@ -1,12 +1,11 @@
 // Copyright 2014-2026 The Khronos Group Inc.
 // SPDX-License-Identifier: CC-BY-4.0
 
-// :regtitle: is explained in
-// https://discuss.asciidoctor.org/How-to-add-markup-to-author-information-in-document-title-td6488.html
-
-= Khronos Data Format Specification v1.4.0
-:regtitle: pass:q,r[^®^]
+= Khronos^®^ Data Format Specification
 Andrew Garrard
+// The Makefile sets :revnumber: and :revremark: via passing -a options
+// to AsciiDoctor.
+:revdate: {docdatetime}
 :data-uri:
 :!icons:
 :toc2:

@@ -3,7 +3,7 @@
 
 == Revision History
 
-[.revhistory,cols="^15,^20,^10,<55a",options="header"]
+[.revhistory,cols="<.^15,^.^20,^.^10,<.^55",options="header"]
 |===
 | Document Revision |    Date     | Author Initials ^|              Remark
 |      0.1          | Jan 2015    | AG               | Initial sharing
@@ -27,8 +27,9 @@
 |   1.1 rev 9       | Mar 2019    | AG               | Typo fixes and much reformatting.
 |   1.2 rev 0       | Sep 2017    | AG               | Added color conversion formulae and extra options.
 |   1.2 rev 1       | Mar 2019    | AG               | Typo fixes and much reformatting.
-|      1.3          | Oct 2019    | AG/MC            | Updates for KTX2/glTF. BC6h and ASTC table fixes and typo fixes, examples.
-|     1.3.1         | Mar 2020    | MC               | Unswapped DXT pre-multiplied {alpha}. BC7 bit layout fix. Unsized formats rewrite.
-|     1.4.0         | Feb 2025    | AG/AK/MC         | Added UASTC format spec/color model & ETC1S color model. Fixed typos.
+|   1.3             | Oct 2019    | AG/MC            | Updates for KTX2/glTF. BC6h and ASTC table fixes and typo fixes, examples.
+|   1.3.1           | Mar 2020    | MC               | Unswapped DXT pre-multiplied alpha. BC7 bit layout fix. Unsized formats rewrite.
+|   1.4.0           | Feb 2025    | AG/AK/MC         | Added UASTC format spec/color model & ETC1S color model. Fixed typos.
+|   {revnumber}     | {docdate}   | MC/JL            | Update to AsciiDoctor.
 |===
 
