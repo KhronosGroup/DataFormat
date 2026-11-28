@@ -786,7 +786,7 @@ palette as follows:
 .Color mappings in local palette mode for PVRTC2 4bpp
 [cols="2^,5^,3^,3^,3^"]
 |====
-| *~Modulation bits~* | *~0,0~* | *~1,0~* | *~2,0~* | *~3,0~*
+| *~Modulation{sp}bits~* | *~0,0~* | *~1,0~* | *~2,0~* | *~3,0~*
 | 0
 | latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
 | latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
@@ -807,7 +807,7 @@ palette as follows:
 | latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
 | latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
 | latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
-| *~Modulation bits~* | *~0,1~* | *~1,1~* | *~2,1~* | *~3,1~*
+| *~Modulation{sp}bits~* | *~0,1~* | *~1,1~* | *~2,1~* | *~3,1~*
 | 0
 | latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
 | latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
@@ -828,7 +828,7 @@ palette as follows:
 | latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
 | latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
 | latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
-| *~Modulation bits~* |*~0,2~* | *~1,2~* | *~2,2~* | *~3,2~*
+| *~Modulation{sp}bits~* |*~0,2~* | *~1,2~* | *~2,2~* | *~3,2~*
 | 0
 | latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
 | latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
@@ -849,7 +849,7 @@ palette as follows:
 | latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}+1}]
 | latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
 | latexmath:[\textbf{B}_{\textbf{X}_\textbf{Low}+1,\textbf{Y}_\textbf{Low}}]
-| *~Modulation bits~* | *~0,3~* | *~1,3~* | *~2,3~* | *~3,3~*
+| *~Modulation{sp}bits~* | *~0,3~* | *~1,3~* | *~2,3~* | *~3,3~*
 | 0
 | latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]
 | latexmath:[\textbf{A}_{\textbf{X}_\textbf{Low},\textbf{Y}_\textbf{Low}}]

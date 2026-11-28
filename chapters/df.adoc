@@ -2188,7 +2188,7 @@ Enumerant names for these channel ids are listed in <<bc1_channels>>.
 8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 8
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample{sp}information~
 ^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
@@ -2210,7 +2210,7 @@ Enumerant names for these channel ids are listed in <<bc1_channels>>.
 8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 8
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample{sp}information~
 ^| 0 ^| 0 ^| 0 ^| 0 4+^| *++ALPHA++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
@@ -2428,7 +2428,7 @@ The enumerant name for this channel id is listed in <<bc4_channel>>.
 8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 8
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample{sp}information~
 ^| 0 ^| 0 ^| 0 ^| 0 4+^| *++DATA++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
@@ -2449,7 +2449,7 @@ The enumerant name for this channel id is listed in <<bc4_channel>>.
 8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 8
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample{sp}information~
 ^| 0 ^| 1 ^| 0 ^| 0 4+^| *++DATA++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
@@ -2613,7 +2613,7 @@ The enumerant names for this channel id are listed in <<bc6h_channel>>.
 8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 16
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample{sp}information~
 ^| 1 ^| 1 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 127 (= "`128`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
@@ -2636,7 +2636,7 @@ The enumerant names for this channel id are listed in <<bc6h_channel>>.
 8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 16
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample{sp}information~
 ^| 1 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 127 (= "`128`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
@@ -2680,7 +2680,7 @@ The enumerant names for this channel id are listed in <<bc7_channel>>.
 8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 16
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample{sp}information~
 ^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 127 (= "`128`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
@@ -2725,7 +2725,7 @@ The enumerant names for this channel id are listed in <<etc1_channel>>.
 8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 8
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample{sp}information~
 ^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
@@ -2774,7 +2774,7 @@ is 8 bytes, represented as a single 64-bit sample.
 8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 8
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample{sp}information~
 ^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
@@ -2795,7 +2795,7 @@ is 8 bytes, represented as a single 64-bit sample.
 8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 8
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample{sp}information~
 ^| 0 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
@@ -2882,7 +2882,7 @@ A single sample of ID 2 indicates RGB2 with no alpha, occupying 8 bytes.
 8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 8
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample{sp}information~
 ^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
@@ -3010,7 +3010,7 @@ The enumerant name for this channel id is listed in <<astc_channels>>.
 8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 16
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample{sp}information~
 ^| 0 ^| 0 ^| 0 ^| 0 4+^| *++DATA++* 8+^| *_bitLength:_* 127 (= "`128`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
@@ -3032,7 +3032,7 @@ The enumerant name for this channel id is listed in <<astc_channels>>.
 8+^| 0 8+^| 0 8+^| 4 (= "`5`") 8+^| 7 (= "`8`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 16
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample{sp}information~
 ^| 1 ^| 1 ^| 0 ^| 0 4+^| *++DATA++* 8+^| *_bitLength:_* 127 (= "`128`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
@@ -3082,7 +3082,7 @@ a specific channel replicated across all three channels of the block.
 8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 8
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample{sp}information~
 ^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RGB++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
@@ -3157,7 +3157,7 @@ The enumerant names for this channel id are listed in <<pvrtc_channel>>.
 8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 8
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample{sp}information~
 ^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
@@ -3179,7 +3179,7 @@ The enumerant names for this channel id are listed in <<pvrtc_channel>>.
 8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 7 (= "`8`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 8
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample{sp}information~
 ^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
@@ -3225,7 +3225,7 @@ The enumerant names for this channel id are listed in <<pvrtc2_channel>>.
 8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 8
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample{sp}information~
 ^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
@@ -3247,7 +3247,7 @@ The enumerant names for this channel id are listed in <<pvrtc2_channel>>.
 8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 7 (= "`8`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 8
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample{sp}information~
 ^| 0 ^| 0 ^| 0 ^| 0 4+^| *++COLOR++* 8+^| *_bitLength:_* 63 (= "`64`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
@@ -3310,7 +3310,7 @@ The enumerant name for these channel ids are listed in <<uastc_channels>>.
 8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 16
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample{sp}information~
 ^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RGB++* 8+^| *_bitLength:_* 127 (= "`128`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
@@ -3333,7 +3333,7 @@ The enumerant name for these channel ids are listed in <<uastc_channels>>.
 8+^| 0 8+^| 0 8+^| 3 (= "`4`") 8+^| 3 (= "`4`")
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 16
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample{sp}information~
 ^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RGBA++* 8+^| *_bitLength:_* 127 (= "`128`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
@@ -5642,7 +5642,7 @@ be found under the *_colorModel_* field in <<CompressedFormatModels>>.
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 1
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample{sp}information~
 ^| 0 ^| 0 ^| 0 ^| 0 4+^| *++Y++* 8+^| *_bitLength:_* 8 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
@@ -6279,7 +6279,7 @@ endif::[]
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 2
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample information~
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Sample{sp}information~
 ^| 1 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 15 (= "`16`") 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
